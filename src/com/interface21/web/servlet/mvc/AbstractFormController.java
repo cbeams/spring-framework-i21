@@ -66,6 +66,8 @@ import com.interface21.web.servlet.ModelAndView;
  */
 public abstract class AbstractFormController extends BaseCommandController {
 
+	private boolean bindOnNewForm = false;
+
 	private boolean sessionForm = false;
 
 	/**
@@ -83,14 +85,27 @@ public abstract class AbstractFormController extends BaseCommandController {
 	}
 
 	/**
-	 * Activates resp. deactivates session form mode.
-	 * In session form mode, the form is stored in the session to keep
-	 * the form object instance between requests, instead of creating
-	 * a new one on each request.
-	 * <p>This is necessary for either wizard-style controllers that
-	 * populate a single form object from multiple pages, or forms
-	 * that populate a persistent object that needs to be identical
-	 * to track changes.
+	 * Sets if request parameters should be bound to the form object
+	 * in case of a non-submitting request, i.e. a new form.
+	 */
+	public void setBindOnNewForm(boolean bindOnNewForm) {
+		this.bindOnNewForm = bindOnNewForm;
+	}
+
+	/**
+	 * Return if request parameters should be bound in case of a new form.
+	 */
+	protected boolean isBindOnNewForm() {
+		return bindOnNewForm;
+	}
+
+	/**
+	 * Activates resp. deactivates session form mode. In session form mode,
+	 * the form is stored in the session to keep the form object instance
+	 * between requests, instead of creating a new one on each request.
+	 * <p>This is necessary for either wizard-style controllers that populate a
+	 * single form object from multiple pages, or forms that populate a persistent
+	 * object that needs to be identical to allow for tracking changes.
 	 */
 	public final void setSessionForm(boolean sessionForm) {
 		this.sessionForm = sessionForm;
@@ -113,29 +128,43 @@ public abstract class AbstractFormController extends BaseCommandController {
 		return isSessionForm() ? getClass() + ".form." + getBeanName() : null;
 	}
 
+	/**
+	 * Handles two cases: form submissions and showing a new form.
+	 * Delegates the decision between the two to isFormSubmission,
+	 * always treating requests without existing form session attribute
+	 * as new form when using session form mode.
+	 */
 	protected final ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		if (isFormSubmission(request)) {
+		if (isFormSubmission(request) &&
+		    (!isSessionForm() || request.getSession().getAttribute(getFormSessionAttributeName()) != null)) {
 			// process submit
 			Object command = userObject(request);
 			ServletRequestDataBinder errors = bindAndValidate(request, command);
 			return processSubmit(request, response, command, errors);
 		}
 		else {
-			// show form
-			logger.debug("Displaying form");
+			// show new form
+			logger.debug("Displaying new form");
 			Object command = prepareFormBackingObject(request);
-			// add empty errors object, for convenient error evaluation in views
-			// (on both first attempt and resubmit)
-			return showForm(request, response, createBinder(request, command));
+			// bind without validation, to allow for prepopulating a form, and for
+			// convenient error evaluation in views (on both first attempt and resubmit)
+			ServletRequestDataBinder binder = createBinder(request, command);
+			if (isBindOnNewForm()) {
+				logger.debug("Binding to new form");
+				binder.bind(request);
+			}
+			return showForm(request, response, binder);
 		}
 	}
 
 	/**
 	 * Determine if the given request represents a form submission.
-	 * <p>Default implementation treats POST requests as form submissions.
-	 * Subclasses can override this to use a custom strategy, e.g. a specific
+	 * <p>Default implementation treats a POST request as form submission.
+	 * Note: If the form session attribute doesn't exist when using session form
+	 * mode, the request is always treated as new form by handleRequestInternal.
+	 * <p>Subclasses can override this to use a custom strategy, e.g. a specific
 	 * request parameter (assumably a hidden field or submit button name).
 	 * @param request current HTTP request
 	 * @return if the request represents a form submission
