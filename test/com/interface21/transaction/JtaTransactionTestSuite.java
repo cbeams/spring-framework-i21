@@ -21,17 +21,13 @@ import com.interface21.transaction.support.TransactionCallbackWithoutResult;
 import com.interface21.transaction.support.TransactionTemplate;
 
 /**
- * @author jho
+ * @author Juergen Hoeller
  * @since 12.05.2003
  */
 public class JtaTransactionTestSuite extends TestCase {
 
 	public JtaTransactionTestSuite(String msg) {
 		super(msg);
-	}
-
-	protected void setUp() throws Exception {
-		super.setUp();
 	}
 
 	private TransactionTemplate getTransactionTemplateForJta(final String utName, final UserTransaction ut) {
