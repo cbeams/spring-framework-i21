@@ -1,20 +1,16 @@
 package com.interface21.validation;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
 import org.apache.log4j.Logger;
 
 /**
- * This class offers a convenient validate method for invoking a validator,
- * and useful generic validation routines, like for validating emails.
- *
- * <p>The validation routines can be leveraged in custom Validator implementations,
- * rejecting respective fields via the Errors interface accordingly.
+ * This class offers a convenient validate method for invoking a validator.
+ * Used by BindUtils' bindAndValidate method.
  *
  * @author Juergen Hoeller
+ * @since 06.05.2003
  * @see Validator
  * @see Errors
+ * @see com.interface21.web.bind.BindUtils#bindAndValidate
  */
 public abstract class ValidationUtils {
 
@@ -36,25 +32,6 @@ public abstract class ValidationUtils {
 				logger.debug("Validator found " + errors.getErrorCount() + " errors");
 			else
 				logger.debug("Validator found no errors");
-		}
-	}
-
-	/**
-	 * Validate the given email address syntactically.
-	 * <p>Note: Does not check if the email address actually exists.
-	 * @param emailAddress the email address to validate
-	 * @return if the address is syntactically valid
-	 */
-	public static boolean validateEmailAddress(String emailAddress) {
-		try {
-			InternetAddress address = new InternetAddress(emailAddress);
-			address.validate();
-			// parsing succeeded -> valid
-			return true;
-		}
-		catch (AddressException ex) {
-			// parsing error -> invalid
-			return false;
 		}
 	}
 
