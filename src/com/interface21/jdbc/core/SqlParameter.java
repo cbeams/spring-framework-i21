@@ -23,19 +23,31 @@ public class SqlParameter {
 	/** SQL type constant from java.sql.Types */
 	private int type;
 
+    /** used for types that are user-named like: STRUCT, DISTINCT, JAVA_OBJECT, and named array types. */
+	private String typeName;
 	
+		
 	/**
 	 * Add a new anonymous parameter
 	 */
 	public SqlParameter(int type) {
-		this(null, type);
+		this(null, type, null);
+	}
+
+	public SqlParameter(int type, String typeName) {
+		this(null, type, typeName);
 	}
 
 	public SqlParameter(String name, int type) {
-		this.name = name;
-		this.type = type;
+		this(null, type, null);
 	}
 	
+	public SqlParameter(String name, int type, String typeName) {
+		this.name = name;
+		this.type = type;
+		this.typeName = typeName;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -44,4 +56,7 @@ public class SqlParameter {
 		return type;
 	}
 
+	public String getTypeName() {
+		return typeName;
+	}
 }

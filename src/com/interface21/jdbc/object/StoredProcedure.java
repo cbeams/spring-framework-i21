@@ -14,6 +14,7 @@ package com.interface21.jdbc.object;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	 * Flag used to indicate that this call is for a function and to
 	 * use the {? = call get_invoice_count(?)} syntax.
 	 */
-	private boolean isFunction = false;
+	private boolean function = false;
 
 	/** Helper to translate SQL exceptions to DataAccessExceptions */
 	private SQLExceptionTranslater exceptionTranslater;
@@ -99,6 +100,21 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		return this.exceptionTranslater;
 	}
 
+	/**
+	 * get the flag ussed to indicate that this call is for a function
+	 * @return boolean
+	 */
+	public boolean isFunction() {
+		return function;
+	}
+
+	/**
+	 * Sets the flag ussed to indicate that this call is for a function
+	 * @param isFunction true or false
+	 */
+	public void setFunction(boolean function) {
+		this.function = function;
+	}
 
 	//---------------------------------------------------------------------
 	// Overriden methods
@@ -128,7 +144,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	protected void compileInternal() {
 		List parameters = getDeclaredParameters();
 		int firstParameter = 0;
-		if (isFunction) {
+		if (isFunction()) {
 			callString = "{? = call " + getSql() + "(";
 			firstParameter = 1;
 		}
@@ -237,7 +253,12 @@ public abstract class StoredProcedure extends RdbmsOperation {
 			else {
 				// It's an output parameter.
 				// It need not (but may be) supplied by the caller.
-				call.registerOutParameter(i + 1, p.getSqlType());
+				if (p.getTypeName() != null) {
+					call.registerOutParameter(i + 1, p.getSqlType(), p.getTypeName());
+				}
+				else {
+					call.registerOutParameter(i + 1, p.getSqlType());
+				}
 				if (in != null) {
 					call.setObject(i + 1, in, p.getSqlType());
 				}
@@ -256,7 +277,11 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		for (int i = 0; i < parameters.size(); i++) {
 			SqlParameter p = (SqlParameter) parameters.get(i);
 			if (p instanceof OutputParameter) {
-				Object out = call.getObject(i + 1);
+				Object out = null;
+				if (p.getSqlType() == Types.ARRAY)
+					out = call.getArray(i + 1);
+				else
+					out = call.getObject(i + 1);
 				outParams.put(p.getName(), out);
 			}
 		}
@@ -306,6 +331,10 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		 */
 		public OutputParameter(String name, int type) {
 			super(name, type);
+		}
+
+		public OutputParameter(String name, int type, String typeName) {
+			super(name, type, typeName);
 		}
 	}
 
