@@ -1,6 +1,7 @@
 package com.interface21.transaction.support;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionException;
@@ -38,7 +39,7 @@ import com.interface21.transaction.TransactionStatus;
  */
 public class TransactionTemplate extends DefaultTransactionDefinition {
 
-	private final Logger logger = Logger.getLogger(getClass());
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private PlatformTransactionManager transactionManager = null;
 

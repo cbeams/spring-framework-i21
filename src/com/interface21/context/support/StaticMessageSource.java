@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Simple implementation of NestingMessageSource that allows messages
@@ -17,7 +18,7 @@ import org.apache.log4j.Logger;
  */
 public class StaticMessageSource extends AbstractNestingMessageSource {
 
-	private final Logger logger = Logger.getLogger(getClass());
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private Map messages = new HashMap();
 
