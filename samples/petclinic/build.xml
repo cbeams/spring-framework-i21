@@ -128,6 +128,7 @@
 		<war warfile="${dist.dir}/${name}.war" basedir="${war.dir}" webxml="${war.dir}/WEB-INF/web.xml">
 			<include name="*"/>
 			<include name="docs/**"/>
+			<include name="html/**"/>
 			<include name="WEB-INF/*.xml"/>
 			<include name="WEB-INF/*.tld"/>
 			<include name="WEB-INF/classes/*.properties"/>

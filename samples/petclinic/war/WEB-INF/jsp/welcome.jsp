@@ -6,7 +6,7 @@
 <P>
 <A href="<c:url value="/vets.htm"/>">Display all veterinarians</A>
 <P>
-<A href="<c:url value="/petclinic.txt"/>">Tutorial</A>
+<A href="<c:url value="/html/petclinic.html"/>">Tutorial</A>
 <P>
 <A href="<c:url value="/docs/index.html"/>">Documentation</A>
 

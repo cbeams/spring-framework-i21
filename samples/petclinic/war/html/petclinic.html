@@ -1,0 +1,2259 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./petclinic_files/filelist.xml">
+<title>The Spring Petclinic Application</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Ken Krebs</o:Author>
+  <o:LastAuthor>Ken Krebs</o:LastAuthor>
+  <o:Revision>5</o:Revision>
+  <o:TotalTime>13</o:TotalTime>
+  <o:Created>2003-06-25T15:38:00Z</o:Created>
+  <o:LastSaved>2003-06-25T16:38:00Z</o:LastSaved>
+  <o:Pages>10</o:Pages>
+  <o:Words>3651</o:Words>
+  <o:Characters>20816</o:Characters>
+  <o:Company>KK Technology Inc.</o:Company>
+  <o:Lines>173</o:Lines>
+  <o:Paragraphs>41</o:Paragraphs>
+  <o:CharactersWithSpaces>25563</o:CharactersWithSpaces>
+  <o:Version>9.2720</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:DoNotHyphenateCaps/>
+  <w:PunctuationKerning/>
+  <w:DrawingGridHorizontalSpacing>6 pt</w:DrawingGridHorizontalSpacing>
+  <w:DrawingGridVerticalSpacing>6 pt</w:DrawingGridVerticalSpacing>
+  <w:DisplayHorizontalDrawingGridEvery>0</w:DisplayHorizontalDrawingGridEvery>
+  <w:DisplayVerticalDrawingGridEvery>3</w:DisplayVerticalDrawingGridEvery>
+  <w:UseMarginsForDrawingGridOrigin/>
+  <w:DoNotShadeFormData/>
+  <w:Compatibility>
+   <w:FootnoteLayoutLikeWW8/>
+   <w:ShapeLayoutLikeWW8/>
+   <w:AlignTablesRowByRow/>
+   <w:ForgetLastTabAlignment/>
+   <w:LayoutRawTableWidth/>
+   <w:LayoutTableRowsApart/>
+  </w:Compatibility>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+ /* Page Definitions */
+@page
+	{mso-page-border-surround-header:no;
+	mso-page-border-surround-footer:no;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:-2;
+	mso-list-type:simple;
+	mso-list-template-ids:-438822654;}
+@list l0:level1
+	{mso-level-start-at:0;
+	mso-level-text:*;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:0in;
+	text-indent:0in;}
+@list l0:level1 lfo2
+	{mso-level-number-format:bullet;
+	mso-level-numbering:continue;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	mso-level-legacy:yes;
+	mso-level-legacy-indent:0in;
+	mso-level-legacy-space:0in;
+	margin-left:0in;
+	text-indent:0in;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in;text-justify-trim:
+punctuation'>
+
+<div class=Section1>
+
+<p class=MsoNormal align=center style='text-align:center;mso-pagination:none;
+mso-layout-grid-align:none;text-autospace:none'><b><span style='font-size:20.0pt;
+font-family:Arial'>The Spring Petclinic Application<o:p></o:p></span></b></p>
+
+<p class=MsoNormal align=center style='text-align:center;mso-pagination:none;
+mso-layout-grid-align:none;text-autospace:none'><b><span style='font-size:20.0pt;
+font-family:Arial'>(rough draft)<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:20.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'>Introduction<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Spring
+is a collection of small, well-focused, loosely coupled Java frameworks that
+can be used independently or collectively to build industrial strength applications
+of many different types. It is particularly useful for building enterprise
+applications.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style="mso-spacerun: yes"> </span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Enterprise
+applications tend to have the following attributes:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Lots
+of Persistent Data<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Lots
+of User Interface displays and forms<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Complex
+Business Logic<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Concurrent
+access by potentially many simultaneous users<o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+Petclinic sample application is designed to show how the Spring application
+frameworks can be used to build simple, but powerful database-oriented
+enterprise applications. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>It
+will demonstrate the use of Spring's core functionality:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:10.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>JavaBeans
+based application configuration</span><span style='font-size:10.0pt;font-family:
+Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:10.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Model-View-Controller
+web presentation layer</span><span style='font-size:10.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:10.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Practical
+database access through JDBC</span><span style='font-size:10.0pt;font-family:
+Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:10.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Data
+Validation that is not dependent on the presentation<span style="mso-spacerun:
+yes">  </span>layer</span><span style='font-size:10.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>In
+addition to showing developers how to get started with Spring, the Petclinic
+sample will endeavor to demonstrate how Spring can used as an effective tool
+for implementing applications that are concise, flexible, testable, and
+maintainable.</span><span style='font-size:10.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:10.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+Spring frameworks provide a great deal of much needed infrastructure to
+simplify the tasks faced by application developers. It provides infrastructure
+that helps developers to create applications that are :<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><u><span style='font-size:14.0pt;font-family:Arial'>concise</span></u></b><span
+style='font-size:14.0pt;font-family:Arial'> by handling a lot of the complex
+control flow that is needed to use the Java API's, such as JDBC, JNDI, JTA,
+RMI, and EJB. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><u><span style='font-size:14.0pt;font-family:Arial'>flexible</span></u></b><span
+style='font-size:14.0pt;font-family:Arial'> by simplifying the process of
+external application configuration through the use of Reflection and JavaBeans.
+This allows the developer to achieve a clean separation of configuration data from
+application code. All application and web application objects, including
+validators, workflow controllers, and views, should be JavaBeans that can be
+configured externally. The validation and web application frameworks provide
+good support for Internationalization.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><u><span style='font-size:14.0pt;font-family:Arial'>testable</span></u></b><span
+style='font-size:14.0pt;font-family:Arial'> by supplying an interface based
+design to maximize pluggability. This facilitates the testing of Business Logic
+without requiring the presence of application or live database servers. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><u><span style='font-size:14.0pt;font-family:Arial'>maintainable</span></u></b><span
+style='font-size:14.0pt;font-family:Arial'> by facilitating a clean separation
+of the application layers. It most importantly helps maintain the independence
+of the Business Logic layer from the Presentation layer through the use of<span
+style="mso-spacerun: yes">  </span>a Model-View-Controller based web
+presentation framework that can work seamlessly with many different types of
+view technologies. The web Spring web application framework helps developers to
+implement their Presentation as a clean and thin layer focused on its main
+missions of translating user actions into application events and rendering
+model data. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>It
+is assumed that users of this tutorial will have a basic knowledge of
+object-oriented design, Java, Servlets, JSP, and relational databases. It also
+assumes a basic knowledge of the use of a J2EE web application container,
+Tomcat in particular.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:10.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Since
+the purpose of the sample application is tutorial in nature, the implementation
+presented here will of course provide only a small subset of the functionality
+that would be needed by a real world version of the Petclinic.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'>Petclinic
+Sample Application Requirements<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+application requirement is for an information system that is accessible through
+a web browser. The users of the application are employees of the clinic who in
+the course of their work need to view and manage information regarding the
+veterinarians, the clients, and their pets.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+sample application supports the following Use Cases :<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>View a
+list of veterinarians and their specialties<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>View
+information pertaining to a pet owner<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Update
+the information of a pet owner<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Add a
+new pet owner to the system<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>View
+information pertaining to a pet<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Update
+the information of a pet<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Add a
+new pet to the system<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>View
+information pertaining to a pet's visitation history<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Add
+information pertaining to a visit to the pet's visitation history<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The view
+technologies that are used for rendering the application are Java Server Pages
+(JSP) along with the Java Standard Tag Library (JSTL). <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'>Petclinic
+Sample Application Implementation<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Server
+Technology</span></u></b><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+sample application should be usable with any J2EE web application container
+that is compatible with the Servet 2.3 and JSP 1.2 specifications.<span
+style="mso-spacerun: yes">  </span>Some of the deployment files provided are
+designed specifically for Apache Tomcat. These files specify container-supplied
+connection pooled data sources. It is not necessary to use these files. The
+application has been configured by default to use a data source without
+connection pooling to simplify usage. Configuration details are provided in the
+Developer Instructions section.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Database
+Technology</span></u></b><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+sample application uses a relational database for data storage. Support has
+been provided for a choice of 1 of 2 database selections, Mysql or
+HypersonicSQL. HypersonicSQL version 1.7.1 is the default choice and a copy is
+provided with the application.<span style="mso-spacerun: yes">  </span>It is
+possible to easily configure the application to use either database.
+Configuration details are provided in the Developer Instructions section.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Development
+Environment<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>A
+copy of the Spring runtime library jar file is provided with the sample
+application along with some of the other required jar files. The developer will
+need to obtain the following tools externally, all of which are freely
+available:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Java
+SDK 1.4.1<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Ant
+1.5.1<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Tomcat
+4.1.18, or some other web application container<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>JUnit
+3.8.1 - needed to run the unit tests<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Mysql
+3.23.53 with mysql-connector 2.0.14 (optional) <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>NOTE:
+The version numbers listed were used in the development of the Petclinic
+application. Other versions of the same tools may or may not work.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Download
+links for the various tools needed are provided in the Developer Instructions
+section.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Petclinic
+Database<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+following is an overview of the database schema used in Petclinic. Detailed
+field descriptions can be found in the &quot;initDB.txt&quot; SQL script files
+in the databse specific &quot;db&quot; sub-directories. All &quot;id&quot; key
+fields are type of Java type <i>int</i>. For each table with a PRIMARY KEY
+there is a corresponding sequencer table that is used to aid in the generation
+of new primary keys. The name of the sequencer table is a conjunction of the original
+table's name with &quot;_seq&quot;.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>owners</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>PRIMARY KEY id<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>owners_seq</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - sequencer for </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>owners</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>types</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>PRIMARY KEY id<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>types_seq</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - sequencer for </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>types</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>pets</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>PRIMARY KEY id<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>FOREIGN KEY type_id references the </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>types</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> table id field<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>FOREIGN KEY owner_id references the </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>owners</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> table id field<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>pets_seq</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - sequencer for </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>pets</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>vets</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>PRIMARY KEY id, int<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>vets_seq</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - sequencer for </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>vets</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>specialties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>PRIMARY KEY id, int<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:-.5in;margin-bottom:0in;
+margin-left:.5in;margin-bottom:.0001pt;mso-pagination:none;tab-stops:7.0in 7.25in 7.75in;
+mso-layout-grid-align:none;text-autospace:none'><span style='font-size:14.0pt;
+font-family:Arial'>TABLE: </span><b><i><span style='font-size:16.0pt;
+font-family:Arial'>specialties_seq</span></i></b><span style='font-size:14.0pt;
+font-family:Arial'> - sequencer for </span><b><i><span style='font-size:16.0pt;
+font-family:Arial'>specialties</span></i></b><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>vet_specialties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - a link table for </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>vets</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> and their </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>specialties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>FOREIGN KEY vet_id references the </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>vets</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> table id field<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>FOREIGN KEY specialty_id references
+the </span><b><i><span style='font-size:16.0pt;font-family:Arial'>specialties </span></i></b><span
+style='font-size:14.0pt;font-family:Arial'>table id field<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>visits</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>PRIMARY KEY id<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>          </span>FOREIGN KEY pet_id references the </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>pets</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> table id field<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>TABLE:
+</span><b><i><span style='font-size:16.0pt;font-family:Arial'>visits_seq</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - sequencer for </span><b><i><span
+style='font-size:16.0pt;font-family:Arial'>visits</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Petclinic
+Object Model<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>NOTE:</span></b><span style='font-size:
+14.0pt;font-family:Arial;background:white;mso-highlight:white'> The business
+layer is COMPLETELY independent of the Presentation layer.</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>Business Layer classes</span></u></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.Clinic</span></i></b><b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+</span></b><span style='font-size:14.0pt;font-family:Arial;background:white;
+mso-highlight:white'>(interface) - The high-level business API<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.ClinicImpl</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- default implementation of Clinic. Provides caches of all specialties, all
+vets, all pet types, as well as of owners and their pets and visits that have
+been found.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.Entity</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- simple JavaBean superclass of all database related Javabeans<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.NamedEntity</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- adds name property to Entity, used to implement specialties and pet types<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.Person</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- superclass of Vet and Owner<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.Vet</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- holds List of specialties<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.Owner</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- holds List of pets<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.Pet</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- holds List of visits<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.Visit</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.NoSuchEntityException</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+(unchecked)<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white;mso-bidi-font-weight:bold;mso-bidi-font-style:
+italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.validation.FindOwnerValidator<o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white;mso-bidi-font-weight:bold;mso-bidi-font-style:
+italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.validation.OwnerValidator<o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white;mso-bidi-font-weight:bold;mso-bidi-font-style:
+italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.validation.PetValidator<o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+background:white;mso-highlight:white;mso-bidi-font-weight:bold;mso-bidi-font-style:
+italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.validation.VisitValidator<o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>Persistence Layer classes<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.ClinicDAO</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+(interface) - The high-level persistence interface API</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.ClinicJdbcDAO</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- The default implementation of ClinicDAO. Provides inner class Data Access
+Objects that implement 8 types of Queries, 3 types of Inserts, and 2 types of
+Updates.</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>Presentation Layer (web application)
+classes</span></u></b><b><u><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.ClinicController</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- subclass of MultiactionController to handle simple display oriented URL's</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.AbstractSearchFormController</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- subclass of SimpleFormController adds the notion of a search form via an
+abstract search method</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.FindOwnerForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- subclass of petclinic.web.AbstractSearchFormController which implements the
+search method</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.AbstractClinicForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- subclass of SimpleFormController that is the superclass of the Add and Edit
+forms</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.AddOwnerForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- used to add a new Owner</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.EditOwnerForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- used to edit an existing Owner</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.AddPetForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- used to add a new Pet</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.EditPetForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- used to edit an existing Pet</span><span style='font-size:14.0pt;font-family:
+Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.web.AddVisitForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- adds a new Visit</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.WebUtils</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- provides static utility methods</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>Test Layer Classes</span></u></b><b><u><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petclinic.ClinicImplTest</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- a simple and incomplete JUnit test class for ClinicImpl</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>Views &amp; Implemented Use Cases</span></u></b><b><u><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>welcomeView</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- home screen provides links to display vets list, find an owner, or view
+documentation</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>vetsView</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays all vets and their specialties</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>findOwnersForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- allows user to search for owners by last name</span><span style='font-size:
+14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>findOwnersRedirectView</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- redirects to findOwnerForm</span><span style='font-size:14.0pt;font-family:
+Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>selectOwnerView</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- allows user to select from multiple owners with the same last name</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>ownerView</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays a user's data and a list of the owner's pets and their data</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>ownerRedirect</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- redirects to ownerView</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>ownerForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- allows adding/editing an owner</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- allows adding/editing a pet</span><span style='font-size:14.0pt;font-family:
+Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>visitForm</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- allows adding a visit</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>JSP Pages</span></u></b><b><u><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>index.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- redirects to the welcome page</span><span style='font-size:14.0pt;font-family:
+Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>includes.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- statically included in all JSP's, sets session=&quot;false&quot; and
+specifies the taglibs in use</span><span style='font-size:14.0pt;font-family:
+Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>uncaughtException.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- the configured &quot;error-page&quot; displays a stack trace</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>welcome.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays links to search for an owner or display the vets page</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>vets.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays a list of vets and their specialties</span><span style='font-size:
+14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>findOwners.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays a form allowing the user to search for an owner by last name</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>owners.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays a list of owners meeting the search criteria with a selection button
+for each owner</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>owner.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays an owner and the pets owned along with the visit history</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>ownerForm.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays a form that allows adding or editing an owner</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>petForm.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays a form that allows adding or editing a pet</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>visitForm.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+- displays a form that allows adding a visit</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>The following JSP's each display a form
+field and the bound error data for that field:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>address.jsp</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>city.jsp</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>telephone.jsp</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>lastName.jsp</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>firstName.jsp</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>The following JSTL tags are used:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>c:out</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>c:redirect</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>c:url</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>c:forEach</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>c:if</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>fmt:message</span></i></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>fmt:formatDate</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>DESIGN NOTES:</span></u></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>all JSP's are stored under /WEB-INF/jsp except
+for index.jsp which is the configured &quot;welcome-file&quot;</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>The use of JSP technology in the
+appplication is not exposed to the user</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>The end user never sees a URL ending in
+&quot;.jsp&quot;.</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>By convention, all URL's in the
+application ending in &quot;.htm&quot; are handled by web application
+controllers. Static html pages ending in &quot;.html&quot;, such as Javadocs,
+will be directly served to the end user.</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>The results of all form entries are
+handled using browser round trip redirection to minimize possible end user
+confusion.</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>All pages are extremely simple
+implementations focusing only on functionality</span><span style='font-size:
+14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>Directory Structure</span></u></b><b><u><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>f-- indicates a file</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>d-- indicates a directory</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>D-- indicates a directory that is created
+by the Ant build script</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>d-- <b><i>petclinic</i></b> : the root
+directory of the project</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>f-- <b><i>build.xml</i></b> : the Ant build script</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>f-- <b><i>build.properties</i></b> : a properties file for the<span
+style="mso-spacerun: yes">  </span>Ant build script</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>d-- <b><i>src</i></b> : Java source file directory tree</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>d-- <b><i>war</i></b> : the web application source directory tree </span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>d-- <b><i>test </i></b>: a parallel testing directory tree<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style='mso-tab-count:1'>          </span>d--
+<b><i>src</i></b> : Java testing source file directory tree<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style='mso-tab-count:1'>          </span>D--
+<b><i>.classes</i></b> : compiled .class files<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style='mso-tab-count:1'>          </span>D--
+<b><i>reports/html</i></b> : generated html-formatted test reports<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>d-- <b><i>db</i></b> : database sql scripts and related files</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span><span style='mso-tab-count:1'>      </span>d-- <b><i>hsqldb</i></b> :
+directory for files related to HSQL, contains scripts and a context definition </span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span><span style='mso-tab-count:1'>      </span>d-- <b><i>mysql</i></b> :
+directory for files related to MYSQL, contains scripts and a context definition
+</span><span style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span><span style='mso-tab-count:1'>      </span>f-- <b><i>petclinic_tomcat_all.xml</i></b>
+: context definition for all db's</span><span style='font-size:14.0pt;
+font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span><span style='mso-tab-count:1'>      </span>f-- <b><i>build.xml</i></b> :
+Ant script for populating/emptying the database</span><span style='font-size:
+14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>D-- <b><i>.classes</i></b> : compiled .class files</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>D-- <b><i>dist</i></b> : Java archive files</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'><span style="mso-spacerun: yes">   
+</span>D-- <b><i>docs</i></b> : Javadoc files</span><span style='font-size:
+14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+background:white;mso-highlight:white'>IMPORTANT NOTE:</span></u></b><span
+style='font-size:14.0pt;font-family:Arial;background:white;mso-highlight:white'>
+Examine/edit the <b><i>build.properties</i></b> file in the project root directory.
+Database configuration information is stored there.</span><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'>Petclinic
+Application Configuration<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>The
+Petclinic web application is configured via the following files:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>war/WEB-INF/web.xml</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - the standard web application
+configuration file<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>war/WEB-INF/applicationContext.xml</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - configures application wide
+objects<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>war/WEB-INF/petclinic-servlet.xml</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> - configures the petclinic
+dispatcher servlet and the other controllers and forms that it uses<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>war/WEB-INF/classes/views*.properties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> -<span style="mso-spacerun: yes"> 
+</span>configures the definition of internationalizable Spring views <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>war/WEB-INF/classes/messages*.properties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> -<span style="mso-spacerun: yes"> 
+</span>configures the definition of internationalizable message resources <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>war/WEB-INF/classes/log4j.properties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> -<span style="mso-spacerun: yes"> 
+</span>configures the definition of <b><i>log4j</i></b> loggers <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Examine
+the contents of each of these files for a more in-depth understanding of the
+details of how the application is configured.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial'>General<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>In <b><i>web.xml</i></b>,
+a context-param, &quot;webAppRootkey&quot;, provides the key for a system
+property that specifies the root directory for the web application. This
+parameter &quot;petclinic.root&quot; can be used <span style='color:black;
+background:white;mso-highlight:white'>to aid in configuring the application.</span><span
+style='color:black'><o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>In <b><i>web.xml</i></b>,
+a <b><i><span style='color:black;background:white;mso-highlight:white'>ContextLoaderListener</span></i></b><span
+style='color:black;background:white;mso-highlight:white'> is defined that loads
+the root application context of this web app at startup,</span><span
+style='color:black'> <span style='background:white;mso-highlight:white'>- by
+default from <b><i>/WEB-INF/applicationContext.xml</i></b>. The root context is
+the parent of all servlet-specific contexts. This means that its beans are
+automatically available in these child contexts, both for <b><i>Spring </i></b>getBean(name)
+calls and (external) bean references. Spring <b><i>ApplicationContext </i></b>objects
+provide access to a map of user-defined JavaBeans that specify singleton or
+prototype instances that are used in any and all layers of the application.</span><o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>In <b><i>web.xml</i></b>,
+a Servlet named &quot;petclinic&quot; is specified to act as a dispatcher for
+the entire application. This Servlet will be used to handle all URL's matching
+the pattern &quot;*.htm&quot;. As with any Servlet, multiple URL mappings may
+be defined. It is also possible to define multiple instances of <b><i>DispatcherServlet</i></b>.
+Each <b><i>DispatcherServlet</i></b> <span style='color:black;background:white;
+mso-highlight:white'>dispatches requests to registered handlers (Controller
+implementations).</span> Each <b><i>DispatcherServlet</i></b> h<span
+style='color:black;background:white;mso-highlight:white'>as its own <b><i>ApplicationContext
+</i></b>, by default defined in &quot;{servlet-name}-servlet.xml&quot;. In this
+case, it is &quot;petclinic-servlet.xml&quot;. This <b><i>ApplicationContext </i></b>is
+used to specify the various web application user interface beans and URL
+mappings that are used by the </span><b><i>DispatcherServlet</i></b> <span
+style='color:black;background:white;mso-highlight:white'>.</span><span
+style='color:black'><o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>In <b><i>web.xml</i></b>,
+the Spring tag library uri and location are specified for use by the JSP pages.<span
+style='color:black'><o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+color:black'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial;
+color:black'>ApplicationContext<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+color:black'><span style='mso-tab-count:1'>          </span>Five globally
+accessible beans are defined in the Petclinic <b><i><span style='background:
+white;mso-highlight:white'>applicationContext.xml</span></i></b><span
+style='background:white;mso-highlight:white'> file.<o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>messageSource </span></i></b><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>- a singleton bean that defines a message source for this
+context, loaded from localized &quot;messages_xx&quot; files in the classpath,
+such as<span style="mso-spacerun: yes"> 
+</span>&quot;/WEB-INF/classes/messages.properties&quot; or &quot;/WEB-INF/classes/messages_de.properties&quot;.
+&quot;getMessage&quot; calls to this context will use this source. Child
+contexts can have their own message sources, which will inherit all messages
+from this source and are able to define new messages and override ones defined
+in this source.</span><span style='font-size:14.0pt;font-family:Arial;
+color:black'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black'>incrementer<span style="mso-spacerun: yes">  </span></span></i></b><span
+style='font-size:14.0pt;font-family:Arial;color:black'>- a prototype bean (i.e.
+singleton=&quot;false&quot;) that defines for the application how to intially
+construct key generators for the database tables. The protoypical instances
+created are then further configured by the application for table that contains
+a primary key.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black'>dataSource </span></i></b><span style='font-size:14.0pt;
+font-family:Arial;color:black'>- <span style='background:white;mso-highlight:
+white'>a singleton bean that defines the implementation of the source of
+database connections used by the application.</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>clincDAO - a singleton bean
+that defines the implementation of the clinicDAO interface that provides the primary
+Persistence layer object of the application.</span><span style='font-size:14.0pt;
+font-family:Arial;color:black'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>clinic -<span
+style="mso-spacerun: yes">  </span>- a singleton bean that defines the
+implementation of the clinic interface that provides the primary Business layer
+object of the application.</span><span style='font-size:14.0pt;font-family:
+Arial;color:black'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+color:black'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Logging</span></u></b><u><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></u></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Petclinic
+uses <b><i>Apache Log4J</i></b> to provide sophisticated and configurable
+logging capabilities. The files <b><i>web.xml</i></b> and <b><i>log4j.properties</i></b>
+specify the configuration of logging in the system.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>In <b><i>web.xml</i></b>,
+a &quot;<b><i><span style='color:black;background:white;mso-highlight:white'>log4jConfigLocation</span></i></b>&quot;
+context-param is specified that sets the location of the <b><i>Log4j </i></b>configuration
+file. This default location for this file is <b><i><span style='color:black;
+background:white;mso-highlight:white'>/WEB-INF/classes/log4j.properties</span></i></b><span
+style='color:black;background:white;mso-highlight:white'>. Specifying this
+parameter <u>explicitly </u>allows the location to be changed from the default
+and it also is used to cause periodic <b><i>Log4j </i></b>configuration refresh
+checks.</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>In <b><i>web.xml</i></b>,
+a <b><i><span style='color:black;background:white;mso-highlight:white'>Log4jConfigListener</span></i></b><span
+style='color:black;background:white;mso-highlight:white'> is specified that
+will initialize </span><b><i>Log4j </i></b>using the specified configuration
+file when the web app starts.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>In <b><i>log4j.properties</i></b>,
+2 loggers are specified. A logger called &quot;stdout&quot; provides logging
+messages to the container's log file. A logger called &quot;logfile&quot;
+provides logging messages to a rolling file that is specifed using the
+previously defined &quot;petclinic.root&quot;.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><span
+style="mso-spacerun: yes"> </span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:14.0pt;font-family:Arial'>DispatcherServlet</span></u></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+color:black'>Fourteen beans accessible to the &quot;petclinic&quot; </span><span
+style='font-size:14.0pt;font-family:Arial'>DispatcherServlet <span
+style='color:black'>are defined in the Petclinic </span><b><i>petclinic-servlet.xml</i></b><span
+style='color:black;background:white;mso-highlight:white'> file. The dispatcher
+uses these defintions to delegate actual display and form processing tasks to
+implementations of the Spring interface <b><i>Controller</i></b>.<o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black;background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>viewResolver </span></i></b><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>- a singleton bean that defines the implementation of the source
+of view mappings used by the dispatcher. This definition specifies explicit
+view mappings in a resource bundle (porperties file) instead of the default <b><i>InternalResourceViewResolver</i></b>.
+It fetches the view mappings from localized &quot;views_xx&quot; classpath files,
+i.e. &quot;/WEB-INF/classes/views.properties&quot; or
+&quot;/WEB-INF/classes/views_de.properties&quot;. Symbolic view names returned
+by controllers will be resolved in the respective properties file, allowing for
+arbitrary mappings between names and resources.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black;background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>urlMapping </span></i></b><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>- a singleton bean that defines the URL mapping handler
+that is to be used by the dispatcher. The definition specifies the use of a <b><i>SimpleUrlHandlerMapping
+</i></b>instead of the default <b><i>BeanNameUrlHandlerMapping</i></b>.
+Specific URL's are mapped directly to Controllers.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black;background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>clinicController </span></i></b><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>- a singleton bean that defines the Controller used by the
+dispatcher to handle non-form based display tasks. This bean is a <b><i>MultiActionController
+</i></b>that can handle multiple requests.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black;background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>clinicControllerMethodnameResolver</span></i></b><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>- a singleton bean that defines a mapping of URL's to
+method names for the <b><i>clinicController </i></b>bean.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black;background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>findOwnersForm </span></i></b><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>- a singleton form bean that is used to search for pet
+owners by last name. It is an extension of the Petclinic class <b><i>AbstractSearchForm
+</i></b>which is an extension of the Spring class <b><i>SimpleFormController</i></b>.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black;background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>5 singleton form beans are
+defined that are extensions of the Petclinic class <b><i>AbstractClinicForm </i></b>which
+is an extension of the Spring class <b><i>SimpleFormController</i></b>. These
+beans are used to handle the various Add and Edit form processing tasks for the
+dispatcher.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+color:black;background:white;mso-highlight:white'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>4<span style="mso-spacerun:
+yes">  </span>singleton beans are defined that are implementations of the <b><i>Validator
+</i></b>interface. These beans are used by the form beans to validate their
+input parameters and to bind localizable error messages for display should a
+processing error occur on submission.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'><span style='font-size:
+14.0pt;font-family:Arial;color:black;background:white;mso-highlight:white'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'><b><u><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>Views</span></u></b><span style='font-size:14.0pt;
+font-family:Arial;color:black;background:white;mso-highlight:white'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>The Controllers used by the
+dispatcher handle the control flow of the application. The actual display tasks
+are delegated by the Controllers to implementations of the Spring <b><i>View </i></b>interface.
+These <b><i>View </i></b>objects are themselves beans that can render a
+particular different type of view. The handling Controller supplies the View
+with a data model to render. Views are only responsible for rendering a display
+of the data model and performing any display logic that is particular to the
+type of View being rendered. Spring provides support for rendering many
+different types of views: JSP, XSLT, PDF, Velocity templates, Excel files, and
+others. By using a <b><i>View </i></b>mapping strategy, Spring supplies the
+developer with a great deal of flexibility in supporting easily configurable
+view substitution. Petclinic defines 10 <b><i>View </i></b>beans in the file, </span><b><i><span
+style='font-size:14.0pt;font-family:Arial'>views.properties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'>. 2 of these beans are instances of <b><i>RedirectView
+</i></b>which simply redirects to another URL. The other 8 <b><i>View </i></b>beans
+are instances of <b><i>JstlView </i></b>which provides some handy support for
+supporting internationalization/localization in JSP pages that use JSTL.<span
+style='color:black;background:white;mso-highlight:white'><o:p></o:p></span></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'><span style='font-size:
+14.0pt;font-family:Arial;color:black;background:white;mso-highlight:white'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'><b><u><span
+style='font-size:14.0pt;font-family:Arial;color:black;background:white;
+mso-highlight:white'>Messages</span></u></b><span style='font-size:14.0pt;
+font-family:Arial;color:black;background:white;mso-highlight:white'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'>The </span></b><b><i><span
+style='font-size:14.0pt;font-family:Arial'>messages*.properties</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'> files provide localized messages for
+the supported languages. Petclinic supplies only a single localized message,
+&quot;welcome&quot; in the default, English, and German properties files
+respectively.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><i><span style='font-size:14.0pt;font-family:Arial;
+color:black;background:white;mso-highlight:white'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'>Petclinic
+Application Internal Workings<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'><span
+style='mso-tab-count:1'>       </span></span></b><span style='font-size:18.0pt;
+font-family:Arial'>(not yet available)<o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><span style='font-size:18.0pt;font-family:Arial'>Developer
+Instructions<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Tools<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Download
+and install the <a href="http://sourceforge.net/projects/springframework/">Spring
+Framework</a> (examples, including Petclinic are provided)<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Download
+and install a <a href="http://java.sun.com/">Java</a> Software Developer Kit,
+preferably version 1.4 or later<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Download
+and install Apache <a href="http://ant.apache.org/">Ant</a>, preferably version
+1.5.1 or later<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Download
+and install <a href="http://www.junit.org/index.htm">JUnit</a>, preferably
+version 3.8.1 or later<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Download
+and install Apache <a href="http://jakarta.apache.org/tomcat/index.html">Tomcat</a>,
+preferably version 4.1.18 or later<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Download
+and install <a href="http://www.mysql.com/">Mysql</a>, (optional)<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'><a
+href="http://hsqldb.sourceforge.net/">Hypersonic SQL</a> version 1.7.1 is
+provided with the application.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>Petclinic
+and Spring use the <a href="http://www.apache.org/">Apache</a> Commons <a
+href="http://jakarta.apache.org/commons/logging.html">Logging</a> and <a
+href="http://jakarta.apache.org/log4j/docs/index.html">Log4J</a> packages<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Ant
+Setup</span></u></b><b><span style='font-size:16.0pt;font-family:Arial'><o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Make
+sure that the Ant executable is in your command shell PATH. Ant will need to
+reference classes from JUnit and the database(s) of interest. Place a copy of
+any needed jar files in Ant's <b><i>/lib</i></b> directory, i.e.:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>JUnit -
+junit.jar<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>HSQL -
+hsqldb.jar<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><span style='font-size:14.0pt;font-family:Arial'>MYSQL
+- <span style='background:white;mso-highlight:white'>mysql-connector-java-2.0.14-bin.jar
+or other</span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>HSQL
+Setup<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Create
+a new directory containing the a copy of the entire contents of the directory <b><i>petclinic/db/hsqldb</i></b>.
+The file <b><i>petclinic.script</i></b> is the data file that will be used by
+the server. It has been initialized with some sample data.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Start
+a server on the standard port 9001 by running the Java command in the file <b><i>server.bat
+</i></b>or double-clicking on it (Windows). A useful database manager can be
+started by running the Java command in the file <b><i>manager.bat </i></b>or
+double-clicking on it (Windows). When the application opens, connect to the
+&quot;HSQL Database Engine Server&quot; using the default parameters.<span
+style="mso-spacerun: yes">  </span>This tool can also be used to manage other
+databases. To use a different port, it will be necessary to change the
+Petclinic Database Setup. It may also be necessary to consult the HSQL
+documentation for instructions on to change the port the server uses. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>MYSQL
+Setup (optional)<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Add
+the database to an running server by running the SQL script <b><i>db/mysql/initDB.txt</i></b>.
+The Petclinic expects, by default to be able to access the server via the
+standard port 3306.<span style="mso-spacerun: yes">  </span>To use a different
+port, it will be necessary to change the Petclinic Database Setup.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Petclinic
+Database Setup<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>To
+use a connection pooled data source with Tomcat, it will be necessary to use
+and possibly edit the appropriate context definition file for the petclinic
+webapp. To use it, deploy a copy in Tomcat's webapps directory and restart the
+server. Consult the Tomcat log file if something goes wrong when starting
+either Tomcat or the Petclinic application. The file is named <b><i>petclinic_tomcat_*.xml</i></b>,
+where <b><i>*</i></b> is a codename for the database. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>An
+Ant script (<b><i>build.xml</i></b> target:setupDB) has been provided that can
+be used to re-initialize either database.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>To
+select or configue the data source used, you will need to edit the files:<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>build.properties<o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial;
+mso-bidi-font-weight:bold;mso-bidi-font-style:italic'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>war/WEB-INF/applicationContext.xml<o:p></o:p></span></i></b></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-pagination:
+none;mso-list:l0 level1 lfo2;mso-layout-grid-align:none;text-autospace:none'><![if !supportLists]><span
+style='font-size:14.0pt;font-family:Symbol;mso-bidi-font-family:Arial'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><b><i><span style='font-size:14.0pt;font-family:Arial'>test/src/applicationContext.xml</span></i></b><span
+style='font-size:14.0pt;font-family:Arial'><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Building
+the Petclinic Application<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Open
+a command line shell and navigate to the directory containing Petclinic and
+execute &quot;ant&quot;. This will display a list of the Ant targets that are
+available. Make sure the database is running and execute &quot;ant all&quot;.
+This will run the Ant &quot;all&quot; target which will clean and compile
+everything, produce Javadocs, and execute a live test using the database. The
+other Ant targets provide subsets of this functionality.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Deploying
+the Petclinic Application<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Deploy
+the web application to the server in the usual way. If you need instructions
+for this, see the Tomcat documentation for details. The Web ARchive file is <b><i>petclinic.war</i></b>
+and can be found in the <b><i>dist </i></b>directory.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b><u><span style='font-size:16.0pt;font-family:Arial'>Using
+the Petclinic Application<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'>Make
+sure the petclinic web application is running and browse to http://localhost:8080/petclinic.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:14.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='font-size:10.0pt;font-family:Arial'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>
