@@ -2,22 +2,22 @@
 
 <project name="petclinic" basedir="." default="usage">
 
-  <property name="name" value="petclinic"/>
+	<property name="name" value="petclinic"/>
 
 	<property name="war.dir" value="war"/>
-  <property name="src.dir" value="src"/>
+	<property name="src.dir" value="src"/>
 	<property name="lib.dir" value="lib"/>
-  <property name="build.dir" value=".classes"/>
-	<property name="docs.dir" value="docs"/>
+	<property name="build.dir" value=".classes"/>
+	<property name="docs.dir" value="${war.dir}/docs"/>
 	<property name="weblib.dir" value="${war.dir}/WEB-INF/lib"/>
-  <property name="dist.dir" value="dist"/>
-  <property name="db.dir" value="db"/>
+	<property name="dist.dir" value="dist"/>
+	<property name="db.dir" value="db"/>
 
-  <property name="test.dir" value="test"/>
-  <property name="testsrc.dir" value="${test.dir}/src"/>
-  <property name="testbuild.dir" value="${test.dir}/.classes"/>
-  <property name="testreports.dir" value="${test.dir}/reports"/>
-  <property name="testhtml.dir" value="${testreports.dir}/html"/>
+	<property name="test.dir" value="test"/>
+	<property name="testsrc.dir" value="${test.dir}/src"/>
+	<property name="testbuild.dir" value="${test.dir}/.classes"/>
+	<property name="testreports.dir" value="${test.dir}/reports"/>
+	<property name="testhtml.dir" value="${testreports.dir}/html"/>
 
 	<property name="spring.root" value="../.."/>
 
@@ -31,6 +31,7 @@
 		</fileset>
 		<fileset dir="${spring.root}/lib/j2ee">
 			<include name="servlet.jar"/>
+			<include name="jdbc2_0-stdext.jar"/>
 		</fileset>
 		<fileset dir="${spring.root}/lib/log4j">
 			<include name="commons-logging.jar"/>
@@ -42,7 +43,7 @@
 	</path>
 
 
-  <target name="usage">
+	<target name="usage">
 
 		<echo message=""/>
 		<echo message="PetClinic build file"/>
@@ -52,14 +53,14 @@
 		<echo message=""/>
 		<echo message="clean    --> Clean output dirs"/>
 		<echo message="build    --> Compile main Java sources and copy libraries"/>
-	  <echo message="docs     --> Create complete Javadoc documentation"/>
-	  <echo message="warfile  --> Build the web application archive"/>
+		<echo message="docs     --> Create complete Javadoc documentation"/>
+		<echo message="warfile  --> Build the web application archive"/>
 		<echo message="setupDB  --> Initialize the database"/>
 		<echo message="test     --> Run tests using initialized database"/>
 		<echo message="all      --> Clean,build,warfile,docs,test"/>
 		<echo message=""/>
 
-  </target>
+	</target>
 
 
 	<target name="clean" description="Clean output dirs (build, dist, testbuild, weblib)">
@@ -78,7 +79,7 @@
 
 		<mkdir dir="${build.dir}"/>
 
-		<javac destdir="${build.dir}"	debug="true" deprecation="false" optimize="false" failonerror="true">
+		<javac destdir="${build.dir}" debug="true" deprecation="false" optimize="false" failonerror="true">
 			<src path="${src.dir}"/>
 			<classpath refid="master-classpath"/>
 		</javac>
@@ -87,7 +88,7 @@
 
 		<jar jarfile="${weblib.dir}/petclinic.jar" compress="true" basedir="${build.dir}"/>
 
-		<copy todir="${weblib.dir}">
+		<copy todir="${weblib.dir}" preservelastmodified="true">
 			<fileset dir="${lib.dir}">
 				<include name="hsqldb.jar"/>
 				<include name="mysql*.jar"/>
@@ -108,17 +109,17 @@
 	</target>
 
 
-  <target name="docs" depends="build" description="Create complete Javadoc documentation">
+	<target name="docs" description="Create complete Javadoc documentation">
 
-    <delete dir="${docs.dir}"/>
+		<delete dir="${docs.dir}"/>
 
-    <mkdir dir="${docs.dir}"/>
+		<mkdir dir="${docs.dir}"/>
 
-    <javadoc sourcepath="${src.dir}" destdir="${docs.dir}" packagenames="*" private="true">
+		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}" packagenames="*" private="true">
 			<classpath refid="master-classpath"/>
-    </javadoc>
+		</javadoc>
 
-  </target>
+	</target>
 
 
 	<target name="warfile" depends="build,docs" description="Build the web application archive">
@@ -129,8 +130,9 @@
 			<include name="*"/>
 			<include name="docs/**"/>
 			<include name="html/**"/>
-			<include name="WEB-INF/*.xml"/>
-			<include name="WEB-INF/*.tld"/>
+			<include name="WEB-INF/applicationContext.xml"/>
+			<include name="WEB-INF/petclinic-servlet.xml"/>
+			<include name="WEB-INF/i21.tld"/>
 			<include name="WEB-INF/classes/*.properties"/>
 			<include name="WEB-INF/lib/**"/>
 			<include name="WEB-INF/jsp/**"/>
@@ -150,60 +152,59 @@
 	</target>
 
 
-  <target name="setupMYSQL" description="Setup MYSQL database properties" if="useMYSQL">
+	<target name="setupMYSQL" description="Setup MYSQL database properties" if="useMYSQL">
 
-    <property name="db.driver" value="${mysql.driver}"/>
-    <property name="db.url" value="${mysql.url}"/>
-    <property name="db.user" value="${mysql.user}"/>
-    <property name="db.pw" value="${mysql.pw}"/>
+		<property name="db.driver" value="${mysql.driver}"/>
+		<property name="db.url" value="${mysql.url}"/>
+		<property name="db.user" value="${mysql.user}"/>
+		<property name="db.pw" value="${mysql.pw}"/>
 
-  </target>
-
-
-  <target name="setupDB" depends="setupHSQL,setupMYSQL" description="Initialize the selected database">
-
-    <ant dir="${db.dir}"/>
-
-  </target>
+	</target>
 
 
-  <target name="test" depends="build,setupDB" description="Run tests using initialized database">
+	<target name="setupDB" depends="setupHSQL,setupMYSQL" description="Initialize the selected database">
 
-    <delete dir="${testbuild.dir}"/>
-    <mkdir dir="${testbuild.dir}"/>
-    <delete dir="${testreports.dir}"/>
-    <mkdir dir="${testreports.dir}"/>
-    <delete dir="${testhtml.dir}"/>
-    <mkdir dir="${testhtml.dir}"/>
+		<ant dir="${db.dir}"/>
 
-    <javac srcdir="${testsrc.dir}" destdir="${testbuild.dir}" deprecation="true">
+	</target>
+
+
+	<target name="test" depends="build,setupDB" description="Run tests using initialized database">
+
+		<delete dir="${testbuild.dir}"/>
+		<mkdir dir="${testbuild.dir}"/>
+		<delete dir="${testreports.dir}"/>
+		<mkdir dir="${testreports.dir}"/>
+		<delete dir="${testhtml.dir}"/>
+		<mkdir dir="${testhtml.dir}"/>
+
+		<javac srcdir="${testsrc.dir}" destdir="${testbuild.dir}" deprecation="true">
 			<classpath path="${build.dir}"/>
 			<classpath refid="master-classpath"/>
-	    <classpath path="${spring.root}/lib/junit/junit.jar"/>
-    </javac>
+			<classpath path="${spring.root}/lib/junit/junit.jar"/>
+		</javac>
 
-    <junit printsummary="true" fork="yes">
-      <formatter type="xml"/>
-      <test name="petclinic.ClinicImplTest" todir="${testreports.dir}"/>
+		<junit printsummary="true" fork="yes">
+			<formatter type="xml"/>
+			<test name="petclinic.ClinicImplTest" todir="${testreports.dir}"/>
 			<classpath path="${build.dir}"/>
 			<classpath path="${testbuild.dir}"/>
 			<classpath path="${testsrc.dir}"/>
 			<classpath refid="master-classpath"/>
-    </junit>
+		</junit>
 
-    <junitreport todir="${testhtml.dir}">
-      <fileset dir="${testreports.dir}">
-        <include name="TEST-*.xml"/>
-      </fileset>
-      <report format="frames" todir="${testhtml.dir}"/>
-    </junitreport>
+		<junitreport todir="${testhtml.dir}">
+			<fileset dir="${testreports.dir}">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			<report format="frames" todir="${testhtml.dir}"/>
+		</junitreport>
 
-    <!-- restore the database -->
-    <ant dir="${db.dir}" />
+		<!-- restore the database -->
+		<ant dir="${db.dir}"/>
 
-  </target>
-
-	<target name="all" depends="clean,build,warfile,docs,test" description="Clean,build,warfile,docs,test">
 	</target>
+
+	<target name="all" depends="clean,build,warfile,docs,test" description="Clean,build,warfile,docs,test"/>
 
 </project>

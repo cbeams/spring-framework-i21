@@ -62,7 +62,7 @@
 
 		<mkdir dir="${build.dir}"/>
 
-		<javac destdir="${build.dir}"	debug="${debug}"
+		<javac destdir="${build.dir}" debug="${debug}"
 			deprecation="false" optimize="false" failonerror="true">
 			<src path="${src.dir}"/>
 			<classpath refid="master-classpath"/>
@@ -70,7 +70,7 @@
 
 		<rmic base="${build.dir}" classname="com.interface21.remoting.rmi.RemoteInvocationWrapper"/>
 
-		<copy todir="${build.dir}">
+		<copy todir="${build.dir}" preservelastmodified="true">
 			<fileset dir="${src.dir}">
 				<include name="**/*.xml"/>
 				<include name="**/*.dtd"/>
@@ -210,8 +210,8 @@
 
 		<mkdir dir="${docs.dir}"/>
 
-		<javadoc packagenames="com.interface21.*"	sourcepath="src" defaultexcludes="yes"
-			destdir="${docs.dir}"	author="true"	version="true" use="true"
+		<javadoc packagenames="com.interface21.*" sourcepath="src" defaultexcludes="yes"
+			destdir="${docs.dir}" author="true" version="true" use="true"
 			windowtitle="Spring Framework">
 			<doctitle><![CDATA[<h1>Spring Framework</h1>]]></doctitle>
 			<bottom><![CDATA[<i>Rod Johnson and Spring contributors 2001-2003.</i>]]></bottom>
@@ -293,7 +293,7 @@
 			<formatter type="plain"/>
 
 			<batchtest fork="yes" todir="${reports.dir}">
-				<fileset dir="test" includes="${test.includes}"	excludes="${test.excludes}"/>
+				<fileset dir="test" includes="${test.includes}" excludes="${test.excludes}"/>
 			</batchtest>
 
 		</junit>
@@ -305,7 +305,7 @@
 
 		<mkdir dir="${livetestbuild.dir}"/>
 
-		<javac destdir="${livetestbuild.dir}"	debug="${debug}"
+		<javac destdir="${livetestbuild.dir}" debug="${debug}"
 			deprecation="false" optimize="false" failonerror="false">
 			<src path="${livetest.dir}"/>
 			<classpath refid="master-classpath"/>
@@ -328,7 +328,7 @@
 			<classpath refid="master-classpath"/>
 		</javac>
 
-		<copy todir="${clover.build.dir}">
+		<copy todir="${clover.build.dir}" preservelastmodified="true">
 			<fileset dir="${src.dir}">
 				<include name="**/*.xml"/>
 				<include name="**/*.dtd"/>
@@ -352,7 +352,7 @@
 			<classpath refid="master-classpath"/>
 
 			<batchtest fork="yes">
-				<fileset dir="test"	includes="${test.includes}"	excludes="${test.excludes}"/>
+				<fileset dir="test" includes="${test.includes}" excludes="${test.excludes}"/>
 			</batchtest>
 
 		</junit>
@@ -380,7 +380,7 @@
 		Run test suite under Clover coverage analysis, and use Clover
 		to generate Javadoc/style HTML results that may be browsed later.
 	-->
-	<target name="clover.html" depends="clover.tests"	description="Generate Clover HTML coverage reports from an existing Clover database">
+	<target name="clover.html" depends="clover.tests" description="Generate Clover HTML coverage reports from an existing Clover database">
 
 		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
 			<arg line="-o '${clover.html.outdir}' -i '${clover.initstring}' -t 'Spring Framework'"/>

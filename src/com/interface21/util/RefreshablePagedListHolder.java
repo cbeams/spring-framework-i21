@@ -24,6 +24,7 @@ import com.interface21.beans.BeanUtils;
  *   holder.setFilter(new MyAnonymousOrEmbeddedFilter());<br>
  *   request.getSession().setAttribute("mySessionAttr", holder);<br>
  * }<br>
+ * holder.refresh(false);
  * BindException ex = BindUtils.bind(request, listHolder, "myModelAttr");<br>
  * return ModelAndView("myViewName", ex.getModel());<br>
  * <br>
@@ -47,7 +48,7 @@ import com.interface21.beans.BeanUtils;
  * }<br>
  * </code>
  *
- * @author Jean-Pierre PAWLAK
+ * @author Jean-Pierre Pawlak
  * @author Juergen Hoeller
  * @since 24.05.2003
  * @see PagedListSourceProvider
@@ -55,7 +56,7 @@ import com.interface21.beans.BeanUtils;
  */
 public class RefreshablePagedListHolder extends PagedListHolder {
 
-	private PagedListSourceProvider sourceProvider = null;
+	private PagedListSourceProvider sourceProvider;
 
 	private Locale locale;
 
