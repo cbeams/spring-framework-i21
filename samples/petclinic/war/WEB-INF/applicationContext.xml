@@ -24,16 +24,16 @@
     <property name="columnName"><value>seq</value></property>
   </bean>
 
-  <bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
-    <property name="jndiName"><value>jdbc/petclinicHSQL</value></property>
-  </bean>
-
-	<!--
 	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
 		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
 		<property name="username"><value>sa</value></property>
 		<property name="password"><value></value></property>
+	</bean>
+
+	<!--
+	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+	  <property name="jndiName"><value>jdbc/petclinicHSQL</value></property>
 	</bean>
 	-->
 
@@ -43,15 +43,15 @@
     <property name="columnName"><value>seq</value></property>
   </bean>
 
-  <bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
-    <property name="jndiName"><value>jdbc/petclinicMYSQL</value></property>
-  </bean>
-
 	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
 		<property name="url"><value>jdbc:mysql://localhost:3306/petclinic</value></property>
 		<property name="username"><value>pc</value></property>
 		<property name="password"><value>pc</value></property>
+	</bean>
+
+	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+		<property name="jndiName"><value>jdbc/petclinicMYSQL</value></property>
 	</bean>
 	-->
 
