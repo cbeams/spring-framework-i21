@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	Definitions for ticketing controller servlet.
+	
+	Each <bean> element in this file defines a Java bean instance,
+	providing the necessary class type and property settings.
+	Properties may be set to references to other beans.
+	Type conversion happens automatically.
+	
+	Errors in this file will cause the application to fail to start.
+	Check the log file (the location is defined in the log4j.properties file)
+	for information in this case. Error messages usually display pinpoint the
+	problem precisely.
+	
+	Certain bean names have special significance: e.g. "messageSource",
+	which defines an internationalizable repository for error and
+	other message, and "viewResolver", which defines where views
+	are defined.
+	
+	See also: /WEB-INF/classes/views.properties, which
+	defines the views used by this application. Views are
+	also defined as Java beans, using the same underlying implementation.
+-->
+
+<beans>		
+
+	<!-- ===========================================================-->
+	<!-- Message source												-->
+	<!-- ===========================================================-->
+	
+	
+	<bean name="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">	
+		<property name="basename">ticket-servlet-messages</property>										
+	</bean>
+
+
+
+	<!-- ===========================================================-->
+	<!-- Application beans				-->
+	<!-- ===========================================================-->
+	
+	<!-- ===========================================================-->
+	<!-- View resolver. Required by web framework.					-->
+	<!-- ===========================================================-->
+	<bean name="viewResolver" class="com.interface21.web.servlet.view.ResourceBundleViewResolver">			
+		<!-- Development only: REPLACE BY true OR COMMENT OUT IN PRODUCTION OR 
+		     performance will be severely impacted. **************
+		-->
+		<property name="cache">true</property>
+		
+		
+		<!-- We can use this to avoid conflict with other command servlets -->		
+		<property name="basename">views</property>
+		
+	</bean>
+	
+	
+	<!-- ===========================================================-->
+	<!-- Listeners to this servlet only								-->
+	<!-- ===========================================================-->
+
+	<bean name="consoleListener" class="com.interface21.context.support.ConsoleListener"/>	
+	
+	
+	
+	<bean name="a.urlMap" class="com.interface21.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			welcome.html=mainController
+			/show.html=mainController
+			/bookseats.html=mainController
+			/reservation.html=mainController
+			/payment.html=mainController
+			/confirmation.html=mainController
+			*=starController
+		</property>
+	</bean>
+
+
+
+	<!-- ===========================================================-->
+	<!-- URL mappings for web framework.							-->
+	<!-- ===========================================================-->
+	<!--
+		These bean definitions have a special meaning to the default 
+		com.interface21..web.servlet.UrlHandlerMapping
+		In the following mappings, the bean name is the URL that will be
+		mapped on the bean, which is a request controller.
+		This is not the only way to map requests onto controllers,
+		but it's the simplest and usually the best.
+	-->
+		
+	
+	<bean name="mainController" 
+		class="java.lang.Object" >
+			
+	</bean>
+	
+	<bean name="starController" 
+		class="java.lang.Object" >
+			
+	</bean>
+	
+	<!-- class="com.interface21.web.servlet.mvc.multiaction.MultiActionController" > -->
+	
+</beans>		
