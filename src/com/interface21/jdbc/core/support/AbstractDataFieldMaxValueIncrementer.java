@@ -80,9 +80,9 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	
 	/**
 	 * Template method implementation to be provided by concrete subclasses
-	 * @see #nextDoubleValue
+	 * @see #nextLongValue
 	 */
-	protected abstract double incrementDoubleValue() throws DataAccessException;
+	protected abstract long incrementLongValue() throws DataAccessException;
 
     /**
      * Template method implementation to be provided by concrete subclasses
