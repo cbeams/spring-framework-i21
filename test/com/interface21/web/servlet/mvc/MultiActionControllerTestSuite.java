@@ -1,12 +1,7 @@
 package com.interface21.web.servlet.mvc;
 
-import com.interface21.web.mock.MockHttpRequest;
-import com.interface21.web.mock.MockHttpResponse;
-import com.interface21.web.mock.MockHttpSession;
-
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,19 +10,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.TestBean;
 import com.interface21.web.bind.WebRequestBindingException;
-import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.context.support.StaticWebApplicationContext;
+import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpResponse;
+import com.interface21.web.mock.MockHttpSession;
 import com.interface21.web.servlet.ModelAndView;
-import com.interface21.web.servlet.View;
-import com.interface21.web.servlet.mvc.multiaction.*;
+import com.interface21.web.servlet.mvc.multiaction.InternalPathMethodNameResolver;
+import com.interface21.web.servlet.mvc.multiaction.MultiActionController;
+import com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver;
 
 /**
  *
@@ -52,9 +46,9 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	public void testDefaultNameExtraction() throws Exception {
 		testDefaultNameExtraction("/foo.html", "foo");
-		testDefaultNameExtraction("/foo/bar.html", "foo_bar");
+		testDefaultNameExtraction("/foo/bar.html", "bar");
 		testDefaultNameExtraction("/bugal.xyz", "bugal");
-		testDefaultNameExtraction("/x/y/z/q/foo.html", "x_y_z_q_foo");
+		testDefaultNameExtraction("/x/y/z/q/foo.html", "foo");
 		testDefaultNameExtraction("qqq.q", "qqq");
 	}
 	
@@ -85,8 +79,8 @@ public class MultiActionControllerTestSuite extends TestCase {
 		request = new MockHttpRequest(null, "GET", "/subdir/test.html");
 		response = new MockHttpResponse();
 		mv = mc.handleRequest(request, response);
-		assertTrue("Invoked subdir_test method", mc.wasInvoked("subdir_test"));
-		assertTrue("view name is subdir_test", mv.getViewname().equals("subdir_test"));
+		assertTrue("Invoked test method", mc.wasInvoked("test"));
+		assertTrue("view name is subdir_test", mv.getViewname().equals("test"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 	}
 	
@@ -179,7 +173,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	
 	public void testSessionRequiredCatchable() throws Exception {
-		HttpServletRequest request = new MockHttpRequest(null, "GET", "/test.html");
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/testSession.html");
 		HttpServletResponse response = new MockHttpResponse();
 		TestMaController contr = new TestSessionRequiredController();
 		try {
@@ -189,14 +183,11 @@ public class MultiActionControllerTestSuite extends TestCase {
 		catch (SessionRequiredException ex) {
 			//assertTrue("session required", ex.equals(t));
 		}
-		
-		
-		request = new MockHttpRequest(null, "GET", "/test.html");
+		request = new MockHttpRequest(null, "GET", "/testSession.html");
 		response = new MockHttpResponse();
 		contr = new TestSessionRequiredExceptionHandler();
 		ModelAndView mv = contr.handleRequest(request, response);
 		assertTrue("Name is ok", mv.getViewname().equals("handle(SRE)"));
-//		assertTrue("Invoked", contr.
 	}
 	
 	private void testExceptionNoHandler(TestMaController mc, Throwable t) throws Exception {
@@ -311,7 +302,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		public static final String THROWABLE_ATT = "throwable";
 		
 		/** Method name -> object */
-		protected HashMap invoked = new HashMap();
+		protected Map invoked = new HashMap();
 		
 		public void clear() {
 			invoked.clear();
@@ -352,9 +343,9 @@ public class MultiActionControllerTestSuite extends TestCase {
 			return new ModelAndView("commandInSession");
 		}
 		
-		public ModelAndView subdir_test(HttpServletRequest request, HttpServletResponse response) {
-			invoked.put("subdir_test", Boolean.TRUE);
-			return new ModelAndView("subdir_test");
+		public ModelAndView test(HttpServletRequest request, HttpServletResponse response) {
+			invoked.put("test", Boolean.TRUE);
+			return new ModelAndView("test");
 		}
 		
 		public ModelAndView testException (HttpServletRequest request, HttpServletResponse response) throws Throwable {
@@ -375,8 +366,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		}
 		
 	}
-	
-	
+
 	public static class TestExceptionHandler extends TestMaController {
 		
 		public ModelAndView handleAnyException(HttpServletRequest request, HttpServletResponse response, Exception ex) {
@@ -387,16 +377,15 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	public static class TestRTEHandler extends TestMaController {
 		
-		public ModelAndView handleRutimeProblem(HttpServletRequest request, HttpServletResponse response, RuntimeException ex) {
+		public ModelAndView handleRuntimeProblem(HttpServletRequest request, HttpServletResponse response, RuntimeException ex) {
 			invoked.put("handle(RTE)", Boolean.TRUE);
 			return new ModelAndView("handle(RTE)");
 		}
 	}
-	
-	
+
 	public static class TestSessionRequiredController extends TestMaController {
 		
-		public ModelAndView test(HttpServletRequest request, HttpServletResponse response, HttpSession sess) {
+		public ModelAndView testSession(HttpServletRequest request, HttpServletResponse response, HttpSession sess) {
 			return null;
 		}
 	}
@@ -408,7 +397,6 @@ public class MultiActionControllerTestSuite extends TestCase {
 			invoked.put("handle(SRE)", Boolean.TRUE);
 			return new ModelAndView("handle(SRE)");
 		}
-		
 	}
 	
 	public static class TestServletExceptionHandler extends TestMaController {
@@ -437,7 +425,6 @@ public class MultiActionControllerTestSuite extends TestCase {
 		
 		/** Always says content is up to date */
 		public long welcomeLastModified (HttpServletRequest request) {
-			System.out.println("LastModified method for welcome handler");
 			return 1111L;
 		}
 	}
