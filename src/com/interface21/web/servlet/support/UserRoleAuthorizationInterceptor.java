@@ -56,4 +56,7 @@ public class UserRoleAuthorizationInterceptor implements HandlerInterceptor {
 		response.sendError(HttpServletResponse.SC_FORBIDDEN);
 	}
 
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+	}
+
 }

@@ -45,4 +45,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+	}
+
 }

@@ -40,4 +40,7 @@ public class ThemeChangeInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+	}
+
 }

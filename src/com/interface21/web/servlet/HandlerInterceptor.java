@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletResponse;
  * to a group of handlers, one needs to map the desired handlers via one
  * HandlerMapping bean. The interceptors themselves are defined as beans
  * in the application context, referenced by the mapping bean definition
- * via its "interceptors" property (in XML: a <list> of <ref>s).
+ * via its "interceptors" property (in XML: a &lt;list&gt; of &lt;ref&gt;).
  *
  * <p>HandlerInterceptor is basically similar to a Servlet 2.3 Filter, but in
- * contrast to the latter it just allows custom preprocessing with the option
- * prohibiting the execution of the handler itself. Filters are more powerful,
- * for example they allow for exchanging the request and response objects that
- * are handed down the chain, and for custom postprocessing. Note that a filter
+ * contrast to the latter it just allows custom pre-processing with the option
+ * of prohibiting the execution of the handler itself, and custom post-processing.
+ * Filters are more powerful, for example they allow for exchanging the request
+ * and response objects that are handed down the chain. Note that a filter
  * gets configured in web.xml, a HandlerInterceptor in the application context. 
  *
  * <p>As a basic guideline, fine-grained handler-related preprocessing tasks are
@@ -53,10 +53,12 @@ public interface HandlerInterceptor {
 	/**
 	 * Intercept the execution of a handler. Called after HandlerMapping determined
 	 * an appropriate handler object, but before HandlerAdapter invokes the handler.
+	 *
 	 * <p>DispatcherServlet processes a handler in an execution chain, consisting
 	 * of any number of interceptors, with the handler itself at the end.
-	 * Each interceptor can decide to abort the execution chain, typically sending
-	 * a HTTP error or writing a custom response.
+	 * With this method, each interceptor can decide to abort the execution chain,
+	 * typically sending a HTTP error or writing a custom response.
+	 *
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param handler chosen handler to execute, for type and/or instance evaluation
@@ -67,6 +69,24 @@ public interface HandlerInterceptor {
 	 * @throws IOException in case of an I/O error when writing the response
 	 */
 	boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+	    throws ServletException, IOException;
+
+	/**
+	 * Intercept the execution of a handler. Called after HandlerAdapter actually
+	 * invoked the handler.
+	 *
+	 * <p>DispatcherServlet processes a handler in an execution chain, consisting
+	 * of any number of interceptors, with the handler itself at the end.
+	 * With this method, each interceptor can post-process an execution,
+	 * getting applied in inverse order of the execution chain.
+	 *
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @param handler chosen handler to execute, for type and/or instance evaluation
+	 * @throws ServletException if there is an internal error
+	 * @throws IOException in case of an I/O error when writing the response
+	 */
+	void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 	    throws ServletException, IOException;
 
 }
