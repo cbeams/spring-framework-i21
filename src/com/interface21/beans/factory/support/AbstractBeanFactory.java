@@ -27,6 +27,7 @@ import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.BeanIsNotAFactoryException;
 import com.interface21.beans.factory.BeanNotOfRequiredTypeException;
 import com.interface21.beans.factory.FactoryBean;
+import com.interface21.beans.factory.HierarchicalBeanFactory;
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.beans.factory.Lifecycle;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
@@ -41,11 +42,13 @@ import com.interface21.beans.factory.NoSuchBeanDefinitionException;
  * method.
  * This class handles resolution of runtime bean references,
  * FactoryBean dereferencing, and management of collection properties.
+ * It also allows for management of a bean factory hierarchy, 
+ * implementing the HierarchicalBeanFactory method.
  * @author Rod Johnson
  * @since 15 April 2001
  * @version $Id$
  */
-public abstract class AbstractBeanFactory implements BeanFactory {
+public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 
 	/**
 	 * Used to dereference a FactoryBean and distinguish it from
@@ -96,8 +99,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		this.parentBeanFactory = parentBeanFactory;
 	}
 
+
 	/**
-	 * Returns the parent bean factory, or null if none.
+	 * @see com.interface21.beans.factory.HierarchicalBeanFactory#getParentBeanFactory()
 	 */
 	public BeanFactory getParentBeanFactory() {
 		return parentBeanFactory;
