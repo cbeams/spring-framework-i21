@@ -21,20 +21,27 @@ import com.interface21.web.servlet.ModelAndView;
  */
 public class EditPetForm extends AbstractClinicForm {
     
+	public EditPetForm() {
+		// need a session to hold the formBackingObject
+		setSessionForm(true);
+		// initialize the form from the formBackingObject 
+		setBindOnNewForm(true);
+	}
+    
 	/** Method updates an existing Pet. */
     protected ModelAndView onSubmit(Object command) throws ServletException {
     	// the edited object
-        Pet newPet = (Pet) command;
+        Pet editPet = (Pet) command;
         
         // get the original object
-        Pet pet =  getClinic().findPet(newPet.getId());
+        Pet pet =  getClinic().findPet(editPet.getId());
         if(pet == null) {
             // should not happen unless id is corrupted
-            throw new NoSuchEntityException(newPet);
+            throw new NoSuchEntityException(editPet);
         }
         
         // use the data from the edited object
-		pet.copyPropertiesFrom(newPet);
+		pet.copyPropertiesFrom(editPet);
         
         // delegate the update to the Business layer
         getClinic().update(pet);
@@ -51,9 +58,9 @@ public class EditPetForm extends AbstractClinicForm {
         }
         
         //make a copy for editing
-        Pet newPet = new Pet();
-		newPet.copyPropertiesFrom(pet);
-        return newPet;
+        Pet editPet = new Pet();
+		editPet.copyPropertiesFrom(pet);
+        return editPet;
     }
     
 }

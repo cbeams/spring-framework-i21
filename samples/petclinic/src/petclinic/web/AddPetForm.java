@@ -25,6 +25,11 @@ import com.interface21.web.servlet.ModelAndView;
  */
 public class AddPetForm extends AbstractClinicForm {
     
+	public AddPetForm() {
+		// need a session to hold the formBackingObject
+		setSessionForm(true);
+	}
+    
 	/** Method inserts a new <code>Pet</code>. */
     protected ModelAndView onSubmit(Object command) throws ServletException {
         Pet pet = (Pet) command;

@@ -24,6 +24,11 @@ import com.interface21.web.servlet.ModelAndView;
  */
 public class AddVisitForm extends AbstractClinicForm {
     
+	public AddVisitForm() {
+		// need a session to hold the formBackingObject
+		setSessionForm(true);
+	}
+    
 	/** Method inserts a new <code>Visit</code>. */
     protected ModelAndView onSubmit(Object command) throws ServletException {
         Visit visit = (Visit) command;

@@ -21,20 +21,27 @@ import com.interface21.web.servlet.ModelAndView;
  */
 public class EditOwnerForm extends AbstractClinicForm {
     
+	public EditOwnerForm() {
+		// need a session to hold the formBackingObject
+		setSessionForm(true);
+		// initialize the form from the formBackingObject 
+		setBindOnNewForm(true);
+	}
+    
     /** Method updates an existing Owner. */
     protected ModelAndView onSubmit(Object command) throws ServletException {
 		// the edited object
-        Owner newOwner = (Owner) command;
+        Owner editOwner = (Owner) command;
        
 		// get the original object
-        Owner owner =  getClinic().findOwner(newOwner.getId());
+        Owner owner =  getClinic().findOwner(editOwner.getId());
         if(owner == null) {
             // should not happen unless object is corrupted
-            throw new NoSuchEntityException(newOwner);
+            throw new NoSuchEntityException(editOwner);
         }
         
 		// use the data from the edited object
-		owner.copyPropertiesFrom(newOwner);
+		owner.copyPropertiesFrom(editOwner);
         
 		// delegate the update to the Business layer
         getClinic().update(owner);
@@ -51,9 +58,9 @@ public class EditOwnerForm extends AbstractClinicForm {
         }
         
 		//make a copy for editing
-        Owner newOwner = new Owner();
-		newOwner.copyPropertiesFrom(owner);
-        return newOwner;
+        Owner editOwner = new Owner();
+		editOwner.copyPropertiesFrom(owner);
+        return editOwner;
     }
     
 }

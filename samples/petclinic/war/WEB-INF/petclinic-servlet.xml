@@ -94,7 +94,6 @@
 	  - It uses the "ownerValidator" and "clinic" beans.
 	  -->
   	<bean id="addOwnerForm" class="petclinic.web.AddOwnerForm">
-		<property name="sessionForm"><value>true</value></property>
 		<property name="formView"><value>ownerForm</value></property>
 		<property name="successView"><value>ownerRedirect</value></property>
 		<property name="validator"><ref bean="ownerValidator"/></property>
@@ -103,11 +102,9 @@
 	
 	<!-- 
 	  - This bean is a SimpleFormController that manages the editOwner use case.
-	  - It uses the ownerValidator bean defined above.
+	  - It uses the "ownerValidator" and "clinic" beans.
 	  -->
   	<bean id="editOwnerForm" class="petclinic.web.EditOwnerForm">
-		<property name="bindOnNewForm"><value>true</value></property>
-		<property name="sessionForm"><value>true</value></property>
 		<property name="formView"><value>ownerForm</value></property>
 		<property name="successView"><value>ownerRedirect</value></property>
 		<property name="validator"><ref bean="ownerValidator"/></property>
@@ -118,11 +115,10 @@
 	<bean id="petValidator" class="petclinic.validation.PetValidator"/>
   
 	<!-- 
-	  - SimpleFormController addPetForm.
-	  - Uses the petValidator defined above.
+	  - This bean is a SimpleFormController that manages the addPet use case. 
+	  - It uses the "petValidator" and "clinic" beans.
 	  -->
 	<bean id="addPetForm" class="petclinic.web.AddPetForm">
-		<property name="sessionForm"><value>true</value></property>
 		<property name="formView"><value>petForm</value></property>
 		<property name="successView"><value>ownerRedirect</value></property>
 		<property name="validator"><ref bean="petValidator"/></property>
@@ -130,12 +126,10 @@
 	</bean>
 	
 	<!-- 
-	  - SimpleFormController editPetForm.
-	  - Uses the petValidator defined above.
+	  - This bean is a SimpleFormController that manages the editPet use case. 
+	  - It uses the "petValidator" and "clinic" beans.
 	  -->
 	<bean id="editPetForm" class="petclinic.web.EditPetForm">
-		<property name="sessionForm"><value>true</value></property>
-		<property name="bindOnNewForm"><value>true</value></property>
 		<property name="formView"><value>petForm</value></property>
 		<property name="successView"><value>ownerRedirect</value></property>
 		<property name="validator"><ref bean="petValidator"/></property>
@@ -146,11 +140,10 @@
 	<bean id="visitValidator" class="petclinic.validation.VisitValidator"/>
   
 	<!-- 
-	  - SimpleFormController addVisitForm.
-	  - Uses the visitValidator defined above.
+	  - This bean is a SimpleFormController that manages the addVisit use case. 
+	  - It uses the "visitValidator" and "clinic" beans.
 	  -->
 	<bean id="addVisitForm" class="petclinic.web.AddVisitForm">
-		<property name="sessionForm"><value>true</value></property>
 		<property name="formView"><value>visitForm</value></property>
 		<property name="successView"><value>ownerRedirect</value></property>
 		<property name="validator"><ref bean="visitValidator"/></property>
