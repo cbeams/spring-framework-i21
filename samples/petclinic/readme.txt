@@ -19,3 +19,8 @@ Note 2: If you are using JBoss, the above note doesn't apply.
 You must instead have copied the db/jboss/3.X.X xml files
 in the deploy dir and JBoss must be running while you 
 call the Ant with target all or test.
+
+General note for JBoss users:
+- in web.xml: comment the the log4j listener
+- in build.properties: uncomment the jboss.root property
+ 

@@ -2,13 +2,132 @@
 
 <project name="setupDB" basedir="." default="all">
 
+  <target name="createHSQLTables" if="useJBossHSQL">
+		<echo message="CREATE TABLES USING: ${db.driver} ${db.url}"/>
+    <sql driver="${db.driver}"
+         url="${db.url}"
+         userid="${db.user}"
+         password="${db.pw}">  
+
+	<classpath>
+		<fileset dir="../lib">
+			<include name="*.jar"/>
+		</fileset>
+	</classpath>
+
+DROP TABLE visits_seq;
+DROP TABLE visits;
+DROP TABLE vet_specialties;
+DROP TABLE specialties_seq;
+DROP TABLE specialties;
+DROP TABLE vets_seq;
+DROP TABLE vets;
+DROP TABLE pets_seq;
+DROP TABLE pets;
+DROP TABLE types_seq;
+DROP TABLE types;
+DROP TABLE owners_seq;
+DROP TABLE owners; 
+
+
+CREATE TABLE owners (
+  id INT(4) NOT NULL PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30),
+  address VARCHAR(255),
+  city VARCHAR(80),
+  telephone VARCHAR(20)
+);
+CREATE INDEX owners_last_name ON owners(last_name);
+
+CREATE TABLE owners_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE types (
+  id INT(4) NOT NULL PRIMARY KEY,
+  name VARCHAR(80)
+);
+CREATE INDEX types_name ON types(name);
+
+CREATE TABLE types_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE pets (
+  id INT(4) NOT NULL PRIMARY KEY,
+  name VARCHAR(30),
+  birth_date DATE,
+  type_id INT(4) NOT NULL,
+  owner_id INT(4) NOT NULL
+);
+alter table pets add constraint fk_pets_owners foreign key (owner_id) references owners(id);
+alter table pets add constraint fk_pets_types foreign key (type_id) references types(id);
+CREATE INDEX pets_name ON pets(name);
+
+CREATE TABLE pets_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE vets (
+  id INT(4) NOT NULL PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30)
+);
+CREATE INDEX vets_last_name ON vets(last_name);
+
+CREATE TABLE vets_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE specialties (
+  id INT(4) NOT NULL PRIMARY KEY,
+  name VARCHAR(80)
+);
+CREATE INDEX specialties_name ON specialties(name);
+
+CREATE TABLE specialties_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE vet_specialties (
+  vet_id INT(4) NOT NULL,
+  specialty_id INT(4) NOT NULL
+);
+alter table vet_specialties add constraint fk_vet_specialties_vets foreign key (vet_id) references vets(id);
+alter table vet_specialties add constraint fk_vet_specialties_specialties foreign key (specialty_id) references specialties(id);
+
+CREATE TABLE visits (
+  id INT(4) NOT NULL PRIMARY KEY,
+  pet_id INT(4) NOT NULL,
+  visit_date DATE,
+  description VARCHAR(255)
+);
+alter table visits add constraint fk_visits_pets foreign key (pet_id) references pets(id);
+CREATE INDEX visits_pet_id ON visits(pet_id);
+
+CREATE TABLE visits_seq (
+  seq IDENTITY
+);
+
+
+    </sql> 
+  </target>
+
   <target name="emptyTables">
 		<echo message="USING: ${db.driver} ${db.url}"/>
     <sql driver="${db.driver}"
          url="${db.url}"
          userid="${db.user}"
-         password="${db.pw}"  >
-                
+         password="${db.pw}">  
+
+	<classpath>
+		<fileset dir="../lib">
+			<include name="*.jar"/>
+		</fileset>
+	</classpath>
+
+
 DELETE FROM visits;
 DELETE FROM visits_seq;
 DELETE FROM pets;
@@ -32,6 +151,12 @@ DELETE FROM specialties_seq;
          url="${db.url}"
          userid="${db.user}"
          password="${db.pw}"  >
+
+	<classpath>
+		<fileset dir="../lib">
+			<include name="*.jar"/>
+		</fileset>
+	</classpath>
                 
 INSERT INTO owners VALUES (1, 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023');
 INSERT INTO owners VALUES (2, 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749');
@@ -102,6 +227,6 @@ INSERT INTO visits_seq VALUES (5);
     </sql> 
   </target>
     
-  <target name="all" depends="emptyTables,populateTables" />
+  <target name="all" depends="createHSQLTables,emptyTables,populateTables" />
     
 </project>

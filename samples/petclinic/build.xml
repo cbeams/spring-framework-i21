@@ -128,6 +128,9 @@
 
 	<target name="warfile" depends="build,docs" description="Build the web application archive">
 
+		<!-- To not include jboss file if jboss.root was not set before -->
+		<property name="jboss.root" value="${war.dir}/WEB-INF"/>
+
 		<mkdir dir="${dist.dir}"/>
 
 		<war warfile="${dist.dir}/${name}.war" basedir="${war.dir}" webxml="${war.dir}/WEB-INF/web.xml">
@@ -141,6 +144,9 @@
 			<include name="WEB-INF/lib/**"/>
 			<include name="WEB-INF/jsp/**"/>
 			<exclude name="**/.*"/>
+			<webinf dir="${jboss.root}">
+				<include name="jboss-web.xml"/>
+			</webinf>
 		</war>
 
 	</target>
@@ -152,6 +158,9 @@
 		<property name="db.url" value="${hsql.url}"/>
 		<property name="db.user" value="${hsql.user}"/>
 		<property name="db.pw" value="${hsql.pw}"/>
+		<condition property="useJBossHSQL">
+			<isset property="jboss.root"/>
+		</condition>
 
 	</target>
 
