@@ -13,7 +13,7 @@ import net.sf.hibernate.cfg.Configuration;
 import org.apache.log4j.Logger;
 
 import com.interface21.dao.DataAccessResourceFailureException;
-import com.interface21.jndi.JndiServices;
+import com.interface21.jndi.JndiTemplate;
 import com.interface21.util.ThreadObjectManager;
 
 /**
@@ -49,22 +49,32 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Look up a Hibernate SessionFactory in JNDI.
-	 * @param name JNDI name of the factory
-	 * @return the SessionFactory instance
-	 * @throws DataAccessResourceFailureException if the factory wasn't found
+	 * Look up the specified SessionFactory in JNDI, using a default JndiTemplate.
+ 	 * @param name name of the SessionFactory
+	 * @return the SessionFactory
 	 */
-	public static SessionFactory getSessionFactoryFromJndi(String name) throws DataAccessResourceFailureException {
-		SessionFactory sessionFactory = null;
+	public static SessionFactory getSessionFactoryFromJndi(String name) {
+		return getSessionFactoryFromJndi(name, new JndiTemplate());
+	}
+
+	/**
+	 * Look up the specified SessionFactory in JNDI, using the given JndiTemplate.
+ 	 * @param name name of the SessionFactory
+	 * @param jndiTemplate template instance to use for lookup, or null for default
+	 * @return the SessionFactory
+	 */
+	protected static SessionFactory getSessionFactoryFromJndi(String name, JndiTemplate jndiTemplate) {
+		if (jndiTemplate == null) {
+			jndiTemplate = new JndiTemplate();
+		}
 		try {
-			sessionFactory = (SessionFactory) JndiServices.lookup(name);
+			return (SessionFactory) jndiTemplate.lookup(name);
 		}
 		catch (NamingException ex) {
 			throw new DataAccessResourceFailureException("Could not initialize Hibernate SessionFactory from JNDI", ex);
 		}
-		return sessionFactory;
-	}
 
+	}
 	/**
 	 * Create a Hibernate SessionFactory using the default config file.
 	 * @return the new SessionFactory instance

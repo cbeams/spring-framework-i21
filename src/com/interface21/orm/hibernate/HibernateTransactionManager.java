@@ -12,11 +12,11 @@ import net.sf.hibernate.SessionFactory;
 import com.interface21.jdbc.datasource.ConnectionHolder;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 import com.interface21.transaction.CannotCreateTransactionException;
+import com.interface21.transaction.InvalidTimeoutException;
+import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.TransactionSystemException;
-import com.interface21.transaction.TransactionUsageException;
-import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
 
 /**
@@ -55,7 +55,6 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * @since 02.05.2003
  * @see SessionFactoryUtils#openSession
  * @see HibernateTemplate#execute
- * @see #setDataSourceName
  * @see #setDataSource
  * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
@@ -74,30 +73,12 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 
 	/**
 	 * Create a new HibernateTransactionManager instance.
-	 * @param sessionFactoryName name of the SessionFactory to manage transactions for
-	 * @param dataSourceName name of the DataSource to manage transactions for
-	 */
-	public HibernateTransactionManager(String sessionFactoryName, String dataSourceName) {
-		setSessionFactoryName(sessionFactoryName);
-		setDataSourceName(dataSourceName);
-	}
-
-	/**
-	 * Create a new HibernateTransactionManager instance.
 	 * @param sessionFactory SessionFactory to manage transactions for
 	 * @param dataSource DataSource to manage transactions for
 	 */
 	public HibernateTransactionManager(SessionFactory sessionFactory, DataSource dataSource) {
 		this.sessionFactory = sessionFactory;
 		this.dataSource = dataSource;
-	}
-
-	/**
-	 * Set the JNDI name of the SessionFactory that this instance should manage
-	 * transactions for.
-	 */
-	public void setSessionFactoryName(String sessionFactoryName) {
-		this.sessionFactory = SessionFactoryUtils.getSessionFactoryFromJndi(sessionFactoryName);
 	}
 
 	/**
@@ -112,15 +93,6 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	 */
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
-	}
-
-	/**
-	 * Set the name of the J2EE DataSource that this instance should manage
-	 * transactions for (i.e. register the Hibernate transaction's JDBC
-	 * connection to provide it to application code accessing this DataSource).
-	 */
-	public final void setDataSourceName(String dataSourceName) {
-		this.dataSource = DataSourceUtils.getDataSourceFromJndi(dataSourceName);
 	}
 
 	/**
@@ -159,7 +131,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	 */
 	protected void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException {
 		if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
-			throw new TransactionUsageException("HibernateTransactionManager does not support timeouts");
+			throw new InvalidTimeoutException("HibernateTransactionManager does not support timeouts");
 		}
 		HibernateTransactionObject txObject = (HibernateTransactionObject) transaction;
 		logger.debug("Beginning Hibernate transaction");

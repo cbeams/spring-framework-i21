@@ -76,22 +76,6 @@ public class HibernateTemplate {
 	}
 
 	/**
-	 * Create a new HibernateTemplate instance.
-	 * @param sessionFactoryName name of the SessionFactory to create Sessions
-	 */
-	public HibernateTemplate(String sessionFactoryName) {
-		setSessionFactoryName(sessionFactoryName);
-	}
-
-	/**
-	 * Set the JNDI name of the SessionFactory that this instance should manage
-	 * transactions for.
-	 */
-	public void setSessionFactoryName(String sessionFactoryName) {
-		this.sessionFactory = SessionFactoryUtils.getSessionFactoryFromJndi(sessionFactoryName);
-	}
-
-	/**
 	 * Set the Hibernate SessionFactory that should be used to create
 	 * Hibernate Sessions.
 	 */
