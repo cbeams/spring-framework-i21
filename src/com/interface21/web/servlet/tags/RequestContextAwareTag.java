@@ -67,6 +67,9 @@ public abstract class RequestContextAwareTag extends TagSupport {
 		catch (JspException ex) {
 			throw ex;
 		}
+		catch (RuntimeException ex) {
+			throw ex;
+		}
 		catch (Exception ex) {
 			throw new JspTagException(ex.getMessage());
 		}
