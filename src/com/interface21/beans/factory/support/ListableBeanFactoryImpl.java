@@ -15,6 +15,7 @@ import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.util.StringUtils;
 
 /**
@@ -65,8 +66,6 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 */
 	public static final String REF_SUFFIX = "(ref)";
 	
-		
-	
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
@@ -77,15 +76,19 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * we rely on the default behavior of Class.forName()
 	 */
 	private ClassLoader	classLoader;
-	
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
 	/** Creates new ListableBeanFactoryImpl */
 	public ListableBeanFactoryImpl() {
+		super();
 	}
 	
-	
+	public ListableBeanFactoryImpl(BeanFactory parentBeanFactory) {
+		super(parentBeanFactory);
+	}
+
 	/** Create a new ListableBeanFactoryImpl that takes
 	 * uses the ClassLoader of the caller to load classes.
 	 * Why would we need to do this? Imagine we're using this class
@@ -104,7 +107,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		if (caller != null)
 			this.classLoader = caller.getClass().getClassLoader();
 	}
-	
+
 	//---------------------------------------------------------------------
 	// Implementation of ListableBeanFactory
 	//---------------------------------------------------------------------
@@ -298,7 +301,10 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			}
 		}
 		logger.debug(pvs.toString());
-		
+
+		if (parent == null)
+			parent = defaultParentBean;
+
 		if (classname == null && parent == null)
 			throw new FatalBeanException("Invalid bean definition. Classname or parent must be supplied for bean with name '" + beanName + "'", null);
 		

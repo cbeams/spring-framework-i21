@@ -40,25 +40,57 @@ import com.interface21.beans.factory.NoSuchBeanDefinitionException;
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
-    //---------------------------------------------------------------------
-    // Instance data
-    //---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	// Instance data
+	//---------------------------------------------------------------------
+
+	/** parent bean factory, for bean inheritance support */
+	private BeanFactory parent;
+
 	/** Cache of shared instances. bean name --> bean instanced */
-	private HashMap						sharedInstanceCache = new HashMap();
+	private HashMap	sharedInstanceCache = new HashMap();
 
 	/** Logger available to subclasses */
-	protected final Logger				logger = Logger.getLogger(getClass().getName());
+	protected final Logger logger = Logger.getLogger(getClass().getName());
 
-    //---------------------------------------------------------------------
-    // Constructors
-    //---------------------------------------------------------------------
-    /** 
-     * Creates a new AbstractBeanFactory 
-     */
-    public AbstractBeanFactory() {
-    }
+	/** name of default parent bean */
+	protected String defaultParentBean;
 
-    //---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	// Constructors
+	//---------------------------------------------------------------------
+	/**
+	 * Creates a new AbstractBeanFactory
+	 */
+	public AbstractBeanFactory() {
+	}
+
+	/**
+	 * Creates a new AbstractBeanFactory, with the given parent.
+	 * @param parentBeanFactory  the parent bean factory, or null if none
+	 * @see this.getBean 
+	 */
+	public AbstractBeanFactory(BeanFactory parentBeanFactory) {
+		this.parent = parentBeanFactory;
+	}
+
+	/**
+	 * Returns the parent bean factory, of null if none.
+	 */
+	public BeanFactory getParent() {
+		return parent;
+	}
+
+	public void setDefaultParentBean(String defaultParentBean) {
+		this.defaultParentBean = defaultParentBean;
+	}
+
+	public String getDefaultParentBean() {
+		return defaultParentBean;
+	}
+
+
+	//---------------------------------------------------------------------
     // Implementation of BeanFactory interface
     //---------------------------------------------------------------------
 	/**
@@ -82,28 +114,36 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * synchronized, at least not if we pre-instantiate singletons
 	 */
 	private final synchronized Object getSharedInstance(String name) throws BeansException {
-       Object o = sharedInstanceCache.get(name);
-	   if (o == null) {
-	   	   logger.info("Cached shared instance of Singleton bean '" + name + "'");
-		   o = createBean(name);
-		   sharedInstanceCache.put(name, o);
-	   }
-	   else {
-	   	if (logger.isDebugEnabled())
+		Object o = sharedInstanceCache.get(name);
+	  if (o == null) {
+	    logger.info("Cached shared instance of Singleton bean '" + name + "'");
+		  o = createBean(name);
+		  sharedInstanceCache.put(name, o);
+	  }
+	  else {
+	  	if (logger.isDebugEnabled())
 		   	 logger.debug("Returning cached instance of Singleton bean '" + name + "'");
-	   }
-	   return o;
-    }
+	  }
+	  return o;
+	}
     
     
-    /**
-     * Return the bean with the given name
-     * @param name name of the bean to retrieve
-     */
-    public final Object getBean(String name) {
-    	BeanDefinition bd = getBeanDefinition(name);
-    	return bd.isSingleton() ? getSharedInstance(name) : createBean(name);
-    }
+	/**
+	 * Return the bean with the given name,
+	 * checking the parent bean factory of not found.
+	 * @param name  name of the bean to retrieve
+	 */
+	public final Object getBean(String name) {
+		try {
+			BeanDefinition bd = getBeanDefinition(name);
+			return bd.isSingleton() ? getSharedInstance(name) : createBean(name);
+		} catch (NoSuchBeanDefinitionException ex) {
+			// not found -> check parent
+			if (this.parent != null)
+				return this.parent.getBean(name);
+			throw ex;
+		}
+	}
 	
 	/**
 	 * Return a shared instance of the given bean. Analogous to getBeanInstance(name, requiredType).
@@ -125,7 +165,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * @see BeanFactory#isSingleton(String)
 	 */
 	public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
-		return getBeanDefinition(name).isSingleton();
+		try {
+			return getBeanDefinition(name).isSingleton();
+		} catch (NoSuchBeanDefinitionException ex) {
+			// not found -> check parent
+			if (this.parent != null)
+				return this.parent.isSingleton(name);
+			throw ex;
+		}
 	}
 
 	//---------------------------------------------------------------------
@@ -270,7 +317,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if the bean definition cannot be resolved
 	 */
     protected abstract BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
-
 
 
 }	// class AbstractBeanFactory
