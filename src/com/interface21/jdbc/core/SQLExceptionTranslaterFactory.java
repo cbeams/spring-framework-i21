@@ -1,8 +1,8 @@
 /**
- * Generic framework code included with 
+ * Generic framework code included with
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
- * This code is free to use and modify. 
+ * by Rod Johnson (Wrox, 2002).
+ * This code is free to use and modify.
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
@@ -30,33 +30,42 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
 /**
  * Factory for creating SQLExceptionTranslator based on the
  * DatabaseProductName taken from the DatabaseMetaData.
- * Returns a SQLExceptionTranslator populated with vendor 
- * codes defined in a configuration file named "sql-error-codes.xml".
+ *
+ * <p>Returns a SQLExceptionTranslator populated with vendor codes
+ * defined in a configuration file named "sql-error-codes.xml".
+ * Reads the default file in this package if not overridden by a file
+ * in the root of the classpath (e.g. in the WEB-INF/classes directory).
+ *
  * @author Thomas Risberg
    @version $Id$
  */
 public class SQLExceptionTranslaterFactory {
-	
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
-	 * Name of SQL error code file, loading on the classpath. Will look
-	 * in current directory (no leading /).
+	 * Name of custom SQL error codes file, loading from the root
+	 * of the classpath (e.g. in the WEB-INF/classes directory).
 	 */
 	public static final String SQL_ERROR_CODE_OVERRIDE_PATH = "/sql-error-codes.xml";
+
+	/**
+	 * Name of SQL error code files, loading from the classpath.
+	 * Will look in the package of this class (no leading /).
+	 */
 	public static final String SQL_ERROR_CODE_DEFAULT_PATH = "sql-error-codes.xml";
-	
+
 	/**
 	* Keep track of this instance so we can return it to classes that request it.
 	*/
 	private static final SQLExceptionTranslaterFactory instance;
-	
+
 	static {
 		instance = new SQLExceptionTranslaterFactory();
 	}
 
 	/**
-	 * Factory method
+	 * Return singleton instance.
 	 */
 	public static SQLExceptionTranslaterFactory getInstance() {
 		return instance;
@@ -67,7 +76,7 @@ public class SQLExceptionTranslaterFactory {
 	* Create a Map to hold error codes for all databases defined in the config file.
 	*/
 	private Map rdbmsErrorCodes;
-	
+
 	/**
 	 * Not public to enforce Singleton design pattern.
 	 */
@@ -76,12 +85,13 @@ public class SQLExceptionTranslaterFactory {
 			InputStream is = SQLExceptionTranslaterFactory.class.getResourceAsStream(SQL_ERROR_CODE_OVERRIDE_PATH);
 			if (is == null) {
 				is = SQLExceptionTranslaterFactory.class.getResourceAsStream(SQL_ERROR_CODE_DEFAULT_PATH);
-				if (is == null) 
+				if (is == null)
 					throw new BeanDefinitionStoreException("Unable to locate file [" + SQL_ERROR_CODE_DEFAULT_PATH +"]",null);
 			}
 			ListableBeanFactory bf = new XmlBeanFactory(is);
-			String[] rdbmsNames = bf.getBeanDefinitionNames(com.interface21.jdbc.core.SQLErrorCodes.class);			
+			String[] rdbmsNames = bf.getBeanDefinitionNames(com.interface21.jdbc.core.SQLErrorCodes.class);
 			rdbmsErrorCodes = new HashMap(rdbmsNames.length);
+
 			for (int i = 0; i < rdbmsNames.length; i++) {
 				SQLErrorCodes ec = (SQLErrorCodes) bf.getBean(rdbmsNames[i]);
 				if (ec.getBadSqlGrammarCodes() == null)
@@ -127,6 +137,7 @@ public class SQLExceptionTranslaterFactory {
 			}
 			catch (SQLException se) {
 				// this is bad - we probably lost the connection
+				logger.warn("Could not read database meta data for exception translater", se);
 			}
 			finally {
 				DataSourceUtils.closeConnectionIfNecessary(con, ds);
@@ -136,15 +147,14 @@ public class SQLExceptionTranslaterFactory {
 	}
 
 	/**
-	 * Return plain SQLErrorCodes for the given database.
+	 * Return plain SQLErrorCodes instance for the given database.
 	 */
 	public SQLErrorCodes getErrorCodes(String dbName) {
 		SQLErrorCodes sec = (SQLErrorCodes) rdbmsErrorCodes.get(dbName);
-		
+		if (sec == null) {
 		// could not find the database among the defined ones
-		if (sec == null) 
 			sec = new SQLErrorCodes();
-
+		}
 		return sec;
 	}
 
