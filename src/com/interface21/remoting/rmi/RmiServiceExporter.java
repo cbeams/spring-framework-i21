@@ -76,19 +76,21 @@ public class RmiServiceExporter implements InitializingBean {
 	 * Register the service as RMI object.
 	 * Creates an RMI registry on the specified port if none exists.
 	 */
-	public void afterPropertiesSet() throws AlreadyBoundException, RemoteException {
-		Remote wrapper = new RemoteInvocationWrapper(this.service);
+	public void afterPropertiesSet() throws RemoteException, AlreadyBoundException {
 		Registry registry = null;
+		logger.info("Looking for RMI registry at port [" + this.port + "]");
 		try {
 			// retrieve registry
 			registry = LocateRegistry.getRegistry(this.port);
 		}
 		catch (RemoteException ex) {
-			logger.debug("Could not retrieve RMI registry", ex);
+			logger.warn("Could not detect RMI registry - creating new one", ex);
 			// assume no registry found -> create new one
 			registry = LocateRegistry.createRegistry(this.port);
 		}
 		// bind wrapper to registry
+		logger.info("Binding RMI service [" + this.name + "] to registry at port [" + this.port + "]");
+		Remote wrapper = new RemoteInvocationWrapper(this.service);
 		registry.rebind(this.name, wrapper);
 	}
 
