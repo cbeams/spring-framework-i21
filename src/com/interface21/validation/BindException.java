@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,14 @@ import com.interface21.beans.BeanWrapperImpl;
  * Default implementation of the Errors interface, supporting
  * registration and evaluation of binding errors.
  * Slightly unusual, as it _is_ an exception.
- * Supports exporting a model, suitable for example for web MVC.
+ *
+ * <p>This is mainly a framework-internal class. Normally,
+ * application code will work with the Errors interface.
+ *
+ * <p>Supports exporting a model, suitable for example for web MVC.
+ * Thus, it is sometimes used as parameter type instead of the
+ * Errors interface itself - if extracting the model makes sense
+ * in the respective context.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -29,7 +35,7 @@ public class BindException extends Exception implements Errors {
 	 */
 	public static final String ERROR_KEY_PREFIX = BindException.class.getName() + ".";
 
-	private List errors = new LinkedList();
+	private List errors = new ArrayList();
 
 	private BeanWrapper beanWrapper;
 
@@ -37,27 +43,45 @@ public class BindException extends Exception implements Errors {
 
 	private String nestedPath = "";
 
+	/**
+	 * Create a new BindException instance.
+	 * @param target target object to bind onto
+	 * @param name name of the target object
+	 */
 	public BindException(Object target, String name) {
 		this.beanWrapper = new BeanWrapperImpl(target);
 		this.objectName = name;
 		this.nestedPath = "";
 	}
 
+	/**
+	 * Return the BeanWrapper that this instance uses.
+	 */
 	protected BeanWrapper getBeanWrapper() {
 		return beanWrapper;
 	}
 
+	/**
+	 * Transform the given field into its full path,
+	 * regarding the nested path of this instance.
+	 */
 	private String fixedField(String field) {
-		// Add nested path, if present, allowing context changes
-		return nestedPath + field;
+		return this.nestedPath + field;
 	}
 
+	/**
+	 * Add a FieldError to the errors list.
+	 * Intended to be used by subclasses like DataBinder.
+	 */
 	protected void addFieldError(FieldError fe) {
 		errors.add(fe);
 	}
 
+	/**
+	 * Return the wrapped target object.
+	 */
 	public Object getTarget() {
-		return beanWrapper.getWrappedInstance();
+		return this.beanWrapper.getWrappedInstance();
 	}
 
 	public String getObjectName() {
@@ -65,26 +89,26 @@ public class BindException extends Exception implements Errors {
 	}
 
 	public void reject(String errorCode, Object[] errorArgs, String defaultMessage) {
-		errors.add(new ObjectError(this.objectName, errorCode, errorArgs, defaultMessage));
+		this.errors.add(new ObjectError(this.objectName, errorCode, errorArgs, defaultMessage));
 	}
 
 	public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) {
 		field = fixedField(field);
 		Object newVal = getBeanWrapper().getPropertyValue(field);
 		FieldError fe = new FieldError(this.objectName, field, newVal, errorCode, errorArgs, defaultMessage);
-		errors.add(fe);
+		this.errors.add(fe);
 	}
 
 	public boolean hasErrors() {
-		return !errors.isEmpty();
+		return !this.errors.isEmpty();
 	}
 
 	public int getErrorCount() {
-		return errors.size();
+		return this.errors.size();
 	}
 
 	public List getAllErrors() {
-		return Collections.unmodifiableList(errors);
+		return Collections.unmodifiableList(this.errors);
 	}
 
 	public boolean hasGlobalErrors() {
@@ -97,7 +121,7 @@ public class BindException extends Exception implements Errors {
 
 	public List getGlobalErrors() {
 		List result = new ArrayList();
-		for (Iterator it = errors.iterator(); it.hasNext();) {
+		for (Iterator it = this.errors.iterator(); it.hasNext();) {
 			ObjectError fe = (ObjectError) it.next();
 			if (!(fe instanceof FieldError))
 				result.add(fe);
@@ -106,7 +130,7 @@ public class BindException extends Exception implements Errors {
 	}
 
 	public ObjectError getGlobalError() {
-		for (Iterator it = errors.iterator(); it.hasNext();) {
+		for (Iterator it = this.errors.iterator(); it.hasNext();) {
 			ObjectError fe = (ObjectError) it.next();
 			if (!(fe instanceof FieldError))
 				return fe;
@@ -125,7 +149,7 @@ public class BindException extends Exception implements Errors {
 	public List getFieldErrors(String field) {
 		List result = new ArrayList();
 		field = fixedField(field);
-		for (Iterator it = errors.iterator(); it.hasNext();) {
+		for (Iterator it = this.errors.iterator(); it.hasNext();) {
 			ObjectError fe = (ObjectError) it.next();
 			if (fe instanceof FieldError && field.equals(((FieldError) fe).getField()))
 				result.add(fe);
@@ -148,7 +172,8 @@ public class BindException extends Exception implements Errors {
 		FieldError fe = getFieldError(field);
 		if (fe == null)
 			return getBeanWrapper().getPropertyValue(field);
-		return fe.getRejectedValue();
+		else
+			return fe.getRejectedValue();
 	}
 
 	public void setNestedPath(String nestedPath) {
@@ -161,15 +186,16 @@ public class BindException extends Exception implements Errors {
 
 	/**
 	 * Return a model Map for the contained state, exposing an Errors
-	 * instance as ERROR_KEY_PREFIX + objectName, and the object itself.
+	 * instance as ERROR_KEY_PREFIX + object name, and the object itself.
+	 * @see #ERROR_KEY_PREFIX
 	 */
 	public final Map getModel() {
-		Map m = new HashMap();
+		Map model = new HashMap();
 		// errors instance, even if no errors
-		m.put(ERROR_KEY_PREFIX + objectName, this);
+		model.put(ERROR_KEY_PREFIX + this.objectName, this);
 		// mapping from name to target object
-		m.put(objectName, beanWrapper.getWrappedInstance());
-		return m;
+		model.put(this.objectName, this.beanWrapper.getWrappedInstance());
+		return model;
 	}
 
 	/**
@@ -177,10 +203,9 @@ public class BindException extends Exception implements Errors {
 	 */
 	public String getMessage() {
 		StringBuffer sb = new StringBuffer("BindException: " + getErrorCount() + " errors");
-		//System.out.println("command is " + getTarget() + "; ");
-		Iterator itr = errors.iterator();
-		while (itr.hasNext()) {
-			sb.append("; " + itr.next());
+		Iterator it = this.errors.iterator();
+		while (it.hasNext()) {
+			sb.append("; " + it.next());
 		}
 		return sb.toString();
 	}
