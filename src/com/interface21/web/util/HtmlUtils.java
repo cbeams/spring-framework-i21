@@ -7,7 +7,10 @@ import java.util.HashMap;
  * Utility class for HTML escaping and unescaping.
  * Based on code from com.purpletech.util.Utils, written by Alex Chaffee.
  *
- * Reference: http://hotwired.lycos.com/webmonkey/reference/special_characters/
+ * <p>Reference:
+ * <a href="http://hotwired.lycos.com/webmonkey/reference/special_characters/">
+ * http://hotwired.lycos.com/webmonkey/reference/special_characters/
+ * </a>
  *
  * @author Juergen Hoeller
  * @since 01.03.2003
@@ -99,9 +102,9 @@ public abstract class HtmlUtils {
 	}
 
 	/**
-	 * Turns funky characters into HTML entity equivalents<p>
-	 * e.g. <tt>"bread" & "butter"</tt> => <tt>&amp;quot;bread&amp;quot; &amp;amp; &amp;quot;butter&amp;quot;</tt>.
-	 * Update: supports nearly all HTML entities, including funky accents. See the source code for more detail.
+	 * Turns funky characters into HTML entity equivalents.<p>
+	 * E.g. <tt>"bread" & "butter"</tt> => <tt>&amp;quot;bread&amp;quot; &amp;amp; &amp;quot;butter&amp;quot;</tt>
+	 * <p>Update: supports nearly all HTML entities, including funky accents. See the source code for more detail.
 	 **/
 	public static String htmlEscape(String source) {
 		StringBuffer buf = new StringBuffer();
