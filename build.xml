@@ -146,6 +146,9 @@
 			</fileset>
 		</zip>
 
+		<copy file="${src.dir}/com/interface21/web/servlet/tags/spring.tld"
+			todir="${dist.dir}" preservelastmodified="true"/>
+
 	</target>
 
 
@@ -190,6 +193,7 @@
 		<zip zipfile="${release.dir}/${release.zip}">
 			<zipfileset dir="." prefix="${release.path}">
 				<include name="dist/*.jar"/>
+				<include name="dist/*.tld"/>
 				<include name="docs/**"/>
 				<include name="src/**"/>
 				<include name="lib/ant/**"/>
