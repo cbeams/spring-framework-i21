@@ -2,11 +2,7 @@ package com.interface21.jdbc.core;
 
 import java.sql.SQLException;
 
-import com.interface21.jdbc.core.BadSqlGrammarException;
-import com.interface21.jdbc.core.SQLStateSQLExceptionTranslater;
-import com.interface21.jdbc.core.UncategorizedSQLException;
-
-import junit.framework.*;
+import junit.framework.TestCase;
 
 /**
  * 

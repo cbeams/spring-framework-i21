@@ -1,11 +1,6 @@
 package com.interface21.jdbc.core;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,12 +11,9 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
-import com.interface21.dao.CleanupFailureDataAccessException;
-import com.interface21.dao.DataAccessException;
-import com.interface21.dao.DataAccessResourceFailureException;
-import com.interface21.dao.UncategorizedDataAccessException;
+import com.interface21.dao.*;
+import com.interface21.jdbc.mock.MockConnectionFactory;
 import com.interface21.jdbc.mock.SingleConnectionDataSource;
-
 import com.mockobjects.sql.MockConnection;
 
 /** 

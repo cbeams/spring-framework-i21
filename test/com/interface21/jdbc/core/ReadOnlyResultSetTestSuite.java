@@ -2,14 +2,15 @@ package com.interface21.jdbc.core;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.sql.*;
-import java.util.*;
-import javax.sql.*;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+
+import junit.framework.TestCase;
 
 import com.mockobjects.sql.*;
 import com.mockobjects.util.NotImplementedException;
-import junit.framework.TestCase;
-import org.easymock.*;
 
 /**
  * Tests that the authorised methods work as expected and unauthorised methods
