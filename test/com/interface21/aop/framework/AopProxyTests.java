@@ -179,13 +179,8 @@ public class AopProxyTests extends TestCase {
 	 * set of interfaces are equal
 	 * @throws Throwable
 	 */
-	public void testEquals() throws Throwable {
-		// Test return value
-		TestBean raw = new TestBean() {
-			public ITestBean getSpouse() {
-				return this;
-			}
-		};
+	public void testEqualsWithJdkProxy() throws Throwable {
+		TestBean raw = new EqualsTestBean();
 		InvokerInterceptor ii = new InvokerInterceptor(raw);
 
 		AttributeRegistry r = new Attrib4jAttributeRegistry();
@@ -207,19 +202,35 @@ public class AopProxyTests extends TestCase {
 		//assertTrue(!tb.equals(AopProxy.getProxy(new AopProxy(pc2))));
 
 		// Test with any old dynamic proxy
-		assertTrue(
-			!tb
-			.equals(
-				Proxy
-				.newProxyInstance(getClass().getClassLoader(), new Class[] { ITestBean.class }, new InvocationHandler() {
-			/**
-			 * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
-			 */
+		assertTrue(!tb.equals(Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { ITestBean.class }, new InvocationHandler() {
 			public Object invoke(Object arg0, Method arg1, Object[] arg2) throws Throwable {
 				throw new UnsupportedOperationException("invoke");
 			}
 		})));
 	}
+
+	/*
+	public void testEqualsWithCglibProxy() throws Throwable {
+		EqualsTestBean raw = new EqualsTestBean();
+		InvokerInterceptor ii = new InvokerInterceptor(raw);
+
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] {}, false, null);
+		pc.addInterceptor(ii);
+		AopProxy aop = new AopProxy(pc);
+
+		EqualsTestBean tb = (EqualsTestBean) aop.getProxy();
+		assertTrue("proxy equals itself", tb.equals(tb));
+		assertTrue("proxy is equal to proxied object", tb.equals(raw));
+		//test null eq
+		assertTrue("tb.equals(null) is false", !tb.equals(null));
+		assertTrue("test equals proxy", tb.equals(aop));
+
+		// Test with AOP proxy with additional interceptor
+		ProxyConfig pc2 = new DefaultProxyConfig(new Class[] {}, false, null);
+		pc2.addInterceptor(new DebugInterceptor());
+		assertTrue(!tb.equals(new AopProxy(pc2)));
+	}
+	*/
 
 	/**
 	 * Test canAttach
@@ -339,5 +350,12 @@ public class AopProxyTests extends TestCase {
 			super.absquatulate();
 		}
 	}
+
+	public static class EqualsTestBean extends TestBean {
+
+		public ITestBean getSpouse() {
+			return this;
+		}
+	};
 
 }

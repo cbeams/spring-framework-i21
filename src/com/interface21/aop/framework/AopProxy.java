@@ -139,12 +139,7 @@ public class AopProxy implements InvocationHandler {
 			// proxy the given class itself: CGLIB necessary
 			logger.info("Creating CGLIB proxy for [" + this.config.getTarget() + "]");
 			return Enhancer.enhance(this.config.getTarget().getClass(), this.config.getProxiedInterfaces(),
-				new MethodInterceptor() {
-					public Object intercept(Object handler, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-						return invoke(handler, method, objects);
-					}
-				}
-			);
+			                        new CglibInterceptorWrapper(this));
 		}
 	}
 
@@ -165,11 +160,17 @@ public class AopProxy implements InvocationHandler {
 			aopr2 = (AopProxy) other;
 		}
 		else if (Proxy.isProxyClass(other.getClass())) {
-			InvocationHandler ih = Proxy.getInvocationHandler((Proxy) other);
+			InvocationHandler ih = Proxy.getInvocationHandler(other);
 			if (!(ih instanceof AopProxy))
 				return false;
 			aopr2 = (AopProxy) ih; 
 		}
+		/*
+		else if (Enhancer.getMethodInterceptor(other) instanceof CglibInterceptorWrapper) {
+			CglibInterceptorWrapper iw = (CglibInterceptorWrapper) Enhancer.getMethodInterceptor(other);
+			aopr2 = iw.getProxy();
+		}
+		*/
 		else {
 			// Not a valid comparison
 			return false;
@@ -188,5 +189,23 @@ public class AopProxy implements InvocationHandler {
 			
 		return true;
 	}
-	
+
+
+	private static class CglibInterceptorWrapper implements MethodInterceptor {
+
+		private AopProxy proxy;
+
+		private CglibInterceptorWrapper(AopProxy proxy) {
+			this.proxy = proxy;
+		}
+
+		public AopProxy getProxy() {
+			return proxy;
+		}
+
+		public Object intercept(Object handler, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+			return proxy.invoke(handler, method, objects);
+		}
+	}
+
 }
