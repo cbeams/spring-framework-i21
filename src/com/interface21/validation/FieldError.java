@@ -1,22 +1,38 @@
 package com.interface21.validation;
 
 /**
- * Encapsulates an field error, i.e. a reason for rejecting
- * a specific field value.
+ * Encapsulates a field error, i.e. a reason for rejecting a
+ * specific field value.
  *
  * <p>A field error gets created with a single code but uses
- * 2 codes for message resolution, in the following order:
- * first one consisting of code + separator + field name,
- * then one solely consisting of the code.
- * E.g.: code "typeMismatch", field name "age" -> first try
- * "typeMismatch.age", second try "typeMismatch".
+ * 3 codes for message resolution, in the following order:
+ * <ul>
+ * <li>first: code + "." + object name + "." + field;
+ * <li>then: code + "." + field;
+ * <li>finally: code.
+ * </ul>
+ *
+ * <p>E.g.: code "typeMismatch", field "age", object name "user":
+ * <ul>
+ * <li>1. try "typeMismatch.user.age";
+ * <li>2. try "typeMismatch.age";
+ * <li>3. try "typeMismatch".
+ * </ul>
+ *
+ * <p>Thus, this resolution algorithm can be leveraged for example
+ * to show specific messages for binding errors like "required"
+ * and "typeMismatch":
+ * <ul>
+ * <li>at the object + field level ("age" field, but only on "user");
+ * <li>field level (all "age" fields, no matter which object name);
+ * <li>or general level (all fields, on any object).
+ * </ul>
  *
  * @author Rod Johnson, Juergen Hoeller
- * @version 1.0
  */
 public class FieldError extends ObjectError {
 
-	public static final String CODE_FIELD_SEPARATOR = ".";
+	public static final String CODE_SEPARATOR = ".";
 
 	private final String field;
 
@@ -40,7 +56,10 @@ public class FieldError extends ObjectError {
 	public FieldError(String objectName, String field, Object rejectedValue,
 	                  String code, Object[] args, String defaultMessage) {
 		this(objectName, field, rejectedValue,
-		     new String[]{code + CODE_FIELD_SEPARATOR + field, code}, args, defaultMessage);
+		     new String[] {code + CODE_SEPARATOR + objectName + CODE_SEPARATOR + field,
+		                   code + CODE_SEPARATOR + field,
+		                   code},
+		     args, defaultMessage);
 	}
 
 	public String getField() {
