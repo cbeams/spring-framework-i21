@@ -40,6 +40,8 @@ import com.interface21.web.context.WebApplicationContext;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @version $Revision$
+ * @see com.interface21.web.context.ContextLoader#initContext
+ * @see com.interface21.web.servlet.FrameworkServlet#getNamespace
  */
 public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	implements WebApplicationContext {
 
@@ -75,11 +77,11 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 	/** Namespace of this context, or null if root */
 	private String namespace = null;
 
-	/** URL from which the configuration was loaded */
-	private String configLocation;
-
 	/** Servlet context that this context runs in */
 	private ServletContext servletContext;
+
+	/** Path from which the configuration was loaded */
+	private String configLocation;
 
 
 	/**
@@ -98,7 +100,6 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 		this.namespace = namespace;
 		setDisplayName("WebApplicationContext for namespace '" + namespace + "'");
 	}
-
 
 	/**
 	 * Return the namespace of this context, or null if root.
@@ -136,7 +137,6 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 	protected String getConfigLocation() {
 		return this.configLocation;
 	}
-
 
 	/**
 	 * Initialize the config location for the current namespace.
@@ -200,7 +200,7 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 	 */
 	public String toString() {
 		StringBuffer sb = new StringBuffer(super.toString() + "; ");
-		sb.append("config path='" + configLocation + "'; ");
+		sb.append("config path='" + this.configLocation + "'; ");
 		return sb.toString();
 	}
 

@@ -1,10 +1,10 @@
 /**
- * Generic framework code included with 
+ * Generic framework code included with
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
+ * by Rod Johnson (Wrox, 2002).
  * This code is free to use and modify. However, please
  * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
+ * class using or derived from this code.
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
@@ -23,18 +23,21 @@ import com.interface21.web.bind.ServletRequestDataBinder;
  * <p>Controller implementation creating a certain object (the command object)
  * on receipt of request and attempt to populate this object with request
  * parameters.</p>
+ * 
  * <p>This controller is the base for all controller wishing to populate
  * JavaBeans based on request parameters, validate the content of such
  * JavaBeans using {@link com.interface21.validation.Validator Validators}
  * and use custom editors (in the form of
  * {@link java.beans.PropertyEditor PropertyEditors}) to transform for instance
  * object into strings and vice versa. Three notion are mentioned here:</p>
+ *
  * <p><b>Command class:</b><br>
  * The command class is the object that will be created filled using the request
  * parameters. What the actual command class is, is customizable in many ways,
  * through extending controllers or overriding methods. Command classes should
  * preferrable be JavaBeans in order to be able to fill instance of the classes
  * using the request parameters.</p>
+ *
  * <p><b>Populating using request parameters and PropertyEditors:</b><br>
  * Upon receiving a request, any BaseCommandController will attempt to fill the
  * command class using the request parameters. This is done using the typical
@@ -43,8 +46,9 @@ import com.interface21.web.bind.ServletRequestDataBinder;
  * <code>setFirstName([value])</code> passing the value of the parameter. Nested properties
  * as of course supported. For instance a parameter named <code>'address.city'</code>
  * will result in a <code>getAddress().setCity([value])</code> call on the
- * command class.<br><br>
- * Important to know here is that you are not limited to String arguments in
+ * command class.</p>
+ *
+ * <p>Important to know here is that you are not limited to String arguments in
  * your JavaBeans. Using the PropertyEditor-notion as supplied by the
  * java.beans package, you will be able to transform Strings to Objects and
  * the other way around. For instance <code>setLocale(Locale loc)</code> is
@@ -52,8 +56,9 @@ import com.interface21.web.bind.ServletRequestDataBinder;
  * a value of <code>en</code>, as long as you register the appropriate
  * PropertyEditor in the Controller (see
  * {@link #initBinder(javax.servlet.http.HttpServletRequest,
-        * com.interface21.web.bind.ServletRequestDataBinder) initBinder()}
+ * com.interface21.web.bind.ServletRequestDataBinder) initBinder()}
  * for more information on that matter.</p>
+ *
  * <p><b>Validators:</b>
  * After the controller has successfully filled the command object with
  * the parameters from the request, it will attempt use any configured validators
@@ -113,7 +118,6 @@ import com.interface21.web.bind.ServletRequestDataBinder;
  * </table>
  * </p>
  *
- *
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
@@ -128,12 +132,6 @@ public abstract class BaseCommandController extends AbstractController {
 	private Validator validator;
 
 	private boolean validateOnBinding = true;
-
-
-	public BaseCommandController() {
-		super();
-	}
-
 
 	/**
 	 * Set the bean name of the command.
@@ -195,7 +193,6 @@ public abstract class BaseCommandController extends AbstractController {
 	protected final boolean isValidateOnBinding() {
 		return validateOnBinding;
 	}
-
 
 	/**
 	 * Check if the given validator and command class match.
@@ -299,7 +296,7 @@ public abstract class BaseCommandController extends AbstractController {
 	}
 
 	/**
-	 * Callback for custom postprocessing in terms of binding and validation.
+	 * Callback for custom post-processing in terms of binding and validation.
 	 * Called on each submit, after standard binding and validation,
 	 * and before error evaluation.
 	 * @param request current HTTP request

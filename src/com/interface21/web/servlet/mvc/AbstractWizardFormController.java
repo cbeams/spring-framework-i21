@@ -43,7 +43,7 @@ import com.interface21.web.util.WebUtils;
  * that the validator needs to provide, validating certain pieces of the
  * object. These can be combined to validate the elements of individual pages.
  *
- * <p>Note: Page numbering starts with 0, to be able to hand an array
+ * <p>Note: Page numbering starts with 0, to be able to pass an array
  * consisting of the respective view names to setPages.
  *
  * @author Juergen Hoeller
@@ -85,7 +85,6 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 	 * Create a new AbstractWizardFormController.
 	 */
 	public AbstractWizardFormController() {
-		super();
 		// always needs session to keep data from all pages
 		setSessionForm(true);
 		// never validate everything on binding ->
@@ -99,8 +98,9 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 	 * @param pages view names for the pages
 	 */
 	public final void setPages(String[] pages) {
-		if (pages == null | pages.length == 0)
+		if (pages == null | pages.length == 0)  {
 			throw new IllegalArgumentException("No wizard pages defined");
+		}
 		this.pages = pages;
 	}
 
@@ -137,12 +137,11 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 	 */
 	protected final void onBindAndValidate(HttpServletRequest request, Object command, BindException errors)
 	    throws ServletException {
-		super.onBindAndValidate(request, command, errors);
 		onBindAndValidate(request, command, errors, getCurrentPage(request));
 	}
 
 	/**
-	 * Callback for custom postprocessing in terms of binding and validation.
+	 * Callback for custom post-processing in terms of binding and validation.
 	 * Called on each submit, after standard binding and validation,
 	 * and before error evaluation.
 	 * @param request current HTTP request
