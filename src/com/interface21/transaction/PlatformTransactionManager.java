@@ -5,59 +5,37 @@
 
 package com.interface21.transaction;
 
-import java.sql.Connection;
-
-import com.interface21.transaction.*;
-
 /**
- * SPI interface.
+ * This is the central interface in Spring's transaction support.
+ * Applications can use this directly, but it is not primarily meant as API.
+ * Typically, applications will work with either TransactionTemplate or the
+ * AOP transaction interceptor.
+ *
+ * <p>For implementers, AbstractPlatformTransactionManager is a good starting
+ * point. The default implementations are DataSourceTransactionManager and
+ * JtaTransactionManager.
+ *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 16-Mar-2003
  * @version $Revision$
+ * @see com.interface21.transaction.support.TransactionTemplate
+ * @see com.interface21.aop.interceptor.transaction.TransactionInterceptor
+ * @see com.interface21.transaction.support.AbstractPlatformTransactionManager
+ * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+ * @see com.interface21.transaction.jta.JtaTransactionManager
  */
 public interface PlatformTransactionManager {
 
-	String PROPAGATION_CONSTANT_PREFIX = "PROPAGATION";
-	
-	String ISOLATION_CONSTANT_PREFIX = "ISOLATION";
-
-	/**
-	 * Support a current transaction, create a new one if none exists.
-	 * Analogous to EJB transaction attribute of the same name.
-	 */
-	int PROPAGATION_REQUIRED = 0;
-
-	/**
-	 * Support a current transaction, execute non-transactional if none exists.
-	 * Analogous to EJB transaction attribute of the same name.
-	 */
-	int PROPAGATION_SUPPORTS = 1;
-
-	/**
-	 * Support a current transaction, throw an exception if none exists.
-	 * Analogous to EJB transaction attribute of the same name.
-	 */
-	int PROPAGATION_MANDATORY = 2;
-
-	/**
-	 * Default isolation level, all other according to java.sql.Connection levels.
-	 * @see java.sql.Connection
-	 */
-	int ISOLATION_DEFAULT          = -1;
-	int ISOLATION_READ_UNCOMMITTED = Connection.TRANSACTION_READ_UNCOMMITTED;
-	int ISOLATION_READ_COMMITTED   = Connection.TRANSACTION_READ_COMMITTED;
-	int ISOLATION_REPEATABLE_READ  = Connection.TRANSACTION_REPEATABLE_READ;
-	int ISOLATION_SERIALIZABLE     = Connection.TRANSACTION_SERIALIZABLE;
-
 	/**
 	 * Return a currently active transaction or create a new one.
-	 * @param propagationBehavior propagation behavior according to the constants in this interface
-	 * @param isolationLevel isolation level according to the constants in this interface
+	 * @param definition TransactionDefinition instance (can be null for defaults),
+	 * describing propagation behavior, isolation level, timeout etc.
 	 * @return transaction status object representing the new or current transaction
 	 * @throws TransactionException in case of lookup, creation, or system errors
 	 */
-	TransactionStatus getTransaction(int propagationBehavior, int isolationLevel) throws TransactionException;
+	TransactionStatus getTransaction(TransactionDefinition definition)
+	    throws TransactionException;
 
 	/**
 	 * Commit the given transaction, with regard to its status.

@@ -11,8 +11,8 @@ import java.sql.Connection;
  *
  * @author Juergen Hoeller
  * @since 06.05.2003
- * @see com.interface21.transaction.support.DataSourceTransactionManager
- * @see com.interface21.transaction.support.DataSourceTransactionObject
+ * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+ * @see com.interface21.transaction.datasource.DataSourceTransactionObject
  * @see DataSourceUtils
  */
 public class ConnectionHolder {

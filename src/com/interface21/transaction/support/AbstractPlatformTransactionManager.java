@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.NoTransactionException;
 import com.interface21.transaction.PlatformTransactionManager;
+import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
 
@@ -28,7 +29,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	protected final Logger logger = Logger.getLogger(getClass());
 
 	/**
-	 * if transaction support needs to be available (else fallback behavior is enabled)
+	 * if transaction support needs to be available
+	 * (else fallback behavior is enabled)
 	 */
 	private boolean allowNonTransactionalExecution = false;
 
@@ -53,20 +55,24 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * checks non-transactional execution (on CannotCreateTransactionException).
 	 * Delegates to doGetTransaction, isExistingTransaction, doBegin.
 	 */
-	public final TransactionStatus getTransaction(int propagationBehavior, int isolationLevel)
+	public final TransactionStatus getTransaction(TransactionDefinition definition)
 	    throws TransactionException {
 		try {
 			Object transaction = doGetTransaction();
 			if (isExistingTransaction(transaction)) {
-				logger.debug("Taking part in existing transaction");
+				logger.debug("Participating in existing transaction");
 				return new TransactionStatus(transaction, false);
 			}
-			if (propagationBehavior == PROPAGATION_MANDATORY) {
+			if (definition == null) {
+				// use defaults
+				definition = new DefaultTransactionDefinition();
+			}
+			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY) {
 				throw new NoTransactionException("Transaction propagation mandatory but no existing transaction context");
 			}
-			if (propagationBehavior == PROPAGATION_REQUIRED) {
+			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED) {
 				// create new transaction
-				doBegin(transaction, isolationLevel);
+				doBegin(transaction, definition.getIsolationLevel(), definition.getTimeout());
 				return new TransactionStatus(transaction, true);
 			}
 		}
@@ -109,8 +115,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	}
 
 	/**
-	 * This implementation of rollback handles taking part in existing transactions
-	 * and non-transactional execution. Delegates to doRollback and doSetRollbackOnly.
+	 * This implementation of rollback handles participating in
+	 * existing transactions and non-transactional execution.
+	 * Delegates to doRollback and doSetRollbackOnly.
 	 */
 	public final void rollback(TransactionStatus status) throws TransactionException {
 		try {
@@ -151,9 +158,10 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * Begin a new transaction with the given isolation level.
 	 * @param transaction transaction object returned by doGetTransaction()
 	 * @param isolationLevel desired isolation level
+	 * @param timeout transaction timeout (in seconds)
 	 * @throws TransactionException in case of creation or system errors
 	 */
-	protected abstract void doBegin(Object transaction, int isolationLevel) throws TransactionException;
+	protected abstract void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException;
 
 	/**
 	 * Perform an actual commit on the given transaction.

@@ -12,8 +12,10 @@ import com.interface21.jdbc.core.MockConnectionFactory;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 import com.interface21.jdbc.datasource.SingleConnectionDataSource;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
-import com.interface21.transaction.support.DataSourceTransactionManager;
+import com.interface21.transaction.datasource.DataSourceTransactionManager;
 import com.interface21.transaction.support.TransactionCallbackWithoutResult;
+import com.interface21.transaction.support.TransactionTemplate;
+import com.interface21.transaction.support.DefaultTransactionDefinition;
 
 /**
  * @author Juergen Hoeller
@@ -28,18 +30,15 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testNoExistingTransaction() {
 		PlatformTransactionManager tm = new TestTransactionManager(false, true);
-		TransactionStatus status1 = tm.getTransaction(PlatformTransactionManager.PROPAGATION_SUPPORTS,
-		                                              PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status1 = tm.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS));
 		assertTrue("Must not have transaction", status1.getTransaction() == null);
 
-		TransactionStatus status2 = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                              PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status2 = tm.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED));
 		assertTrue("Must have transaction", status2.getTransaction() != null);
 		assertTrue("Must be new transaction", status2.isNewTransaction());
 
 		try {
-			TransactionStatus status3 = tm.getTransaction(PlatformTransactionManager.PROPAGATION_MANDATORY,
-																										PlatformTransactionManager.ISOLATION_DEFAULT);
+			TransactionStatus status3 = tm.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_MANDATORY));
 			fail("Should not have thrown NoTransactionException");
 		}
 		catch (NoTransactionException ex) {
@@ -49,19 +48,16 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testExistingTransaction() {
 		PlatformTransactionManager tm = new TestTransactionManager(true, true);
-		TransactionStatus status1 = tm.getTransaction(PlatformTransactionManager.PROPAGATION_SUPPORTS,
-		                                              PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status1 = tm.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS));
 		assertTrue("Must have transaction", status1.getTransaction() != null);
 		assertTrue("Must not be new transaction", !status1.isNewTransaction());
 
-		TransactionStatus status2 = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                              PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status2 = tm.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED));
 		assertTrue("Must have transaction", status2.getTransaction() != null);
 		assertTrue("Must not be new transaction", !status2.isNewTransaction());
 
 		try {
-			TransactionStatus status3 = tm.getTransaction(PlatformTransactionManager.PROPAGATION_MANDATORY,
-																										PlatformTransactionManager.ISOLATION_DEFAULT);
+			TransactionStatus status3 = tm.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_MANDATORY));
 			assertTrue("Must have transaction", status3.getTransaction() != null);
 			assertTrue("Must not be new transaction", !status3.isNewTransaction());
 		}
@@ -74,8 +70,7 @@ public class TransactionTestSuite extends TestCase {
 		AbstractPlatformTransactionManager tm = new TestTransactionManager(false, false);
 		tm.setAllowNonTransactionalExecution(true);
 		try {
-			TransactionStatus status = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-																									 PlatformTransactionManager.ISOLATION_DEFAULT);
+			TransactionStatus status = tm.getTransaction(null);
 			assertTrue("Must not have transaction", status.getTransaction() == null);
 		}
 		catch (NoTransactionException ex) {
@@ -86,8 +81,7 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testCommitWithoutExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(false, true);
-		TransactionStatus status = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                             PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status = tm.getTransaction(null);
 		tm.commit(status);
 		assertTrue("triggered begin", tm.begin);
 		assertTrue("triggered commit", tm.commit);
@@ -97,8 +91,7 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testRollbackWithoutExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(false, true);
-		TransactionStatus status = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                             PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status = tm.getTransaction(null);
 		tm.rollback(status);
 		assertTrue("triggered begin", tm.begin);
 		assertTrue("no commit", !tm.commit);
@@ -108,8 +101,7 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testRollbackOnlyWithoutExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(false, true);
-		TransactionStatus status = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                             PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status = tm.getTransaction(null);
 		status.setRollbackOnly();
 		tm.commit(status);
 		assertTrue("triggered begin", tm.begin);
@@ -121,8 +113,7 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testCommitWithExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(true, true);
-		TransactionStatus status = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                             PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status = tm.getTransaction(null);
 		tm.commit(status);
 		assertTrue("no begin", !tm.begin);
 		assertTrue("no commit", !tm.commit);
@@ -132,8 +123,7 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testRollbackWithExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(true, true);
-		TransactionStatus status = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                             PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status = tm.getTransaction(null);
 		tm.rollback(status);
 		assertTrue("no begin", !tm.begin);
 		assertTrue("no commit", !tm.commit);
@@ -143,8 +133,7 @@ public class TransactionTestSuite extends TestCase {
 
 	public void testRollbackOnlyWithExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(true, true);
-		TransactionStatus status = tm.getTransaction(PlatformTransactionManager.PROPAGATION_REQUIRED,
-		                                             PlatformTransactionManager.ISOLATION_DEFAULT);
+		TransactionStatus status = tm.getTransaction(null);
 		status.setRollbackOnly();
 		tm.commit(status);
 		assertTrue("no begin", !tm.begin);

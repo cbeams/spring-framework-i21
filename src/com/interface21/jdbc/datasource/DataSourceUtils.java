@@ -30,7 +30,7 @@ import com.interface21.util.ThreadObjectManager;
  * @version $Id$
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @see com.interface21.transaction.support.DataSourceTransactionManager
+ * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  */
 public abstract class DataSourceUtils {
 
@@ -44,7 +44,7 @@ public abstract class DataSourceUtils {
 	 * DataSource/Connection map per thread for JDBC transactions.
 	 * @return the thread object manager
 	 * @see #getConnection
-	 * @see com.interface21.transaction.support.DataSourceTransactionManager
+	 * @see com.interface21.transaction.datasource.DataSourceTransactionManager
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
@@ -87,7 +87,7 @@ public abstract class DataSourceUtils {
 	 * @throws com.interface21.jdbc.datasource.CannotGetJdbcConnectionException if we fail to get a connection from the given DataSource
 	 * @return a JDBC connection from this DataSource
 	 * @see #getThreadObjectManager
-	 * @see com.interface21.transaction.support.DataSourceTransactionManager
+	 * @see com.interface21.transaction.datasource.DataSourceTransactionManager
 	 */
 	public static Connection getConnection(DataSource ds) throws CannotGetJdbcConnectionException {
 		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);

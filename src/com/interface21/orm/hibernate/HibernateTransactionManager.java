@@ -15,6 +15,8 @@ import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.TransactionSystemException;
+import com.interface21.transaction.TransactionUsageException;
+import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
 
 /**
@@ -55,7 +57,7 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * @see HibernateTemplate#execute
  * @see #setDataSourceName
  * @see #setDataSource
- * @see com.interface21.transaction.support.DataSourceTransactionManager
+ * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
  */
 public class HibernateTransactionManager extends AbstractPlatformTransactionManager {
@@ -152,12 +154,18 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		return SessionFactoryUtils.getThreadObjectManager().hasThreadObject(this.sessionFactory);
 	}
 
-	protected void doBegin(Object transaction, int isolationLevel) throws TransactionException {
+	/**
+	 * This implementation sets the isolation level but ignores the timeout.
+	 */
+	protected void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException {
+		if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
+			throw new TransactionUsageException("HibernateTransactionManager does not support timeouts");
+		}
 		HibernateTransactionObject txObject = (HibernateTransactionObject) transaction;
 		logger.debug("Beginning Hibernate transaction");
 		try {
 			Session session = txObject.getSessionHolder().getSession();
-			if (isolationLevel != ISOLATION_DEFAULT) {
+			if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
 				logger.debug("Changing isolation level to " + isolationLevel);
 				txObject.setPreviousIsolationLevel(new Integer(session.connection().getTransactionIsolation()));
 				session.connection().setTransactionIsolation(isolationLevel);

@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  * @author Juergen Hoeller
  * @since 02.05.2003
  * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
- * @see com.interface21.transaction.support.DataSourceTransactionManager
+ * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  */
 public class ThreadObjectManager {
 

@@ -10,31 +10,22 @@ package com.interface21.transaction;
  * @author Juergen Hoeller
  * @since 27.03.2003
  * @see PlatformTransactionManager
- * @see TransactionCallback
+ * @see com.interface21.transaction.support.TransactionCallback
  */
 public class TransactionStatus {
 
-	/**
-	 * the underlying transaction object, e.g. a JTA UserTransaction
-	 */
 	private Object transaction = null;
 
-	/**
-	 * if the transaction is new,
-	 * else taking part in a surrounding transaction
-	 */
 	private boolean newTransaction = false;
 
-	/**
-	 * if the transaction has been set rollback-only
-	 */
 	private boolean rollbackOnly = false;
 
 	/**
 	 * Create a new TransactionStatus instance.
-	 * @param transaction  the underlying transaction object, e.g. a JTA UserTransaction
-	 * @param newTransaction  if the transaction is new,
-	 * else taking part in a surrounding transaction
+	 * @param transaction underlying transaction object,
+	 * e.g. a JTA UserTransaction
+	 * @param newTransaction if the transaction is new,
+	 * else participating in a surrounding transaction
 	 */
 	public TransactionStatus(Object transaction, boolean newTransaction) {
 		this.transaction = transaction;
@@ -50,7 +41,7 @@ public class TransactionStatus {
 
 	/**
 	 * Return if the transaction is new,
-	 * else taking part in a surrounding transaction.
+	 * else participating in a surrounding transaction.
 	 */
 	public boolean isNewTransaction() {
 		return (transaction != null && newTransaction);
@@ -69,4 +60,5 @@ public class TransactionStatus {
 	public void setRollbackOnly() {
 		this.rollbackOnly = true;
 	}
+
 }

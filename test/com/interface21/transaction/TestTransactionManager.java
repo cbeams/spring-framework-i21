@@ -35,7 +35,7 @@ class TestTransactionManager extends AbstractPlatformTransactionManager {
 		return existingTransaction;
 	}
 
-	protected void doBegin(Object transaction, int isolationLevel) {
+	protected void doBegin(Object transaction, int isolationLevel, int timeout) {
 		if (!TRANSACTION.equals(transaction)) {
 			throw new IllegalArgumentException("Not the same transaction object");
 		}
