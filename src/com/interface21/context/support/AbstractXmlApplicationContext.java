@@ -50,7 +50,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 	// Implementation of WebApplicationConfig
 	//---------------------------------------------------------------------
 	protected void refreshBeanFactory() throws ApplicationContextException {
-		String identifier = "application context with display name [" + getDisplayName() + "'";
+		String identifier = "application context with display name [" + getDisplayName() + "]";
 		InputStream is = null;
 		try {
 			// Supports remote as well as local URLs
