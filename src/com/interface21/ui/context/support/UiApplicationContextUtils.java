@@ -12,7 +12,6 @@ import com.interface21.ui.context.ThemeSource;
 
 /**
  * Utilities common to all UI application context implementations.
- *
  * @author Jean-Pierre Pawlak
  * @author Juergen Hoeller
  * @since 17.06.2003
@@ -45,7 +44,7 @@ public abstract class UiApplicationContextUtils {
 			}
 		}
 		catch (NoSuchBeanDefinitionException ex) {
-			logger.warn("No ThemeSource found, default created");
+			logger.info("No ThemeSource found for [" + applicationContext.getDisplayName() + "]: using ResourceBundleThemeSource");
 			themeSource = new ResourceBundleThemeSource();
 		}
 		return themeSource;
