@@ -57,7 +57,7 @@ public class ContextLoader {
 			return webApplicationContext;
 
 		} catch (ApplicationContextException ex) {
-			throw ex;
+			handleException("Failed to initialize application context", ex);
 
 		} catch (ClassNotFoundException ex) {
 			handleException("Failed to load config class '" + contextClass + "'", ex);
@@ -69,7 +69,7 @@ public class ContextLoader {
 			handleException("Illegal access while finding or instantiating config class '" + contextClass + "': does it have a public no arg constructor?", ex);
 
 		} catch (RuntimeException ex) {
-			handleException("Unexpected error loading config: " + ex, ex);
+			handleException("Unexpected error loading config", ex);
 		}
 
 		return null;
@@ -77,7 +77,12 @@ public class ContextLoader {
 
 	private static void handleException(String msg, Exception ex) throws ApplicationContextException {
 		logger.error(msg, ex);
-		throw new ApplicationContextException(msg, ex);
+		if (ex instanceof ApplicationContextException) {
+			throw (ApplicationContextException) ex;
+		}
+		else {
+			throw new ApplicationContextException(msg, ex);
+		}
 	}
 
 }
