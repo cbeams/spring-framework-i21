@@ -40,6 +40,19 @@ public class ProxyFactory extends DefaultProxyConfig {
 		addInterceptor(ii);
 	}
 	
+	
+	/**
+	 * No target, only interfaces
+	 *
+	 */
+	public ProxyFactory(Class[] interfaces) {
+		// TODO if null or empty
+		for (int i = 0; i < interfaces.length; i++) {
+			addInterface(interfaces[i]);
+		}
+		// Must add interceptors
+	}
+	
 	/**
 	 * Get all implemented interfaces, even those implemented by superclasses.
 	 * @param clazz
