@@ -4,58 +4,58 @@
 -->
 
 <beans>
-	<bean name="rod" class="com.interface21.beans.TestBean">	
+
+	<bean name="rod" class="com.interface21.beans.TestBean">
 		<property name="name">Rod</property>
 		<property name="age">31</property>
 	</bean>
-	
-	<bean name="roderick" parent="rod">	
+
+	<bean name="roderick" parent="rod">
 		<property name="name">Roderick</property>
 		<!-- Should inherit age -->
 	</bean>
-	
-	<bean name="kerry" class="com.interface21.beans.TestBean">	
+
+	<bean name="kerry" class="com.interface21.beans.TestBean">
 		<property name="name">Kerry</property>
 		<property name="age">34</property>
 		<property name="spouse" beanRef="true">rod</property>
 	</bean>
-	
-	<bean name="kathy" class="com.interface21.beans.TestBean" singleton="false">	
-			<property name="name">Kathy</property>
-			<property name="age">28</property> 
+
+	<bean name="kathy" class="com.interface21.beans.TestBean" singleton="false">
+		<property name="name">Kathy</property>
+		<property name="age">28</property>
 	</bean>
 
-	<bean name="typeMismatch" class="com.interface21.beans.TestBean" singleton="false">	
+	<bean name="typeMismatch" class="com.interface21.beans.TestBean" singleton="false">
 		<property name="name">typeMismatch</property>
 		<property name="age">34x</property>
-                <property name="spouse" beanRef="true">rod</property>
-               
+		<property name="spouse" beanRef="true">rod</property>
 	</bean>
-	
-	
+
+
 	<!--
 		Tests of lifecycle callbacks
 	-->
 	<bean name="mustBeInitialized"
 		class="com.interface21.beans.factory.MustBeInitialized">
 	</bean>
-	
+
 	<bean name="lifecycle"
 		class="com.interface21.beans.factory.LifecycleBean">
 	</bean>
-	
-	
+
+
 	<!-- Factory beans are automatically treated
 	differently -->
 	<bean name="singletonFactory"
 		class="com.interface21.beans.factory.DummyFactory">
 	</bean>
-	
+
 	<bean name="prototypeFactory"
 		class="com.interface21.beans.factory.DummyFactory">
 		<property name="singleton">false</property>
 	</bean>
-	
+
 	<bean name="factoryPassThrough"
 		class="com.interface21.beans.factory.DummyFactory">
 		<property name="singleton">true</property>
@@ -65,22 +65,15 @@
 	</bean>
 
 
-      <bean name="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener" />	
+	<bean name="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener"/>
 
-        <bean name="listenerVeto" class="com.interface21.beans.TestBean">	
-                <listener property="age" beanRef="agistListener" />
+	<bean name="listenerVeto" class="com.interface21.beans.TestBean">
+		<listener property="age" beanRef="agistListener"/>
 		<property name="name">listenerVeto</property>
 		<property name="age">66</property>
 	</bean>
 
-      <bean name="validEmpty" class="com.interface21.beans.TestBean" />	
+	<bean name="validEmpty" class="com.interface21.beans.TestBean"/>
 
-      
 
-<!--
-        <bean name="invalidClass" class="com.interface21.beans.TestBeanx" />	
--->
-
-</beans>		
-	
-	
+</beans>

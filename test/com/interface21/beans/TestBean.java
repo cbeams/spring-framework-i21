@@ -73,7 +73,7 @@ public class TestBean implements ITestBean, IOther {
     
     public String toString() {
         String s = "name=" + name + "; age=" + age + "; touchy=" + touchy;
-		s += "; spouse={" + (spouse != null ? spouse : null) + "}";
+		s += "; spouse={" + (spouse != null ? spouse.getName() : null) + "}";
 		return s;
     }
 	

@@ -59,7 +59,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 	public void testRefToSeparatePrototypeInstances() throws Exception {
 		InputStream is = getClass().getResourceAsStream("reftypes.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
-		assertTrue("5 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 5);
+		assertTrue("6 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 6);
 		TestBean emma = (TestBean) xbf.getBean("emma");
 		TestBean georgia = (TestBean) xbf.getBean("georgia");
 		ITestBean emmasJenks = emma.getSpouse();
@@ -75,7 +75,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 	public void testRefToSingleton() throws Exception {
 		InputStream is = getClass().getResourceAsStream("reftypes.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
-		assertTrue("5 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 5);
+		assertTrue("6 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 6);
 		TestBean jen = (TestBean) xbf.getBean("jenny");
 		TestBean dave = (TestBean) xbf.getBean("david");
 		TestBean jenks = (TestBean) xbf.getBean("jenks");
@@ -84,20 +84,16 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue("1 jen instances", davesJen == jenksJen);
 	}
 	
-	
-	/*
-	public void testCycles() throws Exception {
-		InputStream is = getClass().getResourceAsStream("cycles.xml");
+	public void testCircularReferences() {
+		InputStream is = getClass().getResourceAsStream("reftypes.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
-		assertTrue("6 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 6);
-		TestBean jen = (TestBean) xbf.getPrototype("jenny");
-		TestBean dave = (TestBean) xbf.getPrototype("david");
-		TestBean jenks = (TestBean) xbf.getPrototype("jenks");
-		TestBean davesJen = dave.getSpouse();
-		TestBean jenksJen = jenks.getSpouse();
-		assertTrue("1 jen instances", davesJen == jenksJen);
+		TestBean jenny = (TestBean) xbf.getBean("jenny");
+		TestBean david = (TestBean) xbf.getBean("david");
+		TestBean ego = (TestBean) xbf.getBean("ego");
+		assertTrue("Correct circular reference", jenny.getSpouse() == david);
+		assertTrue("Correct circular reference", david.getSpouse() == jenny);
+		assertTrue("Correct circular reference", ego.getSpouse() == ego);
 	}
-	*/
 
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(suite());

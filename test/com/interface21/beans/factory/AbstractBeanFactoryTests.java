@@ -7,7 +7,6 @@
 package com.interface21.beans.factory;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditorSupport;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -30,12 +29,9 @@ import com.interface21.beans.TestBean;
  */
 public abstract class AbstractBeanFactoryTests extends TestCase {
 
-
-	/** Creates new SeatingPlanTest */
 	public AbstractBeanFactoryTests(String name) {
 		super(name);
 	}
-
 
 	protected abstract BeanFactory getBeanFactory();
 
@@ -300,7 +296,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 			System.out.println(ex);
 		}
 	}
-	
+
 /*
 	public void testVeto() {
 		try {
@@ -327,19 +323,6 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 	}
 	*/
 
-
-	private static class ConsoleListener implements PropertyChangeListener {
-		int events;
-
-		public void propertyChange(PropertyChangeEvent e) {
-			++events;
-			//System.out.println("PropertyChangeEvent " + events + ": old value=[" + e.getOldValue() + "] new value=[" + e.getNewValue() + "]");
-		}
-
-		public int getEventCount() {
-			return events;
-		}
-	}
 
 	public static class AgistListener implements VetoableChangeListener {
 		int events;
