@@ -1,3 +1,8 @@
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
 package com.interface21.jdbc.datasource;
 
 import java.sql.Connection;
@@ -103,9 +108,17 @@ public class DriverManagerDataSource extends AbstractDataSource implements Smart
 
 	public Connection getConnection(String username, String password) throws SQLException {
 		logger.info("Creating new JDBC connection: " + this.url);
-		Connection con = DriverManager.getConnection(this.url, username, password);
+		Connection con = getConnectionFromDriverManager(this.url, username, password);
 		con.setAutoCommit(true);
 		return con;
+	}
+	
+	/**
+	 * Getting a connection using the nasty static from DriverManager is extracted into a
+	 * protected method to allow for easy unit testing
+	 */
+	protected Connection getConnectionFromDriverManager(String url, String username, String password) throws SQLException {
+		return DriverManager.getConnection(this.url, username, password);
 	}
 
 }
