@@ -2,6 +2,8 @@ package com.interface21.context.support;
 
 import java.util.Locale;
 
+import org.apache.log4j.Logger;
+
 import com.interface21.context.MessageSource;
 import com.interface21.context.NestingMessageSource;
 import com.interface21.context.NoSuchMessageException;
@@ -17,7 +19,9 @@ import com.interface21.context.NoSuchMessageException;
  */
 public abstract class AbstractNestingMessageSource implements NestingMessageSource {
 
-	
+	protected static Logger logger = Logger.getLogger(AbstractNestingMessageSource.class);
+
+
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
@@ -58,20 +62,18 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 * @throws NoSuchMessageException not found in any locale
 	 */
 	public final String getMessage(String code, Locale locale) throws NoSuchMessageException {
+		String msg = null;
 		try {
-			String mesg = resolve(code, locale);
-			if (mesg == null) {
-				if (parent != null)
-					return parent.getMessage(code, locale);
-				throw new NoSuchMessageException(code);
-			}
-			return mesg;
+			msg = resolve(code, locale);
+		}	catch (Exception ex) {
+			logger.warn(ex.getMessage());
 		}
-		catch (Exception ex) {
-			// OR RTE?
+		if (msg == null) {
+			if (parent != null)
+				return parent.getMessage(code, locale);
 			throw new NoSuchMessageException(code);
-			// TODO ** Log warning
 		}
+		return msg;
 	}
 	
 	
