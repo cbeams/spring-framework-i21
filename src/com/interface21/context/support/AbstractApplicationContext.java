@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.BeansException;
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
@@ -517,6 +518,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	public String[] getBeanDefinitionNames(Class type) {
 		return getBeanFactory().getBeanDefinitionNames(type);
+	}
+	
+	/**
+	 * @see com.interface21.beans.factory.HierarchicalBeanFactory#getParentBeanFactory()
+	 */
+	public BeanFactory getParentBeanFactory() {
+		return getParent();
 	}
 
 	/** Show information about this context */
