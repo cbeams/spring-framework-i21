@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.core.InternalErrorException;
+import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 
@@ -158,7 +159,7 @@ public class HsqlMaxValueIncrementer
 		/** The next id to serve */
 		private int nextValueIx = -1;
 
-		synchronized protected long getNextKey(int type) {
+		synchronized protected long getNextKey(int type) throws DataAccessException {
 			if (isDirty()) {
 				initPrepare();
 			}
@@ -187,6 +188,7 @@ public class HsqlMaxValueIncrementer
 					}
 					long maxValue = valueCache[(valueCache.length - 1)];
 					st.executeUpdate(deleteSql + maxValue);
+					logger.info("Delete SQL is : " + deleteSql + maxValue);
 				}
 				catch (SQLException ex) {
 					throw new DataAccessResourceFailureException("Could not obtain last_insert_id", ex);
@@ -214,7 +216,12 @@ public class HsqlMaxValueIncrementer
 			return valueCache[nextValueIx++];
 		}
 
-		private void initPrepare() {
+		private void initPrepare() throws InvalidMaxValueIncrementerApiUsageException {
+			afterPropertiesSet();
+			if (getIncrementerName() == null)
+				throw new InvalidMaxValueIncrementerApiUsageException("IncrementerName property must be set on " + getClass().getDeclaringClass().getName());
+			if (getColumnName() == null)
+				throw new InvalidMaxValueIncrementerApiUsageException("ColumnName property must be set on " + getClass().getDeclaringClass().getName());
 			StringBuffer buf = new StringBuffer();
 			buf.append("insert into ");
 			buf.append(getIncrementerName());

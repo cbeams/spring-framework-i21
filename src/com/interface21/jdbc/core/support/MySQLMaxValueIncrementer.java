@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.core.InternalErrorException;
+import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 
@@ -158,7 +159,7 @@ public class MySQLMaxValueIncrementer
 		/** The max id to serve */
 		private long maxId = 0;
 
-		synchronized protected long getNextKey(int type) {
+		synchronized protected long getNextKey(int type) throws DataAccessException {
 			if (isDirty()) {
 				initPrepare();
 			}
@@ -216,7 +217,12 @@ public class MySQLMaxValueIncrementer
 			return nextId;
 		}
 
-		private void initPrepare() {
+		private void initPrepare() throws InvalidMaxValueIncrementerApiUsageException {
+			afterPropertiesSet();
+			if (getIncrementerName() == null)
+				throw new InvalidMaxValueIncrementerApiUsageException("IncrementerName property must be set on " + getClass().getDeclaringClass().getName());
+			if (getColumnName() == null)
+				throw new InvalidMaxValueIncrementerApiUsageException("ColumnName property must be set on " + getClass().getDeclaringClass().getName());
 			StringBuffer buf = new StringBuffer();
 			buf.append("update ");
 			buf.append(getIncrementerName());

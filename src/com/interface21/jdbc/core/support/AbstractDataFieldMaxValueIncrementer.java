@@ -179,7 +179,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextIntValue
 	 */
 	public final int nextIntValue() throws DataAccessException {
-	return incrementIntValue();
+		return incrementIntValue();
 	}
 	
 	/**
@@ -187,7 +187,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextLongValue
 	 */
 	public final long nextLongValue() throws DataAccessException {
-	return incrementLongValue();
+		return incrementLongValue();
 	}
 
 	/**
@@ -195,7 +195,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextDoubleValue
 	 */
 	public final double nextDoubleValue() throws DataAccessException {
-	return incrementDoubleValue();
+		return incrementDoubleValue();
 	}
 	
 	/**
@@ -203,7 +203,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextStringValue()
 	 */
 	public final String nextStringValue() throws DataAccessException {
-	return incrementStringValue();
+		return incrementStringValue();
 	}
 
 	/**
@@ -211,19 +211,19 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextValue(java.lang.Class)
 	 */
 	public final Object nextValue(Class keyClass) throws DataAccessException {
-	if (int.class.getName().equals(keyClass.getName()) || 
-		Integer.class.getName().equals(keyClass.getName()))
-		return new Integer(incrementIntValue());
-	else if (long.class.getName().equals(keyClass.getName()) || 
-		Long.class.getName().equals(keyClass.getName()))
-		return new Long(incrementLongValue());
-	else if (double.class.getName().equals(keyClass.getName()) || 
-		Double.class.getName().equals(keyClass.getName()))
-		return new Double(incrementDoubleValue());
-	else if (String.class.getName().equals(keyClass.getName()))
-		return incrementStringValue();
-	else
-		throw new IllegalArgumentException("Invalid key class");
+		if (int.class.getName().equals(keyClass.getName()) || 
+			Integer.class.getName().equals(keyClass.getName()))
+			return new Integer(incrementIntValue());
+		else if (long.class.getName().equals(keyClass.getName()) || 
+			Long.class.getName().equals(keyClass.getName()))
+			return new Long(incrementLongValue());
+		else if (double.class.getName().equals(keyClass.getName()) || 
+			Double.class.getName().equals(keyClass.getName()))
+			return new Double(incrementDoubleValue());
+		else if (String.class.getName().equals(keyClass.getName()))
+			return incrementStringValue();
+		else
+			throw new IllegalArgumentException("Invalid key class");
 	}
 
 	/**
@@ -253,9 +253,9 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	/**
 	 * @see com.interface21.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() throws DataAccessException {
 		if (this.dataSource == null)
-			throw new Exception("dataSource property must be set on " + getClass().getName());
+			throw new InvalidMaxValueIncrementerApiUsageException("DataSource property must be set on " + getClass().getName());
 	}
 
 }

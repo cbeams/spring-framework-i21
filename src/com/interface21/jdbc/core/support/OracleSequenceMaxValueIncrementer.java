@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.interface21.dao.DataAccessException;
 import com.interface21.jdbc.object.SqlFunction;
 
 /**
@@ -127,7 +128,7 @@ public class OracleSequenceMaxValueIncrementer
 		/** The next id to serve */
 		private int nextValueIx = -1;
 
-		protected long getNextKey(int type) {
+		protected long getNextKey(int type) throws DataAccessException {
 			if (isDirty()) { initPrepare(); }
 			if(nextValueIx < 0 || nextValueIx >= getCacheSize()) {
 				SqlFunction sqlf = new SqlFunction(getDataSource(), "SELECT " + getIncrementerName() + ".NEXTVAL FROM DUAL", type);
@@ -143,8 +144,10 @@ public class OracleSequenceMaxValueIncrementer
 			return valueCache[nextValueIx++];
 		}
 	
-		private void initPrepare() {
-			/* Correct definitions are set */
+		private void initPrepare() throws InvalidMaxValueIncrementerApiUsageException {
+			afterPropertiesSet();
+			if (getIncrementerName() == null)
+				throw new InvalidMaxValueIncrementerApiUsageException("IncrementerName property must be set on " + getClass().getDeclaringClass().getName());
 			nextValueIx = -1;
 			setDirty(false); 			
 		}
