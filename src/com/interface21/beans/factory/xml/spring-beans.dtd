@@ -1,30 +1,82 @@
 <!--
-	Spring bean file DTD.
+	Spring XML BeanFactory DTD.
+	Author: Rod Johnson
+	
+	This defines a simple and consistent way of creating a namespace
+	of JavaBeans configured by a Spring XmlBeanFactory.
+	
+	This document type is used by most Spring functionality, including
+	web application contexts, which are based on BeanFactories.
+	
+	Each <bean> element in this document defines a JavaBean.
+	Typically the bean class is specified, along with JavaBean
+	properties.
+	
+	References among beans are supported (setting a JavaBean
+	property to refer to another bean in the same factory).
+	
+	Bean instances can be "singletons" (shared instances)
+	or "prototypes" (independent instances).
+	
+	There is also support for lists, maps, and 
+	java.util.Properties types.
+	
+	As the format is simple, a DTD is sufficient, and there's
+	no need for a schema at this point.
+	
+	$Id$
 -->
 
-<!-- The document root. -->
+<!-- 
+	The document root.
+	At least one bean definition is required.
+-->
 
 <!ELEMENT beans (
         bean+
 )>
 
+
+<!--
+	Defines a single named bean.
+-->
 <!ELEMENT bean (
         property*
 )>
 
+<!--
+	All beans are identified by an id, to enable reference checking.
+	There are constraints on a valid XML id: if you want to reference
+	your bean in Java code using a name that's illegal as an XML id,
+	use the optional "name" attribute.
+-->
 <!ATTLIST bean id ID #REQUIRED>
 
-<!-- One or the other -->
+<!-- 
+	Each bean definition must specify the FQN of the class,
+	or the name of the parent bean from which the class can be worked out.
+-->
 <!ATTLIST bean class CDATA #IMPLIED>
 <!ATTLIST bean parent CDATA #IMPLIED>
 
 <!-- 
 	Optional attribute for the name of the custom initialization method
-	to invoke after setting bean properties. The method must have no arguments.
+	to invoke after setting bean properties. The method must have no arguments,
+	but may throw any exception. 
 -->
 <!ATTLIST bean init-method CDATA #IMPLIED>
 
-<!-- Todo default=true -->
+<!-- 
+	Is this bean a "singleton" (one shared instance, which will
+	be returned by all calls to getBean() with the id),
+	or a "prototype" (independent instance resulting from each call to
+	getBean(). Default is singleton.
+
+	Singletons are most commonly used, and are ideal for multi-threaded
+	service objects.
+	
+	Todo default=true 
+-->
 <!ATTLIST bean singleton CDATA #IMPLIED>
 
 <!--
@@ -33,40 +85,104 @@
 -->
 <!ATTLIST bean name CDATA #IMPLIED>
 
+<!--
+	Bean definitions can have zero or more properties. 
+	Property elements correspond to JavaBean setter methods exposed
+	by the bean classes. Spring supports primitives, references to other
+	beans in the same or related factories, lists, maps and properties.
+-->
 <!ELEMENT property (
         (value | ref | list | map | props)
 )>
 
+<!--
+	The property name attribute is the name of the JavaBean property.
+	This follows JavaBean conventions: a name of "age" would correspond
+	to setAge()/optional getAge() methods.
+-->
 <!ATTLIST property name CDATA #REQUIRED>
 
+<!--
+	Defines a reference to another bean in this factory or an external
+	factory (parent or included factory). 
+-->
 <!ELEMENT ref EMPTY>
 
+<!--
+	Contains a string representation of a property value.
+	The property may be a string, or may be converted to the
+	required type using the JavaBeans PropertyEditor
+	machinery. This makes it possible for application developers
+	to write custom PropertyEditor implementations that can
+	convert strings to objects. 
+	
+	Note that this is recommended for simple objects only.
+	Configure more complex objects by setting JavaBean
+	properties to references to other beans.
+-->
 <!ELEMENT value (#PCDATA)>
 
-<!-- One or the other -->
+
+<!-- 
+	References must specify the id of the target bean.
+	Internal references, using
+	the "bean" attribute, can be checked by this DTD,
+	thus should be preferred for references within the same
+	bean factory XML file.
+	External references must use the "external" attribute and can
+	be checked only at runtime.
+-->
 <!ATTLIST ref bean IDREF #IMPLIED>
 <!ATTLIST ref external CDATA #IMPLIED>
 
+<!--
+	A list can contain multiple value and/or ref elements.
+	Java lists are untyped, pending generics support in Java 1.5. 
+	although references will be strongly typed. 
+	A list can also map to an array type. The necessary conversion
+	is automatically performed by the Spring AbstractBeanFactory. 
+-->
 <!ELEMENT list (
         (value | ref)*
 )>
 
+<!--
+	A Spring map is a mapping from a string key to 
+	object.
+	Maps may be empty.
+-->
 <!ELEMENT map (
         (entry)*
 )>
 
+<!--
+	A map entry can be a value, ref or list
+	The name of the property is given by the "key" attribute.
+-->
 <!ELEMENT entry (
         (value | ref | list)*
 )>
 
 <!ATTLIST entry key CDATA #REQUIRED>
 
+<!--
+	Props elements differ from map elements in that values must be strings.
+	Props may be empty.
+-->
 <!ELEMENT props (
         (prop)*
 )>
 
+<!--
+	Element content is the string value of the property. The "key"
+	attribute is the name of the property.
+-->
 <!ELEMENT prop
         (#PCDATA)
 >
 
+<!--
+	Each property element must specify the key. The value
+	is the element content.
+-->
 <!ATTLIST prop key CDATA #REQUIRED>
