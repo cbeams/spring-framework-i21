@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.interface21.validation.DataBinder;
 import com.interface21.validation.Validator;
-import com.interface21.web.bind.HttpServletRequestDataBinder;
+import com.interface21.web.bind.BindUtils;
 
 /**
  * Controller implementation that creates a Command object
@@ -30,7 +30,7 @@ import com.interface21.web.bind.HttpServletRequestDataBinder;
  */
 public abstract class BaseCommandController extends AbstractController {
 
-	public static final String DEFAULT_BEAN_NAME = BaseCommandController.class.getName() + ".COMMAND";
+	public static final String DEFAULT_BEAN_NAME = "command";
 
 	//-------------------------------------------------------------------------
 	// Instance data
@@ -121,28 +121,6 @@ public abstract class BaseCommandController extends AbstractController {
 	// without depending on DataBinder
 	
 	protected final DataBinder bindAndValidate(HttpServletRequest request, Object command) throws ServletException {
-		HttpServletRequestDataBinder binder = new HttpServletRequestDataBinder(command, this.beanName);
-		binder.bind(request);
-
-		// TODO: do we still want to invoke validator!????
-		// it would need to check if there already was an error for each field
-
-		if (this.validator != null) {
-			logger.info("Invoking validator [" + this.validator + "]");
-			validator.validate(command, binder);
-			if (binder.hasErrors()) {
-				logger.info("Validator found " + binder.getErrorCount() + " errors: going to resubmit form");
-					
-			}
-			else {
-				logger.debug("Validator found no errors");
-			}
-		}
-		
-		// May throw exception
-		// DO WE WANT THIS? we may still want to invoke validator...
-		//binder.close();
-		
-		return binder;		
+		return BindUtils.bindAndValidate(request, command, this.beanName, this.validator);
 	}
 }

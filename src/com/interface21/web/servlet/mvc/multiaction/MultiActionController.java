@@ -19,12 +19,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.interface21.context.ApplicationContextException;
-import com.interface21.web.bind.HttpServletRequestDataBinder;
+import com.interface21.web.bind.ServletRequestDataBinder;
+import com.interface21.web.bind.BindUtils;
 import com.interface21.web.servlet.LastModified;
 import com.interface21.web.servlet.ModelAndView;
 import com.interface21.web.servlet.mvc.Controller;
@@ -35,35 +37,45 @@ import com.interface21.web.servlet.mvc.WebContentGenerator;
 /**
  * Controller implementation that allows multiple request types
  * to be handled by the same class.<br>
+ *
  * Subclasses of this class can handle several different types of request
  * with methods of the form
  * ModelAndView actionName(HttpServletRequest request, HttpServletResponse response);
- * May take a third parameter (HttpSession) in which an existing session will be required.
+ *
+ * May take a third parameter HttpSession in which an existing session will be required,
+ * or a third parameter of an arbitrary class that gets treated as command
+ * (i.e. an instance of the class gets created, and request parameters get bound to it)
+ *
  * <br/>These methods can throw any kind of exception, but should only let propagate
  * those that they consider fatal, or which their class or superclass is prepared to
  * catch by implementing an exception handler.
+ *
  * <br/>This model allows for rapid coding, but loses the advantage of compile-time
  * checking.
- * <p>
- * Inherits superclass bean proprties. Adds methodNameResolver bean property.
+ *
+ * <p>Inherits superclass bean properties. Adds methodNameResolver bean property.
  * An implementation of the MethodNameResolver interface defined in this package
  * should return a method name for a given request, based on any aspect of the request,
  * such as its URL or an "action" or like attribute. The default behavior is URL based.
- * <br/>
- * Also supports delegation to another object.
- * <br/>
+ *
+ * <br/>Also supports delegation to another object.
+ *
  * <p>Subclasses can implement custom exception handler methods with names such as
  * ModelAndView anyMeaningfulName(HttpServletRequest request, HttpServletResponse response, ExceptionClass exception);
  * The third parameter can be any subclass or Exception or RuntimeException.
- * </br>
- * There can also be an optional lastModified method for handlers, of signature
+ *
+ * </br>There can also be an optional lastModified method for handlers, of signature
  * long anyMeaningfulNameLastModified(HttpServletRequest request)
  * If such a method is present, it will be invoked. Default return from getLastModified()
  * is -1, meaning that content must always be regenerated.
+ *
  * <br>Like Struts 1.1 DispatchAction, but more sophisticated.
+ *
  * <br>The mapping from requests to handler method names is parameterized in the MethodNameResolver
  * interface.
+ *
  * <br>Note that method overloading isn't allowed.
+ *
  * @author Rod Johnson
  */
 public class MultiActionController 
@@ -260,7 +272,7 @@ public class MultiActionController
 	// Implementation of Controller
 	//---------------------------------------------------------------------
 	/**
-	 * @see AbstractController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
+	 * @see com.interface21.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
 	 */
 	public final ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
@@ -308,7 +320,7 @@ public class MultiActionController
 			if (m.getParameterTypes().length >= 3 && !m.getParameterTypes()[m.getParameterTypes().length - 1].equals(HttpSession.class)) {
 				Object command = newCommandObject(m.getParameterTypes()[m.getParameterTypes().length - 1]);
 				params.add(command);
-				bind(command, request);
+				bind(request, command);
 			}
 			
 			Object[] parray = params.toArray(new Object[params.size()]);
@@ -381,21 +393,19 @@ public class MultiActionController
 	
 	/**
 	 * Bind request parameters onto the given command bean
-	 * @param command command object, that must be a JavaBean
 	 * @param request request from which parameters will be bound
-	 * onto command properties.
+	 * @param command command object, that must be a JavaBean
 	 */
-	protected void bind(Object command, HttpServletRequest request) throws ServletException {
+	protected void bind(ServletRequest request, Object command) throws ServletException {
 		logger.info("Binding request parameters onto command");
-		HttpServletRequestDataBinder binder = new HttpServletRequestDataBinder(command, "command");
-		binder.bind(request);
+		ServletRequestDataBinder binder = BindUtils.bind(request, command, "command");
 		binder.closeNoCatch();
 	}
 	
 	/**
 	 * Can return null if not found
 	 * @return a handler for the given exception type
-	 * @param tWon't be a ServletException or IOException
+	 * @param exception Won't be a ServletException or IOException
 	 */
 	protected Method getExceptionHandler(Throwable exception) {
 		Class exceptionClass = exception.getClass();
