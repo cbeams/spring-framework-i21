@@ -278,6 +278,9 @@
 			<classpath location="${build.dir}"/>
 
 		</javac>
+		
+		<copy file="${src.dir}/sql-error-codes.xml" todir="${testbuild.dir}"/>
+		
 	</target>
 
 
