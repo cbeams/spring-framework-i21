@@ -12,8 +12,10 @@ import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.UnexpectedRollbackException;
 
 /**
- * Abstract class that allows for easy implementation of PlatformTransactionManager.
- * Provides the following case handling:
+ * Abstract base class that allows for easy implementation of
+ * concrete platform transaction managers.
+ *
+ * <p>Provides the following case handling:
  * <ul>
  * <li>determines if there is an existing transaction;
  * <li>applies the appropriate propagation behavior;
@@ -38,7 +40,6 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	private boolean allowNonTransactionalExecution = false;
 
 	private boolean transactionSynchronization = false;
-
 
 	/**
 	 * Set if transaction support does not need to be available,
@@ -77,7 +78,6 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		return transactionSynchronization;
 	}
 
-
 	/**
 	 * This implementation of getTransaction handles propagation behavior and
 	 * checks non-transactional execution (on CannotCreateTransactionException).
@@ -97,11 +97,11 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				definition = new DefaultTransactionDefinition();
 			}
 			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY) {
-				throw new NoTransactionException("Transaction propagation mandatory but no existing transaction context");
+				throw new NoTransactionException("Transaction propagation mandatory but no existing transaction context found");
 			}
 			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED) {
 				// create new transaction
-				doBegin(transaction, definition.getIsolationLevel(), definition.getTimeout());
+				doBegin(transaction, definition);
 				if (this.transactionSynchronization) {
 					TransactionSynchronizationManager.init();
 				}
@@ -144,7 +144,6 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				triggerAfterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK);
 				logger.error(ex.getMessage());
 				throw ex;
-
 			}
 			catch (TransactionException ex) {
 				triggerAfterCompletion(TransactionSynchronization.STATUS_UNKNOWN);
@@ -204,7 +203,6 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		}
 	}
 
-
 	/**
 	 * Return a current transaction object, i.e. a JTA UserTransaction.
 	 * @return the current transaction object
@@ -224,13 +222,15 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	protected abstract boolean isExistingTransaction(Object transaction) throws TransactionException;
 
 	/**
-	 * Begin a new transaction with the given isolation level.
+	 * Begin a new transaction with the given transaction definition.
+	 * Does not have to care about applying the propagation behavior,
+	 * as this has already been cared about by the abstract manager.
 	 * @param transaction transaction object returned by doGetTransaction()
-	 * @param isolationLevel desired isolation level
-	 * @param timeout transaction timeout (in seconds)
+	 * @param definition TransactionDefinition instance, describing
+	 * propagation behavior, isolation level, timeout etc.
 	 * @throws TransactionException in case of creation or system errors
 	 */
-	protected abstract void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException;
+	protected abstract void doBegin(Object transaction, TransactionDefinition definition) throws TransactionException;
 
 	/**
 	 * Perform an actual commit on the given transaction.
