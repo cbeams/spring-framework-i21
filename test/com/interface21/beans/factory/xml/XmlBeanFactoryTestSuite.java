@@ -16,6 +16,7 @@ import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
 import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.HasMap;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
 import com.interface21.beans.factory.support.XmlBeanFactory;
@@ -165,6 +166,22 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		TestBean tb = (TestBean) xbf.getBean("aliased");
 		TestBean alias = (TestBean) xbf.getBean("I have an alias");
 		assertTrue(tb == alias);
+	}
+	
+	public void testEmptyMap() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		HasMap hasMap = (HasMap) xbf.getBean("emptyMap");
+		assertTrue(hasMap.getMap().size() == 0);
+	}
+	
+	public void testMapWithLiteralsOnly() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		HasMap hasMap = (HasMap) xbf.getBean("literalMap");
+		assertTrue(hasMap.getMap().size() == 2);
+		assertTrue(hasMap.getMap().get("foo").equals("bar"));
+		assertTrue(hasMap.getMap().get("fi").equals("fum"));
 	}
 	
 	public void testNoSuchXmlFile() throws Exception {

@@ -70,6 +70,22 @@
 		name="I have an alias">	
 		<property name="name"><value>aliased</value></property>
 	</bean>
+	
+	<bean id="emptyMap" class="com.interface21.beans.factory.HasMap">	
+		<property name="map">
+			<map>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="literalMap" class="com.interface21.beans.factory.HasMap">	
+		<property name="map">
+			<map>
+				<entry key="foo"><value>bar</value></entry>
+				<entry key="fi"><value>fum</value></entry>
+			</map>
+		</property>
+	</bean>
 
 </beans>		
 	
