@@ -229,7 +229,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 */
 	private Object getBeanInternal(String name, Map newlyCreatedBeans) {
 		if (name == null)
-			throw new NoSuchBeanDefinitionException(null);
+			throw new NoSuchBeanDefinitionException(null, "Cannot get bean with null name");
 		if (newlyCreatedBeans != null && newlyCreatedBeans.containsKey(name)) {
 			return newlyCreatedBeans.get(name);
 		}
