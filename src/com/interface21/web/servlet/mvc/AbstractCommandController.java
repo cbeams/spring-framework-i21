@@ -24,9 +24,11 @@ import com.interface21.web.servlet.ModelAndView;
  * Abstract base class for custom command controllers. Autopopulates a
  * command bean from the request. For command validation, a validator
  * (property inherited from BaseCommandController) can be used.
- *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @see #setCommandClass
+ * @see #setBeanName
+ * @see #setValidator
  */
 public abstract class AbstractCommandController extends BaseCommandController {
 
@@ -64,11 +66,13 @@ public abstract class AbstractCommandController extends BaseCommandController {
 	/**
 	 * Template method for request handling, providing a populated and validated instance
 	 * of the command class, and an Errors object containing binding and validation errors.
+	 * <p>Can call errors.getModel() to populate the ModelAndView model with the command
+	 * and the errors instance, under the specified bean name.
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param command the populated command object
 	 * @param errors the binder containing errors
-	 * @return a ModelAndView to render, or null
+	 * @return a ModelAndView to render, or null if handled directly
 	 */
 	protected abstract ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
 	                                       Object command, BindException errors)
