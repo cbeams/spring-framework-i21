@@ -5,9 +5,6 @@
  
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.BeanWrapper;
-import com.interface21.beans.BeanWrapperImpl;
-import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
 
 /** 
@@ -28,6 +25,15 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 		super(pvs, singleton);
 		this.clazz = clazz;
 	}
+	
+	/**
+	 * Deep copy constructor
+	 * @param other
+	 */
+	public RootBeanDefinition(RootBeanDefinition other) {
+		super(other.getPropertyValues(), other.isSingleton());
+		this.clazz = other.clazz;
+	}
 
 
 	/**
@@ -36,25 +42,6 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	public final Class getBeanClass() {
 		return this.clazz;
 	}
-
-	/**
-	 * Subclasses may override this, to create bean
-	 * wrappers differently or perform custom preprocessing.
-	 * This implementation wraps the bean class directly.
-	 * @return a new BeanWrapper wrapper the target object
-	 */
-	protected BeanWrapper newBeanWrapper() {
-		return new BeanWrapperImpl(getBeanClass());
-	}
-
-	/**
-	 * Given a bean wrapper, add listeners
-	*/
-	public final BeanWrapper getBeanWrapperForNewInstance() throws BeansException {
-		BeanWrapper bw = newBeanWrapper();
-
-		return bw;
-	} // getBeanWrapperForNewInstance
 
 
 	public String toString() {

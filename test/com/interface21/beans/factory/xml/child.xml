@@ -9,7 +9,7 @@
 		<!-- age should inherit value of 1 from parent -->
 	</bean>
 	
-	<bean id="INVALID-protoypeInheritsFromParentFactorySingleton" 
+	<bean id="protoypeInheritsFromParentFactorySingleton" 
 		parent="inheritedTestBean"
 		singleton="false">
 		<property name="name"><value>prototypeOverridesInheritedSingleton</value></property>

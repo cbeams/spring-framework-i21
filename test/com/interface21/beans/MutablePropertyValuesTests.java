@@ -15,6 +15,20 @@ public class MutablePropertyValuesTests extends AbstractPropertyValuesTests {
 			testTony(pvs);
 		}
 		
+	public void addOrOverride() throws Exception {
+			MutablePropertyValues pvs = new MutablePropertyValues();
+			pvs.addPropertyValue(new PropertyValue("forname", "Tony"));
+			pvs.addPropertyValue(new PropertyValue("surname", "Blair"));
+			pvs.addPropertyValue(new PropertyValue("age", "50"));
+			testTony(pvs);
+			PropertyValue addedPv = new PropertyValue("rod", "Rod");
+			pvs.addOrOverridePropertyValue(addedPv);
+			assertTrue(pvs.getPropertyValue("rod").equals(addedPv));
+			PropertyValue changedPv = new PropertyValue("forname", "Greg");
+			pvs.addOrOverridePropertyValue(changedPv);
+			assertTrue(pvs.getPropertyValue("forename").equals(changedPv));
+		}
+		
 		public void testChangesOnEquals() throws Exception {
 			MutablePropertyValues pvs = new MutablePropertyValues();
 			pvs.addPropertyValue(new PropertyValue("forname", "Tony"));

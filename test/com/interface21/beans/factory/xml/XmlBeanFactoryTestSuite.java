@@ -117,21 +117,22 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(inherits.getAge() == 2);
 	}
 	
-	public void testPrototypeCannotInheritFromParentFactorySingleton() throws Exception {
+	public void testPrototypeInheritanceFromParentFactorySingleton() throws Exception {
 		InputStream pis = getClass().getResourceAsStream("parent.xml");
 		XmlBeanFactory parent = new XmlBeanFactory(pis);
 		InputStream is = getClass().getResourceAsStream("child.xml");
 		XmlBeanFactory child = new XmlBeanFactory(is, parent);
-		try {
-			TestBean inherits = (TestBean) child.getBean("INVALID-protoypeInheritsFromParentFactorySingleton");
-			fail();
-		}
-		catch (BeanDefinitionStoreException ex) {
-			// Ok
-			// Check exception message contains both names and is helpful
-			assertTrue(ex.getMessage().indexOf("INVALID-protoypeInheritsFromParentFactorySingleton") != -1);
-			assertTrue(ex.getMessage().indexOf("inheritedTestBean") != -1);
-		}
+		TestBean inherits = (TestBean) child.getBean("protoypeInheritsFromParentFactorySingleton");
+		//		Name property value is overriden
+		 assertTrue(inherits.getName().equals("prototypeOverridesInheritedSingleton"));
+		 // Age property is inherited from bean in parent factory
+		 assertTrue(inherits.getAge() == 1);
+		 TestBean inherits2 = (TestBean) child.getBean("protoypeInheritsFromParentFactorySingleton");
+		 assertFalse(inherits2 == inherits);
+		 inherits2.setAge(13);
+		 assertTrue(inherits2.getAge() == 13);
+		 // Shouldn't have changed first instance
+		 assertTrue(inherits.getAge() == 1);
 	}
 	
 	/**

@@ -151,7 +151,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		Iterator itr = keys.iterator();
 		while (itr.hasNext()) {
 			String name = (String) itr.next();
-			Class clazz = getBeanClass((AbstractBeanDefinition) beanDefinitionMap.get(name));
+			Class clazz = getMergedBeanDefinition(name).getBeanClass();
 			if (type.isAssignableFrom(clazz)) {
 				matches.add(name);
 			}

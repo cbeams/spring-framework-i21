@@ -63,6 +63,10 @@ public abstract class AbstractBeanDefinition {
 	public PropertyValues getPropertyValues() {
 		return pvs;
 	}
+	
+	public void setPropertyValues(PropertyValues pvs) {
+		this.pvs = pvs;
+	}
 
 	/**
 	 * @see Object#equals(Object)

@@ -294,40 +294,13 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 */
 	private BeanWrapper getBeanWrapperForNewInstance(String name, Map newlyCreatedBeans) throws BeansException {
 		logger.debug("getBeanWrapperForNewInstance (" + name + ")");
-		AbstractBeanDefinition bd = getBeanDefinition(name);
-		logger.debug("getBeanWrapperForNewInstance definition is: " + bd);
-		BeanWrapper instanceWrapper = null;
-		if (bd instanceof RootBeanDefinition) {
-			RootBeanDefinition rbd = (RootBeanDefinition) bd;
-			instanceWrapper = rbd.getBeanWrapperForNewInstance();
-		}
-		else if (bd instanceof ChildBeanDefinition) {
-			ChildBeanDefinition ibd = (ChildBeanDefinition) bd;
-			try {
-				instanceWrapper = getBeanWrapperForNewInstance(ibd.getParentName(), newlyCreatedBeans);
-			}
-			catch (NoSuchBeanDefinitionException ex) {
-				// Look in parent for the bean we're descended from
-				
-				if (getParentBeanFactory() != null) {
-					// Let this throw NoSuchBeanDefinitionException
-					Object parentsObject = getParentBeanFactory().getBean(ibd.getParentName());
-					// Check for invalid usage:
-					// a parent singleton cannot be the parent of a subfactory prototype
-					if (!ibd.isSingleton() && getParentBeanFactory().isSingleton(ibd.getParentName())) {
-						throw new BeanDefinitionStoreException("Prototype bean '" + name + "' cannot inherit from singleton bean '" + 
-								ibd.getParentName() + "' in parent factory", null);
-					}
-					instanceWrapper = new BeanWrapperImpl(parentsObject);
-				}
-			}
-		}
-		// Set our property values
-		if (instanceWrapper == null)
-			throw new FatalBeanException("Internal error for definition [" + name + "]: type of definition unknown (" + bd + ")", null);
+		RootBeanDefinition mergedBeanDefinition = getMergedBeanDefinition(name);
+		logger.debug("getBeanWrapperForNewInstance merged definition is: " + mergedBeanDefinition);
+		BeanWrapper instanceWrapper = new BeanWrapperImpl(mergedBeanDefinition.getBeanClass());
+		
 		// cache new instance to be able resolve circular references
 		newlyCreatedBeans.put(name, instanceWrapper.getWrappedInstance());
-		PropertyValues pvs = bd.getPropertyValues();
+		PropertyValues pvs = mergedBeanDefinition.getPropertyValues();
 		applyPropertyValues(instanceWrapper, pvs, name, newlyCreatedBeans);
 		return instanceWrapper;
 	}
@@ -529,26 +502,48 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	}
 
 	/**
-	 * Convenience method for use by subclasses.
-	 * Resolves class, even by traversing parent if child definition.
-	 * @return the Class of this bean
-	 * @param bd the BeanDefinition we want to check. This BeanDefinition
-	 * may not actually contain the class--this method may need to navigate
-	 * its ancestors to find the class.
+	 * Make a RootBeanDefinition, even by traversing parent if the parameter is a child definition.
+	 * @return a merged RootBeanDefinition with overriden properties
 	 */
-	protected final Class getBeanClass(AbstractBeanDefinition bd) {
-		if (bd instanceof RootBeanDefinition)
-			return ((RootBeanDefinition) bd).getBeanClass();
-		else if (bd instanceof ChildBeanDefinition) {
-			ChildBeanDefinition cbd = (ChildBeanDefinition) bd;
-			try {
-				return getBeanClass(getBeanDefinition(cbd.getParentName()));
+	protected final RootBeanDefinition getMergedBeanDefinition(String name) throws NoSuchBeanDefinitionException {
+		try {
+			AbstractBeanDefinition bd = getBeanDefinition(name);
+			if (bd instanceof RootBeanDefinition) {
+				// Remember to take a deep copy
+				return new RootBeanDefinition((RootBeanDefinition) bd);
 			}
-			catch (NoSuchBeanDefinitionException ex) {
-				throw new FatalBeanException("Shouldn't happen: BeanDefinition store corrupted: cannot resolve parent " + cbd.getParentName());
+			else if (bd instanceof ChildBeanDefinition) {
+				ChildBeanDefinition cbd = (ChildBeanDefinition) bd;
+				// Deep copy
+				RootBeanDefinition rbd = new RootBeanDefinition(getMergedBeanDefinition(cbd.getParentName()));
+				// Override properties
+				rbd.setPropertyValues(merge(rbd.getPropertyValues(), cbd.getPropertyValues()));
+				return rbd;
+			}			
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			if (this.parentBeanFactory != null) {
+				if (!(this.parentBeanFactory instanceof AbstractBeanFactory))
+					throw new BeanDefinitionStoreException("Parent bean factory must be of type AbstractBeanFactory to support inheritance from a parent bean definition: " +
+							"offending bean name is '" + name + "'", null);
+				return ((AbstractBeanFactory) this.parentBeanFactory).getMergedBeanDefinition(name);
+			}
+			else {
+				throw ex;
 			}
 		}
-		throw new FatalBeanException("Shouldn't happen: BeanDefinition " + bd + " is Neither a rootBeanDefinition or a ChildBeanDefinition");
+		throw new FatalBeanException("Shouldn't happen: BeanDefinition for '" + name + "' is neither a RootBeanDefinition or ChildBeanDefinition");
+	}
+	
+	/**
+	 * Incorporate changes from overrides param into pv base param
+	 */
+	private PropertyValues merge(PropertyValues pv, PropertyValues overrides) {
+		MutablePropertyValues parent = new MutablePropertyValues(pv);
+		for (int i = 0; i < overrides.getPropertyValues().length; i++) {
+			parent.addOrOverridePropertyValue(overrides.getPropertyValues()[i]);
+		}
+		return parent;
 	}
 	
 	/**
