@@ -42,22 +42,22 @@ import com.interface21.beans.factory.support.RootBeanDefinition;
 import com.interface21.beans.factory.support.RuntimeBeanReference;
 
 /**
- * Extension of ListableBeanFactoryImpl that reads bean definitions in
- * an XML document using DOM. Expects a beans element. The structure,
- * element and attribute names of the required XML document is hard-coded
- * in this class. (Of course a transform could be run if necessary to
- * produce this format.)
- * <br/>The beans doesn't need to be the root element of the XML document:
- * this class will parse all bean definition
- * elements in the XML file.<br/>
- * This class registers each bean defiition with the superclass,
- * and relies on superclass's implementation
- * of the BeanFactory interface.
- * <br/>Pre-instantiates singletons.
- * TODO: this could be made configurable.
- * <br/>This factory supports singletons, prototypes and references
- * to either of these kinds of bean.
- * @author  Rod Johnson
+ * Extension of ListableBeanFactoryImpl that reads bean definitions in an XML
+ * document using DOM. The structure, element and attribute names of the
+ * required XML document are hard-coded in this class.
+ * (Of course a transform could be run if necessary to produce this format.)
+ *
+ * <p>"beans" doesn't need to be the root element of the XML document:
+ * This class will parse all bean definition elements in the XML file.
+ *
+ * <p>This class registers each bean definition with the ListableBeanFactoryImpl
+ * superclass, and relies on the latter's implementation of the BeanFactory
+ * interface. It supports singletons, prototypes and references to either of
+ * these kinds of bean.
+ *
+ * <p>Pre-instantiates singletons. TODO: This could be made configurable.
+ *
+ * @author Rod Johnson
  * @since 15 April 2001
  * @version $Id$
  */
@@ -68,8 +68,6 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	 * Anything else represents false. Case seNsItive.
 	 */
 	private static final String TRUE_ATTRIBUTE_VALUE = "true";
-
-	private static final String BEANS_ELEMENT = "beans";
 
 	private static final String BEAN_ELEMENT = "bean";
 
@@ -113,6 +111,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
+
 	/**
 	 * Creates new XmlBeanFactory using java.io to read the XML document with the given filename
 	 * @param filename name of the file containing the XML document
@@ -177,9 +176,11 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 		this(doc, null);
 	}
 
+
 	//---------------------------------------------------------------------
 	// Implementation methods
 	//---------------------------------------------------------------------
+
 	/**
 	 * Load definitions from this input stream and close it
 	 */
@@ -234,11 +235,11 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 
 		// Ask superclass to eagerly instantiate singletons
 		preInstantiateSingletons();
-	} 	// loadBeanDefinitions (Document)
+	}
 
 	/**
-	 * Parse an element definition: we know this is a BEAN element
-	 * */
+	 * Parse an element definition: wW know this is a BEAN element.
+	 */
 	private void loadBeanDefinition(Element el) throws BeansException {
 		String id = getBeanId(el);
 		logger.debug("Parsing bean definition with id '" + id + "'");
@@ -258,9 +259,8 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 		}
 	}
 
-
 	/**
-	 * Parse a standard bean definition
+	 * Parse a standard bean definition.
 	 */
 	private AbstractBeanDefinition parseBeanDefinition(Element el, String beanName, PropertyValues pvs) {
 		String classname = null;
@@ -293,7 +293,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 
 
 	/**
-	 * Parse property value subelements of this bean element
+	 * Parse property value subelements of this bean element.
 	 */
 	private PropertyValues getPropertyValueSubElements(Element beanEle) {
 		NodeList nl = beanEle.getElementsByTagName(PROPERTY_ELEMENT);
@@ -306,14 +306,14 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Parse a property element
+	 * Parse a property element.
 	 */
 	private void parsePropertyElement(MutablePropertyValues pvs, Element e) throws DOMException {
 		String propertyName = e.getAttribute(NAME_ATTRIBUTE);
 		if (propertyName == null || "".equals(propertyName))
 			throw new BeanDefinitionStoreException("Property without a name", null);
 
-		Object val = getPropertyValue(propertyName, e);
+		Object val = getPropertyValue(e);
 		pvs.addPropertyValue(new PropertyValue(propertyName, val));
 	}
 
@@ -328,12 +328,9 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Get the value of a property element. May be a list
-	 * @param name
-	 * @param e
-	 * @return Object
+	 * Get the value of a property element. May be a list.
 	 */
-	private Object getPropertyValue(String name, Element e) {
+	private Object getPropertyValue(Element e) {
 		String distinguishedValue = e.getAttribute(DISTINGUISHED_VALUE_ATTRIBUTE);
 		if (distinguishedValue != null && distinguishedValue.equals(NULL_DISTINGUISHED_VALUE)) {
 			return null;
@@ -353,7 +350,6 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 
 		return parsePropertySubelement(childEle);
 	}
-
 
 	private Object parsePropertySubelement(Element ele) {
 		if (ele.getTagName().equals(REF_ELEMENT)) {
@@ -386,9 +382,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 
 
 	/**
-	 * Return list of collection
-	 * @param collectionEle
-	 * @return List
+	 * Return list of collection.
 	 */
 	private List getList(Element collectionEle) {
 		NodeList nl = collectionEle.getChildNodes();
@@ -433,10 +427,15 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	 */
 	private String getTextValue(Element e) {
 		NodeList nl = e.getChildNodes();
-		if (nl.getLength() != 1 || !(nl.item(0) instanceof Text))
+		if (nl.item(0) == null) {
+			// treat empty value as empty String
+			return "";
+		}
+		if (nl.getLength() != 1 || !(nl.item(0) instanceof Text)) {
 			throw new FatalBeanException("Unexpected element or type mismatch: " +
 			                             "expected single node of " + nl.item(0).getClass() + " to be of type Text: "
 			                             + "found " + e, null);
+		}
 		Text t = (Text) nl.item(0);
 		// This will be a String
 		return t.getData();
@@ -444,8 +443,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 
 
 	/**
-	 * Private implementation of SAX ErrorHandler used when validating
-	 * XML.
+	 * Private implementation of SAX ErrorHandler used when validating XML.
 	 */
 	private class BeansErrorHandler implements ErrorHandler {
 
