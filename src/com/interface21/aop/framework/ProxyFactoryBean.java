@@ -228,7 +228,6 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		}
 	}
 
-
 	/**
 	 * Add the given interceptor, pointcut or object to the interceptor list.
 	 * Because of these three possibilities, we can't type the signature
@@ -278,7 +277,6 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		}
 	}
 	
-	
 	/**
 	 * Create an instance of the AOP proxy to be returned by this factory. 
 	 * The instance will be cached for a singleton, and create on each call to 
@@ -289,7 +287,7 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	private Object createInstance() {
 		refreshInterceptorChain();
 		AopProxy proxy = new AopProxy(this);
-		return proxy.getProxy(getClass().getClassLoader());
+		return proxy.getProxy();
 	}
 
 	/**
