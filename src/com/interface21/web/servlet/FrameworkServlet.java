@@ -49,29 +49,33 @@ import com.interface21.web.context.support.WebApplicationContextUtils;
 public abstract class FrameworkServlet extends HttpServletBean {
 
 	/**
-	 * Prefix for the Servlet attribute for the web application context.
-	 * The completion is the servlet name.
-	 */
-	public static final String SERVLET_CONTEXT_PREFIX = "com.interface21.web.servlet.FrameworkServlet.CONTEXT.";
-
-	/** Suffix for namespace bean factory names. If a servlet of this class is given the
-	 * name 'test' in a context, the namespace used by the servlet will
+	 * Suffix for namespace bean factory names. If a servlet of this class is
+	 * given the name 'test' in a context, the namespace used by the servlet will
 	 * resolve to 'test-servlet'.
 	 */
 	private static final String NAMESPACE_SUFFIX = "-servlet";
 
-	/** Default value for the debug property */
-	public static final boolean DEFAULT_DEBUG_SETTING = false;
+	/**
+	 * Prefix for the ServletContext attribute for the web application context.
+	 * The completion is the servlet name.
+	 */
+	public static final String SERVLET_CONTEXT_PREFIX = FrameworkServlet.class.getName() + ".CONTEXT.";
 
-	/** Will be added to a request before processing begins if we're in debug mode */
-	public static final String DEBUG_REQUEST_ATTRIBUTE = "com.interface21.framework.web.servlet.FrameworkServlet.DEBUG";
+	/**
+	 * Will be added to a request before processing begins:
+	 * the name of the FrameworkServlet that handled the request.
+	 */
+	public static final String SERVLET_NAME_REQUEST_ATTRIBUTE = FrameworkServlet.class.getName() + ".SERVLET_NAME";
 
-	/** Will be added to a request before processing begins:
-	 * the name of the ControllerServlet that handled the request */
-	public static final String SERVLET_NAME_REQUEST_ATTRIBUTE = "com.interface21.framework.web.servlet.FrameworkServlet.SERVLET_NAME";
+	/**
+	 * Will be added to a request before processing begins if we're in debug mode
+	 * (a Boolean.TRUE instance).
+	 * */
+	public static final String DEBUG_REQUEST_ATTRIBUTE = FrameworkServlet.class.getName() + ".DEBUG";
 
-	/** Request parameter that will enable debug mode. This isn't a security hole:
-	 * it's only set when the debuggable property is true
+	/**
+	 * Request parameter that will enable debug mode. This isn't a security hole:
+	 * it's only set when the debuggable property is true.
 	 */
 	public static final String DEBUG_PARAMETER = "__debug__";
 
@@ -79,14 +83,8 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
-	/** WebApplicationContext for this servlet */
-	private WebApplicationContext webApplicationContext;
-
-	/** Holder for debug property */
-	private boolean debug = DEFAULT_DEBUG_SETTING;
-
-	/** Can request debugging be enabled!? */
-	private boolean debuggable = false;
+	/** Custom context class */
+	private String contextClass;
 
 	/**
 	 * Should we publish the context as a ServletContext attribute
@@ -94,8 +92,14 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 */
 	private boolean publishContext = true;
 
-	/** Custom context class */
-	private String contextClass;
+	/** Holder for debug property */
+	private boolean debug = false;
+
+	/** Can request debugging be enabled? */
+	private boolean debuggable = false;
+
+	/** WebApplicationContext for this servlet */
+	private WebApplicationContext webApplicationContext;
 
 	/**
 	 * Any fatal exception encountered on startup.
@@ -112,60 +116,10 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		return request.getAttribute(DEBUG_REQUEST_ATTRIBUTE) != null;
 	}
 
-	/**
-	 * Return the namespace for the given servlet name.
-	*/
-	public static String getNamespaceForServletName(String servletName) {
-		return servletName + FrameworkServlet.NAMESPACE_SUFFIX;
-	}
-
-	/**
-	 * Return the WebApplicationContext in which this servlet runs
-	 */
-	public final WebApplicationContext getWebApplicationContext() {
-		return webApplicationContext;
-	}
-
 
 	//---------------------------------------------------------------------
 	// Bean properties
 	//---------------------------------------------------------------------
-	/**
-	 * If debug is enabled, a debug attribute is set on every request
-	 * handled. Cooperating classes can use this to output debug information
-	 * in any way they choose.
-	 */
-	public final void setDebug(boolean debug) {
-		this.debug = debug;
-		logger.info("debug property set by bean property to " + this.debug);
-	}
-
-	/**
-	 * If debuggable is enabled, a debug attribute will be set on every request
-	 * that contains a special parameter, regardless of whether debug mode is
-	 * permanently enabled.
-	 * Cooperating classes can use this to output debug information
-	 * in any way they choose.
-	 */
-	public final void setDebuggable(boolean debuggable) {
-		this.debuggable = debuggable;
-		logger.info("debuggable property set by bean property to " + this.debuggable);
-	}
-
-	/**
-	 * Return the value of the debug property.
-	 */
-	public final boolean getDebug() {
-		return debug;
-	}
-
-	/**
-	 * Return the value of the debuggable property.
-	 */
-	public final boolean getDebuggable() {
-		return debuggable;
-	}
-
 	/**
 	 * Set the a custom context class name
 	 * @param classname name of custom context class to use
@@ -179,8 +133,8 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	}
 
 	/**
-	 * Set whether to publish this servlet's context as a ServletContext attribute
-	 * Default is true
+	 * Set whether to publish this servlet's context as a ServletContext attribute.
+	 * Default is true.
 	 * @param publishContext whether we should publish this servlet's
 	 * WebApplicationContext as a ServletContext attribute, available to
 	 * all objects in this web container. Default is true. This is especially
@@ -189,6 +143,65 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 */
 	public final void setPublishContext(boolean publishContext) {
 		this.publishContext = publishContext;
+	}
+
+	/**
+	 * If debug is enabled, a debug attribute is set on every request
+	 * handled. Default is false.
+	 * Cooperating classes can use this to output debug information
+	 * in any way they choose.
+	 */
+	public final void setDebug(boolean debug) {
+		this.debug = debug;
+		logger.info("debug property set by bean property to " + this.debug);
+	}
+
+	/**
+	 * Return the value of the debug property.
+	 */
+	public final boolean getDebug() {
+		return debug;
+	}
+
+	/**
+	 * If debuggable is enabled, a debug attribute will be set on every request
+	 * that contains a special parameter, regardless of whether debug mode is
+	 * permanently enabled. Default is false.
+	 * Cooperating classes can use this to output debug information
+	 * in any way they choose.
+	 */
+	public final void setDebuggable(boolean debuggable) {
+		this.debuggable = debuggable;
+		logger.info("debuggable property set by bean property to " + this.debuggable);
+	}
+
+	/**
+	 * Return the value of the debuggable property.
+	 */
+	public final boolean getDebuggable() {
+		return debuggable;
+	}
+
+
+	/**
+	 * Return the namespace for this servlet.
+	*/
+	public String getNamespace() {
+		return getServletName() + FrameworkServlet.NAMESPACE_SUFFIX;
+	}
+
+	/**
+	 * Return the ServletContext attribute name for this servlet.
+	 */
+	public String getServletContextAttributeName() {
+		return SERVLET_CONTEXT_PREFIX + getServletName();
+	}
+
+	/**
+	 * Return the WebApplicationContext in which this servlet runs
+	 */
+	public final WebApplicationContext getWebApplicationContext() {
+		return webApplicationContext;
 	}
 
 
@@ -223,7 +236,6 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		logger.info("Framework servlet '" + getServletName() + "' init completed in " + elapsedTime + " ms");
 	}	// initServletBean
 
-
 	/**
 	 * Create the WebApplicationContext for this web app
 	 * Go with default if can't find child
@@ -245,7 +257,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			throw ex;
 		}
 
-		String namespace = getNamespaceForServletName(getServletName());
+		String namespace = getNamespace();
 		try {
 			WebApplicationContext waca = (this.contextClass != null) ?
 					instantiateCustomWebApplicationContext(this.contextClass, parent, namespace) :
@@ -253,8 +265,8 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			waca.setServletContext(sc);
 			logger.info("Servlet with name '" + getServletName() + "' loaded child context " + waca);
 			if (this.publishContext) {
-				//  Publish the context as a servlet context attribute
-				String attName = SERVLET_CONTEXT_PREFIX + getServletName();
+				// Publish the context as a servlet context attribute
+				String attName = getServletContextAttributeName();
 				sc.setAttribute(attName, waca);
 				logger.info("Bound servlet's context in global ServletContext with name '" + attName + "'");
 			}
@@ -275,7 +287,6 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			throw startupException;
 		}
 	}
-
 
 	/**
 	 * Try to instantiate a custom web application context, allowing parameterization
@@ -307,7 +318,6 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		}
 	}
 
-
 	/**
 	 * Subclasses must implement this method to perform any initialization they require.
 	 * The implementation may be empty.
@@ -318,14 +328,6 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	protected void initFrameworkServlet() throws Exception {
 	}
 
-	/**
-	 * It's up to each subclass to decide whether or not it supports a request method.
-	 * It should throw a Servlet exception if it doesn't support a particular request type.
-	 * This might commonly be done with GET for forms, for example
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		serviceWrapper(request, response);
-	}
 
 	/** It's up to each subclass to decide whether or not it supports a request method.
 	 * It should throw a Servlet exception if it doesn't support a particular request type.
@@ -335,6 +337,14 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		serviceWrapper(request, response);
 	}
 
+	/**
+	 * It's up to each subclass to decide whether or not it supports a request method.
+	 * It should throw a Servlet exception if it doesn't support a particular request type.
+	 * This might commonly be done with GET for forms, for example
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		serviceWrapper(request, response);
+	}
 
 	/**
 	 * Handle this request, publishing an event regardless of the outcome.
@@ -388,7 +398,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			if (debugMode && failureCause != null) {
 				// Output verbose information about failure, showing
 				// how far we got (some of the variables output will be null
-				log4jCategory.error("url='" + request.getServletPath() + "': Failure (" + failureCause + "); " +
+				logger.error("url='" + request.getServletPath() + "': Failure (" + failureCause + "); " +
 				"handler=[" + mappedHandler + "]; handlerAdapter=[" + ha + "]", failureCause);
 			}
 			*/
@@ -401,11 +411,9 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		}
 	}	// serviceWrapper
 
-
-
 	/**
 	 * Subclasses must implement this method to do the work of request handling.
-	 * The contract is the same as that for the doGet() or doPost() method of javax.servlet.http.HttpServlet.
+	 * The contract is the same as that for the doGet() or doPost() method of HttpServlet.
 	 * This class intercepts calls to ensure that event publication takes place.
 	 * @param request HttpServletRequest
 	 * @param response HttpServletResponse
