@@ -12,8 +12,8 @@
 package com.interface21.web.servlet.mvc;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,49 +25,49 @@ import com.interface21.web.servlet.LastModified;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- * Convenient superclass for controller implementations.
- * Saves WebApplicationContext.
- * <br/>
- * Exposes the following bean properties:
- * supportedMethods: CSV of supported methods, such as "GET,POST".
+ * Convenient superclass for controller implementations,
+ * using the Template Method design pattern.
+ *
+ * <p>Exposes the following bean properties:
+ * <ul>
+ * <li>supportedMethods: CSV of supported methods, such as "GET,POST".
  * Default allows GET and POST.
- * requireSession: boolean. Whether a session should be required, meaning
- * that subclasses can call request.getSession() in the assurance that there <b>is</b>
- * a session.
- * <br>This class uses the Template Method design pattern.
+ * <li>requireSession: Whether a session should be required, meaning that subclasses
+ * can call request.getSession() in the assurance that there <b>is</b> a session.
+ * </ul>
+ *
  * @author Rod Johnson
  */
 public abstract class AbstractController extends WebContentGenerator implements Controller {
 	
 	/**
-	 * HashMap of method (GET/POST etc.) --> Object or null depending on whether supported.
-	 * GET and POST are supported by default.
+	 * Set of supported methods (GET/POST etc.). GET and POST by default.
 	 */
-	private Map	supportedMethods;
+	private Set	supportedMethods;
 	
 	private boolean requireSession;
 	
 	private int cacheSeconds = -1;
 	
 	/**
-	 * Create a new Controller supporting GET and POST methods
+	 * Create a new Controller supporting GET and POST methods.
 	 */
 	public AbstractController() {
-		supportedMethods = new HashMap();
-		supportedMethods.put("POST", Boolean.TRUE);
-		supportedMethods.put("GET", Boolean.TRUE);
+		this.supportedMethods = new HashSet();
+		this.supportedMethods.add("GET");
+		this.supportedMethods.add("POST");
 	}
 	
 	/**
-	 * Set as CSV: automatic property editor will get the type right
-	 * @param supportedMethodsArray
+	 * Set supported methods as CSV.
+	 * The String[] property editor will get the type right.
 	 */
 	public final void setSupportedMethods(String[] supportedMethodsArray) throws ApplicationContextException {
 		if (supportedMethodsArray == null || supportedMethodsArray.length == 0)
-			throw new ApplicationContextException("supportedMethodsCSV must include some methods");
-		supportedMethods.clear();
+			throw new ApplicationContextException("SupportedMethods must include some methods");
+		this.supportedMethods.clear();
 		for (int i = 0; i < supportedMethodsArray.length; i++) {
-			supportedMethods.put(supportedMethodsArray[i], Boolean.TRUE);
+			this.supportedMethods.add(supportedMethodsArray[i]);
 			logger.info("Supported request method '" + supportedMethodsArray[i] + "'");
 		}
 	}
@@ -92,15 +92,13 @@ public abstract class AbstractController extends WebContentGenerator implements 
 	
 	public final ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
+		
 		// Check whether we should support the request method
 		String method = request.getMethod();
-		if (supportedMethods.get(method) == null) {
+		if (!this.supportedMethods.contains(method)) {
 			logger.info("Disallowed '" + method + "' request");
 			throw new ServletException("This resource does not support request method '" + method + "'");
 		}
-		
-		// ****TODO: could allow configurable session management:
-		// e.g. cookie-based session manager?
 		
 		// Check whether session was required
 		if (this.requireSession) {
@@ -127,8 +125,9 @@ public abstract class AbstractController extends WebContentGenerator implements 
 	}
 	
 	/**
-	 * Template method. Subclasses must implement this. The contract is
-	 * the same as for handleRequest.
+	 * Template method. Subclasses must implement this.
+	 * The contract is the same as for handleRequest.
+	 * @see #handleRequest
 	 */
 	protected abstract ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 
