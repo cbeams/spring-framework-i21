@@ -9,7 +9,9 @@ import java.rmi.RemoteException;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
+import javax.ejb.MessageDrivenContext;
 import javax.ejb.SessionContext;
+import javax.jms.Message;
 
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
@@ -140,5 +142,62 @@ public class EjbSupportTests extends TestCase {
 		}
 	}
 
+
+	public void testJmsMdb() throws Exception {
+		MockControl mc = EasyMock.controlFor(MessageDrivenContext.class);
+		MessageDrivenContext sc = (MessageDrivenContext) mc.getMock();
+		mc.activate();
 	
+		final BeanFactory bf = new StaticListableBeanFactory();
+		BeanFactoryLoader bfl = new BeanFactoryLoader() {
+			public BeanFactory loadBeanFactory() throws BootstrapException {
+				return bf;
+			}
+		};
+
+		AbstractJmsMessageDrivenBean mdb = new AbstractJmsMessageDrivenBean() {
+			protected void onEjbCreate() throws CreateException {
+				assertTrue(getBeanFactory() == bf);
+				assertTrue(logger != null);
+			}
+
+			public void onMessage(Message arg0) {
+				throw new UnsupportedOperationException("onMessage");
+			}
+		};
+		// Must call this method before ejbCreate()
+		mdb.setBeanFactoryLoader(bfl);
+		mdb.setMessageDrivenContext(sc);
+		assertTrue(sc == mdb.getMessageDrivenContext());
+		mdb.ejbCreate();
+	}
+	
+	public void testCannotLoadBeanFactory() throws Exception {
+		MockControl mc = EasyMock.controlFor(SessionContext.class);
+		SessionContext sc = (SessionContext) mc.getMock();
+		mc.activate();
+	
+		final BeanFactory bf = new StaticListableBeanFactory();
+		BeanFactoryLoader bfl = new BeanFactoryLoader() {
+			public BeanFactory loadBeanFactory() throws BootstrapException {
+				throw new BootstrapException("", null);
+			}
+		};
+
+		AbstractStatelessSessionBean slsb = new AbstractStatelessSessionBean() {
+			protected void onEjbCreate() throws CreateException {
+			}
+		};
+		// Must call this method before ejbCreate()
+		slsb.setBeanFactoryLoader(bfl);
+		slsb.setSessionContext(sc);
+		
+		try {
+			slsb.ejbCreate();
+			fail();
+		}
+		catch (CreateException ex) {
+			// Ok
+		}
+	}
 }
