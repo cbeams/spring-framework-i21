@@ -61,8 +61,29 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		catch (NoSuchBeanDefinitionException ex) {
 			// OK
 			System.out.println(ex);
-		}
-		
+		}	
+	}
+	
+	/**
+	 * Test that InitializingBean objects receive the
+	 * afterPropertiesSet() callback
+	 */
+	public void testInitializingBeanCallback() {
+		MustBeInitialized mbi = (MustBeInitialized) getBeanFactory().getBean("mustBeInitialized");
+		// The dummy business method will throw an exception if the
+		// afterPropertiesSet() callback wasn't invoked
+		mbi.businessMethod();
+	}
+	
+	/**
+	 * Test that InitializingBean/Lifecycle objects receive the
+	 * afterPropertiesSet() callback before Lifecycle callbacks
+	 */
+	public void testLifecycleCallbacks() {
+		LifecycleBean lb = (LifecycleBean) getBeanFactory().getBean("lifecycle");
+		// The dummy business method will throw an exception if the
+		// necessary callbacks weren't invoked in the right order
+		lb.businessMethod();
 	}
 	
 	public void testFindsValidInstance() {

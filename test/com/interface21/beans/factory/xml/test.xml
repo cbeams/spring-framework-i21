@@ -33,6 +33,18 @@
 	</bean>
 	
 	
+	<!--
+		Tests of lifecycle callbacks
+	-->
+	<bean name="mustBeInitialized"
+		class="com.interface21.beans.factory.MustBeInitialized">
+	</bean>
+	
+	<bean name="lifecycle"
+		class="com.interface21.beans.factory.LifecycleBean">
+	</bean>
+	
+	
 	<!-- Factory beans are automatically treated
 	differently -->
 	<bean name="singletonFactory"

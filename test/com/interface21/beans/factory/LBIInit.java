@@ -60,6 +60,10 @@ public class LBIInit {
 		pvs.addPropertyValue(new PropertyValue("name", "passThrough"));
 		m.put("factoryPassThrough.propertyValues", pvs);
 		
+		m.put("mustBeInitialized.class", "com.interface21.beans.factory.MustBeInitialized");
+		
+		m.put("lifecycle.class", "com.interface21.beans.factory.LifecycleBean");
+		
 		lbf.registerBeanDefinitions(m, null);
 	}
 
