@@ -30,13 +30,11 @@ import com.interface21.web.util.WebUtils;
  * @author  Rod Johnson
  * @version $Revision$
  */
-public class XmlWebApplicationContext 
-					extends AbstractXmlApplicationContext 
-					implements WebApplicationContext {
+public class XmlWebApplicationContext extends AbstractXmlApplicationContext	implements WebApplicationContext {
 
-	public static final String CONFIG_URL_PARAM = "configUrl";
+	public static final String CONFIG_PATH_PARAM = "configPath";
 
-	public static final String DEFAULT_CONFIG_URL = "/WEB-INF/applicationContext.xml";
+	public static final String DEFAULT_CONFIG_PATH = "/WEB-INF/applicationContext.xml";
 
 	//---------------------------------------------------------------------
 	// Instance data
@@ -45,7 +43,7 @@ public class XmlWebApplicationContext
 	private String namespace = null;
 
 	/** URL from which the configuration was loaded */
-	private String url;
+	private String configPath;
 
 	private ServletContext servletContext;
 
@@ -67,7 +65,7 @@ public class XmlWebApplicationContext
 	public XmlWebApplicationContext(ApplicationContext parent, String namespace) {
 		super(parent);
 		this.namespace = namespace;
-		this.url = "/WEB-INF/" + namespace + ".xml";
+		this.configPath = "/WEB-INF/" + namespace + ".xml";
 		setDisplayName("WebApplicationContext for namespace '" + namespace + "'");
 	}
 
@@ -75,7 +73,7 @@ public class XmlWebApplicationContext
 	// Implementation of WebApplicationContext
 	//---------------------------------------------------------------------
 	/**
-	 * Initialize and attach to the given context
+	 * Initialize and attach to the given context.
 	 * @param servletContext ServletContext to use to load configuration,
 	 * and in which this web application context should be set as an attribute.
 	 */
@@ -83,12 +81,12 @@ public class XmlWebApplicationContext
 		this.servletContext = servletContext;
 
 		if (this.namespace == null) {
-			String configURL = servletContext.getInitParameter(CONFIG_URL_PARAM);
+			String configURL = servletContext.getInitParameter(CONFIG_PATH_PARAM);
 			if (configURL == null)
-				configURL = DEFAULT_CONFIG_URL;
-			this.url = configURL;
+				configURL = DEFAULT_CONFIG_PATH;
+			this.configPath = configURL;
 		}
-		logger.info("Using config URL '" + this.url + "'");
+		logger.info("Using config URL '" + this.configPath + "'");
 
 		refresh();
 
@@ -114,14 +112,24 @@ public class XmlWebApplicationContext
 	/**
 	 * @return the URL where our configuration is held
 	 */
-	protected String getURL() {
-		return url;
+	protected String getConfigPath() {
+		return configPath;
+	}
+
+	/**
+	 * This implementation returns the real path of the root directory of the
+	 * web application that this WebApplicationContext is associated with.
+	 * @see com.interface21.context.ApplicationContext#getResourceBasePath
+	 * @see javax.servlet.ServletContext#getRealPath
+	 */
+	public String getResourceBasePath() {
+		return getServletContext().getRealPath("/");
 	}
 
 	/**
 	 * This implementation supports fully qualified URLs, absolute file paths,
 	 * and relative file paths beneath the root of the web application.
-	 * @see com.interface21.context.ApplicationContext
+	 * @see com.interface21.context.ApplicationContext#getResourceAsStream
 	 */
 	public InputStream getResourceAsStream(String path) throws IOException {
 		return WebUtils.getResourceInputStream(path, getServletContext());
@@ -132,7 +140,7 @@ public class XmlWebApplicationContext
 	 */
 	public String toString() {
 		StringBuffer sb = new StringBuffer( super.toString() + "; ");
-		sb.append("config URL='" + url + "'; ");
+		sb.append("config path='" + configPath + "'; ");
 		return sb.toString();
 	}
 
@@ -145,7 +153,7 @@ public class XmlWebApplicationContext
 	 * @exception IOException if the required XML document isn't found
 	 */
 	protected InputStream getInputStreamForBeanFactory() throws IOException {
-		return getResourceAsStream(getURL());
+		return getResourceAsStream(this.configPath);
 	}
 
 }	// class XmlWebApplicationContext

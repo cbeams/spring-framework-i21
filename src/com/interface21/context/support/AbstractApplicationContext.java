@@ -9,14 +9,16 @@
 
 package com.interface21.context.support;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -31,10 +33,10 @@ import com.interface21.context.ApplicationEventMulticaster;
 import com.interface21.context.ApplicationListener;
 import com.interface21.context.ContextOptions;
 import com.interface21.context.MessageSource;
+import com.interface21.context.MessageSourceResolvable;
 import com.interface21.context.NestingMessageSource;
 import com.interface21.context.NoSuchMessageException;
 import com.interface21.util.StringUtils;
-import com.interface21.context.MessageSourceResolvable;
 
 
 /**
@@ -56,8 +58,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
-	/** Log4j category used by this class. Available to subclasses. */
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	/** Log4j logger used by this class. Available to subclasses. */
+	protected final Logger logger = Logger.getLogger(getClass());
 
 	/** Parent context */
 	private ApplicationContext parent;
@@ -68,9 +70,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * if specified), enabling a different thread usage policy for event publication.
 	 */
 	private ApplicationEventMulticaster eventMulticaster = new ApplicationEventMulticasterImpl();
-
-	/** We use this to prevent reloading if it's been forbidden in the config itself */
-	private boolean loaded;
 
 	/**
 	 * MessageSource helper we delegate our implementation
@@ -91,7 +90,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * Hash table of shared objects, keyed by String key passed
 	 * in shared object method calls
 	 */
-	private HashMap sharedObjects = new HashMap();
+	private Map sharedObjects = new HashMap();
 
 	//---------------------------------------------------------------------
 	// Constructors
@@ -199,11 +198,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			try {
 				this.contextOptions = (ContextOptions) getBeanFactory().getBean(OPTIONS_BEAN_NAME);
 			} catch (NoSuchBeanDefinitionException ex) {
+				logger.info("No options bean (\"" + OPTIONS_BEAN_NAME + "\") found: using default");
 				this.contextOptions = ContextOptions.DEFAULT_OPTIONS;
 			}
 		}
 	}
-
 
 	/**
 	 * Invoke the setApplicationContext() callback on all objects
@@ -213,13 +212,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	private void configureAllManagedObjects() throws ApplicationContextException {
 		logger.info("Configuring singleton beans in context");
 		String[] beanNames = getBeanDefinitionNames();
-		logger.debug("Found " + beanNames.length + " listeners in bean factory; names=" +
+		logger.debug("Found " + beanNames.length + " listeners in bean factory: names=[" +
 		             StringUtils.arrayToDelimitedString(beanNames, ",") + "]");
 		for (int i = 0; i < beanNames.length; i++) {
 			String beanName = beanNames[i];
-
 			if (isSingleton(beanName)) {
-
 				try {
 					Object bean = getBeanFactory().getBean(beanName);
 					configureManagedObject(bean);
@@ -237,7 +234,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	private void refreshListeners() throws ApplicationContextException {
 		logger.info("Refreshing listeners");
 		String[] listenerNames = getBeanDefinitionNames(ApplicationListener.class);
-		logger.debug("Found " + listenerNames.length + " listeners in bean factory; names=" +
+		logger.debug("Found " + listenerNames.length + " listeners in bean factory: names=[" +
 		             StringUtils.arrayToDelimitedString(listenerNames, ",") + "]");
 		for (int i = 0; i < listenerNames.length; i++) {
 			String beanName = listenerNames[i];
@@ -252,7 +249,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			}
 		}
 	}	// refreshListeners
-
 
 	/**
 	 * Publish the given event to all listeners.
@@ -290,8 +286,21 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * This implementation only supports fully qualified URLs.
-	 * @see com.interface21.context.ApplicationContext
+	 * This implementation returns the working directory of the Java VM.
+	 * This should be appropriate for standalone implementations but can
+	 * be overridden for implementations targetted at a container.
+	 * @see com.interface21.context.ApplicationContext#getResourceBasePath
+	 */
+	public String getResourceBasePath() {
+		return (new File("")).getAbsolutePath() + File.separatorChar;
+	}
+
+	/**
+	 * This implementation supports fully qualified URLs, absolute file paths,
+	 * and file paths relative to the application's working directory.
+	 * This should be appropriate for standalone implementations but can
+	 * be overridden for implementations targetted at a container.
+	 * @see com.interface21.context.ApplicationContext#getResourceAsStream
 	 */
 	public InputStream getResourceAsStream(String path) throws IOException {
 		try {
@@ -340,7 +349,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		return messageSource.getMessage(code, args, locale);
 	}
 
-
 	/**
 	 * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
 	 * arg that was passed in (except for the <code>locale</code> attribute)</b>,
@@ -358,7 +366,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
 		return messageSource.getMessage(resolvable.getCode(), resolvable.getArgs(), resolvable.getDefaultMessage(), locale);
 	}
-
 
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory
@@ -384,7 +391,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		throw new NoSuchBeanDefinitionException(name);
 	}
 
-
 	/**
 	 * @see com.interface21.beans.factory.support.AbstractBeanFactory#getBean(String, Class)
 	 */
@@ -401,7 +407,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		}
 		throw new NoSuchBeanDefinitionException(name);
 	}
-
 
 	/**
 	 * @see com.interface21.beans.factory.support.AbstractBeanFactory#isSingleton(String)
@@ -440,7 +445,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		//return sharedObjects.remove(key);
 	}
 
-
 	/**
 	 * If the object is context-aware, give it a reference to this object.
 	 * Note that the implementation fo the ApplicationContextAware interface
@@ -465,20 +469,18 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	// Implementation of ListableBeanFactory
 	//---------------------------------------------------------------------
 	/**
-	 * @see ListableBeanFactory#getBeanDefinitionNames()
-	 */
-	public String[] getBeanDefinitionNames() {
-		return getBeanFactory().getBeanDefinitionNames();
-	}
-
-
-	/**
 	 * @see ListableBeanFactory#getBeanDefinitionCount()
 	 */
 	public int getBeanDefinitionCount() {
 		return getBeanFactory().getBeanDefinitionCount();
 	}
 
+	/**
+	 * @see ListableBeanFactory#getBeanDefinitionNames()
+	 */
+	public String[] getBeanDefinitionNames() {
+		return getBeanFactory().getBeanDefinitionNames();
+	}
 
 	/**
 	 * @see ListableBeanFactory#getBeanDefinitionNames(Class)
@@ -486,7 +488,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	public String[] getBeanDefinitionNames(Class type) {
 		return getBeanFactory().getBeanDefinitionNames(type);
 	}
-
 
 	/** Show information about this context */
 	public String toString() {
@@ -503,17 +504,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		return sb.toString();
 	}	// toString
 
-
 	//---------------------------------------------------------------------
 	// Abstract methods that must be implemented by subclasses
 	//---------------------------------------------------------------------
 	/**
 	 * Subclasses must implement this method to perform the actual configuration load.
-	 * @param servletConfig the app's ServletConfig to use to load the configuration.
-	 * (We'll need this if it's inside the WAR.)
 	 */
 	protected abstract void refreshBeanFactory() throws ApplicationContextException;
-
 
 	/**
 	 * Unimplemented interface method. Subclasses must implement this

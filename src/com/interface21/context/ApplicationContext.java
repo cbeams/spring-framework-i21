@@ -18,22 +18,22 @@ import com.interface21.beans.factory.ListableBeanFactory;
  * Interface to provide configuration for an application. This is
  * read-only while the application is running, but may be reloaded if the
  * implementation supports this.
- * <p/>The configuration provides:
- * <ul>The ability to publish events. Implementations must provide a means
+ * <p>The configuration provides:
+ * <ul>
+ * <li>The ability to resolve messages, supporting internationalization.
+ * <li>The ability to publish events. Implementations must provide a means
  * of registering event listeners.
- * <ul>The ability to resolves messages, supporting internationalization.
- * <ul>Bean factory methods, inherited from ListableBeanFactory. This
+ * <li>The ability to share objects by publishing them to the context.
+ * <li>Bean factory methods, inherited from ListableBeanFactory. This
  * avoids the need for applications to use singletons.
- * <ul>The ability to share objects by publishing them to the context.
- * <ul>Notification of beans initialized by the context of the context,
+ * <li>Notification of beans initialized by the context of the context,
  * enabling communication with the rest of the application, for
  * example by publishing events. The BeanFactory superinterface
  * provides no similar mechanism.
- * <ul>Inheritance from a parent context. Definitions in a descendant context
+ * <li>Inheritance from a parent context. Definitions in a descendant context
  * will always take priority. This means, for example, that a single parent
  * context can be used by an entire web application, while each servlet has its
  * own child context that is independent of that of any other servlet.
- * <li>
  * </ul>
  * @author Rod Johnson
  * @version $Revision$
@@ -41,7 +41,9 @@ import com.interface21.beans.factory.ListableBeanFactory;
 public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	
 	/** 
-	 * Name of options bean. If none is supplied, DEFAULT_OPTIONS will be used
+	 * Name of options bean.
+	 * If none is supplied, the DEFAULT_OPTIONS instance will be used.
+	 * @see ContextOptions#DEFAULT_OPTIONS
 	 */
 	String OPTIONS_BEAN_NAME = "ApplicationContext.options";
 	
@@ -52,8 +54,9 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	 */
 	ApplicationContext getParent();
 	
-	/** Friendly name for context
-	 * @return a display name for the context
+	/**
+	 * Return a friendly name for this context.
+	 * @return a display name for this context
 	*/
 	String getDisplayName();
 
@@ -82,19 +85,31 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	void refresh() throws ApplicationContextException;
 
 	/**
-	 * Notify all listeners registered with this application of 
-	 * an application event. Events may be framework events (such as RequestHandledEvent)
+	 * Notify all listeners registered with this application of an application
+	 * event. Events may be framework events (such as RequestHandledEvent)
 	 * or application-specific events.
 	 * @param e event to publish
 	 */
 	void publishEvent(ApplicationEvent e);
-	
+
+	/**
+	 * Return the base path for relatively addressed resources for this
+	 * application context. Normally, this path will be the same as the one
+	 * that getResourceAsStream uses for evaluating relative paths.
+	 * <p>Note that this method returns null if this application context
+	 * does not have a dedicated base path. Accordingly, getResourceAsStream
+	 * may not support relative paths at all, or use more than one base path
+	 * for evaluating relative paths.
+	 * @return the resource base path (ending with a separator), or null
+	 */
+	String getResourceBasePath();
+
 	/**
 	 * Open an InputStream to the specified resource.
 	 * Must support fully qualified URLs, e.g. "file:C:/test.dat".
 	 * Must support absolute file paths, e.g. "C:/test.dat".
 	 * May allow for relative file paths, e.g. "/WEB-INF/test.dat".
-	 * Note: Callers are responsible for closing the input stream.
+	 * <p>Note: Callers are responsible for closing the input stream.
 	 * @param path  the path to the specified resource
 	 * @return the InputStream for the specified resource
 	 * @throws IOException exception when opening the specified resource
@@ -128,4 +143,3 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	Object removeSharedObject(String key);
 		
 }	// interface ApplicationContext
-
