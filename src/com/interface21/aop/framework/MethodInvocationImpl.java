@@ -92,13 +92,6 @@ public class MethodInvocationImpl implements MethodInvocation {
 	
 	
 	/**
-	 * @see org.aopalliance.Invocation#getTarget()
-	 */
-	public Object getTarget() {
-		return this.target;
-	}
-	
-	/**
 	 * Return the method invoked on the proxied interface.
 	 * May or may not correspond with a method invoked on an underlying
 	 * implementation of that interface.
@@ -133,7 +126,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	}
 
 
-	public Object addAttachment(String key, Object resource) {
+	public Object setResource(String key, Object resource) {
 		Object oldValue = this.resources.get(key);
 		this.resources.put(key, resource);
 		return oldValue;
@@ -142,7 +135,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/**
 	 * @return the resource or null
 	 */
-	public Object getAttachment(String key) {
+	public Object getResource(String key) {
 		return this.resources.get(key);
 	}
 	
@@ -179,8 +172,8 @@ public class MethodInvocationImpl implements MethodInvocation {
 	 * @see org.aopalliance.MethodInvocation#getInterceptor(int)
 	 */
 	public Interceptor getInterceptor(int index) {
-		if (index > getNumberOfInterceptors() - 1)
-			throw new AspectException("Index " + index + " out of bounds: only " + getNumberOfInterceptors() + " interceptors");
+		if (index > getInterceptorCount() - 1)
+			throw new AspectException("Index " + index + " out of bounds: only " + getInterceptorCount() + " interceptors");
 		return (Interceptor) this.interceptors.get(index);
 	}
 	
@@ -189,7 +182,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/**
 	 * @see org.aopalliance.MethodInvocation#getNumberOfInterceptors()
 	 */
-	public int getNumberOfInterceptors() {
+	public int getInterceptorCount() {
 		return this.interceptors.size();
 	}
 
@@ -234,6 +227,30 @@ public class MethodInvocationImpl implements MethodInvocation {
 	 */
 	public void setTarget(Object object) {
 		this.target = object;
+	}
+
+
+	/**
+	 * @see org.aopalliance.MethodInvocation#setArgument(int, java.lang.Object)
+	 */
+	public void setArgument(int index, Object argument) {
+		throw new UnsupportedOperationException("setArgument");
+	}
+
+
+	/**
+	 * @see org.aopalliance.Invocation#getInvokedObject()
+	 */
+	public Object getInvokedObject() {
+		return this.target;
+	}
+
+
+	/**
+	 * @see org.aopalliance.Invocation#cloneInstance()
+	 */
+	public Invocation cloneInstance() {
+		return this;
 	}
 
 }	// class MethodInvocationImpl

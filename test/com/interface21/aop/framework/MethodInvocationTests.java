@@ -9,16 +9,14 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.aopalliance.AspectException;
 import org.aopalliance.AttributeRegistry;
-import org.aopalliance.Interceptor;
-import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
 import com.interface21.beans.TestBean;
-
-import junit.framework.TestCase;
 
 /**
  * TODO COULD REFACTOR TO BE GENERIC
@@ -78,7 +76,7 @@ new Attrib4jAttributeRegistry());
 		final Object returnValue = new Object();
 		List is = new LinkedList();
 		is.add(new AlwaysInvoked(new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				return returnValue;
 			}
 		}));
@@ -96,7 +94,7 @@ new Attrib4jAttributeRegistry());
 		final Object returnValue = new Object();
 		List is = new LinkedList();
 		MethodInterceptor interceptor = new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				return returnValue;
 			}
 		};
@@ -113,7 +111,7 @@ new Attrib4jAttributeRegistry());
 		assertTrue("correct response", rv == returnValue);
 
 		assertTrue(invocation.getCurrentInterceptorIndex() == 0);
-		assertTrue(invocation.getNumberOfInterceptors() == 1);
+		assertTrue(invocation.getInterceptorCount() == 1);
 
 		// Now it gets interesting
 		try {
@@ -140,7 +138,7 @@ new Attrib4jAttributeRegistry());
 		final Object returnValue = new Object();
 		List is = new LinkedList();
 		is.add(new AlwaysInvoked(new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				return returnValue;
 			}
 		}));
@@ -149,15 +147,15 @@ new Attrib4jAttributeRegistry());
 		m, null, is, // list
 	r);
 
-		assertTrue("no bogus attachment", invocation.getAttachment("bogus") == null);
+		assertTrue("no bogus attachment", invocation.getResource("bogus") == null);
 		String name = "foo";
 		Object val = new Object();
 		Object val2 = "foo";
-		assertTrue("New attachment returns null", null == invocation.addAttachment(name, val));
-		assertTrue(invocation.getAttachment(name) == val);
-		assertTrue("Replace returns correct value", val == invocation.addAttachment(name, val2));
-		assertTrue(invocation.getAttachment(name) == val2);
-		assertTrue("Can clear by attaching null", val2 == invocation.addAttachment(name, null));
+		assertTrue("New attachment returns null", null == invocation.setResource(name, val));
+		assertTrue(invocation.getResource(name) == val);
+		assertTrue("Replace returns correct value", val == invocation.setResource(name, val2));
+		assertTrue(invocation.getResource(name) == val2);
+		assertTrue("Can clear by attaching null", val2 == invocation.setResource(name, null));
 	}
 
 	/**

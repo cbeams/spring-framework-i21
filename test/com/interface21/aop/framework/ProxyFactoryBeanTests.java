@@ -100,7 +100,7 @@ public class ProxyFactoryBeanTests extends TestCase {
 		final Exception ex = new UnsupportedOperationException("invoke");
 		// Add evil interceptor to head of list
 		config.addInterceptor(0, new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				throw ex;
 			}
 		});
@@ -267,8 +267,8 @@ public class ProxyFactoryBeanTests extends TestCase {
 		
 		public MethodInterceptor getInterceptor() {
 			return new MethodInterceptor() {
-				public Object invoke(Invocation invocation) throws Throwable {
-					methodNames.add(((MethodInvocation) invocation).getMethod().getName());
+				public Object invoke(MethodInvocation invocation) throws Throwable {
+					methodNames.add(invocation.getMethod().getName());
 					return invocation.invokeNext();
 				}
 			};
@@ -298,12 +298,11 @@ public class ProxyFactoryBeanTests extends TestCase {
 		public Class[] getIntroducedInterfaces() {
 			return new Class[] { AddedGlobalInterface.class};
 		}
-		public Object invoke(Invocation invocation) throws Throwable {
+		public Object invoke(MethodInvocation mi) throws Throwable {
 			//System.out.println("GlobalAspectInterfaceInterceptor.invoke");
-			MethodInvocation mi = (MethodInvocation) invocation;
 			if (mi.getMethod().getDeclaringClass().equals(AddedGlobalInterface.class))
 				return new Integer(-1);
-			return invocation.invokeNext();
+			return mi.invokeNext();
 		}
 	}
 	

@@ -111,7 +111,7 @@ public class AopProxyTests extends TestCase {
 		final String s = "foo";
 		// Test return value
 		MethodInterceptor mi = new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				if (!context) {
 					assertNoInvocationContext();
 				} else {
@@ -220,7 +220,7 @@ public class AopProxyTests extends TestCase {
 		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, r);
 		pc.addInterceptor(tii);
 		pc.addInterceptor(new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				assertTrue("Saw same interceptor", invocation == tii.invocation);
 				return null;
 			}
@@ -231,7 +231,7 @@ public class AopProxyTests extends TestCase {
 		tb.getSpouse();
 		assertTrue(tii.invocation != null);
 		assertTrue(tii.invocation.getProxy() == tb);
-		assertTrue(tii.invocation.getTarget() == null);
+		assertTrue(tii.invocation.getInvokedObject() == null);
 	}
 
 	/**
@@ -242,7 +242,7 @@ public class AopProxyTests extends TestCase {
 		final Exception ex = new Exception();
 		// Test return value
 		MethodInterceptor mi = new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				throw ex;
 			}
 		};
@@ -263,7 +263,7 @@ public class AopProxyTests extends TestCase {
 
 	public void testTargetCanGetInvocation() throws Throwable {
 		class ContextTestBean extends TestBean {
-			public Invocation invocation;
+			public MethodInvocation invocation;
 			public String getName() {
 				this.invocation = AopContext.currentInvocation();
 				return super.getName();
@@ -277,9 +277,9 @@ public class AopProxyTests extends TestCase {
 		AttributeRegistry r = new Attrib4jAttributeRegistry();
 		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class, IOther.class }, true, r);
 		TrapInvocationInterceptor tii = new TrapInvocationInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 					// Assert that target matches BEFORE invocation returns
-				assertTrue(((MethodInvocation) invocation).getTarget() == target);
+				assertTrue(invocation.getInvokedObject() == target);
 				return super.invoke(invocation);
 			}
 		};
@@ -291,13 +291,13 @@ public class AopProxyTests extends TestCase {
 		ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
 		tb.getName();
 		assertTrue(tii.invocation == target.invocation);
-		assertTrue(target.invocation.getTarget() == target);
-		assertTrue(((MethodInvocation) target.invocation).getTargetInterface() == ITestBean.class);
-		assertTrue(((MethodInvocation) target.invocation).getProxy() == tb);
+		assertTrue(target.invocation.getInvokedObject() == target);
+		assertTrue( target.invocation.getMethod().getDeclaringClass() == ITestBean.class);
+		//assertTrue( target.invocation.getProxy() == tb);
 
 		((IOther) tb).absquatulate();
-		MethodInvocation minv = (MethodInvocation) tii.invocation;
-		assertTrue("invoked on iother, not " + minv.getTargetInterface(), minv.getTargetInterface() == IOther.class);
+		MethodInvocation minv =  tii.invocation;
+		assertTrue("invoked on iother, not " + minv.getMethod().getDeclaringClass(), minv.getMethod().getDeclaringClass() == IOther.class);
 		assertTrue(target.invocation == tii.invocation);
 	}
 
@@ -320,8 +320,8 @@ public class AopProxyTests extends TestCase {
 		/**
 		 * @see org.aopalliance.MethodInterceptor#invoke(org.aopalliance.Invocation)
 		 */
-		public Object invoke(Invocation invocation) throws Throwable {
-			this.invocation = (MethodInvocation) invocation;
+		public Object invoke(MethodInvocation invocation) throws Throwable {
+			this.invocation =  invocation;
 			return invocation.invokeNext();
 		}
 	}

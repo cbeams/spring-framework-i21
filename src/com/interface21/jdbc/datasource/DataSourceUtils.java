@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
@@ -161,9 +160,8 @@ public abstract class DataSourceUtils {
 		// Create AOP interceptor wrapping source
 		ProxyFactory pf = new ProxyFactory(source);
 		pf.addInterceptor(0, new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
-				Method m = ((MethodInvocation) invocation).getMethod();
-				if (m.getName().equals("close")) {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
+				if (invocation.getMethod().getName().equals("close")) {
 					// Don't pass the call on
 					return null;
 				}

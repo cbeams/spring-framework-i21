@@ -133,9 +133,8 @@ public class ProxyFactoryTests extends TestCase {
 		// despite the attempt to add an interceptor invalidly
 		factory.addInterceptor(0, new DebugInterceptor());
 		factory.addInterceptor(1, new MethodInterceptor() {
-			public Object invoke(Invocation inv) throws Throwable {
+			public Object invoke(MethodInvocation mi) throws Throwable {
 				// Check it was invoked in correct position
-				MethodInvocation mi = (MethodInvocation) inv;
 				// Index must be this index now
 				assertTrue("Index should be 1, not " + mi.getCurrentInterceptorIndex(), mi.getCurrentInterceptorIndex() == 1);
 				Object ret = mi.invokeNext();
