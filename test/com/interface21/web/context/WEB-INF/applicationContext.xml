@@ -9,9 +9,8 @@
 	<!-- Message source						-->
 	<!-- ===========================================================-->
 	<bean name="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource" >	
-		<property name="basename">messages</property>										
+		<property name="basename">com/interface21/web/context/WEB-INF/context-messages</property>
 	</bean>
-
 
 	<!-- ===========================================================-->
 	<!-- Listeners							-->
@@ -24,14 +23,13 @@
 	-->
 	
 	<!--
-		<bean name="aca" class="com.interface21.context.ACATest">	
-		</bean>
-		
-		<bean name="aca-prototype" class="com.interface21.context.ACATest" singleton="false">	
-		</bean>
-		-->
-	
-	
+	<bean name="aca" class="com.interface21.context.ACATest">
+	</bean>
+
+	<bean name="aca-prototype" class="com.interface21.context.ACATest" singleton="false">
+	</bean>
+	-->
+
 	<bean name="config.testConfigObject" class="com.interface21.web.context.TestConfigBean" >	
 		<property name="name">Tony</property>	
 		<property name="age">48</property>	
@@ -42,14 +40,9 @@
 		<property name="age">49</property>	
 	</bean>
 	
+	<bean name="beanThatListens" class="com.interface21.context.BeanThatListens"/>
 	
-	<bean name="beanThatListens"
-		class="com.interface21.context.BeanThatListens">
-	</bean>
-	
-	<bean name="parentListener"
-	class="com.interface21.context.TestListener"
-/>
+	<bean name="parentListener" class="com.interface21.context.TestListener"/>
 	
 	<!-- Inherited tests -->
 	<bean name="rod" class="com.interface21.beans.TestBean">	
