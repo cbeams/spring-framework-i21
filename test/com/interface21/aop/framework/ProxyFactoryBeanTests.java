@@ -22,7 +22,7 @@ import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
-import com.interface21.beans.factory.support.XmlBeanFactory;
+import com.interface21.beans.factory.xml.XmlBeanFactory;
 import com.interface21.context.ApplicationListener;
 import com.interface21.core.TimeStamped;
 
@@ -35,7 +35,6 @@ import com.interface21.core.TimeStamped;
  * @version $Id$
  */
 public class ProxyFactoryBeanTests extends TestCase {
-	
 	
 	private BeanFactory factory;
 
