@@ -1,13 +1,9 @@
 <?xml version="1.0"?>
 
 <!--
-    Build the Spring core libraries.
-    These can be used in any project.
-    Expected to be called by targets.
+    Build file for the Spring Framework core.
 
-    Rod Johnson, 2002-3.
-
-    $Revision$
+    $Id$
 
     See page 594 of "Expert One-on-One J2EE" for a description of
     the JAR files produced by this build script, and how
@@ -18,7 +14,7 @@
 
     See build.properties for definition of the properties used in this file.
 
-		Note: Does not need a J2EE RI anymore, due to the libraries in lib/j2ee.
+	Note: Does not need a J2EE RI anymore, due to the libraries in lib/j2ee.
 -->
 
 <project name="spring-core" default="usage" basedir=".">
@@ -339,7 +335,9 @@
 			<batchtest fork="yes" todir="${reports.dir}">
 
 				<!-- Wildcards are specified as properties -->
-				<fileset dir="test"	includes="${test.includes}"	excludes="${test.excludes}"/>
+				<fileset dir="test"	
+					includes="${test.includes}"	
+					excludes="${test.excludes}"/>
 
 			</batchtest>
 
@@ -366,6 +364,13 @@
 
 		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" 
 			todir="${clover.build.dir}/com/interface21/jdbc/core" />
+			
+		<!-- 
+			Copy the log4j file so we always get verbose logging, with conditional
+			blocks fired
+		-->
+		<copy file="${test.dir}/log4j.properties" 
+			todir="${clover.build.dir}" />
 
 	</target>
 
@@ -396,6 +401,10 @@
 	</target>
 
 
+	<!--
+		Run test suite under Clover coverage analysis, and bring up
+		Clover's Swing browser to display the results
+	-->
 	<target name="clover.swing" depends="clover.tests" description="Run Clover tests and bring up Swing coverage viewer.">
 
 		<echo>Launching coverage viewer</echo>
@@ -404,17 +413,21 @@
 			<arg value="${clover.initstring}"/>
 			<classpath refid="master-classpath"/>
 		</java>
-
 	</target>
 
 
-	<target name="clover.html" description="Generate Clover HTML coverage reports from an existing Clover database.">
+	<!--
+		Run test suite under Clover coverage analysis, and use Clover
+		to generate Javadoc/style HTML results that may be browsed later.
+	-->
+	<target name="clover.html" 
+		depends="clover.tests"
+		description="Generate Clover HTML coverage reports from an existing Clover database.">
 
 		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
-			<arg line="-o ${clover.html.outdir} -i ${clover.initstring} -t 'clover demo'"/>
+			<arg line="-o '${clover.html.outdir}' -i '${clover.initstring}' -t 'Spring Framework'"/>
 			<classpath refid="master-classpath"/>
 		</java>
-
 	</target>
 
 </project>
