@@ -6,6 +6,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import org.apache.log4j.Logger;
+
 import com.interface21.beans.factory.InitializingBean;
 
 /**
@@ -35,6 +37,8 @@ import com.interface21.beans.factory.InitializingBean;
  * @see RemoteInvocationWrapper
  */
 public class RmiServiceExporter implements InitializingBean {
+
+	private final Logger logger = Logger.getLogger(getClass());
 
 	private Object service;
 
@@ -73,15 +77,18 @@ public class RmiServiceExporter implements InitializingBean {
 	 */
 	public void afterPropertiesSet() throws AlreadyBoundException, RemoteException {
 		Remote wrapper = new RemoteInvocationWrapper(this.service);
+		Registry registry = null;
 		try {
-			Registry registry = LocateRegistry.getRegistry(this.port);
-			registry.rebind(this.name, wrapper);
+			// retrieve registry
+			registry = LocateRegistry.getRegistry(this.port);
 		}
 		catch (RemoteException ex) {
-			// no registry found -> create new one
-			Registry registry = LocateRegistry.createRegistry(this.port);
-			registry.bind(this.name, wrapper);
+			logger.debug("Could not retrieve RMI registry", ex);
+			// assume no registry found -> create new one
+			registry = LocateRegistry.createRegistry(this.port);
 		}
+		// bind wrapper to registry
+		registry.rebind(this.name, wrapper);
 	}
 
 }
