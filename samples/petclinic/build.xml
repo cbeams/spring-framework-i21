@@ -139,7 +139,7 @@
 			<include name="html/**"/>
 			<include name="WEB-INF/applicationContext.xml"/>
 			<include name="WEB-INF/petclinic-servlet.xml"/>
-			<include name="WEB-INF/i21.tld"/>
+			<include name="WEB-INF/spring.tld"/>
 			<include name="WEB-INF/classes/*.properties"/>
 			<include name="WEB-INF/lib/**"/>
 			<include name="WEB-INF/jsp/**"/>
