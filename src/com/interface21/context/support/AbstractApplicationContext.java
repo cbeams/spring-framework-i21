@@ -157,22 +157,28 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * DYNAMIC CLASSLOADER ISSUE...subclass to get classloader!?
 	 */
 	public final void refresh() throws ApplicationContextException {
-		if (contextOptions != null && !contextOptions.isReloadable())
+		if (this.contextOptions != null && !this.contextOptions.isReloadable())
 			throw new ApplicationContextException("Forbidden to reload config");
 
 		this.startupTime = System.currentTimeMillis();
 
 		refreshBeanFactory();
+		if (getBeanDefinitionCount() == 0)
+			logger.warn("No beans defined in ApplicationContext: " + getDisplayName());
+		else
+			logger.info(getBeanDefinitionCount() + " beans defined in ApplicationContext: " + getDisplayName());
 
 		try {
 			loadOptions();
-		} catch (BeansException ex) {
+		}
+		catch (BeansException ex) {
 			throw new ApplicationContextException("Unexpected error loading context options", ex);
 		}
 
 		try {
 			this.messageSource = (MessageSource) getBeanFactory().getBean(MESSAGE_SOURCE_BEAN_NAME);
-		} catch (BeansException ex) {
+		}
+		catch (BeansException ex) {
 			logger.warn("No MessageSource defined in ApplicationContext: using parent's");
 			this.messageSource = this.parent;
 			if (this.messageSource == null)
@@ -256,6 +262,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * or a standard framework event
 	 */
 	public final void publishEvent(ApplicationEvent e) {
+		logger.debug("Publishing event: " + e.toString());
 		this.eventMulticaster.onApplicationEvent(e);
 		if (this.parent != null)
 			parent.publishEvent(e);
@@ -286,31 +293,51 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * This implementation returns the working directory of the Java VM.
-	 * This should be appropriate for standalone implementations but can
-	 * be overridden for implementations targetted at a container.
-	 * @see com.interface21.context.ApplicationContext#getResourceBasePath
-	 */
-	public String getResourceBasePath() {
-		return (new File("")).getAbsolutePath() + File.separatorChar;
-	}
-
-	/**
 	 * This implementation supports fully qualified URLs, absolute file paths,
-	 * and file paths relative to the application's working directory.
-	 * This should be appropriate for standalone implementations but can
-	 * be overridden for implementations targetted at a container.
-	 * @see com.interface21.context.ApplicationContext#getResourceAsStream
+	 * and relative file paths (via getResourceByRelativePath).
+	 * @see #getResourceByRelativePath
 	 */
-	public InputStream getResourceAsStream(String location) throws IOException {
+	public final InputStream getResourceAsStream(String location) throws IOException {
 		try {
 			// try URL
 			URL url = new URL(location);
+			logger.debug("Opening as URL: " + location);
 			return url.openStream();
 		} catch (MalformedURLException ex) {
-			// no URL -> file location
-			return new FileInputStream(location);
+			// no URL -> try absolute file path
+			File file = new File(location);
+			if (file.isAbsolute()) {
+				logger.debug("Opening as absolute file: " + location);
+				return new FileInputStream(location);
+			} else {
+				// try specific relative path handling
+				logger.debug("Opening as relative path: " + location);
+				return getResourceByRelativePath(location);
+			}
 		}
+	}
+
+	/**
+	 * Return input stream to the resource at the given relative path.
+	 * <p>Default implementation supports file paths relative to the
+	 * application's working directory. This should be appropriate for
+	 * standalone implementations but can be overridden, e.g. for
+	 * implementations targetted at a container.
+	 * @param path path to the resource
+	 * @return InputStream for the specified resource
+	 * @throws IOException exception when opening the specified resource
+	 */
+	protected InputStream getResourceByRelativePath(String path) throws IOException {
+		return new FileInputStream(path);
+	}
+
+	/**
+	 * This implementation returns the working directory of the Java VM.
+	 * This should be appropriate for standalone implementations but can
+	 * be overridden for implementations targetted at a container.
+	 */
+	public String getResourceBasePath() {
+		return (new File("")).getAbsolutePath() + File.separatorChar;
 	}
 
 	//---------------------------------------------------------------------

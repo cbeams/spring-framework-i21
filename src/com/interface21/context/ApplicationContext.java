@@ -93,6 +93,18 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	void publishEvent(ApplicationEvent e);
 
 	/**
+	 * Open an InputStream to the specified resource.
+	 * Must support fully qualified URLs, e.g. "file:C:/test.dat".
+	 * Must support absolute file paths, e.g. "C:/test.dat".
+	 * May allow for relative file paths, e.g. "/WEB-INF/test.dat".
+	 * <p>Note: Callers are responsible for closing the input stream.
+	 * @param location location to the resource
+	 * @return InputStream for the specified resource
+	 * @throws IOException exception when opening the specified resource
+	 */
+	InputStream getResourceAsStream(String location) throws IOException;
+
+	/**
 	 * Return the base path for relatively addressed resources for this
 	 * application context. Normally, this path will be the same as the one
 	 * that getResourceAsStream uses for evaluating relative paths.
@@ -103,18 +115,6 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	 * @return the resource base path (ending with a separator), or null
 	 */
 	String getResourceBasePath();
-
-	/**
-	 * Open an InputStream to the specified resource.
-	 * Must support fully qualified URLs, e.g. "file:C:/test.dat".
-	 * Must support absolute file paths, e.g. "C:/test.dat".
-	 * May allow for relative file paths, e.g. "/WEB-INF/test.dat".
-	 * <p>Note: Callers are responsible for closing the input stream.
-	 * @param location  the location to the specified resource
-	 * @return the InputStream for the specified resource
-	 * @throws IOException exception when opening the specified resource
-	 */
-	InputStream getResourceAsStream(String location) throws IOException;
 
 	/**
 	 * Put an object available for sharing. Note that this

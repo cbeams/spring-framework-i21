@@ -13,9 +13,9 @@ import com.interface21.context.ApplicationContextException;
 import java.util.Locale;
 
 /**
- * ApplicationContext to allow concrete registration
- * of Java objects in code, rather than from external configuration sources.
- * Especially useful for testing.
+ * ApplicationContext to allow concrete registration of Java objects
+ * in code, rather than from external configuration sources.
+ * Mainly useful for testing.
  * @author Rod Johnson
  * @version $RevisionId$
  */
@@ -49,7 +49,6 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 
 		//refresh();
 	}
-
 
 	/**
 	 * Must invoke when finished
@@ -86,7 +85,6 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 		return defaultBeanFactory;
 	}
 
-
 	//---------------------------------------------------------------------
 	// Public methods
 	//---------------------------------------------------------------------
@@ -103,17 +101,16 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 			new RootBeanDefinition(clazz, pvs, false));
 	}
 
-        /**
-         * Associate the given message with the given code.
-         * @param code lookup code
-         * @param locale locale message should be found within
-         * @param message message associated with this lookup code
-         */
-        public void addMessage(String code, Locale locale, String defaultMessage) {
+	/**
+	 * Associate the given message with the given code.
+	 * @param code lookup code
+	 * @param locale locale message should be found within
+	 * @param defaultMessage message associated with this lookup code
+	 */
+	public void addMessage(String code, Locale locale, String defaultMessage) {
 		//messageSource.addMessage(code,message)
 		throw new UnsupportedOperationException("Add message not yet implemeneted");
 	}
-
 
 }
 

@@ -35,7 +35,6 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 	/** Default BeanFactory for this context */
 	private ListableBeanFactory listableBeanFactory; 
 
-
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
@@ -77,15 +76,12 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 				throw new ApplicationContextException("IOException closing stream for XML document for " + identifier, ex);
 			}
 		}
-	}   // refresh
+	}
 	
-
-
 	/** Build URL mappings etc. from Document
 	 **/
 	private void parseDocument(Document doc) throws ApplicationContextException {
 		Element root = doc.getDocumentElement();
-		//log4jCategory.debug("Parsed XML configuration from well-formed '" + getURL() + "': processing document...");
 
 		try {
 			listableBeanFactory = new XmlBeanFactory(doc, getParent());
@@ -101,9 +97,8 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 			logger.error(mesg, ex);
 			throw new ApplicationContextException(mesg, ex);
 		}
-	}   // parseDocument
+	}
  
-
 	/** Return the default BeanFactory for this context
 	 * @return the default BeanFactory for this context
 	 */
@@ -118,5 +113,5 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 	 */
 	protected abstract InputStream getInputStreamForBeanFactory() throws IOException;
 	
-}	// class AbstractXMLApplicationContext
+}
  

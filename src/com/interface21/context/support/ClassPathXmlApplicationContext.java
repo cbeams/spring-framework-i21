@@ -6,26 +6,38 @@ import java.io.InputStream;
 import com.interface21.context.ApplicationContextException;
 
 /**
- * Standalone XML application context useful for test harnesses.
- * Takes XML from the classpath.
- * EXAMPLE: ORDER?
- * @author Rod Johnson
+ * Standalone XML application context, taking the context definition
+ * files from the classpath. Mainly useful for test harnesses,
+ * but also for application contexts embedded within JARs.
+ * <p>Note: Generally treats relative paths as class path resources
+ * (when using ApplicationContext.getResourceAsStream).
+ * @author Rod Johnson, Juergen Hoeller
+ * @see com.interface21.context.ApplicationContext#getResourceAsStream
+ * @see #getResourceByRelativePath
  */
-public class ClassPathXmlApplicationContext extends XmlApplicationContextSupport {
+public class ClassPathXmlApplicationContext extends FileSystemXmlApplicationContext {
 
-	public ClassPathXmlApplicationContext(String paths) throws ApplicationContextException, IOException {
-		super(paths);
+	public ClassPathXmlApplicationContext(String locations) throws ApplicationContextException, IOException {
+		super(locations);
 	}
 
-	public ClassPathXmlApplicationContext(String[] paths) throws ApplicationContextException, IOException {
-		super(paths);
+	public ClassPathXmlApplicationContext(String[] locations) throws ApplicationContextException, IOException {
+		super(locations);
 	}
-	
-	protected InputStream getInputStream(String path) throws IOException {
-		InputStream is = getClass().getResourceAsStream(path);	
-		//System.out.println("Path is '" + path + "'; is=" + is);
-	
-		return is;
+
+	/**
+	 * This implementation treats relative paths as class path resources.
+	 */
+	protected InputStream getResourceByRelativePath(String path) throws IOException {
+		return getClass().getResourceAsStream(path);
+	}
+
+	/**
+	 * This implementation returns null, as there is no base path for
+	 * class path resources.
+	 */
+	public String getResourceBasePath() {
+		return null;
 	}
 
 }
