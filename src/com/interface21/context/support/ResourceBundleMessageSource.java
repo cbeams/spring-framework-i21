@@ -42,12 +42,12 @@ public class ResourceBundleMessageSource extends AbstractNestingMessageSource {
 	/**
 	 * @see AbstractNestingMessageSource#resolve(String, Locale)
 	 */
-	protected String resolve(String code, Locale locale) {
-		ResourceBundle bundle  = ResourceBundle.getBundle(basename, locale);
+	protected String resolve(String code, Locale locale) throws MissingResourceException {
+		ResourceBundle bundle = ResourceBundle.getBundle(basename, locale);
 		try {
 			return bundle.getString(code);
 		} catch (MissingResourceException ex) {
-			// just key not found
+			// assume key not found
 			// -> do NOT throw the exception to allow for checking parent message source
 			return null;
 		}
