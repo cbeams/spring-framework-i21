@@ -8,7 +8,7 @@ package petclinic.web;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import petclinic.NoSuchIdException;
+import petclinic.NoSuchEntityException;
 import petclinic.Owner;
 
 import com.interface21.beans.BeanUtils;
@@ -26,14 +26,14 @@ public class EditOwnerForm extends AbstractClinicForm {
      *  Method updates an existing Owner.
      */
     protected ModelAndView onSubmit(Object command) throws ServletException {
-        Owner owner = (Owner) command;
-        Owner oldOwner =  getClinic().findOwner(owner.getId());
-        if(oldOwner == null) {
+        Owner newOwner = (Owner) command;
+        Owner owner =  getClinic().findOwner(newOwner.getId());
+        if(owner == null) {
             // should not happen unless object is corrupted
-            throw new NoSuchIdException(oldOwner, owner.getId());
+            throw new NoSuchEntityException(newOwner);
         }
-        BeanUtils.copyProperties(owner, oldOwner);
-        getClinic().update(oldOwner);
+        BeanUtils.copyProperties(newOwner, owner);
+        getClinic().update(owner);
         return new ModelAndView(getSuccessView(), "ownerId", Integer.toString(owner.getId()));
     }
     
