@@ -21,7 +21,7 @@ import com.interface21.beans.PropertyValues;
  * BeanDefinitions.
  *
  * @author Rod Johnson
- * @version $Revision$
+ * @version $Id$
  */
 public abstract class AbstractBeanDefinition {
 
@@ -40,10 +40,6 @@ public abstract class AbstractBeanDefinition {
 		this.singleton = singleton;
 	}
 	
-	protected AbstractBeanDefinition() {
-		this.singleton = true;
-	}
-	
 	/**
 	 * Is this a <b>Singleton</b>, with a single, shared
 	 * instance returned on all calls,
@@ -57,9 +53,6 @@ public abstract class AbstractBeanDefinition {
 		return singleton;
 	}
 	
-	public void setPropertyValues(PropertyValues pvs) {
-		this.pvs = pvs;
-	}
 
 	/**
 	 * Return the PropertyValues to be applied to a new instance
