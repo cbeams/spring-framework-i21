@@ -6,6 +6,7 @@
 package com.interface21.beans.factory;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Bean exposing a map. Used for bean factory tests.
@@ -16,6 +17,8 @@ import java.util.Map;
 public class HasMap {
 	
 	private Map map;
+	
+	private Properties props;
 
 	/**
 	 * @return Map
@@ -30,6 +33,21 @@ public class HasMap {
 	 */
 	public void setMap(Map map) {
 		this.map = map;
+	}
+
+	/**
+	 * @return Properties
+	 */
+	public Properties getProps() {
+		return props;
+	}
+
+	/**
+	 * Sets the props.
+	 * @param props The props to set
+	 */
+	public void setProps(Properties props) {
+		this.props = props;
 	}
 
 }
