@@ -10,16 +10,16 @@
 package com.interface21.jdbc.datasource;
 
 import java.beans.PropertyEditorManager;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
-
-import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.jndi.AbstractJndiLocator;
 import com.interface21.jndi.JndiObjectEditor;
 import com.interface21.jndi.JndiTemplate;
@@ -178,18 +178,33 @@ public abstract class DataSourceUtils {
 	 * @see com.interface21.jdbc.datasource.SingleConnectionDataSource
 	 */
 	public static Connection getCloseSuppressingConnectionProxy(Connection source) {
-		// Create AOP interceptor wrapping source
-		ProxyFactory pf = new ProxyFactory(source);
-		pf.addInterceptor(0, new MethodInterceptor() {
-			public Object invoke(MethodInvocation invocation) throws Throwable {
-				if (invocation.getMethod().getName().equals("close")) {
-					// Don't pass the call on
-					return null;
-				}
-				return invocation.invokeNext();
+		return (Connection) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+		                                           new Class[] {Connection.class},
+		                                           new CloseSuppressingInvocationHandler(source));
+	}
+
+
+	private static class CloseSuppressingInvocationHandler implements InvocationHandler {
+
+		private final Connection source;
+
+		public CloseSuppressingInvocationHandler(Connection source) {
+			this.source = source;
+		}
+
+		public Object invoke(Object proxy, Method method, Object[] args)
+				throws Throwable {
+			if (method.getName().equals("close")) {
+				// Don't pass the call on
+				return null;
 			}
-		});
-		return (Connection) pf.getProxy();
+			try {
+				return method.invoke(this.source, args);
+			}
+			catch (InvocationTargetException ex) {
+				throw ex.getTargetException();
+			}
+		}
 	}
 
 }
