@@ -128,7 +128,8 @@
 
 		<!-- java14.java.util.logging?  -->
 
-		<javadoc packagenames="com.interface21.beans.*,com.interface21.web.context.*,com.interface21.web.servlet.*,com.interface21.web.servlet.mvc,com.interface21.util,com.interface21.jndi,com.interface21.core"
+<!--		<javadoc packagenames="com.interface21.beans.*,com.interface21.web.context.*,com.interface21.web.servlet.*,com.interface21.web.servlet.mvc,com.interface21.util,com.interface21.jndi,com.interface21.core" -->
+		<javadoc packagenames="com.interface21.*"
 			sourcepath="src"
 			defaultexcludes="yes"
 			destdir="${docs.dir}"
