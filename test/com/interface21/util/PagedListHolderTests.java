@@ -335,6 +335,13 @@ public class PagedListHolderTests extends TestCase {
 		assertTrue("K:last display page: " + n, n == 0);
 		n = ((MockSourceProvider) holder.getSourceProvider()).getNrOfCalls();
 		assertTrue("Correct number of times called: " + n, n == 6);
+		
+		// The locale remains the same, no new request expected
+		cmd.clear();
+		cmd.put("locale", "en_US");
+		n = ((MockSourceProvider) holder.getSourceProvider()).getNrOfCalls();
+		assertTrue("Correct number of times called: " + n, n == 6);
+		
 	}
 
 
