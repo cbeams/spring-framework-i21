@@ -55,32 +55,7 @@ public class FindOwnersForm extends AbstractSearchFormController implements Init
      */
     protected List search(Object command) {
         Owner owner = (Owner) command;
-        String search = owner.getLastName();
-        List results = clinic.findOwners(search);
-        //NOTE: Mysql disregards case, Hsql is case-sensitive
-        if(results.size() > 0) {
-            return results;
-        }
-        
-        //try capitalized search
-        StringBuffer sb = new StringBuffer(search);
-        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-        for(int i = 1; i < sb.length(); ++i) {
-            sb.setCharAt(i, Character.toLowerCase(sb.charAt(i)));
-        }
-        results = clinic.findOwners(sb.toString());
-        if(results.size() > 0) {
-            return results;
-        }
-        
-        //try uppercase search
-        results = clinic.findOwners(search.toUpperCase());
-        if(results.size() > 0) {
-            return results;
-        }
-        
-        //try lowercase search
-        return clinic.findOwners(search.toLowerCase());
+		return clinic.findOwners(owner.getLastName());
     }
     
 }
