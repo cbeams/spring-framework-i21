@@ -1,5 +1,7 @@
 package com.interface21.web.servlet.handler;
 
+import java.io.IOException;
+
 import javax.servlet.ServletException;
 
 import junit.framework.TestCase;
@@ -21,16 +23,12 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 	
 	private ApplicationContext ac;
 
-	public BeanNameUrlHandlerMappingTestSuite(String name) {
-		super(name);
-	}
-
-	protected void setUp() throws Exception {
+	public BeanNameUrlHandlerMappingTestSuite() throws IOException {
 		ac = new ClassPathXmlApplicationContext(CONF);
 		hm = new BeanNameUrlHandlerMapping();
 		hm.setApplicationContext(ac);
 	}
-	
+
 	public void testRequestsWithHandlers() throws Exception {
 		Object bean = ac.getBean("godCtrl");
 

@@ -34,11 +34,7 @@ public class DispatcherServletTestSuite extends TestCase {
 
 	private DispatcherServlet complexControllerServlet;
 
-	public DispatcherServletTestSuite(String name) {
-		super(name);
-	}
-
-	protected void setUp() throws Exception {
+	public DispatcherServletTestSuite() throws ServletException {
 		servletConfig = new MockServletConfig(new MockServletContext(), "simple");
 
 		simpleControllerServlet = new DispatcherServlet();

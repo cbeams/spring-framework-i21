@@ -123,7 +123,8 @@ public class ViewResolverTestSuite extends TestCase {
 
 		ServletContext sc = new MockServletContext();
 		MockHttpServletRequest request = new MockHttpServletRequest(sc, "GET", "/example");
-		request.addPreferredLocale(Locale.GERMAN);
+		Locale locale = !Locale.GERMAN.equals(Locale.getDefault()) ? Locale.GERMAN : Locale.ENGLISH;
+		request.addPreferredLocale(locale);
 		HttpServletResponse response = new MockHttpServletResponse();
 		request.setAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
 		request.setAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE, new AcceptHeaderLocaleResolver());
@@ -134,9 +135,9 @@ public class ViewResolverTestSuite extends TestCase {
 		assertTrue("Correct tb attribute", tb.equals(request.getAttribute("tb")));
 		assertTrue("Correct rc attribute", request.getAttribute("rc") == null);
 		assertTrue("Correct JSTL attributes", request.getAttribute(Config.FMT_LOCALIZATION_CONTEXT) instanceof LocalizationContext);
-		assertTrue("Correct JSTL attributes", Locale.GERMAN.equals(request.getAttribute(Config.FMT_LOCALE)));
+		assertTrue("Correct JSTL attributes", locale.equals(request.getAttribute(Config.FMT_LOCALE)));
 		assertTrue("Correct JSTL attributes", request.getAttribute(Config.FMT_LOCALIZATION_CONTEXT + JstlView.REQUEST_SCOPE_PREFIX) instanceof LocalizationContext);
-		assertTrue("Correct JSTL attributes", Locale.GERMAN.equals(request.getAttribute(Config.FMT_LOCALE + JstlView.REQUEST_SCOPE_PREFIX)));
+		assertTrue("Correct JSTL attributes", locale.equals(request.getAttribute(Config.FMT_LOCALE + JstlView.REQUEST_SCOPE_PREFIX)));
 	}
 
 	public void testXmlViewResolver() throws ServletException, IOException {

@@ -338,7 +338,6 @@ public class TagTestSuite extends TestCase {
 	private MockPageContext createPageContext() {
 		MockServletContext sc = new MockServletContext();
 		MockHttpServletRequest request = new MockHttpServletRequest(sc, "GET", "/test");
-		request.addPreferredLocale(Locale.getDefault());
 		SimpleWebApplicationContext wac = new SimpleWebApplicationContext(null, "test");
 		wac.setServletContext(sc);
 		request.setAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);

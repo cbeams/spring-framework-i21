@@ -73,7 +73,7 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 		registerSingleton("localeHandler", ComplexLocaleChecker.class, null);
 		registerSingleton("unknownHandler", String.class, null);
 
-		addMessage("test", Locale.getDefault(), "test message");
+		addMessage("test", Locale.ENGLISH, "test message");
 		addMessage("test", Locale.CANADA, "Canadian & test message");
 
 		super.setServletContext(servletContext);

@@ -43,7 +43,7 @@ public class SimpleWebApplicationContext extends StaticWebApplicationContext {
 
 		registerSingleton("/locale.do", LocaleChecker.class, null);
 
-		addMessage("test", Locale.getDefault(), "test message");
+		addMessage("test", Locale.ENGLISH, "test message");
 		addMessage("test", Locale.CANADA, "Canadian & test message");
 
 		registerSingleton(UiApplicationContextUtils.THEME_SOURCE_BEAN_NAME, DummyThemeSource.class, null);
@@ -73,7 +73,7 @@ public class SimpleWebApplicationContext extends StaticWebApplicationContext {
 
 		public DummyThemeSource() {
 			messageSource = new StaticMessageSource();
-			messageSource.addMessage("themetest", Locale.getDefault(), "theme test message");
+			messageSource.addMessage("themetest", Locale.ENGLISH, "theme test message");
 		}
 
 		public Theme getTheme(String themeName) {

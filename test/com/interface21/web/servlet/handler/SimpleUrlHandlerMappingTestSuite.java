@@ -1,5 +1,7 @@
 package com.interface21.web.servlet.handler;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
 import com.interface21.context.ApplicationContext;
@@ -21,16 +23,12 @@ public class SimpleUrlHandlerMappingTestSuite extends TestCase {
 	
 	private ApplicationContext ac;
 
-	public SimpleUrlHandlerMappingTestSuite(String name) {
-		super(name);
-	}
-
-	protected void setUp() throws Exception {
+	public SimpleUrlHandlerMappingTestSuite() throws IOException {
 		ac = new ClassPathXmlApplicationContext(CONF);
 		hm = (HandlerMapping) ac.getBean("a.urlMap");
 		hm.setApplicationContext(ac);
 	}
-	
+
 	public void testRequestsWithHandlers() throws Exception {
 		Object bean = ac.getBean("mainController");
 		

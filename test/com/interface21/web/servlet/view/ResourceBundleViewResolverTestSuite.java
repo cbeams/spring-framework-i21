@@ -29,19 +29,7 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 	
 	WebApplicationContext wac;
 	
-	/** Not a constant: allows overrides.
-	 * Controls whether to cache views.
-	 */
-	protected boolean getCache() {
-		return true;
-	}
-
-	/** Creates new SeatingPlanTest */
-	public ResourceBundleViewResolverTestSuite(String name) {
-		super(name);
-	}
-
-	protected void setUp() throws Exception {
+	public ResourceBundleViewResolverTestSuite() {
 		rb = new ResourceBundleViewResolver();
 		rb.setBasename(PROPS_FILE);
 		rb.setCache(getCache());
@@ -52,7 +40,12 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 		rb.setApplicationContext(wac);
 	}
 
-	public void tearDown() {
+	/**
+	 * Not a constant: allows overrides.
+	 * Controls whether to cache views.
+	 */
+	protected boolean getCache() {
+		return true;
 	}
 
 	public void testDebugViewEnglish() throws Exception {

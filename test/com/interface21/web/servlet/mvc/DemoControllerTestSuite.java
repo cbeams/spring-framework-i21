@@ -17,19 +17,10 @@ public class DemoControllerTestSuite extends TestCase {
 
 	Controller testController;
 	
-	/**
-	 * Constructor for AbstractMultiRequestHandlerTestSuite.
-	 * @param arg0
-	 */
-	public DemoControllerTestSuite(String arg0) {
-		super(arg0);
+	public DemoControllerTestSuite() {
+		testController = new DemoController();
 	}
 
-	public void setUp() {
-		testController = new DemoController();
-		// No bean properties to configure
-	}
-	
 	public void testNoName() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "test.html");
 		HttpServletResponse response = new MockHttpServletResponse();

@@ -26,13 +26,6 @@ import com.interface21.web.servlet.ModelAndView;
  */
 public class FormControllerTestSuite extends TestCase {
 	
-	public FormControllerTestSuite(String name) {
-		super(name);
-	}
-
-	public void setUp() {
-	}
-	
 	public void testReferenceDataOnForm() throws Exception {
 		String formView = "f";
 		String successView = "s";
