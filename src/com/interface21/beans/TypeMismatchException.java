@@ -13,7 +13,8 @@ public class TypeMismatchException extends PropertyAccessException {
 		super("Failed to convert property value of type [" +
 		      (propertyChangeEvent.getNewValue() != null ?
 		       propertyChangeEvent.getNewValue().getClass().getName() : null) +
-		      "] to required type [" + requiredType.getName() + "]", propertyChangeEvent, t);
+		      "] to required type [" + requiredType.getName() +
+		      "] for property named [" + propertyChangeEvent.getPropertyName() + "]", propertyChangeEvent, t);
 	}
 
 }
