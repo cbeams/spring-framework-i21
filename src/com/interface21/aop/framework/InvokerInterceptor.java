@@ -4,7 +4,6 @@ package com.interface21.aop.framework;
 import java.lang.reflect.InvocationTargetException;
 
 import org.aopalliance.AspectException;
-import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 import org.aopalliance.ProxyInterceptor;
@@ -42,10 +41,7 @@ public class InvokerInterceptor implements MethodInterceptor, ProxyInterceptor {
 	/**
 	 * @see Interceptor#invoke(Invocation)
 	 */
-	public Object invoke(Invocation pInv) throws Throwable {
-		
-		MethodInvocation invocation = (MethodInvocation) pInv;
-		// Assertion?
+	public Object invoke(MethodInvocation invocation) throws Throwable {
 		
 		// Set the target on the invocation
 		if (invocation instanceof MethodInvocationImpl) {

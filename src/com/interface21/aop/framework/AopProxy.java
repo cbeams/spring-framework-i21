@@ -129,7 +129,7 @@ public class AopProxy implements InvocationHandler {
 			}
 			
 			Object retVal = invocation.invokeNext();
-			if (retVal != null && retVal == invocation.getTarget()) {
+			if (retVal != null && retVal == invocation.getInvokedObject()) {
 				// Special case: it returned this
 				// Note that we can't help if the target sets
 				// a reference to itself in another returned object

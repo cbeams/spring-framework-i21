@@ -8,7 +8,7 @@ package com.interface21.aop.framework;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.aopalliance.Invocation;
+import org.aopalliance.MethodInvocation;
 import org.apache.log4j.Logger;
 
 /**
@@ -93,7 +93,7 @@ public class DelegatingIntroductionInterceptor implements IntroductionIntercepto
 	/**
 	 * @see com.interface21.aop.Interceptor#invoke(Invocation)
 	 */
-	public final Object invoke(Invocation invocation) throws Throwable {
+	public final Object invoke(MethodInvocation invocation) throws Throwable {
 		
 		// We want this for getArguments() method
 		// This class is not portable outside Spring AOP framework
