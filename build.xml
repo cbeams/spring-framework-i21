@@ -72,6 +72,7 @@
 			<classpath refid="master-classpath"/>
 
 		</javac>
+
 		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" todir="${build.dir}/"/>
 
 	</target>
@@ -285,8 +286,6 @@
 
 		</javac>
 
-		<copy file="${src.dir}/sql-error-codes.xml" todir="${testbuild.dir}"/>
-
 	</target>
 
 
@@ -349,7 +348,7 @@
 
 	<target name="clover.build" description="Compile main source tree java files WITH CLOVER into class files.">
 
-		<!-- switch on clover by specifying it as the compiler to use -->
+		<!-- switch on Clover by specifying it as the compiler to use -->
 		<property name="build.compiler" value="org.apache.tools.ant.taskdefs.CloverCompilerAdapter"/>
 
 		<mkdir dir="${clover.build.dir}"/>
@@ -362,6 +361,8 @@
 			<classpath refid="master-classpath"/>
 
 		</javac>
+
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" todir="${clover.build.dir}/"/>
 
 	</target>
 
