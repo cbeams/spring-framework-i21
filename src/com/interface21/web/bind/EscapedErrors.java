@@ -1,7 +1,12 @@
 package com.interface21.web.bind;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import com.interface21.validation.Errors;
 import com.interface21.validation.FieldError;
+import com.interface21.validation.ObjectError;
 import com.interface21.web.util.HtmlUtils;
 
 /**
@@ -40,8 +45,8 @@ public class EscapedErrors implements Errors {
 		return source.getErrorCount();
 	}
 
-	public FieldError[] getAllErrors() {
-		return escapeFieldErrors(source.getAllErrors());
+	public List getAllErrors() {
+		return escapeObjectErrors(source.getAllErrors());
 	}
 
 	public boolean hasGlobalErrors() {
@@ -52,12 +57,12 @@ public class EscapedErrors implements Errors {
 		return source.getGlobalErrorCount();
 	}
 
-	public FieldError[] getGlobalErrors() {
-		return escapeFieldErrors(source.getGlobalErrors());
+	public List getGlobalErrors() {
+		return escapeObjectErrors(source.getGlobalErrors());
 	}
 
-	public FieldError getGlobalError() {
-		return escapeFieldError(source.getGlobalError());
+	public ObjectError getGlobalError() {
+		return escapeObjectError(source.getGlobalError());
 	}
 
 	public boolean hasFieldErrors(String field) {
@@ -68,12 +73,12 @@ public class EscapedErrors implements Errors {
 		return source.getFieldErrorCount(field);
 	}
 
-	public FieldError[] getFieldErrors(String field) {
-		return escapeFieldErrors(source.getFieldErrors(field));
+	public List getFieldErrors(String field) {
+		return escapeObjectErrors(source.getFieldErrors(field));
 	}
 
 	public FieldError getFieldError(String field) {
-		return escapeFieldError(source.getFieldError(field));
+		return (FieldError) escapeObjectError(source.getFieldError(field));
 	}
 
 	public Object getPropertyValueOrRejectedUpdate(String field) {
@@ -84,17 +89,25 @@ public class EscapedErrors implements Errors {
 		source.setNestedPath(nestedPath);
 	}
 
-	private FieldError escapeFieldError(FieldError source) {
+	private ObjectError escapeObjectError(ObjectError source) {
 		if (source == null)
 			return null;
-		String rejectedValue = (source.getRejectedValue() != null ? HtmlUtils.htmlEscape(source.getRejectedValue().toString()) : null);
-		return new FieldError(source.getObjectName(), source.getField(), rejectedValue, source.getErrorCode(), HtmlUtils.htmlEscape(source.getMessage()));
+		if (source instanceof FieldError) {
+			FieldError fieldError = (FieldError) source;
+			Object value = fieldError.getRejectedValue();
+			if (value instanceof String) {
+				value = HtmlUtils.htmlEscape((String) fieldError.getRejectedValue());
+			}
+			return new FieldError(fieldError.getObjectName(), fieldError.getField(), value, fieldError.getErrorCode(), HtmlUtils.htmlEscape(fieldError.getMessage()));
+		}
+		return new ObjectError(source.getObjectName(), source.getErrorCode(), source.getMessage());
 	}
 
-	private FieldError[] escapeFieldErrors(FieldError[] source) {
-		FieldError[] escaped = new FieldError[source.length];
-		for (int i = 0; i < source.length; i++) {
-			escaped[i] = escapeFieldError(source[i]);
+	private List escapeObjectErrors(List source) {
+		List escaped = new ArrayList();
+		for (Iterator it = escaped.iterator(); it.hasNext();) {
+			ObjectError objectError = (ObjectError)it.next();
+			escaped.add(escapeObjectError(objectError));
 		}
 		return escaped;
 	}

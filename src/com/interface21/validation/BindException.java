@@ -60,7 +60,7 @@ public class BindException extends Exception implements Errors {
 	}
 	
 	public void reject(String code, String message) {
-		errors.add(new FieldError(this.objectName, code, message));
+		errors.add(new ObjectError(this.objectName, code, message));
 	}
 
 	public void rejectValue(String field, String code, String message) throws InvalidBinderUsageException {
@@ -78,8 +78,8 @@ public class BindException extends Exception implements Errors {
 		return errors.size();
 	}
 
-	public FieldError[] getAllErrors() {
-		return (FieldError[]) errors.toArray(new FieldError[errors.size()]);
+	public List getAllErrors() {
+		return Collections.unmodifiableList(errors);
 	}
 
 	public boolean hasGlobalErrors() {
@@ -87,22 +87,26 @@ public class BindException extends Exception implements Errors {
 	}
 
 	public int getGlobalErrorCount() {
-		return getGlobalErrors().length;
+		return getGlobalErrors().size();
 	}
 
-	public FieldError[] getGlobalErrors() {
+	public List getGlobalErrors() {
 		List result = new ArrayList();
-		for (int i = 0; i < errors.size(); i++) {
-			FieldError fe = (FieldError) errors.get(i);
-			if (fe.getField() == null)
+		for (Iterator it = errors.iterator(); it.hasNext();) {
+			ObjectError fe = (ObjectError) it.next();
+			if (!(fe instanceof FieldError))
 				result.add(fe);
 		}
-		return (FieldError[])result.toArray(new FieldError[result.size()]);
+		return Collections.unmodifiableList(result);
 	}
 
-	public FieldError getGlobalError() {
-		FieldError[] errors = getGlobalErrors();
-		return (errors.length > 0 ? errors[0] : null);
+	public ObjectError getGlobalError() {
+		for (Iterator it = errors.iterator(); it.hasNext();) {
+			ObjectError fe = (ObjectError) it.next();
+			if (!(fe instanceof FieldError))
+				return fe;
+		}
+		return null;
 	}
 
 	public boolean hasFieldErrors(String field) {
@@ -110,23 +114,28 @@ public class BindException extends Exception implements Errors {
 	}
 
 	public int getFieldErrorCount(String field) {
-		return getFieldErrors(field).length;
+		return getFieldErrors(field).size();
 	}
 
-	public FieldError[] getFieldErrors(String field) {
+	public List getFieldErrors(String field) {
 		List result = new ArrayList();
 		field = fixedField(field);
-		for (int i = 0; i < errors.size(); i++) {
-			FieldError fe = (FieldError) errors.get(i);
-			if (field.equals(fe.getField()))
+		for (Iterator it = errors.iterator(); it.hasNext();) {
+			ObjectError fe = (ObjectError) it.next();
+			if (fe instanceof FieldError && field.equals(((FieldError) fe).getField()))
 				result.add(fe);
 		}
-		return (FieldError[])result.toArray(new FieldError[result.size()]);
+		return Collections.unmodifiableList(result);
 	}
 
 	public FieldError getFieldError(String field) {
-		FieldError[] errors = getFieldErrors(field);
-		return (errors.length > 0 ? errors[0] : null);
+		field = fixedField(field);
+		for (Iterator it = errors.iterator(); it.hasNext();) {
+			ObjectError fe = (ObjectError) it.next();
+			if (fe instanceof FieldError && field.equals(((FieldError) fe).getField()))
+				return (FieldError) fe;
+		}
+		return null;
 	}
 
 	/**

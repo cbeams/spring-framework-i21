@@ -11,6 +11,8 @@
   
 package com.interface21.validation;
 
+import java.util.List;
+
 /**
  * Interface to be implemented by objects that can store
  * and expose information about data binding errors.
@@ -28,34 +30,37 @@ public interface Errors {
 	boolean hasErrors();
 
 	int getErrorCount();
-	
-	FieldError[] getAllErrors();
+
+	/**
+	 * @return List of ObjectError instances
+	 */
+	List getAllErrors();
 
 	boolean hasGlobalErrors();
 
 	int getGlobalErrorCount();
 
 	/**
-	 * Return FieldError or null
+	 * @return List of ObjectError instances
 	 */
-	FieldError[] getGlobalErrors();
+	List getGlobalErrors();
 
 	/**
-	 * Return FieldError or null
+	 * Returns ObjectError or null
 	 */
-	FieldError getGlobalError();
+	ObjectError getGlobalError();
 
 	boolean hasFieldErrors(String field);
 
 	int getFieldErrorCount(String field);
 
 	/**
-	 * Return FieldError or null
+	 * @return List of FieldError instances
 	 */
-	FieldError[] getFieldErrors(String field);
+	List getFieldErrors(String field);
 
 	/**
-	 * Return FieldError or null
+	 * Returns FieldError or null
 	 */
 	FieldError getFieldError(String field);
 
@@ -66,7 +71,7 @@ public interface Errors {
 	 * E.g. an address validator could validate address.
 	 * @param nestedPath defaults to "". Null is also acceptable. 
 	 * Nested path within this object, e.g. "billingAddress"
-	 * Rejection amounts to adding this
+	 * Rejection amounts to adding this.
 	 */
 	void setNestedPath(String nestedPath);
 }
