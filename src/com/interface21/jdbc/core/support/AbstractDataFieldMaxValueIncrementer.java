@@ -46,7 +46,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	
     /**
      * Template method
-     * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextStringValue(java.lang.Class)
+     * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextStringValue()
      */
     public final String nextStringValue() throws DataAccessException {
 	return incrementStringValue();
@@ -54,7 +54,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 
     /**
      * Template method
-     * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextValue()
+     * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextValue(java.lang.Class)
      */
     public final Object nextValue(Class keyClass) throws DataAccessException {
 	if (int.class.getName().equals(keyClass.getName()) || 
