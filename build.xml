@@ -72,7 +72,7 @@
 		<rmic base="${build.dir}" classname="com.interface21.remoting.rmi.RemoteInvocationWrapper"/> 
 
 		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml"
-			todir="${build.dir}/com/interface21/jdbc/core" />
+			todir="${build.dir}/com/interface21/jdbc/core"/>
 
 	</target>
 
@@ -92,7 +92,6 @@
 
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/**"/>
-				<include name="*.xml"/>
 			</fileset>
 
 		</jar>
@@ -108,24 +107,15 @@
 
 			<fileset dir="${build.dir}">
 
-				<include name="com/interface21/core/*"/>
-				<include name="com/interface21/beans/*"/>
-				<include name="com/interface21/beans/factory/*"/>
-				<include name="com/interface21/beans/factory/support/*"/>
+				<include name="com/interface21/core/**"/>
+				<include name="com/interface21/beans/**"/>
+				<include name="com/interface21/jndi/**"/>
+				<include name="com/interface21/util/*"/>
 
 				<!-- Unless we exclude the bean factory used in web apps,
 				    web apps will fail to load classes.
 				    Could use thread context class loader in framework, of course -->
 				<exclude name="com/interface21/beans/factory/support/X*"/>
-
-				<include name="com/interface21/beans/propertyeditors/*"/>
-				<include name="com/interface21/jndi/*"/>
-
-				<!-- EJB only -->
-				<exclude name="com/interface21/jndi/JndiBeanFactory.class"/>
-				<exclude name="com/interface21/jndi/JndiPropertyValues.class"/>
-
-				<include name="com/interface21/util/*"/>
 
 			</fileset>
 
@@ -162,7 +152,6 @@
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/dao/**"/>
 				<include name="com/interface21/jdbc/**"/>
-				<include name="*.xml"/>
 			</fileset>
 
 		</jar>
@@ -178,8 +167,6 @@
 
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/ejb/support/*"/>
-				<include name="com/interface21/jndi/JndiBeanFactory.class"/>
-				<include name="com/interface21/jndi/JndiPropertyValues.class"/>
 			</fileset>
 
 		</jar>
@@ -206,12 +193,12 @@
 				<!-- This is web only and shouldn't be loaded from EJB class loader -->
 				<include name="com/interface21/beans/factory/support/X*"/>
 
-				<include name="com/interface21/web/**"/>
+				<include name="com/interface21/aop/**"/>
 				<include name="com/interface21/context/**"/>
 				<include name="com/interface21/ejb/access/**"/>
+				<include name="com/interface21/transaction/**"/>
 				<include name="com/interface21/validation/**"/>
-
-				<include name="com/interface21/jms/*"/>
+				<include name="com/interface21/web/**"/>
 
 			</fileset>
 
