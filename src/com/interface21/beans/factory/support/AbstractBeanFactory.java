@@ -34,16 +34,19 @@ import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 
 /**
  * Abstract superclass that makes implementing a BeanFactory very easy.
- * This class uses the <b>Template Method</b> design pattern.
+ *
+ * <p>This class uses the <b>Template Method</b> design pattern.
  * Subclasses must implement only the
  * <code>
  * getBeanDefinition(name)
  * </code>
  * method.
- * This class handles resolution of runtime bean references,
+ *
+ * <p>This class handles resolution of runtime bean references,
  * FactoryBean dereferencing, and management of collection properties.
  * It also allows for management of a bean factory hierarchy, 
- * implementing the HierarchicalBeanFactory method.
+ * implementing the HierarchicalBeanFactory interface.
+ *
  * @author Rod Johnson
  * @since 15 April 2001
  * @version $Id$
@@ -64,18 +67,15 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	// Instance data
 	//---------------------------------------------------------------------
 
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	/** parent bean factory, for bean inheritance support */
 	private BeanFactory parentBeanFactory;
 
 	/** Cache of shared instances. bean name --> bean instanced */
 	private Map sharedInstanceCache = new HashMap();
 
-	/** Logger available to subclasses */
-	protected final Log logger = LogFactory.getLog(getClass());
-
-	/** name of default parent bean */
-	protected String defaultParentBean;
-	
 	/** Map from alias to canonical bean name */
 	private Map aliasMap = new HashMap();
 
@@ -85,24 +85,20 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	//---------------------------------------------------------------------
 
 	/**
-	 * Creates a new AbstractBeanFactory
+	 * Create a new AbstractBeanFactory.
 	 */
 	public AbstractBeanFactory() {
 	}
 
 	/**
-	 * Creates a new AbstractBeanFactory, with the given parent.
-	 * @param parentBeanFactory  the parent bean factory, or null if none
+	 * Create a new AbstractBeanFactory with the given parent.
+	 * @param parentBeanFactory parent bean factory, or null if none
 	 * @see #getBean
 	 */
 	public AbstractBeanFactory(BeanFactory parentBeanFactory) {
 		this.parentBeanFactory = parentBeanFactory;
 	}
 
-
-	/**
-	 * @see com.interface21.beans.factory.HierarchicalBeanFactory#getParentBeanFactory()
-	 */
 	public BeanFactory getParentBeanFactory() {
 		return parentBeanFactory;
 	}
@@ -111,6 +107,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory interface
 	//---------------------------------------------------------------------
+
 	/**
 	 * Return the bean name, stripping out the factory deference prefix if necessary,
 	 * and resolving aliases to canonical names.
@@ -174,14 +171,6 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		}
 	}
 
-	/**
-	 * Return a shared instance of the given bean. Analogous to getBeanInstance(name, requiredType).
-	 * @param name name of the instance to return
-	 * @param requiredType type the bean must match
-	 * @return a shared instance of the given bean
-	 * @throws BeanNotOfRequiredTypeException if the bean  not of the required type
-	 * @throws NoSuchBeanDefinitionException if there's no such bean definition
-	 */
 	public final Object getBean(String name, Class requiredType) throws BeansException {
 		Object bean = getBean(name);
 		Class clazz = bean.getClass();
@@ -191,9 +180,6 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		return bean;
 	}
 
-	/**
-	 * @see BeanFactory#isSingleton(String)
-	 */
 	public boolean isSingleton(String pname) throws NoSuchBeanDefinitionException {
 		String name = transformedBeanName(pname);
 		try {
@@ -579,6 +565,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	//---------------------------------------------------------------------
 	// Abstract method to be implemented by concrete subclasses
 	//---------------------------------------------------------------------
+
 	/**
 	 * This method must be defined by concrete subclasses to implement the
 	 * <b>Template Method</b> GoF design pattern.

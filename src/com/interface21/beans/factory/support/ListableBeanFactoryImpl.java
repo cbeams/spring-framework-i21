@@ -82,22 +82,27 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	// Instance data
 	//---------------------------------------------------------------------
 
-	/**
-	 * Map of BeanDefinition objects, keyed by prototype name
-	 */
+	/** Map of BeanDefinition objects, keyed by prototype name */
 	private Map beanDefinitionMap = new HashMap();
+
+	/** Name of default parent bean */
+	private String defaultParentBean;
 
 
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
 
-	/** Creates a new ListableBeanFactoryImpl */
+	/**
+	 * Create a new ListableBeanFactoryImpl.
+	 */
 	public ListableBeanFactoryImpl() {
 		super();
 	}
 	
-	/** Creates a new ListableBeanFactoryImpl with the given parent */
+	/**
+	 * Create a new ListableBeanFactoryImpl with the given parent.
+	 */
 	public ListableBeanFactoryImpl(BeanFactory parentBeanFactory) {
 		super(parentBeanFactory);
 	}
