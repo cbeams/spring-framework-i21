@@ -1,35 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
--->
+<!DOCTYPE beans 
+	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
 
 <beans>
 
-	<bean name="rod" class="com.interface21.beans.TestBean">
-		<property name="name">Rod</property>
-		<property name="age">31</property>
+	<bean id="rod" class="com.interface21.beans.TestBean">
+		<property name="name"><value>Rod</value></property>
+		<property name="age"><value>31</value></property>
 	</bean>
 
-	<bean name="kerry" class="com.interface21.beans.TestBean">
-		<property name="name">Kerry</property>
-		<property name="age">34</property>
-		<property name="spouse" beanRef="true">rod</property>
+	<bean id="kerry" class="com.interface21.beans.TestBean">
+		<property name="name"><value>Kerry</value></property>
+		<property name="age"><value>34</value></property>
+		<property name="spouse"><ref bean="rod"/></property>
 	</bean>
 
-	<!--
-	<bean name="typeMismatch" class="com.interface21.beans.TestBean">
-		<property name="name">typeMismatch</property>
-		<property name="age">34x</property>
-		<property name="spouse" beanRef="true">rod</property>
-	</bean>
-	-->
 
-	<bean name="listenerVeto" class="com.interface21.beans.TestBean">
-		<listener property="age" beanRef="agistListener"/>
-		<property name="name">listenerVeto</property>
-		<property name="age">66</property>
+	<bean id="listenerVeto" class="com.interface21.beans.TestBean">
+		<property name="name"><value>listenerVeto</value></property>
+		<property name="age"><value>66</value></property>
 	</bean>
 
-	<bean name="validEmpty" class="com.interface21.beans.TestBean"/>
+	<bean id="validEmpty" class="com.interface21.beans.TestBean"/>
 
 </beans>

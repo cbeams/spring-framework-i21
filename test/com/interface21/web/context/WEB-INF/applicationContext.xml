@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
--->
+<!DOCTYPE beans 
+	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
+
 		
 <beans>		
 
 	<!-- ===========================================================-->
 	<!-- Message source						-->
 	<!-- ===========================================================-->
-	<bean name="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource" >	
-		<property name="basename">com/interface21/web/context/WEB-INF/context-messages</property>
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource" >	
+		<property name="basename"><value>com/interface21/web/context/WEB-INF/context-messages</value></property>
 	</bean>
 
 	<!-- ===========================================================-->
@@ -30,28 +31,28 @@
 	</bean>
 	-->
 
-	<bean name="config.testConfigObject" class="com.interface21.web.context.TestConfigBean" >	
-		<property name="name">Tony</property>	
-		<property name="age">48</property>	
+	<bean id="config.testConfigObject" class="com.interface21.web.context.TestConfigBean" >	
+		<property name="name"><value>Tony</value></property>	
+		<property name="age"><value>48</value></property>	
 	</bean>
 	
-	<bean name="config.testConfigObject2" class="com.interface21.web.context.ContextAwareTestConfigBean" >	
-		<property name="name">Gordon</property>	
-		<property name="age">49</property>	
+	<bean id="config.testConfigObject2" class="com.interface21.web.context.ContextAwareTestConfigBean" >	
+		<property name="name"><value>Gordon</value></property>	
+		<property name="age"><value>49</value></property>	
 	</bean>
 	
-	<bean name="beanThatListens" class="com.interface21.context.BeanThatListens"/>
+	<bean id="beanThatListens" class="com.interface21.context.BeanThatListens"/>
 	
-	<bean name="parentListener" class="com.interface21.context.TestListener"/>
+	<bean id="parentListener" class="com.interface21.context.TestListener"/>
 	
 	<!-- Inherited tests -->
-	<bean name="rod" class="com.interface21.beans.TestBean">	
-		<property name="name">Roderick</property>
-		<property name="age">31</property>
+	<bean id="rod" class="com.interface21.beans.TestBean">	
+		<property name="name"><value>Roderick</value></property>
+		<property name="age"><value>31</value></property>
 	</bean>
 	
-	<bean name="father" class="com.interface21.beans.TestBean">	
-		<property name="name">Albert</property>
+	<bean id="father" class="com.interface21.beans.TestBean">	
+		<property name="name"><value>Albert</value></property>
 	</bean>
 
 </beans>		

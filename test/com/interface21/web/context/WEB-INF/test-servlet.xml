@@ -1,75 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
--->
+<!DOCTYPE beans 
+	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
+
 
 <beans>
 
 	<!-- ===========================================================-->
 	<!-- Message source						-->
 	<!-- ===========================================================-->
-	<bean name="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">
-		<property name="basename">com/interface21/web/context/WEB-INF/test-messages</property>
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">
+		<property name="basename"><value>com/interface21/web/context/WEB-INF/test-messages</value></property>
 	</bean>
 
-	<bean name="aca" class="com.interface21.context.ACATest"/>
+	<bean id="aca" class="com.interface21.context.ACATest"/>
 
-	<bean name="aca-prototype" class="com.interface21.context.ACATest" singleton="false"/>
+	<bean id="aca-prototype" class="com.interface21.context.ACATest" singleton="false"/>
 
-	<bean name="rod" class="com.interface21.beans.TestBean">
-		<property name="name">Rod</property>
-		<property name="age">31</property>
+	<bean id="rod" class="com.interface21.beans.TestBean">
+		<property name="name"><value>Rod</value></property>
+		<property name="age"><value>31</value></property>
 	</bean>
 
-	<bean name="testListener" class="com.interface21.context.TestListener"/>
+	<bean id="testListener" class="com.interface21.context.TestListener"/>
 
-	<bean name="roderick" parent="rod">
-		<property name="name">Roderick</property>
-		<property name="age">31</property>
+	<bean id="roderick" parent="rod">
+		<property name="name"><value>Roderick</value></property>
+		<property name="age"><value>31</value></property>
 	</bean>
 
-	<bean name="kathy" class="com.interface21.beans.TestBean" singleton="false"/>
+	<bean id="kathy" class="com.interface21.beans.TestBean" singleton="false"/>
 
-	<bean name="kerry" class="com.interface21.beans.TestBean">
-		<property name="name">Kerry</property>
-		<property name="age">34</property>
-		<property name="spouse" beanRef="true">rod</property>
+	<bean id="kerry" class="com.interface21.beans.TestBean">
+		<property name="name"><value>Kerry</value></property>
+		<property name="age"><value>34</value></property>
+		<property name="spouse"><ref bean="rod"/></property>
 	</bean>
 
 
-	<bean name="typeMismatch" class="com.interface21.beans.TestBean" singleton="false">
-		<property name="name">typeMismatch</property>
-		<property name="age">34x</property>
-		<property name="spouse" beanRef="true">rod</property>
+	<bean id="typeMismatch" class="com.interface21.beans.TestBean" singleton="false">
+		<property name="name"><value>typeMismatch</value></property>
+		<property name="age"><value>34x</value></property>
+		<property name="spouse"><ref bean="rod"/></property>
 	</bean>
 
 	<!-- Factory beans are automatically treated
 		differently -->
-	<bean name="singletonFactory"
+	<bean id="singletonFactory"
 		class="com.interface21.beans.factory.DummyFactory">
 	</bean>
 
-	<bean name="prototypeFactory"
+	<bean id="prototypeFactory"
 		class="com.interface21.beans.factory.DummyFactory">
-		<property name="singleton">false</property>
+		<property name="singleton"><value>false</value></property>
 	</bean>
 
-	<bean name="factoryPassThrough"
+	<bean id="factoryPassThrough"
 		class="com.interface21.beans.factory.DummyFactory">
-		<property name="singleton">true</property>
+		<property name="singleton"><value>true</value></property>
 		<property name="propertyValues">
+			<value>
 			name=passThrough
+			</value>
 		</property>
 	</bean>
 	
 	<!--
 			Tests of lifecycle callbacks
 		-->
-		<bean name="mustBeInitialized"
+		<bean id="mustBeInitialized"
 			class="com.interface21.beans.factory.MustBeInitialized">
 		</bean>
 		
-		<bean name="lifecycle"
+		<bean id="lifecycle"
 			class="com.interface21.beans.factory.LifecycleBean">
 		</bean>
 
@@ -78,12 +81,12 @@
 	 <bean name="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener" />
 	 -->
 
-	<bean name="listenerVeto" class="com.interface21.beans.TestBean">
+	<bean id="listenerVeto" class="com.interface21.beans.TestBean">
 		<!--	<listener property="age" beanRef="agistListener" /> -->
-		<property name="name">listenerVeto</property>
-		<property name="age">66</property>
+		<property name="name"><value>listenerVeto</value></property>
+		<property name="age"><value>66</value></property>
 	</bean>
 
-	<bean name="validEmpty" class="com.interface21.beans.TestBean"/>
+	<bean id="validEmpty" class="com.interface21.beans.TestBean"/>
 
 </beans>
