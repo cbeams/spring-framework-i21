@@ -23,7 +23,7 @@ public class ClassPathXmlApplicationContext extends XmlApplicationContextSupport
 	
 	protected InputStream getInputStream(String path) throws IOException {
 		InputStream is = getClass().getResourceAsStream(path);	
-		System.out.println("Path is '" + path + "'; is=" + is);
+		//System.out.println("Path is '" + path + "'; is=" + is);
 	
 		return is;
 	}
