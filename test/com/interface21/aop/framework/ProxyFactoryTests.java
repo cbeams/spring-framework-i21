@@ -61,6 +61,20 @@ public class ProxyFactoryTests extends TestCase {
 		} catch (AopConfigException ex) {
 		}
 	}
+	
+	public void testAddRepeatedInterface() {
+		TimeStamped tst = new TimeStamped() {
+			public long getTimeStamp() {
+				throw new UnsupportedOperationException("getTimeStamp");
+			}
+		};
+		ProxyFactory pf = new ProxyFactory(tst);
+		// We've already implicitly added this interface.
+		// This call should be ignored without error
+		pf.addInterface(TimeStamped.class);
+		// All cool
+		TimeStamped ts = (TimeStamped) pf.getProxy();
+	}
 
 	public void testGetsAllInterfaces() throws Exception {
 		// Extend to get new interface
@@ -80,7 +94,7 @@ public class ProxyFactoryTests extends TestCase {
 		assertTrue(tb.getAge() == raw.getAge());
 
 		long t = 555555L;
-		TimestampAspectInterceptor ti = new TimestampAspectInterceptor(t);
+		TimestampIntroductionInterceptor ti = new TimestampIntroductionInterceptor(t);
 		
 		System.out.println(StringUtils.arrayToDelimitedString(factory.getProxiedInterfaces(), "/"));
 		
@@ -94,6 +108,7 @@ public class ProxyFactoryTests extends TestCase {
 		// Shouldn't fail;
 		 ((IOther) ts).absquatulate();
 	}
+	
 	
 	/**
 	 * Test that we can't add another interceptor in a chain
