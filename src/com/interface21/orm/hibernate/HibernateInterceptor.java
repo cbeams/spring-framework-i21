@@ -1,5 +1,6 @@
 package com.interface21.orm.hibernate;
 
+import net.sf.hibernate.Interceptor;
 import net.sf.hibernate.SessionFactory;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -69,6 +70,8 @@ public class HibernateInterceptor implements MethodInterceptor {
 
 	private SessionFactory sessionFactory;
 
+	private Interceptor entityInterceptor;
+
 	private boolean forceFlush = false;
 
 	/**
@@ -76,6 +79,21 @@ public class HibernateInterceptor implements MethodInterceptor {
 	 */
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+	/**
+	 * Set a Hibernate entity interceptor that allows to inspect and change
+	 * property values before writing to and reading from the database.
+	 * Will get applied to any new Session created by this HibernateInterceptor.
+	 * <p>Such an interceptor can either be set at the SessionFactory level,
+	 * i.e. on LocalSessionFactoryBean, or at the Session level, i.e. on
+	 * HibernateTemplate, HibernateInterceptor, and HibernateTransactionManager.
+	 * @see LocalSessionFactoryBean#setEntityInterceptor
+	 * @see HibernateTemplate#setEntityInterceptor
+	 * @see HibernateTransactionManager#setEntityInterceptor
+	 */
+	public final void setEntityInterceptor(Interceptor entityInterceptor) {
+		this.entityInterceptor = entityInterceptor;
 	}
 
 	/**
@@ -100,7 +118,7 @@ public class HibernateInterceptor implements MethodInterceptor {
 		SessionHolder sessionHolder = null;
 		if (!SessionFactoryUtils.getThreadObjectManager().hasThreadObject(this.sessionFactory)) {
 			logger.debug("Using new Session for Hibernate interceptor");
-			sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory, true));
+			sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory, this.entityInterceptor));
 			SessionFactoryUtils.getThreadObjectManager().bindThreadObject(this.sessionFactory, sessionHolder);
 		}
 		else {

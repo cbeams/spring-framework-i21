@@ -5,6 +5,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Interceptor;
 import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.cfg.Configuration;
 import net.sf.hibernate.cfg.Environment;
@@ -66,6 +67,8 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 
 	private DataSource dataSource;
 
+	private Interceptor entityInterceptor;
+
 	private SessionFactory sessionFactory;
 
 	/**
@@ -77,7 +80,7 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 * nor any mapping resources are set, a default Hibernate configuration
 	 * will be performed, using "/hibernate.cfg.xml".
 	 */
-	public void setConfigLocation(String configLocation) {
+	public final void setConfigLocation(String configLocation) {
 		this.configLocation = configLocation;
 	}
 
@@ -87,7 +90,7 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 * <p>Can be used to override values from a Hibernate XML config file,
 	 * or to specify all mappings locally.
 	 */
-	public void setMappingResources(String[] mappingResources) {
+	public final void setMappingResources(String[] mappingResources) {
 		this.mappingResources = mappingResources;
 	}
 
@@ -100,7 +103,7 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 * provider settings and use a Spring-set DataSource instead.
 	 * @see #setDataSource
 	 */
-	public void setHibernateProperties(Properties hibernateProperties) {
+	public final void setHibernateProperties(Properties hibernateProperties) {
 		this.hibernateProperties = hibernateProperties;
 	}
 
@@ -110,8 +113,23 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 * <p>Note: If this is set, the Hibernate settings do not have to define
 	 * a connection provider at all, avoiding duplicated configuration.
 	 */
-	public void setDataSource(DataSource dataSource) {
+	public final void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
+	}
+
+	/**
+	 * Set a Hibernate entity interceptor that allows to inspect and change
+	 * property values before writing to and reading from the database.
+	 * Will get applied to any new Session created by this factory.
+	 * <p>Such an interceptor can either be set at the SessionFactory level,
+	 * i.e. on LocalSessionFactoryBean, or at the Session level, i.e. on
+	 * HibernateTemplate, HibernateInterceptor, and HibernateTransactionManager.
+	 * @see HibernateTemplate#setEntityInterceptor
+	 * @see HibernateInterceptor#setEntityInterceptor
+	 * @see HibernateTransactionManager#setEntityInterceptor
+	 */
+	public final void setEntityInterceptor(Interceptor entityInterceptor) {
+		this.entityInterceptor = entityInterceptor;
 	}
 
 	/**
@@ -119,8 +137,9 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 * @throws IllegalArgumentException in case of illegal property values
 	 * @throws HibernateException in case of Hibernate initialization errors
 	 */
-	public void afterPropertiesSet() throws IllegalArgumentException, HibernateException {
-		Configuration config = new Configuration();
+	public final void afterPropertiesSet() throws IllegalArgumentException, HibernateException {
+		// create Configuration instance
+		Configuration config = newConfiguration();
 
 		if (this.configLocation == null && this.mappingResources == null) {
 			// default Hibernate configuration from "/hibernate.cfg.xml"
@@ -128,6 +147,7 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 		}
 
 		if (this.configLocation != null) {
+			// load Hibernate configuration from given location
 			String resourceLocation = this.configLocation;
 			if (!resourceLocation.startsWith("/")) {
 				// always use root, as relative loading doesn't make sense
@@ -154,21 +174,59 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 			LocalDataSourceConnectionProvider.configTimeDataSourceHolder.set(this.dataSource);
 		}
 
-		this.sessionFactory = config.buildSessionFactory();
+		if (this.entityInterceptor != null) {
+			// set given entity interceptor at SessionFactory level
+			config.setInterceptor(this.entityInterceptor);
+		}
+
+		// build SessionFactory instance
+		this.sessionFactory = newSessionFactory(config);
+	}
+
+	/**
+	 * Subclasses can override this method to perform custom initialization
+	 * of the Configuration instance used for SessionFactory creation.
+	 * The properties of this LocalSessionFactoryBean will be applied to
+	 * the Configuration object that gets returned here.
+	 * <p>The default implementation creates a new Configuration instance.
+	 * A custom implementation could prepare the instance in a specific way,
+	 * or use a custom Configuration subclass.
+	 * @return the Configuration instance
+	 * @throws HibernateException in case of Hibernate initialization errors
+	 * @see net.sf.hibernate.cfg.Configuration#Configuration()
+	 */
+	protected Configuration newConfiguration() throws HibernateException {
+		return new Configuration();
+	}
+
+	/**
+	 * Subclasses can override this method to perform custom initialization
+	 * of the SessionFactory instance, creating it via the given Configuration
+	 * object that got prepared by this LocalSessionFactoryBean.
+	 * <p>The default implementation invokes Configuration's buildSessionFactory.
+	 * A custom implementation could prepare the instance in a specific way,
+	 * or use a custom SessionFactoryImpl subclass.
+	 * @param config Configuration prepared by this LocalSessionFactoryBean
+	 * @return the SessionFactory instance
+	 * @throws HibernateException in case of Hibernate initialization errors
+	 * @see net.sf.hibernate.cfg.Configuration#buildSessionFactory
+	 */
+	protected SessionFactory newSessionFactory(Configuration config) throws HibernateException {
+		return config.buildSessionFactory();
 	}
 
 	/**
 	 * Return the singleton SessionFactory.
 	 */
-	public Object getObject() {
+	public final Object getObject() {
 		return this.sessionFactory;
 	}
 
-	public boolean isSingleton() {
+	public final boolean isSingleton() {
 		return true;
 	}
 
-	public PropertyValues getPropertyValues() {
+	public final PropertyValues getPropertyValues() {
 		return null;
 	}
 

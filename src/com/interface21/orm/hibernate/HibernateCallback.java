@@ -36,7 +36,7 @@ public interface HibernateCallback {
 	 * the callback code will be transactional if a JTA transaction is active.
 	 *
 	 * <p>Allows for returning a result object created within the callback, i.e.
-	 * a business object or a collection of business objects. Note that there's
+	 * a domain object or a collection of domain objects. Note that there's
 	 * special support for single step actions: see HibernateTemplate.find etc.
 	 * A thrown RuntimeException is treated as application exception, it gets
 	 * propagated to the caller of the template.
@@ -44,11 +44,9 @@ public interface HibernateCallback {
 	 * @param session active Hibernate session
 	 * @return a result object, or null if none
 	 * @throws HibernateException in case of Hibernate errors
-	 * @throws RuntimeException in case of an application exception,
-	 * propagating the exception to the caller
 	 * @see HibernateTemplate#execute
 	 * @see HibernateTransactionManager
 	 */
-	Object doInHibernate(Session session) throws HibernateException, RuntimeException;
+	Object doInHibernate(Session session) throws HibernateException;
 
 }

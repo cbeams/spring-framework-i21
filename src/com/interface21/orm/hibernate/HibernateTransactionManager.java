@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Interceptor;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 
@@ -80,6 +81,8 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 
 	private DataSource dataSource;
 
+	private Interceptor entityInterceptor;
+
 	/**
 	 * Create a new HibernateTransactionManager instance.
 	 * A SessionFactory has to be set to be able to use it.
@@ -131,6 +134,28 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		return dataSource;
 	}
 
+	/**
+	 * Set a Hibernate entity interceptor that allows to inspect and change
+	 * property values before writing to and reading from the database.
+	 * Will get applied to any new Session created by this transaction manager.
+	 * <p>Such an interceptor can either be set at the SessionFactory level,
+	 * i.e. on LocalSessionFactoryBean, or at the Session level, i.e. on
+	 * HibernateTemplate, HibernateInterceptor, and HibernateTransactionManager.
+	 * @see LocalSessionFactoryBean#setEntityInterceptor
+	 * @see HibernateTemplate#setEntityInterceptor
+	 * @see HibernateInterceptor#setEntityInterceptor
+	 */
+	public final void setEntityInterceptor(Interceptor entityInterceptor) {
+		this.entityInterceptor = entityInterceptor;
+	}
+
+	/**
+	 * Return the current Hibernate entity interceptor, or null if none.
+	 */
+	public Interceptor getEntityInterceptor() {
+		return entityInterceptor;
+	}
+
 	public void afterPropertiesSet() {
 		if (this.sessionFactory == null) {
 			throw new IllegalArgumentException("sessionFactory is required");
@@ -145,7 +170,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		}
 		else {
 			logger.debug("Opening new Session for Hibernate transaction");
-			Session session = SessionFactoryUtils.getSession(this.sessionFactory, true);
+			Session session = SessionFactoryUtils.getSession(this.sessionFactory, this.entityInterceptor);
 			return new HibernateTransactionObject(new SessionHolder(session), true);
 		}
 	}

@@ -1,6 +1,7 @@
 package com.interface21.orm.hibernate;
 
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Interceptor;
 import net.sf.hibernate.JDBCException;
 import net.sf.hibernate.ObjectDeletedException;
 import net.sf.hibernate.PersistentObjectException;
@@ -61,9 +62,8 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Get a Hibernate Session for the given factory.
-	 * Is aware of a respective Session bound to the current thread,
-	 * for example when using HibernateTransactionManager.
+	 * Get a Hibernate Session for the given factory. Is aware of a respective Session
+	 * bound to the current thread, for example when using HibernateTransactionManager.
 	 * Will create a new Session else, if allowCreate is true.
 	 * @param sessionFactory Hibernate SessionFactory to create the session with
 	 * @param allowCreate if a new Session should be created if no thread-bound found
@@ -73,16 +73,35 @@ public abstract class SessionFactoryUtils {
 	 */
 	public static Session getSession(SessionFactory sessionFactory, boolean allowCreate)
 	    throws DataAccessResourceFailureException, IllegalStateException {
+		if (!threadObjectManager.hasThreadObject(sessionFactory) && !allowCreate) {
+			throw new IllegalStateException("Not allowed to create new Session");
+		}
+		return getSession(sessionFactory, null);
+	}
+
+	/**
+	 * Get a Hibernate Session for the given factory. Is aware of a respective Session
+	 * bound to the current thread, for example when using HibernateTransactionManager.
+	 * Will always create a new Session else.
+	 * <p>Supports setting a Session-level Hibernate entity interceptor that allows
+	 * to inspect and change property values before writing to and reading from the
+	 * database. Such an interceptor can also be set at the SessionFactory level,
+	 * i.e. on LocalSessionFactoryBean.
+	 * @param sessionFactory Hibernate SessionFactory to create the session with
+	 * @param entityInterceptor Hibernate entity interceptor, or null if none
+	 * @return the Hibernate Session
+	 * @throws DataAccessResourceFailureException if the Session couldn't be created
+	 * @see LocalSessionFactoryBean#setEntityInterceptor
+	 */
+	public static Session getSession(SessionFactory sessionFactory, Interceptor entityInterceptor)
+	    throws DataAccessResourceFailureException {
 		SessionHolder holder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
 		if (holder != null) {
 			return holder.getSession();
 		}
-		if (!allowCreate) {
-			throw new IllegalStateException("Not allowed to create new Session");
-		}
 		try {
 			logger.debug("Opening Hibernate session");
-			return sessionFactory.openSession();
+			return (entityInterceptor != null ? sessionFactory.openSession(entityInterceptor) : sessionFactory.openSession());
 		}
 		catch (JDBCException ex) {
 			// SQLException underneath
