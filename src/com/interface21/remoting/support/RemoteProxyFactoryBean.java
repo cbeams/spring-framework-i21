@@ -9,15 +9,22 @@ import com.interface21.remoting.RemoteAccessException;
 
 /**
  * Abstract base class for factory beans proxying a remote service.
- * Exposes the proxy when used as bean reference.
- * Used e.g. by the Caucho and RMI proxy factory implementations.
+ * Exposes the proxy when used as bean reference. Used e.g. by the
+ * Caucho and RMI proxy factory implementations.
  *
- * <p>Subclasses just need to implement createProxy,
- * using the properties of the factory instance.
+ * <p>Subclasses just need to implement createProxy, using the properties
+ * of the factory instance. Note that such a proxy should throw unchecked
+ * RemoteAccessException, to be able to transparently expose the service
+ * to client objects via a plain Java business interface.
+ *
+ * <p>Note that the service interface being used will show some signs of
+ * remotability, like the granularity of method calls that it offers.
+ * Furthermore, it has to require serializable arguments etc.
  *
  * @author Juergen Hoeller
  * @since 13.05.2003
  * @see #createProxy
+ * @see com.interface21.remoting.RemoteAccessException
  */
 public abstract class RemoteProxyFactoryBean implements FactoryBean, InitializingBean {
 
@@ -28,7 +35,7 @@ public abstract class RemoteProxyFactoryBean implements FactoryBean, Initializin
 	private Object serviceProxy;
 
 	/**
-	 * Set the interface of the serviceProxy that this factory should create a proxy for.
+	 * Set the interface of the service that this factory should create a proxy for.
 	 */
 	public void setServiceInterface(Class serviceInterface) {
 		if (!serviceInterface.isInterface()) {
@@ -42,7 +49,7 @@ public abstract class RemoteProxyFactoryBean implements FactoryBean, Initializin
 	}
 
 	/**
-	 * Set the URL of the serviceProxy that this factory should create a proxy for.
+	 * Set the URL of the service that this factory should create a proxy for.
 	 */
 	public void setServiceUrl(String serviceUrl) {
 		this.serviceUrl = serviceUrl;
@@ -65,15 +72,13 @@ public abstract class RemoteProxyFactoryBean implements FactoryBean, Initializin
 	}
 
 	/**
-	 * Create the proxy instance. Can use the properties of this factory,
-	 * although the actually used settings will vary.
-	 * For example, certain protocols do not support authentication.
+	 * Create the proxy instance, using the properties of this factory.
 	 * @return the new proxy instance
 	 */
 	protected abstract Object createProxy() throws MalformedURLException, RemoteAccessException;
 
 	/**
-	 * Return the singleton serviceProxy proxy.
+	 * Return the singleton service proxy.
 	 */
 	public Object getObject() {
 		return this.serviceProxy;

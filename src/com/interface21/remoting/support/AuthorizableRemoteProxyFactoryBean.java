@@ -3,7 +3,6 @@ package com.interface21.remoting.support;
 /**
  * Abstract subclass of RemoteProxyFactoryBean,
  * adding support for authorization via username and password.
- *
  * @author Juergen Hoeller
  * @since 13.05.2003
  */
@@ -14,7 +13,7 @@ public abstract class AuthorizableRemoteProxyFactoryBean extends RemoteProxyFact
 	private String password;
 
 	/**
-	 * Set the username that this factory should use to access the backend serviceProxy.
+	 * Set the username that this factory should use to access the backend service.
 	 */
 	public void setUsername(String username) {
 		this.username = username;
@@ -25,7 +24,7 @@ public abstract class AuthorizableRemoteProxyFactoryBean extends RemoteProxyFact
 	}
 
 	/**
-	 * Set the password that this factory should use to access the backend serviceProxy.
+	 * Set the password that this factory should use to access the backend service.
 	 */
 	public void setPassword(String password) {
 		this.password = password;
