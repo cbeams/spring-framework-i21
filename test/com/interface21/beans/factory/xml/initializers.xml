@@ -27,6 +27,7 @@
 	<bean id="init-and-ib" 
 		class="com.interface21.beans.factory.xml.XmlBeanFactoryTestSuite$InitAndIB"
 		init-method="customInit"
+		destroy-method="customDestroy" 
 	>
 	</bean>
 	

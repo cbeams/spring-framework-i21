@@ -20,14 +20,18 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	
 	private String initMethodName;
 
-	public RootBeanDefinition(Class clazz, PropertyValues pvs, boolean singleton, String initMethodName) {
+	private String destroyMethodName;
+
+	public RootBeanDefinition(Class clazz, PropertyValues pvs, boolean singleton,
+	                          String initMethodName, String destroyMethodName) {
 		super(pvs, singleton);
 		this.clazz = clazz;
 		this.initMethodName = initMethodName;
+		this.destroyMethodName = destroyMethodName;
 	}
 	
 	public RootBeanDefinition(Class clazz, PropertyValues pvs, boolean singleton) {
-		this(clazz, pvs, singleton, null); 
+		this(clazz, pvs, singleton, null, null);
 	}
 	
 	/**
@@ -37,6 +41,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 		super(new MutablePropertyValues(other.getPropertyValues()), other.isSingleton());
 		this.clazz = other.clazz;
 		this.initMethodName = other.initMethodName;
+		this.destroyMethodName = other.destroyMethodName;
 	}
 	
 	/**
@@ -48,20 +53,28 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	}
 
 	/**
+	 * Returns the name of the destroy method. The default is null
+	 * in which case there is no initializer method.
+	 */
+	public String getDestroyMethodName() {
+		return this.destroyMethodName;
+	}
+
+	/**
 	 * Returns the class of the wrapped bean.
 	 */
 	public final Class getBeanClass() {
 		return this.clazz;
 	}
 
-	public boolean equals(Object arg0) {
-		if (!(arg0 instanceof RootBeanDefinition))
+	public boolean equals(Object obj) {
+		if (!(obj instanceof RootBeanDefinition))
 			return false;
-		return super.equals(arg0) && ((RootBeanDefinition) arg0).getBeanClass().equals(this.getBeanClass());
+		return super.equals(obj) && ((RootBeanDefinition) obj).getBeanClass().equals(this.getBeanClass());
 	}
 
 	public String toString() {
-		return "RootBeanDefinition for class '" + getBeanClass().getName() + "'";
+		return "RootBeanDefinition for class '" + getBeanClass().getName() + "'; " + super.toString();
 	}
 
 }

@@ -36,7 +36,6 @@
         bean+
 )>
 
-
 <!--
 	Defines a single named bean.
 -->
@@ -66,7 +65,14 @@
 -->
 <!ATTLIST bean init-method CDATA #IMPLIED>
 
-<!-- 
+<!--
+	Optional attribute for the name of the custom destroy method to invoke
+	on bean factory shutdown. The method must have no arguments,
+	but may throw any exception. Note: Only invoked on singleton beans!
+-->
+<!ATTLIST bean destroy-method CDATA #IMPLIED>
+
+<!--
 	Is this bean a "singleton" (one shared instance, which will
 	be returned by all calls to getBean() with the id),
 	or a "prototype" (independent instance resulting from each call to
@@ -121,7 +127,6 @@
 	properties to references to other beans.
 -->
 <!ELEMENT value (#PCDATA)>
-
 
 <!-- 
 	References must specify the id of the target bean.

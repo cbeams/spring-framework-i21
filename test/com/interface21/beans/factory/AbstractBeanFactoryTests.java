@@ -54,8 +54,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			// OK
-			System.out.println(ex);
-		}	
+		}
 	}
 	
 	/**
@@ -70,7 +69,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 	}
 	
 	/**
-	 * Test that InitializingBean/BeanFactoryAware objects receive the
+	 * Test that InitializingBean/BeanFactoryAware/DisposableBean objects receive the
 	 * afterPropertiesSet() callback before BeanFactoryAware callbacks
 	 */
 	public void testLifecycleCallbacks() {
@@ -78,6 +77,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		// The dummy business method will throw an exception if the
 		// necessary callbacks weren't invoked in the right order
 		lb.businessMethod();
+		assertTrue("Not destroyed", !lb.isDestroyed());
 	}
 	
 	public void testFindsValidInstance() {
@@ -104,9 +104,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 			fail("Shouldn't throw exception on getting valid instance with matching class");
 		}
 	}
-	
-	
-	
+
 	public void testGetInstanceByNonmatchingClass() {
 		try {
 			Object o = getBeanFactory().getBean("rod", BeanFactory.class);

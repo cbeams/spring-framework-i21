@@ -5,6 +5,7 @@ import java.util.Locale;
 import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
+import com.interface21.beans.factory.LifecycleBean;
 
 /**
  * @author Rod Johnson
@@ -54,7 +55,6 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 		assertTrue("Says is prototype", !applicationContext.isSingleton("aca-prototype"));
 	}
 
-
 	public void testParentNonNull() {
 		assertTrue("parent isn't null", applicationContext.getParent() != null);
 	}
@@ -73,10 +73,24 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 		assertTrue("Dad has correct name", dad.getName().equals("Albert"));
 	}
 
-
 	public void testGrandparentTypedDefinitionFound() throws Exception {
 		TestBean dad = (TestBean) applicationContext.getBean("father", TestBean.class);
 		assertTrue("Dad has correct name", dad.getName().equals("Albert"));
+	}
+
+	public void testCloseTriggersDestroy() {
+		LifecycleBean lb = (LifecycleBean) applicationContext.getBean("lifecycle");
+		assertTrue("Not destroyed", !lb.isDestroyed());
+		applicationContext.close();
+		if (applicationContext.getParent() != null) {
+			applicationContext.getParent().close();
+		}
+		assertTrue("Destroyed", lb.isDestroyed());
+		applicationContext.close();
+		if (applicationContext.getParent() != null) {
+			applicationContext.getParent().close();
+		}
+		assertTrue("Destroyed", lb.isDestroyed());
 	}
 
 	public void testContextOptions() throws Exception {
@@ -120,8 +134,6 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 		assertTrue("no longer there for remove", applicationContext.removeSharedObject("bar") == null);
 	}
 
-
-	// HAD TO COMMENT OUT AS COULDN'T GUARANTEE TO FIND LISTENERS
 	public void testEvents() throws Exception {
 		listener.zeroCounter();
 		parentListener.zeroCounter();
@@ -131,7 +143,6 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 		assertTrue("1 events after publication, not " + listener.getEventCount(), listener.getEventCount() == 1);
 		assertTrue("1 parent events after publication", parentListener.getEventCount() == 1);
 	}
-
 
 	public void testBeanAutomaticallyHearsEvents() throws Exception {
 		//String[] listenerNames = ((ListableBeanFactory) applicationContext).getBeanDefinitionNames(ApplicationListener.class);
@@ -146,15 +157,9 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 
 	public class MyEvent extends ApplicationEvent {
 
-		/**
-		 * Constructor for MyEvent.
-		 * @param source
-		 */
 		public MyEvent(Object source) {
 			super(source);
 		}
-
 	}
-
 
 }

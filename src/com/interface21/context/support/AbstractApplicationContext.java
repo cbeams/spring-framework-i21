@@ -346,6 +346,14 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
+	 * Destroy the singletons in the bean factory of this application context.
+	 */
+	public void close() {
+		logger.info("Closing application context [" + getDisplayName() + "]");
+		getBeanFactory().destroySingletons();
+	}
+
+	/**
 	 * Publish the given event to all listeners.
 	 * <p>Note: Listeners get initialized after the message source, to be able
 	 * to access it within listener implementations. Thus, message source
@@ -354,10 +362,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * or a standard framework event.
 	 */
 	public final void publishEvent(ApplicationEvent event) {
-		logger.debug("Publishing event in context [" + getDisplayName() + "]: " + event.toString());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Publishing event in context [" + getDisplayName() + "]: " + event.toString());
+		}
 		this.eventMulticaster.onApplicationEvent(event);
-		if (this.parent != null)
+		if (this.parent != null) {
 			parent.publishEvent(event);
+		}
 	}
 
 	/**
@@ -498,14 +509,14 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/** Show information about this context */
 	public String toString() {
-		StringBuffer sb = new StringBuffer("ApplicationContext: displayName=**" + displayName + "'**; ");
+		StringBuffer sb = new StringBuffer("ApplicationContext: displayName=[" + this.displayName + "]; ");
 		sb.append("class=[" + getClass().getName() + "]; ");
 		sb.append("BeanFactory={" + getBeanFactory() + "}; ");
 		sb.append("} MessageSource={" + this.messageSource + "}; ");
 		sb.append("ContextOptions={" + this.contextOptions + "}; ");
-		sb.append("Startup date=" + new Date(startupTime) + "; ");
+		sb.append("Startup date=" + new Date(this.startupTime) + "; ");
 		if (this.parent == null)
-			sb.append("ROOT of ApplicationContext hierarchy");
+			sb.append("Root of ApplicationContext hierarchy");
 		else
 			sb.append("Parent={" + this.parent + "}");
 		return sb.toString();

@@ -1,22 +1,14 @@
 package com.interface21.web.context;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 import com.interface21.beans.ITestBean;
-import com.interface21.beans.TestBean;
 import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.ApplicationContext;
-import com.interface21.context.ApplicationContextException;
 import com.interface21.context.NoSuchMessageException;
 import com.interface21.context.TestListener;
-import com.interface21.context.support.ClassPathXmlApplicationContext;
-import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.mock.MockServletContext;
 
@@ -91,7 +83,7 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 
 	public void testCount() {
 		assertTrue("should have 17 beans, not"+ this.applicationContext.getBeanDefinitionCount(),
-			this.applicationContext.getBeanDefinitionCount() == 17);
+			this.applicationContext.getBeanDefinitionCount() == 15);
 	}
 
 	public void testWithoutMessageSource() throws Exception {
@@ -120,70 +112,6 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 
 		rod = (ITestBean) this.root.getBean("rod");
 		assertTrue("Bean from root context", "Roderick".equals(rod.getName()));
-	}
-
-	public void testContextLoaderWithDefaultContext() throws Exception {
-		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
-		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/com/interface21/web/context/WEB-INF/applicationContext.xml");
-		ServletContextListener listener = new ContextLoaderListener();
-		ServletContextEvent event = new ServletContextEvent(sc);
-		listener.contextInitialized(event);
-		WebApplicationContext wc = (WebApplicationContext)sc.getAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
-		assertTrue("Correct WebApplicationContext exposed in ServletContext", wc instanceof XmlWebApplicationContext);
-	}
-
-	public void testContextLoaderWithCustomContext() throws Exception {
-		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
-		sc.addInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, "com.interface21.web.context.support.StaticWebApplicationContext");
-		ServletContextListener listener = new ContextLoaderListener();
-		ServletContextEvent event = new ServletContextEvent(sc);
-		listener.contextInitialized(event);
-		WebApplicationContext wc = (WebApplicationContext) sc.getAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
-		assertTrue("Correct WebApplicationContext exposed in ServletContext", wc instanceof StaticWebApplicationContext);
-	}
-
-	public void testContextLoaderWithInvalidLocation() throws Exception {
-		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
-		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/WEB-INF/myContext.xml");
-		ServletContextListener listener = new ContextLoaderListener();
-		ServletContextEvent event = new ServletContextEvent(sc);
-		try {
-			listener.contextInitialized(event);
-			fail("Should have thrown ApplicationContextException");
-		}
-		catch (ApplicationContextException ex) {
-			// expected
-			assertTrue(ex.getRootCause() instanceof FileNotFoundException);
-		}
-	}
-
-	public void testContextLoaderWithInvalidContext() throws Exception {
-		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
-		sc.addInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, "com.interface21.web.context.support.InvalidWebApplicationContext");
-		ServletContextListener listener = new ContextLoaderListener();
-		ServletContextEvent event = new ServletContextEvent(sc);
-		try {
-			listener.contextInitialized(event);
-			fail("Should have thrown ApplicationContextException");
-		}
-		catch (ApplicationContextException ex) {
-			// expected
-			assertTrue(ex.getRootCause() instanceof ClassNotFoundException);
-		}
-	}
-
-	public void testClassPathXmlApplicationContext() throws IOException {
-		ApplicationContext context = new ClassPathXmlApplicationContext("/com/interface21/web/context/WEB-INF/applicationContext.xml");
-		assertTrue("Has father", context.getBean("father") != null);
-		assertTrue("Has father", context.getBean("rod") != null);
-		assertTrue("Doesn't have spouse", ((TestBean) context.getBean("rod")).getSpouse() == null);
-		assertTrue("myinit not evaluated", "Roderick".equals(((TestBean) context.getBean("rod")).getName()));
-
-		context = new ClassPathXmlApplicationContext(new String[] {"/com/interface21/web/context/WEB-INF/applicationContext.xml",
-		                                                           "/com/interface21/web/context/WEB-INF/test-servlet.xml"});
-		assertTrue("Has father", context.getBean("father") != null);
-		assertTrue("Has father", context.getBean("rod") != null);
-		assertTrue("Has spouse", ((TestBean) context.getBean("rod")).getSpouse() != null);
 	}
 
 }

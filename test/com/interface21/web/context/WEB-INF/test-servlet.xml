@@ -67,18 +67,6 @@
 	</bean>
 	
 	<!--
-			Tests of lifecycle callbacks
-		-->
-		<bean id="mustBeInitialized"
-			class="com.interface21.beans.factory.MustBeInitialized">
-		</bean>
-		
-		<bean id="lifecycle"
-			class="com.interface21.beans.factory.LifecycleBean">
-		</bean>
-
-
-	<!--
 	 <bean name="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener" />
 	 -->
 

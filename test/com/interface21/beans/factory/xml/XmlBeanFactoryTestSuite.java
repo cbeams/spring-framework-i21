@@ -23,6 +23,7 @@ import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.HasMap;
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
+import com.interface21.beans.factory.DisposableBean;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
 
@@ -430,7 +431,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 	}
 	
 	/**
-	 * Check that InitializingBean method is called first
+	 * Check that InitializingBean method is called first.
 	 * @throws Exception
 	 */
 	public void testInitializingBeanAndInitMethod() throws Exception {
@@ -438,6 +439,11 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
 		InitAndIB iib = (InitAndIB) xbf.getBean("init-and-ib");
 		assertTrue(iib.afterPropertiesSetInvoked && iib.initMethodInvoked);
+		assertTrue(!iib.destroyed && !iib.customDestroyed);
+		xbf.destroySingletons();
+		assertTrue(iib.destroyed && iib.customDestroyed);
+		xbf.destroySingletons();
+		assertTrue(iib.destroyed && iib.customDestroyed);
 	}
 
 	public void testNoSuchXmlFile() throws Exception {
@@ -495,9 +501,9 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 	}
 
 
-	public static class InitAndIB implements InitializingBean {
+	public static class InitAndIB implements InitializingBean, DisposableBean {
 
-		public boolean afterPropertiesSetInvoked, initMethodInvoked;
+		public boolean afterPropertiesSetInvoked, initMethodInvoked, destroyed, customDestroyed;
 
 		public void afterPropertiesSet() {
 			if (this.initMethodInvoked)
@@ -510,6 +516,24 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 			if (!this.afterPropertiesSetInvoked)
 				fail();
 			this.initMethodInvoked = true;
+		}
+
+		public void destroy() {
+			if (this.customDestroyed)
+				fail();
+			if (this.destroyed) {
+				throw new IllegalStateException("Already destroyed");
+			}
+			this.destroyed = true;
+		}
+
+		public void customDestroy() {
+			if (!this.destroyed)
+				fail();
+			if (this.customDestroyed) {
+				throw new IllegalStateException("Already customDestroyed");
+			}
+			this.customDestroyed = true;
 		}
 	}
 

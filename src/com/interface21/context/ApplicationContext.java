@@ -16,9 +16,10 @@ import com.interface21.beans.factory.HierarchicalBeanFactory;
 import com.interface21.beans.factory.ListableBeanFactory;
 
 /** 
- * Interface to provide configuration for an application. This is
- * read-only while the application is running, but may be reloaded if the
- * implementation supports this.
+ * Interface to provide configuration for an application.
+ * This is read-only while the application is running,
+ * but may be reloaded if the implementation supports this.
+ *
  * <p>The configuration provides:
  * <ul>
  * <li>The ability to resolve messages, supporting internationalization.
@@ -36,6 +37,7 @@ import com.interface21.beans.factory.ListableBeanFactory;
  * context can be used by an entire web application, while each servlet has its
  * own child context that is independent of that of any other servlet.
  * </ul>
+ *
  * @author Rod Johnson
  * @version $Revision$
  */
@@ -69,11 +71,21 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory, 
 	ContextOptions getOptions();
 
 	/**
-	 * Load or refresh the persistent representation of the configuration, which
-	 * might for example be an XML file, properties file or relational database schema.
+	 * Load or refresh the persistent representation of the configuration,
+	 * which might for example be an XML file, properties file or
+	 * relational database schema.
 	 * @throws ApplicationContextException if the config cannot be loaded
 	 */
 	void refresh() throws ApplicationContextException;
+
+	/**
+	 * Close this application context, releasing all resources and locks
+	 * that the implementation might hold. This includes disposing all
+	 * cached singleton beans.
+	 * <p>Note: Does <i>not</i> invoke close on a parent context.
+	 * @throws ApplicationContextException if there were fatal errors
+	 */
+	void close() throws ApplicationContextException;
 
 	/**
 	 * Notify all listeners registered with this application of an application

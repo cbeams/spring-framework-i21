@@ -6,11 +6,11 @@
 package com.interface21.beans.factory.support;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,17 +19,19 @@ import com.interface21.beans.BeanWrapper;
 import com.interface21.beans.BeanWrapperImpl;
 import com.interface21.beans.BeansException;
 import com.interface21.beans.FatalBeanException;
+import com.interface21.beans.MethodInvocationException;
 import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.BeanFactoryAware;
 import com.interface21.beans.factory.BeanIsNotAFactoryException;
 import com.interface21.beans.factory.BeanNotOfRequiredTypeException;
+import com.interface21.beans.factory.DisposableBean;
 import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.HierarchicalBeanFactory;
 import com.interface21.beans.factory.InitializingBean;
-import com.interface21.beans.factory.BeanFactoryAware;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 
 /**
@@ -70,11 +72,11 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/** parent bean factory, for bean inheritance support */
+	/** Parent bean factory, for bean inheritance support */
 	private BeanFactory parentBeanFactory;
 
-	/** Cache of shared instances. bean name --> bean instanced */
-	private Map sharedInstanceCache = new HashMap();
+	/** Cache of singletons: bean name --> bean instance */
+	private Map singletonCache = new HashMap();
 
 	/** Map from alias to canonical bean name */
 	private Map aliasMap = new HashMap();
@@ -152,7 +154,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		try {
 			AbstractBeanDefinition bd = getBeanDefinition(transformedBeanName(name));
 			if (bd.isSingleton()) {
-				// check for bean instance created in the current call,
+				// Check for bean instance created in the current call,
 				// to be able to resolve circular references
 				if (newlyCreatedBeans != null && newlyCreatedBeans.containsKey(name)) {
 					return newlyCreatedBeans.get(name);
@@ -186,11 +188,23 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 			return getBeanDefinition(name).isSingleton();
 		}
 		catch (NoSuchBeanDefinitionException ex) {
-			// not found -> check parent
+			// Not found -> check parent
 			if (this.parentBeanFactory != null)
 				return this.parentBeanFactory.isSingleton(name);
 			throw ex;
 		}
+	}
+
+	public final String[] getAliases(String pname) {
+		String name = transformedBeanName(pname);
+		List aliases = new ArrayList();
+		for (Iterator it = this.aliasMap.entrySet().iterator(); it.hasNext();) {
+			Map.Entry entry = (Map.Entry) it.next();
+			if (entry.getValue().equals(name)) {
+				aliases.add(entry.getKey());
+			}
+		}
+		return (String[]) aliases.toArray(new String[aliases.size()]);
 	}
 
 
@@ -213,11 +227,11 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		// Get rid of the dereference prefix if there is one
 		String name = transformedBeanName(pname);
 
-		Object beanInstance = this.sharedInstanceCache.get(name);
+		Object beanInstance = this.singletonCache.get(name);
 		if (beanInstance == null) {
 			logger.info("Creating shared instance of singleton bean '" + name + "'");
 			beanInstance = createBean(name, newlyCreatedBeans);
-			this.sharedInstanceCache.put(name, beanInstance);
+			this.singletonCache.put(name, beanInstance);
 		}
 		else {
 			if (logger.isDebugEnabled())
@@ -467,7 +481,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 				((InitializingBean) bean).afterPropertiesSet();
 			}
 			catch (Exception ex) {
-				throw new FatalBeanException("afterPropertiesSet on with name '" + name + "' threw an exception", ex);
+				throw new FatalBeanException("afterPropertiesSet() on bean with name '" + name + "' threw an exception", ex);
 			}
 		}
 		
@@ -486,7 +500,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 				throw ex;
 			}
 			catch (Exception ex) {
-				throw new FatalBeanException("BeanFactoryAware method on bean with name '" + name + "' threw an exception", ex);
+				throw new FatalBeanException("setBeanFactory() on bean with name '" + name + "' threw an exception", ex);
 			}
 		}
 	}
@@ -526,7 +540,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	}
 	
 	/**
-	 * Incorporate changes from overrides param into pv base param
+	 * Incorporate changes from overrides param into pv base param.
 	 */
 	private PropertyValues merge(PropertyValues pv, PropertyValues overrides) {
 		MutablePropertyValues parent = new MutablePropertyValues(pv);
@@ -548,16 +562,41 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		this.aliasMap.put(alias, name);
 	}
 
-	public final String[] getAliases(String pname) {
-		String name = transformedBeanName(pname);
-		List aliases = new ArrayList();
-		for (Iterator it = this.aliasMap.entrySet().iterator(); it.hasNext();) {
-			Map.Entry entry = (Map.Entry) it.next();
-			if (entry.getValue().equals(name)) {
-				aliases.add(entry.getKey());
+	/**
+	 * Destroy all cached singletons in this factory.
+	 * To be called on shutdown of a factory.
+	 */
+	public final void destroySingletons() {
+		logger.info("Destroying singletons in factory {" + this + "}");
+
+		for (Iterator it = this.singletonCache.keySet().iterator(); it.hasNext();) {
+			String name = (String) it.next();
+			Object bean = this.singletonCache.get(name);
+			RootBeanDefinition bd = getMergedBeanDefinition(name);
+
+			if (bean instanceof DisposableBean) {
+				logger.debug("Calling destroy() on bean with name '" + name + "'");
+				try {
+					((DisposableBean) bean).destroy();
+				}
+				catch (Exception ex) {
+					logger.error("destroy() on bean with name '" + name + "' threw an exception", ex);
+				}
+			}
+
+			if (bd.getDestroyMethodName() != null) {
+				logger.debug("Calling custom destroy method '" + bd.getDestroyMethodName() + "' on bean with name '" + name + "'");
+				BeanWrapper bw = new BeanWrapperImpl(bean);
+				try {
+					bw.invoke(bd.getDestroyMethodName(), null);
+				}
+				catch (MethodInvocationException ex) {
+					logger.error(ex.getMessage(), ex.getRootCause());
+				}
 			}
 		}
-		return (String[]) aliases.toArray(new String[aliases.size()]);
+		
+		this.singletonCache.clear();
 	}
 
 

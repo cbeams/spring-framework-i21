@@ -16,19 +16,24 @@ import com.interface21.beans.factory.BeanFactoryAware;
  * @since 12-Mar-2003
  * @version $Revision$
  */
-public class LifecycleBean implements InitializingBean, BeanFactoryAware {
+public class LifecycleBean implements InitializingBean, BeanFactoryAware, DisposableBean {
 
-	private boolean inited; 
-	
+	private boolean inited;
+
 	private BeanFactory owningFactory;
 	
-	/**
-	 * @see com.interface21.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
-	public void afterPropertiesSet() throws Exception {
+	private boolean destroyed;
+
+	public void afterPropertiesSet() {
 		this.inited = true;
 	}
-	
+
+	public void setBeanFactory(BeanFactory beanFactory) {
+		if (!inited)
+			throw new RuntimeException("Factory didn't call afterPropertiesSet() before invoking setBeanFactory on lifecycle bean");
+		this.owningFactory = beanFactory;
+	}
+
 	/**
 	 * Dummy business method that will fail unless the factory
 	 * managed the bean's lifecycle correctly
@@ -38,14 +43,15 @@ public class LifecycleBean implements InitializingBean, BeanFactoryAware {
 			throw new RuntimeException("Factory didn't initialize lifecycle object correctly");
 	}
 
-	/**
-	 * @see com.interface21.beans.factory.BeanFactoryAware#setBeanFactory(com.interface21.beans.factory.BeanFactory)
-	 */
-	public void setBeanFactory(BeanFactory beanFactory) {
-		if (!inited)
-			throw new RuntimeException("Factory didn't call afterPropertiesSet() before invoking setBeanFactory " +
-				"on lifecycle bean");
-		this.owningFactory = beanFactory;
+	public void destroy() {
+		if (this.destroyed) {
+			throw new IllegalStateException("Already destroyed");
+		}
+		this.destroyed = true;
+	}
+
+	public boolean isDestroyed() {
+		return destroyed;
 	}
 
 }

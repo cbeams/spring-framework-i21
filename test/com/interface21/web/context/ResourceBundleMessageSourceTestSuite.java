@@ -3,8 +3,6 @@ package com.interface21.web.context;
 import java.util.Date;
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
-
 import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.MessageSource;
@@ -27,7 +25,7 @@ import com.interface21.web.servlet.theme.AbstractThemeResolver;
  * to and will be called "messages_XX_YY.properties" where "XX" and "YY" are the
  * language and country codes known by the ResourceBundle class.
  *
- * NOTE: The main method of this class is the "createContext(...)" method, and
+ * <p>NOTE: The main method of this class is the "createContext(...)" method, and
  * it was copied from the com.interface21.web.context.WebApplicationContextTestSuite
  * class.
  *
@@ -44,10 +42,6 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 	 */
 	public static final String WAR_ROOT = "/com/interface21/web/context";
 
-	//~ Instance variables -----------------------------------------------------
-
-	private ServletContext servletContext;
-
 	private WebApplicationContext root;
 
 	private MessageSource themeMsgSource;
@@ -55,13 +49,10 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 	public ResourceBundleMessageSourceTestSuite() throws Exception {
 	}
 
-	/**
-	 * @see com.interface21.beans.factory.AbstractListableBeanFactoryTests#testCount()
-	 */
 	public void testCount() {
 		assertTrue("should have 17 beans, not " +
 							 this.applicationContext.getBeanDefinitionCount(),
-							 this.applicationContext.getBeanDefinitionCount() == 17);
+							 this.applicationContext.getBeanDefinitionCount() == 15);
 	}
 
 	/**
@@ -74,7 +65,7 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 
 	/**
 	 * @see com.interface21.context.support.AbstractNestingMessageSource for more details.
-	 * NOTE:  Messages are contained within the "test/com/interface21/web/context/WEB-INF/messagesXXX.properties" files.
+	 * NOTE: Messages are contained within the "test/com/interface21/web/context/WEB-INF/messagesXXX.properties" files.
 	 */
 	public void testGetMessageWithDefaultPassedInAndFoundInMsgCatalog() {
 		assertTrue("valid msg from resourcebundle with default msg passed in returned default msg. Expected msg from catalog.",
@@ -86,7 +77,7 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 
 	/**
 	 * @see com.interface21.context.support.AbstractNestingMessageSource for more details.
-	 * NOTE:  Messages are contained within the "test/com/interface21/web/context/WEB-INF/messagesXXX.properties" files.
+	 * NOTE: Messages are contained within the "test/com/interface21/web/context/WEB-INF/messagesXXX.properties" files.
 	 */
 	public void testGetMessageWithDefaultPassedInAndNotFoundInMsgCatalog() {
 		assertTrue("bogus msg from resourcebundle with default msg passed in returned default msg",
@@ -226,7 +217,6 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
 		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/com/interface21/web/context/WEB-INF/applicationContext.xml");
 		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PREFIX_PARAM, "/com/interface21/web/context/WEB-INF/");
-		this.servletContext = sc;
 		root.setServletContext(sc);
 		WebApplicationContext wac = new XmlWebApplicationContext(root, "test-servlet");
 		wac.setServletContext(sc);
