@@ -185,6 +185,8 @@
 
 		<mkdir dir="${release.dir}"/>
 
+		<delete file="${release.dir}/${release.zip}"/>
+
 		<zip zipfile="${release.dir}/${release.zip}">
 			<zipfileset dir="." prefix="${release.path}">
 				<include name="dist/*.jar"/>
@@ -192,12 +194,13 @@
 				<include name="src/**"/>
 				<include name="lib/ant/**"/>
 				<include name="lib/aop-alliance/**"/>
-				<include name="lib/cglib/**"/>
 				<include name="lib/j2ee/servlet.jar"/>
 				<include name="lib/j2ee/jdbc2_0-stdext.jar"/>
+				<include name="lib/itext-pdf/**"/>
 				<include name="lib/jstl/**"/>
 				<include name="lib/junit/**"/>
 				<include name="lib/log4j/**"/>
+				<include name="lib/poi/**"/>
 				<include name="samples/**"/>
 				<include name="*.txt"/>
 			</zipfileset>
