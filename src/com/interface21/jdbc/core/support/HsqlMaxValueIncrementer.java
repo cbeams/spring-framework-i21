@@ -16,47 +16,48 @@ import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**
- * Class to increment maximum value of a given HSQL table with the equivalent of an auto-increment column
- * (note : if you use this class, your HSQL key column should NOT be auto-increment, as the sequence table
- * does the job)
- * <br>The sequence is kept in a table; there should be one sequence table per table that needs an auto-generated key.  
- * <p>
- * Example:<br/>
- * <code>
- * &nbsp;&nbsp;create table tab (id int not null primary key, text varchar(100));<br/>
- * &nbsp;&nbsp;create table tab_sequence (value identity);<br/>
- * &nbsp;&nbsp;insert into tab_sequence values(0);<br/>
+ * Class to increment maximum value of a given HSQL table with the equivalent
+ * of an auto-increment column. Note: if you use this class, your HSQL key
+ * column should <i>NOT</i> be auto-increment, as the sequence table does the job.
+ *
+ * <p>The sequence is kept in a table. There should be one sequence table per
+ * table that needs an auto-generated key.
+ *
+ * <p>Example:
+ * <p><code>
+ * &nbsp;&nbsp;create table tab (id int not null primary key, text varchar(100));<br>
+ * &nbsp;&nbsp;create table tab_sequence (value identity);<br>
+ * &nbsp;&nbsp;insert into tab_sequence values(0);<br>
  * </code>
- * </p>
+ *
  * <p>If cacheSize is set, the intermediate values are served without querying the
- * database. If the server or your application is stopped or crashes or a transaction 
- * is rolled back, the unused values will never be served. The maximum hole size in 
+ * database. If the server or your application is stopped or crashes or a transaction
+ * is rolled back, the unused values will never be served. The maximum hole size in
  * numbering is consequently the value of cacheSize.
- * </p>
- * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
- * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
+ *
+ * @author Isabelle Muszynski
+ * @author Jean-Pierre Pawlak
  * @author Thomas Risberg
  * @version $Id$
  */
 
-public class HsqlMaxValueIncrementer
-    extends AbstractDataFieldMaxValueIncrementer {
+public class HsqlMaxValueIncrementer extends AbstractDataFieldMaxValueIncrementer {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private long[] valueCache = null;
-    
+
 	private NextMaxValueProvider nextMaxValueProvider;
 
 	/**
-	 * Default constructor
+	 * Default constructor.
 	 **/
 	public HsqlMaxValueIncrementer() {
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 	}
 
 	/**
-	 * Constructor
+	 * Alternative constructor.
 	 * @param ds the datasource to use
 	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
@@ -67,19 +68,19 @@ public class HsqlMaxValueIncrementer
 	}
 
 	/**
-	 * Constructor
+	 * Alternative constructor.
 	 * @param ds the datasource to use
 	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
 	 * @param cacheSize the number of buffered keys
 	 **/
 	public HsqlMaxValueIncrementer(DataSource ds, String incrementerName, String columnName, int cacheSize) {
-        super(ds, incrementerName, columnName, cacheSize);
+		super(ds, incrementerName, columnName, cacheSize);
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 	}
 
 	/**
-	 * Constructor
+	 * Alternative constructor.
 	 * @param ds the datasource to use
 	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
@@ -87,13 +88,13 @@ public class HsqlMaxValueIncrementer
 	 * @param padding the length to which the string return value should be padded with zeroes
 	 **/
 	public HsqlMaxValueIncrementer(DataSource ds, String incrementerName, String columnName, boolean prefixWithZero, int padding) {
-        super(ds, incrementerName, columnName);
+		super(ds, incrementerName, columnName);
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
 	}
 
 	/**
-	 * Constructor
+	 * Alternative constructor.
 	 * @param ds the datasource to use
 	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
@@ -102,14 +103,13 @@ public class HsqlMaxValueIncrementer
 	 * @param cacheSize the number of buffered keys
 	 **/
 	public HsqlMaxValueIncrementer(DataSource ds, String incrementerName, String columnName, boolean prefixWithZero, int padding, int cacheSize) {
-        super(ds, incrementerName, columnName, cacheSize);
+		super(ds, incrementerName, columnName, cacheSize);
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
 	}
 
 	/**
-	 * Sets the prefixWithZero.
-	 * @param prefixWithZero The prefixWithZero to set
+	 * Set whether to prefix with zero.
 	 */
 	public void setPrefixWithZero(boolean prefixWithZero, int length) {
 		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, length);
@@ -143,6 +143,7 @@ public class HsqlMaxValueIncrementer
 		return nextMaxValueProvider.getNextStringValue();
 	}
 
+
 	// Private class that does the actual
 	// job of getting the sequence.nextVal value
 	private class NextMaxValueProvider extends AbstractNextMaxValueProvider {
@@ -163,7 +164,7 @@ public class HsqlMaxValueIncrementer
 			if (isDirty()) {
 				initPrepare();
 			}
-			if(nextValueIx < 0 || nextValueIx >= getCacheSize()) {
+			if (nextValueIx < 0 || nextValueIx >= getCacheSize()) {
 				/*
 				* Need to use straight JDBC code because we need to make sure that the insert and select
 				* are performed on the same connection (otherwise we can't be sure that last_insert_id()
@@ -243,4 +244,3 @@ public class HsqlMaxValueIncrementer
 	}
 
 }
-

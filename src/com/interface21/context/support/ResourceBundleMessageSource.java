@@ -8,13 +8,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * MessageSource that 
- * <br/>This class is a JavaBean, exposing a 'basename'
- * property.
- * <br/>This class relies on the caching of the underlying
- * core library ResourceBundle implementation.
+ * MessageSource that accesses the ResourceBundle with the specified basename.
+ * This class relies on the caching of the underlying core library
+ * ResourceBundle implementation.
  * @author Rod Johnson
  * @version $RevisionId$
+ * @see #setBasename
  */
 public class ResourceBundleMessageSource extends AbstractNestingMessageSource {
 

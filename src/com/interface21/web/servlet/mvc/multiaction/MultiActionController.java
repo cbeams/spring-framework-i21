@@ -35,52 +35,48 @@ import com.interface21.web.servlet.mvc.WebContentGenerator;
 
 
 /**
- * Controller implementation that allows multiple request types
- * to be handled by the same class.<br>
- *
- * Subclasses of this class can handle several different types of request
- * with methods of the form
- * ModelAndView actionName(HttpServletRequest request, HttpServletResponse response);
- *
- * May take a third parameter HttpSession in which an existing session will be required,
+ * Controller implementation that allows multiple request types to be
+ * handled by the same class. Subclasses of this class can handle several
+ * different types of request with methods of the form
+ * <p><code>
+ * &nbsp;&nbsp;ModelAndView actionName(HttpServletRequest request, HttpServletResponse response);
+ * </code>
+ * <p>May take a third parameter HttpSession in which an existing session will be required,
  * or a third parameter of an arbitrary class that gets treated as command
  * (i.e. an instance of the class gets created, and request parameters get bound to it)
  *
- * <br/>These methods can throw any kind of exception, but should only let propagate
+ * <p>These methods can throw any kind of exception, but should only let propagate
  * those that they consider fatal, or which their class or superclass is prepared to
  * catch by implementing an exception handler.
  *
- * <br/>This model allows for rapid coding, but loses the advantage of compile-time
- * checking.
+ * <p>This model allows for rapid coding, but loses the advantage of compile-time
+ * checking. It is similar to a Struts 1.1 DispatchAction, but more sophisticated.
+ * Also supports delegation to another object.
  *
  * <p>Inherits superclass bean properties. Adds methodNameResolver bean property.
  * An implementation of the MethodNameResolver interface defined in this package
  * should return a method name for a given request, based on any aspect of the request,
  * such as its URL or an "action" or like attribute. The default behavior is URL based.
  *
- * <br/>Also supports delegation to another object.
- *
  * <p>Subclasses can implement custom exception handler methods with names such as
- * ModelAndView anyMeaningfulName(HttpServletRequest request, HttpServletResponse response, ExceptionClass exception);
- * The third parameter can be any subclass or Exception or RuntimeException.
+ * <p><code>
+ * &nbsp;&nbsp;ModelAndView anyMeaningfulName(HttpServletRequest request, HttpServletResponse response, ExceptionClass exception);
+ * </code>
+ * <p>The third parameter can be any subclass or Exception or RuntimeException.
  *
- * </br>There can also be an optional lastModified method for handlers, of signature
- * long anyMeaningfulNameLastModified(HttpServletRequest request)
- * If such a method is present, it will be invoked. Default return from getLastModified()
+ * <p>There can also be an optional lastModified method for handlers, of signature
+ * <p><code>
+ * &nbsp;&nbsp;long anyMeaningfulNameLastModified(HttpServletRequest request)
+ * </code>
+ * <p>If such a method is present, it will be invoked. Default return from getLastModified()
  * is -1, meaning that content must always be regenerated.
  *
- * <br>Like Struts 1.1 DispatchAction, but more sophisticated.
- *
- * <br>The mapping from requests to handler method names is parameterized in the MethodNameResolver
- * interface.
- *
- * <br>Note that method overloading isn't allowed.
+ * <p>Note that method overloading isn't allowed.
  *
  * @author Rod Johnson
+ * @see MethodNameResolver
  */
-public class MultiActionController 
-					extends WebContentGenerator 
-					implements Controller, LastModified  {
+public class MultiActionController extends WebContentGenerator implements Controller, LastModified  {
 		
 	/** Prefix for last modified methods */
 	public static final String LAST_MODIFIED_METHOD_SUFFIX = "LastModified";
@@ -291,7 +287,6 @@ public class MultiActionController
 		}
 	}
 	
-	
 	/**
 	 * Invoke the named method.
 	 * Use a custom exception handler if possible;
@@ -339,8 +334,7 @@ public class MultiActionController
 			Throwable t = ex.getTargetException();
 			return handleException(request, response, t);
 		}
-	}	// invokeNamedMethod
-
+	}
 
 	/**
 	 * We've encountered an exception which may be recoverable
@@ -373,12 +367,11 @@ public class MultiActionController
 		
 		// Must be a checked application exception
 		throw new ServletException("Uncaught exception", t);
-	}	// invokeNamedMethod
-	
-	
+	}
+
 	/**
 	 * Create a new command object of the given class.
-	 * <br>Subclasses can override this implementation if they want.
+	 * Subclasses can override this implementation if they want.
 	 * This implementation uses class.newInstance(), so commands need to have
 	 * public no arg constructors.
 	 */
@@ -406,7 +399,7 @@ public class MultiActionController
 	}
 	
 	/**
-	 * Can return null if not found
+	 * Can return null if not found.
 	 * @return a handler for the given exception type
 	 * @param exception Won't be a ServletException or IOException
 	 */
@@ -451,6 +444,6 @@ public class MultiActionController
 			// Shouldn't happen
 			throw new ServletException("Unexpected exception thrown from exception handler method: ", t);
 		}  
-	}	// invokeExceptionHandler
+	}
 	
 }

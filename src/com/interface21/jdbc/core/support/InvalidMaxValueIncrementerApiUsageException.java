@@ -12,30 +12,31 @@ package com.interface21.jdbc.core.support;
 import com.interface21.dao.DataAccessException;
 
 /**
- * Exception thrown on incorrect usage of the API,
- * such as failing to provide IncrementerName or ColumnName
- * before usage.<br/>
- * This represents a problem in our Java data access framework, not the underlying data
- * access infrastructure.
+ * Exception thrown on incorrect usage of the API, such as failing
+ * to provide IncrementerName or ColumnName before usage.
+ *
+ * <p>This represents a problem in our Java data access framework,
+ * not the underlying data access infrastructure.
+ *
  * @author Thomas Risberg
  */
 public class InvalidMaxValueIncrementerApiUsageException extends DataAccessException {
 
 	/**
 	 * Constructor for InvalidMaxValueIncrementerApiUsageException.
-	 * @param s message
+	 * @param msg message
 	 */
-	public InvalidMaxValueIncrementerApiUsageException(String s) {
-		super(s);
+	public InvalidMaxValueIncrementerApiUsageException(String msg) {
+		super(msg);
 	}
 
 	/**
 	 * Constructor for InvalidMaxValueIncrementerApiUsageException.
-	 * @param s message
+	 * @param msg message
 	 * @param ex root cause, from an underlying API such as JDBC
 	 */
-	public InvalidMaxValueIncrementerApiUsageException(String s, Throwable ex) {
-		super(s, ex);
+	public InvalidMaxValueIncrementerApiUsageException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 
 }

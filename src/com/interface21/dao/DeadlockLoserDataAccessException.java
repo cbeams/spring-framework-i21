@@ -19,11 +19,11 @@ public class DeadlockLoserDataAccessException extends DataAccessException {
 
 	/**
 	 * Constructor for DeadlockLoserDataAccessException.
-	 * @param s mesg
+	 * @param msg mesg
 	 * @param ex root cause
 	 */
-	public DeadlockLoserDataAccessException(String s, Throwable ex) {
-		super(s, ex);
+	public DeadlockLoserDataAccessException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 
 }

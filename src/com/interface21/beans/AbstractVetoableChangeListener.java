@@ -12,29 +12,35 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Convenience superclass for JavaBeans VetoableChangeListeners. This class implements the
- * VetoableChangeListener interface to delegate the method call to one of any number
- * of validation methods defined in concrete subclasses. This is a typical use of
- * reflection to avoid the need for a chain of if/else statements, discussed in
+ * Convenience superclass for JavaBeans VetoableChangeListeners.
+ * This class implements the VetoableChangeListener interface to delegate
+ * the method call to one of any number of validation methods defined in
+ * concrete subclasses. This is a typical use of reflection to avoid the
+ * need for a chain of if/else statements, discussed in
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-on-One J2EE Design and Development</a>.
- * <br/>Because validation methods are cached by this class's constructor, the
- * overhead of reflection is not great.
- * <br/>The signature for validation methods must be of this form (the following
- * example validates an int property named age):
- * <code>
+ *
+ * <p>The signature for validation methods must be of this form
+ * (the following example validates an int property named age):
+ * <p><code>
  * public void validateAge(int age, PropertyChangeEvent e) throws PropertyVetoException
  * </code>
- * Note that the field can be expected to have been converted to the required type,
- * simplifying validation logic.<br/>
- * Validation methods must be public or protected. The return value is not required,
+ * <p>Note that the field can be expected to have been converted to the required type,
+ * simplifying validation logic.
+ *
+ * <p>Validation methods must be public or protected. The return value is not required,
  * but will be ignored.
- * <br/><b>NB:</b>Validation methods will receive a reversion event after they have
+ *
+ * <p>Subclasses should be threadsafe: nothing in this superclass will cause
+ * a problem. Because validation methods are cached by this class's constructor,
+ * the overhead of reflection is not great.
+ *
+ * <p><b>NB:</b>Validation methods will receive a reversion event after they have
  * vetoed a change. So, if an email property is initially null and an invalid email address
  * is supplied and vetoed by the first call to validateEmail for the given validator,
  * a second event will be sent when the email field is reverted to null. This means that
  * validation methods must be able to cope with initial values. They can, however,
- * throw another PropertyVetoException, which will be ignored by the caller.<br/>
- * Subclasses should be threadsafe: nothing in this superclass will cause a problem.
+ * throw another PropertyVetoException, which will be ignored by the caller.
+ *
  * @author Rod Johnson
  * @version $Id$
  */
@@ -89,10 +95,10 @@ public abstract class AbstractVetoableChangeListener implements VetoableChangeLi
 		}
 	}
 
-	/** Implementation of VetoableChangeListener.
-	 * Will attempt to locate the appropriate validator method and
-	 * invoke it. Will do nothing if there is no validation method for this
-	 * property.
+	/**
+	 * Implementation of VetoableChangeListener.
+	 * Will attempt to locate the appropriate validator method and invoke it.
+	 * Will do nothing if there is no validation method for this property.
 	 */
 	public final void vetoableChange(PropertyChangeEvent e) throws PropertyVetoException {
 		if (logger.isDebugEnabled())

@@ -1,0 +1,81 @@
+SPRING FRAMEWORK CHANGELOG
+==========================
+
+Changes in version 0.9.1 (8.8.2003)
+-----------------------------------
+* revised distribution jar files (spring-beans, spring-jdbc, spring-full)
+* fixed error logging in XmlBeanFactory
+* support for XML bean definition includes via XML entities
+* Spring bean definition DTD allows map entries to be lists now
+* new BeanFactoryPostProcessor hook to override bean definition values
+* revised PropertyResourceConfigurer based on BeanFactoryPostProcessor
+* revised simple JNDI implementation
+* support for execution context in SqlQuery hierarchy
+* eager initialization of exception translator in JdbcTemplate
+* fixed StoredProcedure transaction participation
+* moved DataSourceTransactionManager to jdbc.datasource package
+* revised JDO LocalPersistenceManagerFactoryBean with bean-defined settings
+* revised Hibernate LocalSessionFactoryBean with bean-defined settings
+* ability to use Spring-configured DataSource for Hibernate
+* support for Hibernate entity interceptors
+* fixed Hibernate transaction exception logging
+* new HibernateTemplate convenience methods for single-step actions
+* new convenience base classes for JDBC/Hibernate/JDO DAOs
+* support for read-only transactions
+* revised TransactionInterceptor configuration options
+* TransactionInterceptor does not have a default strategy anymore
+* updated AOP framework to current AOP Alliance interfaces
+* optional CGLIB support in the AOP framework (to proxy full classes)
+* distinction between static and dynamic method pointcuts
+* new regular expression pointcut
+* revised EJB support classes with BeanFactory access
+* new BindInitializer support in BindUtils
+* revised VelocityConfigurer with bean-defined settings
+* support for Ant-style path matching in the web framework
+* support for JSP expression language in tag implementations
+* recommended "<spring:" as tag prefix instead of "<i21:"
+* turned sample "PagedList" into full-fledged "Countries"
+* new Petclinic tutorial
+* new MVC-step-by-step tutorial
+* new article "The Spring Framework - A Lightweight Container"
+* new article "Container Resources vs Local Resources"
+
+Changes in version 0.9 (25.6.2003)
+----------------------------------
+* first public release since the version that came with the book "Expert One-on-One J2EE Design and Development"
+* following various unofficial 0.8 CVS snapshots
+* general tightening and polishing
+* log via Commons Logging
+* Log4J configuration support
+* revised bean definition XML format with DTD
+* support for lists, maps, and props in XML bean definitions
+* support for hierarchical bean factories
+* support for custom property editors
+* various new out-of-the-box editors for dates, numbers, etc
+* new FactoryBean interface instead of custom bean definitions
+* FactoryBean-based resource definitions for JDBC DataSource etc
+* revised simple DataSource implementations
+* new JDBC error code exception translater
+* new DataFieldMaxValueIncrementer support for JDBC
+* new generic transaction management
+* new JDO support: resource definition, transaction strategy, template, interceptor
+* new Hibernate support: resource definition, transaction strategy, template, interceptor
+* new support for remoting via Hessian and Burlap
+* new AOP framework aligned with AOP Alliance
+* revised EJB access classes based on AOP
+* resource access from application contexts
+* support for MessageSourceResolvable
+* revised validation framework
+* support for global validation errors
+* revised web framework
+* refactored form controller hierarchy
+* new handler interception mechanism
+* locale and theme resolution
+* support for HTML escaping
+* revised JSP tag implementations
+* new sample application "Petclinic"
+* new sample application "PagedList"
+* application skeletons as configuration showcases
+* (many new convenience classes and methods)
+* (too many minor improvements to list)
+* (lots of minor bugfixes)

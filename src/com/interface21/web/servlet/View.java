@@ -21,26 +21,30 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * MVC View for a web interaction. Implementations are responsible
  * for rendering content, and exposing models. Multiple models can
- * be exposed by a single view.<br/>
- * * This class and the MVC approach associated with it is discussed in Chapter 12 of
+ * be exposed by a single view.
+ *
+ * <p>This class and the MVC approach associated with it is discussed in Chapter 12 of
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
  * by Rod Johnson (Wrox, 2002).
- * <br>View implementations should be threadsafe.
- * <p/>View implementations may differ widely. An obvious
- * implementation would be JSP based. Other implementations might be
- * XSLT based, or use an HTML generation library. This interface is
- * designed to avoid restricting the range of possible implementations.
- * <p/>Views should be beans. They are likely to be instantiated as
- * beans by a ViewResolver.
- * <br/>This interface is stateless.
+ *
+ * <p>View implementations may differ widely. An obvious implementation
+ * would be JSP-based. Other implementations might be XSLT based, or use
+ * an HTML generation library. This interface is designed to avoid
+ * restricting the range of possible implementations.
+ *
+ * <p>Views should be beans. They are likely to be instantiated as beans
+ * by a ViewResolver.
+ *
+ * <p>This interface is stateless. View implementations should be threadsafe.
+ *
  * @author Rod Johnson
  */
 public interface View {
 	
 	/** 
 	 * Add static data to this view, exposed in each view.
-	 * <br/>Must be invoked before any calls to render().
-	 * <br/><b>Note that it is legal for dynamic and static attributes to
+	 * Must be invoked before any calls to render().
+	 * <p><b>Note that it is legal for dynamic and static attributes to
 	 * be supplied with the same name; however, the dynamic attribute will 
 	 * always take precedence</b>, as it was supplied later. This technique
 	 * is commonly used with titles.
@@ -76,4 +80,3 @@ public interface View {
 	String getName();
 
 }
-

@@ -34,8 +34,10 @@ import com.interface21.web.servlet.view.InternalResourceViewResolver;
 import com.interface21.web.util.WebUtils;
 
 /**
- * Concrete front controller for use within the Interface21 MVC framework.<br>
- * This class and the MVC approach it delivers is discussed in Chapter 12 of
+ * Concrete front controller for use within the web MVC framework.
+ * Dispatches to registered handlers for processing a web request.
+ *
+ * <p>This class and the MVC approach it delivers is discussed in Chapter 12 of
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
  * by Rod Johnson (Wrox, 2002).
  *

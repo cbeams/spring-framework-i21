@@ -6,20 +6,19 @@
 package com.interface21.beans.factory;
 
 /**
- * Extension of BeanFactory to be implemented by bean factories that
- * can enumerate all their bean instances, rather than attempting bean lookup
+ * Extension of BeanFactory to be implemented by bean factories that can
+ * enumerate all their bean instances, rather than attempting bean lookup
  * by name one by one as requested by clients.
- * <br/>If this is a HierarchicalBeanFactory, the return values will
- * not take any BeanFactory hierarchy into account, but will relate
- * only to the beans defined in the current factory. Use the
- * BeanFactoryUtils helper class to get all. 
- * 
- * <p>With the exception of getBeanDefinitionCount(), the methods
- * in this interface are not design for frequent invocation. Implementations
- * may be slow.
  *
- * <p>BeanFactory implementations that preload all their beans (for
- * example, DOM-based XML factories) may implement this interface.
+ * <p>If this is a HierarchicalBeanFactory, the return values will not take any
+ * BeanFactory hierarchy into account, but will relate only to the beans defined
+ * in the current factory. Use the BeanFactoryUtils helper class to get all.
+ * 
+ * <p>With the exception of getBeanDefinitionCount(), the methods in this interface
+ * are not designed for frequent invocation. Implementations may be slow.
+ *
+ * <p>BeanFactory implementations that preload all their beans (for example,
+ * DOM-based XML factories) may implement this interface.
  *
  * <p>This interface is discussed in "Expert One-on-One J2EE", by Rod Johnson.
  *

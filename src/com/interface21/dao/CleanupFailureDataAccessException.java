@@ -20,12 +20,12 @@ public class CleanupFailureDataAccessException extends DataAccessException {
 
 	/**
 	 * Constructor for CleanupFailureDataAccessException.
-	 * @param s Message
+	 * @param msg Message
 	 * @param ex Root cause from the underlying data access API,
 	 * such as JDBC
 	 */
-	public CleanupFailureDataAccessException(String s, Throwable ex) {
-		super(s, ex);
+	public CleanupFailureDataAccessException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 
 }

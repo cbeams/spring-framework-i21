@@ -15,9 +15,12 @@ import com.interface21.context.NoSuchMessageException;
  * Abstract implementation of NestingMessageSource interface, making it
  * easy to implement custom MessageSources. Subclasses must implement the
  * abstract resolve() method.
- * <br/>This class does not currently implement caching, thus subclasses can
+ *
+ * <p>This class does not currently implement caching, thus subclasses can
  * dynamically change messages over time.
- * NOTE: Some methods of this class are based on code from Struts 1.1b3 implementation.
+ *
+ * <p>NOTE: Some methods of this class are based on code from Struts 1.1b3 implementation.
+ * 
  * @author Rod Johnson
  */
 public abstract class AbstractNestingMessageSource implements NestingMessageSource {

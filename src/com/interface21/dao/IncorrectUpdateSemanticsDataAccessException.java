@@ -22,19 +22,19 @@ public abstract class IncorrectUpdateSemanticsDataAccessException extends Invali
 
 	/**
 	 * Constructor for IncorrectUpdateSemanticsDataAccessException.
-	 * @param s message
+	 * @param msg message
 	 */
-	public IncorrectUpdateSemanticsDataAccessException(String s) {
-		super(s);
+	public IncorrectUpdateSemanticsDataAccessException(String msg) {
+		super(msg);
 	}
 
 	/**
 	 * Constructor for IncorrectUpdateSemanticsDataAccessException.
-	 * @param s message
+	 * @param msg message
 	 * @param ex root cause from the underlying API, such as JDBC.
 	 */
-	public IncorrectUpdateSemanticsDataAccessException(String s, Throwable ex) {
-		super(s, ex);
+	public IncorrectUpdateSemanticsDataAccessException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 	
 	/**

@@ -172,20 +172,17 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	}
 
 	/**
-	 * Execute the stored procedure. All parameters
-	 * must have been added before any calls are made
-	 * to this method.
-	 * <br>This method is provided as a more powerful alternative to the
+	 * Execute the stored procedure. All parameters must have been added
+	 * before any calls are made to this method.
+	 * <p>This method is provided as a more powerful alternative to the
 	 * execute(Map) method for special cases where we need the Connection
 	 * to populate the input map. We might need to do this to use proprietary
-	 * features of the target database: for example, to use RDBMS-specific
-	 * types.
-	 * <br/>Maps, using parameter names given in addParameter(),
-	 * are used to hold input and output parameters.
+	 * features of the target database: for example, to use RDBMS-specific types.
+	 * <p>Maps, using parameter names given in addParameter(), are used to
+	 * hold input and output parameters.
 	 * @param mapper Map of input parameters
-	 * @return map of output parameters. In/out parameters
-	 * will appear here, with their value after the stored
-	 * procedure has been called.
+	 * @return map of output parameters. In/out parameters will appear here,
+	 * with their value after the stored procedure has been called.
 	 */
 	protected Map execute(ParameterMapper mapper) throws InvalidDataAccessApiUsageException {
 		if (!isCompiled())

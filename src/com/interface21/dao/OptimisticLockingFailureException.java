@@ -20,19 +20,19 @@ public class OptimisticLockingFailureException extends DataAccessException {
 
 	/**
 	 * Constructor for OptimisticLockingFailureDataAccessException.
-	 * @param s mesg
+	 * @param msg mesg
 	 */
-	public OptimisticLockingFailureException(String s) {
-		super(s);
+	public OptimisticLockingFailureException(String msg) {
+		super(msg);
 	}
 
 	/**
 	 * Constructor for OptimisticLockingFailureDataAccessException.
-	 * @param s mesg
+	 * @param msg mesg
 	 * @param ex root cause
 	 */
-	public OptimisticLockingFailureException(String s, Throwable ex) {
-		super(s, ex);
+	public OptimisticLockingFailureException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 
 }

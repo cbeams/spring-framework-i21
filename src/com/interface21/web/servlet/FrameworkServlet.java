@@ -28,8 +28,8 @@ import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.util.WebUtils;
 
 /**
- * Base servlet for servlets within the Interface21 framework. Allows integration
- * with bean factory and application context, in a JavaBean-based overall solution.
+ * Base servlet for servlets within the web framework. Allows integration
+ * with an application context, in a JavaBean-based overall solution.
  *
  * <p>This class offers the following functionality:
  * <ul>

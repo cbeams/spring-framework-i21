@@ -17,9 +17,11 @@ import com.interface21.dao.DataAccessException;
  * Interface to be implemented by classes that can translate
  * between SQLExceptions and our data access strategy-agnostic
  * com.interface21.dao.DataAccessException.
- * <br/>Implementations can be generic (for example,
- * using SQLState codes for JDBC) or proprietary (for example,
- * using Oracle error codes) for greater precision.
+ *
+ * <p>Implementations can be generic (for example, using SQLState
+ * codes for JDBC) or proprietary (for example, using Oracle
+ * error codes) for greater precision.
+ *
  * @author Rod Johnson
  * @see com.interface21.dao.DataAccessException
  * @version $Id$
@@ -35,4 +37,5 @@ public interface SQLExceptionTranslater {
 	 * @param sqlex SQLException encountered by JDBC implementation
 	 */
 	DataAccessException translate(String task, String sql, SQLException sqlex);
+
 }

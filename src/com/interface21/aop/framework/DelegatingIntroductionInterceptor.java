@@ -14,17 +14,20 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Convenient implementation of the IntroductionInterceptor interface.
- * <br/>Subclasses merely need to extend this class and
- * implement the interfaces to be introduced themselves.
- * In this case the delegate is the subclass instance itself.
- * Alternatively a separate delegate may implement the interface,
- * and be set via the delegate bean property.
- * Delegates or subclasses may implement any number of interfaces.
- * All interfaces except IntroductionInterceptor are picked up 
- * from the subclass or delegate by default.<br>
- * The suppressInterface() method can be used to suppress interfaces implemented
- * by the delegate but which should not be introduced to the owning
- * AOP proxy.
+ *
+ * <p>Subclasses merely need to extend this class and implement the
+ * interfaces to be introduced themselves. In this case the delegate is
+ * the subclass instance itself. Alternatively a separate delegate may
+ * implement the interface, and be set via the delegate bean property.
+ *
+ * <p>Delegates or subclasses may implement any number of interfaces.
+ * All interfaces except IntroductionInterceptor are picked up from the
+ * subclass or delegate by default.
+ *
+ * <p>The suppressInterface() method can be used to suppress interfaces
+ * implemented by the delegate but which should not be introduced to the
+ * owning AOP proxy.
+ *
  * @author Rod Johnson
  * @version $Id$
  */
