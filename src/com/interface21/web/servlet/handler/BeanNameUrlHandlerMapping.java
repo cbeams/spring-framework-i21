@@ -1,6 +1,7 @@
 package com.interface21.web.servlet.handler;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,9 +39,9 @@ public class BeanNameUrlHandlerMapping implements HandlerMapping {
 	//---------------------------------------------------------------------
 	protected final Logger logger = Logger.getLogger(getClass().getName());
 	
-	private HashMap handlerMap;
+	private Map handlerMap;
 	
-	private ApplicationContext ctx;
+	private ApplicationContext applicationContext;
 
 	private LocaleResolver localeResolver;
 
@@ -54,7 +55,7 @@ public class BeanNameUrlHandlerMapping implements HandlerMapping {
 	 * after it has access to the WebApplicatinContext fails
 	 */
 	public void setApplicationContext(ApplicationContext ctx) throws ApplicationContextException {
-		this.ctx = ctx;
+		this.applicationContext = ctx;
 	}
 	
 	/** Return the ApplicationContext used by this object.
@@ -63,7 +64,7 @@ public class BeanNameUrlHandlerMapping implements HandlerMapping {
 	 * this can be useful to check whether or not the object has been initialized.
 	 */
 	public ApplicationContext getApplicationContext() {
-		return this.ctx;
+		return this.applicationContext;
 	}
 
 
@@ -74,10 +75,6 @@ public class BeanNameUrlHandlerMapping implements HandlerMapping {
 		this.localeResolver = localeResolver;
 	}
 
-	public LocaleResolver getLocaleResolver() {
-		return localeResolver;
-	}
-
 
 	//---------------------------------------------------------------------
 	// Implementation of HandlerMap
@@ -85,13 +82,13 @@ public class BeanNameUrlHandlerMapping implements HandlerMapping {
 	public void init() throws ApplicationContextException {
 		this.handlerMap = new HashMap();
 		logger.debug("Looking for URL mappings...");
-		String[] urlmaps = ctx.getBeanDefinitionNames();
+		String[] urlmaps = applicationContext.getBeanDefinitionNames();
 		
 		// Take anything beginning with a / in the bean name
 		for (int i = 0; i < urlmaps.length; i++) {
 			if (urlmaps[i].startsWith("/")) {
 				logger.debug("Found URL mapping [" + urlmaps[i] + "]"); 
-				initHandler(ctx, urlmaps[i]);
+				initHandler(applicationContext, urlmaps[i]);
 			}
 			else {
 				logger.debug("Rejected bean name '" + urlmaps[i] + "'");
@@ -130,12 +127,12 @@ public class BeanNameUrlHandlerMapping implements HandlerMapping {
 			}
 			
 			if (handler instanceof ApplicationContextAware) {
-				((ApplicationContextAware) handler).setApplicationContext(this.ctx);
+				((ApplicationContextAware) handler).setApplicationContext(this.applicationContext);
 				//log4jCategory.debug("Command servlet '" + getServletName() + "': CommandGenerator " + cp + " is WebApplicationContextAware: set context");
 			}
 
 			if (handler instanceof LocaleResolverAware) {
-				((LocaleResolverAware) handler).setLocaleResolver(getLocaleResolver());
+				((LocaleResolverAware) handler).setLocaleResolver(this.localeResolver);
 			}
 
 			// Create a mapping to each part of the path
