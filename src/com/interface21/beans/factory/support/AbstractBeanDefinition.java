@@ -72,7 +72,7 @@ public abstract class AbstractBeanDefinition {
 	/**
 	 * Return the PropertyValues to be applied to a new instance
 	 * of this bean.
-	 * @eturn the PropertyValues to be applied to a new instance
+	 * @return the PropertyValues to be applied to a new instance
 	 * of this bean
 	 */
 	public PropertyValues getPropertyValues() {

@@ -56,7 +56,7 @@ public class JdbcHelper {
 	 * 
 	 */
 	public int runSQLFunction(String sql, int[] types, Object[] args) {
-		PreparedStatementCreator psc = PreparedStatementCreatorFactory.newPreparedStatementCreator(sql, types, args);
+	    //PreparedStatementCreator psc = PreparedStatementCreatorFactory.newPreparedStatementCreator(sql, types, args);
 		Integer I = (Integer) runSQLFunction(sql, Integer.class, types, args);
 		return I.intValue();
 	}

@@ -18,7 +18,7 @@ public class StaticMessageSource extends AbstractNestingMessageSource {
 
 
 	/**
-	 * @see MessageSource#getMessage(String, Locale, String)
+	 * @see AbstractNestingMessageSource#getMessage(String, Locale, String)
 	 */
 	protected String resolve(String code, Locale locale) {
           if (locale == null)

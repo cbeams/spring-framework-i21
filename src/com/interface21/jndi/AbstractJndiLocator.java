@@ -88,14 +88,12 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	}
 	
 	/**
-	 * @return
 	 */
 	public boolean isInContainer() {
 		return inContainer;
 	}
 
 	/**
-	 * @param b
 	 */
 	public void setInContainer(boolean inContainer) {
 		this.inContainer = inContainer;
@@ -170,7 +168,7 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	 * May be overriden by subclasses to return a mock object.
 	 * This implementation creates a new InitialContext(), relying on
 	 * server context or jndi.properties.
-	 * @return
+	 * @return an InitialContext
 	 */
 	protected Context getInitialContext() throws NamingException {
 		return new InitialContext();

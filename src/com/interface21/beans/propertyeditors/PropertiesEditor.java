@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
 public class PropertiesEditor extends PropertyEditorSupport {
 	
 	/**
-	 * @see PropertyEditor#setAsText(String)
+	 * @see java.beans.PropertyEditor#setAsText(String)
 	 */
 	public void setAsText(String s) throws IllegalArgumentException {
 		Properties props = new Properties();

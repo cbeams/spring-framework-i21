@@ -74,7 +74,7 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	//---------------------------------------------------------------------
 	/**
 	 *  Do nothing: we rely on callers to update our public methods
-	 * @see AbstractApplicationContext#refreshDefaultBeanFactory()
+	 * @see AbstractApplicationContext#refreshBeanFactory()
 	 */
 	protected void refreshBeanFactory() throws ApplicationContextException {
 	}

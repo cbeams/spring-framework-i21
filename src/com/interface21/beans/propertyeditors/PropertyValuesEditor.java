@@ -21,7 +21,7 @@ public class PropertyValuesEditor extends PropertyEditorSupport {
 	
 	
 	/**
-	 * @see PropertyEditor#setAsText(String)
+	 * @see java.beans.PropertyEditor#setAsText(String)
 	 */
 	public void setAsText(String s) throws IllegalArgumentException {
 		PropertiesEditor pe = new PropertiesEditor();

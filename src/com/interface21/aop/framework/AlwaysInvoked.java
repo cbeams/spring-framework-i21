@@ -32,7 +32,7 @@ public class AlwaysInvoked implements MethodPointcut {
 	}
 
 	/**
-	 * @see com.interface21.aop.framework.MethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[])
+	 * @see com.interface21.aop.framework.MethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[], AttributeRegistry)
 	 */
 	public boolean applies(Method m, Object[] args, AttributeRegistry ar) {
 		return true;

@@ -93,9 +93,9 @@ public class RowCountCallbackHandler implements RowCallbackHandler {
 	}
 	
 	/** 
-	 * Return the types of the columns as java.sql.Types constants
+	 * Return the names of the columns.
 	 * Valid after processRow is invoked the first time.
-	 * @return the types of the columns as java.sql.Types constants.
+	 * @return the names of the columns.
 	 * <b>Indexed from 0 to n-1.</b>
 	 */
 	public final String[] getColumnNames() {

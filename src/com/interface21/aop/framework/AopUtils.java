@@ -10,8 +10,6 @@ public class AopUtils {
 	
 	/**
 	 * Return arguments
-	 * @param invocation
-	 * @return
 	 */
 	public static Object[] getArguments(Invocation invocation) {
 		// TODO make portable

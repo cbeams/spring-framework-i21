@@ -138,7 +138,7 @@ public abstract class SqlQuery extends SqlOperation {
 	}
 	
 	/** 
-	 * Convenient method to execute with two string parameters
+	 * Convenient method to execute with two int parameters
 	 */
 	public final List execute(int p1, int p2) throws DataAccessException {
 		return execute(new Object[] { new Integer(p1), new Integer(p2) });

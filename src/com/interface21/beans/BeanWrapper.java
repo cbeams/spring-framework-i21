@@ -235,15 +235,15 @@ public interface BeanWrapper {
 	
 	/** 
 	 * Add a PropertyChangeListener that will be notified of updates to a single property
+	 * @param propertyName property the listener is interested in
 	 * @param l PropertyChangeListener notified of property updates to this property
-	 * @propertyName property the listener is interested in
 	 */
 	void addPropertyChangeListener(String propertyName, PropertyChangeListener l);
 	
 	/** 
 	 * Remove a PropertyChangeListener that was notified of updates to a single property
+	 * @param propertyName property the listener is interested in
 	 * @param l PropertyChangeListener to remove
-	 * @propertyName property the listener is interested in
 	 */
 	void removePropertyChangeListener(String propertyName, PropertyChangeListener l);
 	

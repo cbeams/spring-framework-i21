@@ -13,7 +13,7 @@ import com.interface21.util.StringUtils;
 public class StringArrayPropertyEditor extends PropertyEditorSupport {
 	
 	/**
-	 * @see PropertyEditor#setAsText(String)
+	 * @see java.beans.PropertyEditor#setAsText(String)
 	 */
 	public void setAsText(String s) throws IllegalArgumentException {
 		String[] sa = StringUtils.commaDelimitedListToStringArray(s);
