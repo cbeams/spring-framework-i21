@@ -98,7 +98,7 @@
 			</fileset>
 			<fileset dir="${spring.root}/lib/log4j">
 				<include name="commons-logging.jar"/>
-				<include name="log4j.jar"/>
+				<include name="log4j*.jar"/>
 			</fileset>
 			<fileset dir="${spring.root}/dist">
 				<include name="spring-full*.jar"/>

@@ -3,11 +3,23 @@
 
 <beans>
 
+	<!-- ========================= MAPPING DEFINITIONS ========================= -->
+
+	<!--
+	  - Explicit view mappings in bundle instead of default InternalResourceViewResolver.
+	  - Fetches the view mappings from localized "views_xx" classpath files, i.e.
+	  - "/WEB-INF/classes/views.properties" or "/WEB-INF/classes/views_de.properties".
+	  -
+	  - Symbolic view names returned by controllers will be resolved in the respective
+	  - properties file, allowing for arbitrary mappings between names and resources.
+	  -->
 	<bean id="viewResolver" class="com.interface21.web.servlet.view.ResourceBundleViewResolver">			
-		<!--	Name of the View resource bundle loaded from the classpath. -->	
 		<property name="basename"><value>views</value></property>
 	</bean>
 
+	<!--
+	 - Explicit URL handler mapping instead of default BeanNameUrlHandlerMapping.
+	 -->
   <bean id="urlMapping" class="com.interface21.web.servlet.handler.SimpleUrlHandlerMapping"> 
 		<property name="mappings">
 			<props>
@@ -24,6 +36,12 @@
 		</property>
   </bean>
   
+	<!-- ========================= CONTROLLER DEFINITIONS ========================= -->
+
+	<!--
+	  - Method name resolver definition for MultiActionControllers,
+	  - mapping certain URLs to certain methods of the controller class.
+	  -->
   <bean id="clinicControllerMethodNameResolver" class="com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
     <property name="mappings">
 			<props>
@@ -34,13 +52,26 @@
     </property>
   </bean>
 
+	<!--
+	  - MultiActionController implementation
+	  - (according to the URL handler mapping definition above).
+	  - Uses the MethodNameResolver definition defined above.
+	  -->
   <bean id="clinicController" class="petclinic.web.ClinicController">
     <property name="methodNameResolver"><ref bean="clinicControllerMethodNameResolver"/></property>
     <property name="clinic"><ref external="clinic"/></property>
    </bean>
 
+	<!--
+	  - Validator for findOwnersForm, implementing Spring's Validator interface.
+	  - Could also be defined in the root application context, if generic enough.
+	  -->
 	<bean id="findOwnersValidator" class="petclinic.validation.FindOwnersValidator"/>
 
+	<!-- 
+	  - SimpleFormController findOwnersForm
+	  - Uses the findOwnersValidator defined above.
+	  -->
 	<bean id="findOwnersForm" class="petclinic.web.FindOwnersForm">
 		<property name="formView"><value>findOwnersForm</value></property>
 		<property name="selectView"><value>selectOwnerView</value></property>
@@ -49,8 +80,13 @@
     <property name="clinic"><ref external="clinic"/></property>
 	</bean>
 	
+	<!-- Validator for ownerForm, implementing Spring's Validator interface. -->
 	<bean id="ownerValidator" class="petclinic.validation.OwnerValidator"/>
 
+	<!-- 
+	  - SimpleFormController addOwnerForm
+	  - Uses the ownerValidator defined above.
+	  -->
   <bean id="addOwnerForm" class="petclinic.web.AddOwnerForm">
 		<property name="sessionForm"><value>true</value></property>
 		<property name="formView"><value>ownerForm</value></property>
@@ -59,6 +95,10 @@
     <property name="clinic"><ref external="clinic"/></property>
 	</bean>
 	
+	<!-- 
+	  - SimpleFormController addOwnerForm
+	  - Uses the ownerValidator defined above.
+	  -->
   <bean id="editOwnerForm" class="petclinic.web.EditOwnerForm">
 		<property name="sessionForm"><value>true</value></property>
 		<property name="bindOnNewForm"><value>true</value></property>
@@ -68,8 +108,13 @@
     <property name="clinic"><ref external="clinic"/></property>
 	</bean>
 	
+	<!-- Validator for petForm, implementing Spring's Validator interface. -->
 	<bean id="petValidator" class="petclinic.validation.PetValidator"/>
   
+	<!-- 
+	  - SimpleFormController addPetForm.
+	  - Uses the petValidator defined above.
+	  -->
 	<bean id="addPetForm" class="petclinic.web.AddPetForm">
 		<property name="sessionForm"><value>true</value></property>
 		<property name="formView"><value>petForm</value></property>
@@ -78,6 +123,10 @@
     <property name="clinic"><ref external="clinic"/></property>
 	</bean>
 	
+	<!-- 
+	  - SimpleFormController editPetForm.
+	  - Uses the petValidator defined above.
+	  -->
 	<bean id="editPetForm" class="petclinic.web.EditPetForm">
 		<property name="sessionForm"><value>true</value></property>
 		<property name="bindOnNewForm"><value>true</value></property>
@@ -87,8 +136,13 @@
     <property name="clinic"><ref external="clinic"/></property>
 	</bean>
 	
+	<!-- Validator for visitForm, implementing Spring's Validator interface. -->
 	<bean id="visitValidator" class="petclinic.validation.VisitValidator"/>
   
+	<!-- 
+	  - SimpleFormController addVisitForm.
+	  - Uses the visitValidator defined above.
+	  -->
 	<bean id="addVisitForm" class="petclinic.web.AddVisitForm">
 		<property name="sessionForm"><value>true</value></property>
 		<property name="formView"><value>visitForm</value></property>

@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
-<beans>		
+<!--
+  - Root application context definition for a web app that uses JDBC.
+  -
+  - Does not depend on web infrastructure or any web-specific classes!
+  - Assumes running in a J2EE environment in the "dataSource" definition, as
+  - it looks for a "java:comp/env/jdbc/myds" JNDI DataSource, but that can be
+  - replaced easily (as noted). Such a context definition can thus be reused
+  - in test environments or standalone applications without any hassle.
+  -->
+  
+	<beans>		
 
-	<!-- Global Message source -->
+	<!-- ========================= GENERAL DEFINITIONS ========================= -->
+
+	<!--
+	  - The message source for this context, loaded from localized "messages_xx" files
+	  - in the classpath, i.e. "/WEB-INF/classes/messages.properties" or
+	  - "/WEB-INF/classes/messages_de.properties".
+	  -
+	  - "getMessage" calls to this context will use this source.
+	  - Child contexts can have their own message sources, inheriting all messages from this
+	  - source, being able to define new messages and override ones defined in this source.
+	  -->
 	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">	
 		<property name="basename"><value>messages</value></property>										
 	</bean>
 
-  <!-- ======= START of Data Configuration section ===========================-->
+	<!-- ========================= Start of PERSISTENCE DEFINITIONS ========================= -->
   
-	<!-- NOTE: In the Data Configuration section, choose exactly 1
+	<!-- NOTE: In the PERSISTENCE DEFINITIONS section, choose exactly 1
              "dataSource" bean and exactly 1 "incrementer" bean.
              The database types of the 2 beans must be compatible. -->
 
@@ -18,11 +38,24 @@
 	           definition can be used as an alternative (e.g. to avoid container-specific
 						 JNDI setup for development environments). -->
 
+	<!-- HSQL Incrementing key generator prototype -->
   <bean id="incrementer" singleton="false" class="com.interface21.jdbc.core.support.HsqlMaxValueIncrementer">
     <property name="dataSource"><ref bean="dataSource"/></property>
     <property name="columnName"><value>seq</value></property>
   </bean>
 
+	<!--
+	  - DriverManagerDataSource is an alternative DataSource for non-J2EE environments.
+	  - Can be used as a drop-in replacement for JNDI DataSource definitions, as all
+	  - objects that depend on it will still get their expected DataSource reference,
+	  - just a different one from a different source.
+	  -
+	  - DriverManagerDataSource simply creates a new Connection on each getConnection
+	  - call, it doesn't pool. Consider Apache's Jakarta Commons DBCP for a real pool,
+	  - defining a org.apache.commons.dbcp.BasicDataSource here, with same parameters.
+	  -->
+	  
+	<!-- HSQL DataSource for non-J2EE environments. -->
 	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
 		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
@@ -31,37 +64,51 @@
 	</bean>
 
 	<!--
+	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
+	  - By default, "java:comp/env/" will be prepended if not already specified.
+	  -->
+	<!-- HSQL JNDI DataSource for J2EE environments. -->
+	<!--
 	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
 	  <property name="jndiName"><value>jdbc/petclinicHSQL</value></property>
 	</bean>
 	-->
-
+	
+	<!-- MYSQL Incrementing key generator prototype -->
 	<!--
   <bean id="incrementer" singleton="false" class="com.interface21.jdbc.core.support.MySQLMaxValueIncrementer" >
     <property name="dataSource"><ref bean="dataSource"/></property>
     <property name="columnName"><value>seq</value></property>
   </bean>
+	-->
 
+	<!-- MYSQL DataSource for non-J2EE environments. -->
+	<!--
 	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
 		<property name="url"><value>jdbc:mysql://localhost:3306/petclinic</value></property>
 		<property name="username"><value>pc</value></property>
 		<property name="password"><value>pc</value></property>
 	</bean>
+	-->
 
+	<!-- MYSQL DataSource for J2EE environments. -->
+	<!--
 	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
 		<property name="jndiName"><value>jdbc/petclinicMYSQL</value></property>
 	</bean>
 	-->
 
+	<!-- petclinic primary Data Access Object : JDBC implementation -->
   <bean id="clinicDAO" class="petclinic.dao.ClinicJdbcDAO">
     <property name="dataSource"><ref bean="dataSource"/></property>
   </bean>
     
+	<!-- petclinic primary Business Object : Default implementation -->
 	<bean id="clinic" class="petclinic.ClinicImpl">
     <property name="dao"><ref bean="clinicDAO"/></property>
 	</bean>
-	
-	<!-- ======= END of Data Configuration section =============================-->
 
+	<!-- ========================= End of PERSISTENCE DEFINITIONS ========================= -->
+	
 </beans>

@@ -6,46 +6,80 @@
   
 <web-app>
 
-	<display-name>petclinic1</display-name>
-	<description>Petclinic demo/tutorial application version 1</description>
+	<display-name>petclinic</display-name>
+	<description>Petclinic sample application - version 1</description>
 
+	<!--
+	  - Key of the system property that should specify the root directory of this
+	  - web app. Applied by WebAppRootListener or Log4jConfigListener.
+	  -->
 	<context-param>
 		<param-name>webAppRootKey</param-name>
 		<param-value>petclinic.root</param-value>
 	</context-param>
 
+	<!--
+	  - Location of the Log4J config file, for initialization and refresh checks.
+	  - Applied by Log4jConfigListener.
+	  -->
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/classes/log4j.properties</param-value>
+	</context-param>
+
+	<!--
+	  - Configures Log4J for this web app.
+	  - As this context specifies a context-param "log4jConfigLocation", its file path
+	  - is used to load the Log4J configuration, including periodic refresh checks.
+	  -
+	  - Would fall back to default Log4J initialization (non-refreshing) if no special
+	  - context-params are given.
+	  -
+	  - Exports a "web app root key", i.e. a system property that specifies the root
+	  - directory of this web app, for usage in log file paths.
+	  - This web app specifies "petclinic.root" (see log4j.properties file).
+	  -->
 	<listener>
 		<listener-class>com.interface21.web.util.Log4jConfigListener</listener-class>
 	</listener>
 
-  <!--
-    The definition of this listener is necessary to make available
-    a set of beans that are available to all DispatcherServlets.
-    Web applications will by default use an instance of 
-    com.interface21.web.context.support.XmlWebApplicationContext to provide
-    configuration. The configuration is a set of bean definitions that will by
-    default be found in /WEB-INF/applicationContext.xml.
-  -->      
+	<!--
+	  - Loads the root application context of this web app at startup,
+	  - by default from "/WEB-INF/applicationContext.xml".
+	  - Use WebApplicationContextUtils.getWebApplicationContext(servletContext)
+	  - to access it anywhere in the web application, outside of the framework.
+	  -
+	  - The root context is the parent of all servlet-specific contexts.
+	  - This means that its beans are automatically available in these child contexts,
+	  - both for getBean(name) calls and (external) bean references.
+    -->
 	<listener>
 		<listener-class>com.interface21.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
-  <!--
-    This servlet is used as a Front Controller (i.e. DispatcherServlet) for the application.
-    Bean definitions used only for a particular DispatcherServlet should by default
-    be placed in /WEB-INF/<servlet-name>-servlet.xml,
-    i.e. in this case, /WEB-INF/petclinic-servlet.xml.
-  -->
+	<!--
+	  - Servlet that dispatches request to registered handlers (Controller implementations).
+	  - Has its own application context, by default defined in "{servlet-name}-servlet.xml",
+	  - i.e. "petclinic-servlet.xml".
+	  -
+	  - A web app can contain any number of such servlets.
+	  - Note that this web app has a shared root application context, serving as parent
+	  - of all DispatcherServlet contexts.
+	  -->
   <servlet>
     <servlet-name>petclinic</servlet-name>
     <servlet-class>com.interface21.web.servlet.DispatcherServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   
-  <!--
-    When using this mapping for .html files, URL's for static web page resources
-    should end in .html to avoid being routed through the specified servlet.
-  -->
+	<!--
+	  - Maps the petclinic dispatcher to *.htm. All handler mappings in
+	  - petclinic-servlet.xml will by default be applied to this subpath.
+	  - If a mapping isn't a /* subpath, the handler mappings are considered
+	  - relative to the web app root.
+	  -
+	  - A single dispatcher could get mapped to multiple paths, like any servlet.
+	  -->
   <servlet-mapping>
     <servlet-name>petclinic</servlet-name>
     <url-pattern>*.htm</url-pattern>
@@ -55,15 +89,25 @@
     <session-timeout>10</session-timeout>
   </session-config>
 
+	<!--
+	  - Redirects to "welcome.htm" for dispatcher handling 
+	  -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
 
+	<!--
+	  - Displays a stack trace 
+	  -->
   <error-page>
     <exception-type>java.lang.Exception</exception-type>
     <location>/WEB-INF/jsp/uncaughtException.jsp</location>
   </error-page>
 
+	<!--
+	  - Defines the Spring tag library.
+	  - JSPs can import it like this: <%@ taglib uri="/i21" prefix="i21" %>
+	  -->
   <taglib>
 		<taglib-uri>/i21</taglib-uri>
 		<taglib-location>/WEB-INF/i21.tld</taglib-location>
