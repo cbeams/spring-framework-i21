@@ -1,27 +1,35 @@
-<dbms-beans>
-  <bean name="DB2"
+<!DOCTYPE beans 
+	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
+	
+<beans>
+  <bean id="DB2"
     class="com.interface21.jdbc.core.SQLErrorCodes">
-    <property name="badSqlGrammarCodes">-204,-206,-301,-408</property>
-    <property name="dataIntegrityViolationCodes">-803</property>
+    <property name="badSqlGrammarCodes"><value>-204,-206,-301,-408</value></property>
+    <property name="dataIntegrityViolationCodes"><value>-803</value></property>
   </bean>
-  <bean name="HSQL Database Engine"
+  
+  <!--
+  		We need to use a name attribute to create an alias automatically, as the name we
+  		want isn't legal as an XML id attribute
+  	-->
+  <bean id="HSQL" name="HSQL Database Engine"
     class="com.interface21.jdbc.core.SQLErrorCodes">
-    <property name="badSqlGrammarCodes">-22,-28</property>
-    <property name="dataIntegrityViolationCodes">-9</property>
+    <property name="badSqlGrammarCodes"><value>-22,-28</value></property>
+    <property name="dataIntegrityViolationCodes"><value>-9</value></property>
   </bean>
-  <bean name="Microsoft SQL Server"
+  <bean id="MS-SQL" name="Microsoft SQL Server"
     class="com.interface21.jdbc.core.SQLErrorCodes">
-    <property name="badSqlGrammarCodes">207,208</property>
-    <property name="dataIntegrityViolationCodes">2627,8114,8115</property>
+    <property name="badSqlGrammarCodes"><value>207,208</value></property>
+    <property name="dataIntegrityViolationCodes"><value>2627,8114,8115</value></property>
   </bean>
-  <bean name="MySQL"
+  <bean id="MySQL"
     class="com.interface21.jdbc.core.SQLErrorCodes">
-    <property name="badSqlGrammarCodes">1054,1064,1146</property>
-    <property name="dataIntegrityViolationCodes">1062</property>
+    <property name="badSqlGrammarCodes"><value>1054,1064,1146</value></property>
+    <property name="dataIntegrityViolationCodes"><value>1062</value></property>
   </bean>
-  <bean name="Oracle"
+  <bean id="Oracle"
     class="com.interface21.jdbc.core.SQLErrorCodes">
-    <property name="badSqlGrammarCodes">904,936,942</property>
-    <property name="dataIntegrityViolationCodes">1,1400,1722</property>
+    <property name="badSqlGrammarCodes"><value>904,936,942</value></property>
+    <property name="dataIntegrityViolationCodes"><value>1,1400,1722</value></property>
   </bean>
-</dbms-beans>
+</beans>
