@@ -15,12 +15,12 @@ package com.interface21.transaction;
  */
 public class NestedTransactionNotPermittedException extends CannotCreateTransactionException {
 
-	/**
-	 * @param s
-	 * @param ex
-	 */
-	public NestedTransactionNotPermittedException(String s, Throwable ex) {
-		super(s, ex);
+	public NestedTransactionNotPermittedException(String msg) {
+		super(msg);
+	}
+
+	public NestedTransactionNotPermittedException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 
 }

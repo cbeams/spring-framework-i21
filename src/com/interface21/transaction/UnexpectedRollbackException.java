@@ -14,13 +14,8 @@ package com.interface21.transaction;
  */
 public class UnexpectedRollbackException extends TransactionException {
 
-
-	/**
-	 * @param s
-	 * @param ex
-	 */
-	public UnexpectedRollbackException(String s, Throwable ex) {
-		super(s, ex);
+	public UnexpectedRollbackException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 
 }
