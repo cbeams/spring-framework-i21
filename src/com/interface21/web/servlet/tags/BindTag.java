@@ -11,8 +11,11 @@ import com.interface21.web.util.ExpressionEvaluationUtils;
 import com.interface21.web.util.HtmlUtils;
 
 /**
- * Bind tag, supporting evaluation of binding errors for a certain
- * bean or bean property. Exports a "status" variable of type BindStatus.
+ * <p>Bind tag, supporting evaluation of binding errors for a certain
+ * bean or bean property. Exports a "status" variable of type BindStatus</p>
+ * <p>The errors object that has been bound using this tag is exposed, as well
+ * as the property that this errors object applies to. Children tags can
+ * use the exposed properties</p>
  *
  * <p>Discussed in Chapter 12 of
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
@@ -25,7 +28,12 @@ public class BindTag extends RequestContextAwareTag {
 
 	public static final String STATUS_VARIABLE_NAME = "status";
 
-	private String path;
+	/** the path */
+    private String path;
+    /** the errors */
+    private Errors errors;
+    /** the property */
+    private String property;
 
 	/**
 	 * Set the path that this tag should apply.
@@ -36,13 +44,32 @@ public class BindTag extends RequestContextAwareTag {
 		this.path = ExpressionEvaluationUtils.evaluateString("path", path, pageContext);
 	}
 
+    /**
+     * Retrieves the errors object this tag has currently bound
+     * @return an instance of Errors
+     */
+    public Errors getErrors() {
+        return errors;
+    }
+
+    /**
+     * Retrieves the property the errors object applies to, or
+     * null if the errors object applies to the object rather
+     * than a property of the object
+	 */
+    public String getProperty() {
+        return property;
+    }
+
 	public int doStartTag() throws JspException {
 		super.doStartTag();
 
+		// determine name of the object and property
 		String name = null;
-		String property = null;
+		property = null;
 		int dotPos = this.path.indexOf('.');
 		if (dotPos == -1) {
+			// property not set, only the object itself
 			name = this.path;
 		}
 		else {
@@ -50,14 +77,16 @@ public class BindTag extends RequestContextAwareTag {
 			property = this.path.substring(dotPos + 1);
 		}
 
-		Errors errors = getRequestContext().getErrors(name, false);
-		if (errors == null) {
+		// retrieve errors object
+		errors = getRequestContext().getErrors(name, false);
+
+    	if (errors == null) {
 			throw new JspException("Invalid bind path [" + this.path + "]: Errors instance not found in request");
 		}
 
 		List fes = null;
 		Object value = null;
-		
+
 		if (property != null) {
 			fes = errors.getFieldErrors(property);
 			value = errors.getFieldValue(property);
@@ -69,6 +98,7 @@ public class BindTag extends RequestContextAwareTag {
 			fes = errors.getGlobalErrors();
 		}
 
+		// instantiate the bindstatus object
 		BindStatus status = new BindStatus(property, value, getErrorCodes(fes), getErrorMessages(fes));
 		this.pageContext.setAttribute(STATUS_VARIABLE_NAME, status);
 		return EVAL_BODY_INCLUDE;
@@ -102,5 +132,12 @@ public class BindTag extends RequestContextAwareTag {
 		}
 		return messages;
 	}
+
+    public void release() {
+        super.release();
+        property = null;
+        errors = null;
+        path = null;
+    }
 
 }
