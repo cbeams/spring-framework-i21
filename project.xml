@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+
+   <!-- the version of maven's project object model -->
+   <pomVersion>3</pomVersion>
+
+   <!-- a unique name for this project -->
+   <id>spring-framework</id>
+
+   <!-- a short but descriptive name for the project -->
+   <name>Spring</name>
+
+   <!-- The version of the project under development, e.g.
+        1.1, 1.2, 2.0-dev -->
+   <currentVersion>0.8-dev</currentVersion>
+
+   <organization>
+      <name>Spring Framework Inc. :-)</name>
+      <url>http://sourceforge.net/projects/springframework</url>
+      <logo>/images/logo-blue.png</logo>
+   </organization>
+
+   <inceptionYear>2003</inceptionYear>
+   <package>com.interface21</package>
+   <logo></logo>
+   <!-- a short description of what the project does -->
+   <shortDescription>
+      J2EE application framework based on the book "Expert One-on-One J2EE Design and Development" by Rod Johnson.
+   </shortDescription>
+
+   <!-- the project home page -->
+   <url>http://sourceforge.net/projects/springframework</url>
+   <issueTrackingUrl>http://sourceforge.net/tracker/?group_id=73357</issueTrackingUrl>
+   <siteAddress>sourceforge.net</siteAddress>
+   <siteDirectory></siteDirectory>
+   <distributionDirectory>http://sourceforge.net/project/showfiles.php?group_id=73357</distributionDirectory>
+
+   <!-- the version control repository and http url for online access
+        the connection element has the form:
+        scm:<system>:<system specific connection string> -->
+   <repository>
+      <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/springframework:main</connection>
+      <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/springframework</developerConnection>
+      <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/</url>
+   </repository>
+
+   <!-- any mailing lists for the project -->
+   <mailingLists>
+      <mailingList>
+         <name>Spring Developer List</name>
+         <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=28401</archive>
+      </mailingList>
+      <mailingList>
+         <name>Spring User List</name>
+         <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=30287</archive>
+      </mailingList>
+   </mailingLists>
+   <!-- who the developers are for the project -->
+   <developers>
+      <developer>
+         <name>Rod Johnson</name>
+         <id>johnsonr</id>
+         <email>rod.johnson at interface21.com</email>
+         <organization>Interface21</organization>
+         <roles>
+            <role>Project Admin</role>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Yann Caroff</name>
+         <id>caroffy</id>
+         <email>caroffy at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Trevor D. Cook</name>
+         <id>beanie42</id>
+         <email>beanie42 at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Isabelle Muszynski</name>
+         <id>isabellem</id>
+         <email>isabellem at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Jurgen Hoeller</name>
+         <id>jhoeller</id>
+         <email>jhoeller at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Tony Falabella</name>
+         <id>tony_falabella</id>
+         <email>tony_falabella at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Thomas Risberg</name>
+         <id>trisberg</id>
+         <email>trisberg at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Luke Taylor</name>
+         <id>luke_t</id>
+         <email>luke_t at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+   </developers>
+
+   <!-- jar files the project is dependent on -->
+   <!-- The ejb, jms, jta and aopalliance jars must be added manually to the local maven repository -->
+   <dependencies>
+      <!-- J2EE classes -->
+      <dependency>
+         <id>servletapi</id>
+         <version>2.3</version>
+      </dependency>
+      <dependency>
+         <id>ejb</id>
+         <version>2.0</version>
+         <jar>ejb.jar</jar>
+      </dependency>
+      <dependency>
+         <id>jms</id>
+         <jar>jms.jar</jar>
+      </dependency>
+      <dependency>
+         <id>jta</id>
+         <jar>jta.jar</jar>
+      </dependency>
+
+      <dependency>
+         <id>velocity</id>
+         <version>1.3-dev</version>
+      </dependency>
+      <dependency>
+         <id>jstl</id>
+         <version>1.0.2</version>
+      </dependency>
+      <dependency>
+         <id>log4j</id>
+         <version>1.2.8</version>
+      </dependency>
+      <!--     <dependency>
+              <id>junit</id>
+              <version>3.8.1</version>
+           </dependency>
+      -->
+      <dependency>
+         <id>easymock</id>
+         <version>0.8</version>
+      </dependency>
+      <dependency>
+         <groupId>mockobjects</groupId>
+         <artifactId>mockobjects-core</artifactId>
+         <version>0.07</version>
+      </dependency>
+      <dependency>
+         <groupId>mockobjects</groupId>
+         <artifactId>mockobjects-jdk1.4</artifactId>
+         <version>0.07</version>
+      </dependency>
+      <dependency>
+         <groupId>mockobjects</groupId>
+         <artifactId>mockobjects-j1.4-j2ee1.3</artifactId>
+         <version>0.07</version>
+      </dependency>
+
+      <dependency>
+         <id>attrib4j</id>
+         <version>0.8.4</version>
+         <jar>attrib4j-0.8.4.jar</jar>
+      </dependency>
+
+      <dependency>
+         <id>aopalliance</id>
+         <version>0.1-dev</version>
+         <jar>aopalliance.jar</jar>
+      </dependency>
+
+      <dependency>
+         <groupId>javamail</groupId>
+         <artifactId>mailapi</artifactId>
+         <jar>mailapi.jar</jar>
+         <version>1.3</version>
+      </dependency>
+   </dependencies>
+
+
+   <!-- build information for the project -->
+   <build>
+      <nagEmailAddress>springframework-developer@lists.sourceforge.net</nagEmailAddress>
+      <sourceDirectory>src</sourceDirectory>
+      <unitTestSourceDirectory>test</unitTestSourceDirectory>
+
+      <unitTest>
+         <includes>
+            <include>**/*TestSuite.java</include>
+            <include>**/*Tests.java</include>
+         </includes>
+
+         <excludes>
+            <exclude>**/Abstract*</exclude>
+            <exclude>com/interface21/jdbc/object/**</exclude>
+            <exclude>**/*FIX*</exclude>
+         </excludes>
+      </unitTest>
+
+      <resources>
+         <resource>
+            <directory>test</directory>
+            <includes>
+               <include>**/*.properties</include>
+               <include>**/*.xml</include>
+            </includes>
+         </resource>
+      </resources>
+
+   </build>
+
+   <reports>
+
+      <report>maven-changelog-plugin</report>
+      <report>maven-developer-activity-plugin</report>
+      <report>maven-file-activity-plugin</report>
+
+      <report>maven-checkstyle-plugin</report>
+      <report>maven-javadoc-plugin</report>
+      <report>maven-jxr-plugin</report>
+      <report>maven-junit-report-plugin</report>
+      <report>maven-tasklist-plugin</report>
+      <report>maven-jdepend-plugin</report>
+   </reports>
+</project>
+
