@@ -127,10 +127,9 @@
    </developers>
 
    <!-- jar files the project is dependent on -->
-   <!--  aopalliance jars must be added manually to the local maven repository -->
    <dependencies>
       <!-- J2EE classes. With the exception of servletapi, these are not available from the Maven online repository
-         Due to licensing restrictions.
+         Due to licensing restrictions and must be manually added.
       -->
       <dependency>
          <id>servletapi</id>
