@@ -11,6 +11,8 @@
 
 package com.interface21.jndi;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
@@ -46,6 +48,8 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	/** Holder for the jndiName property */
 	private String jndiName;
 	
+	private boolean inContainer = true;
+	
 	
 	//-------------------------------------------------------------------------
 	// Constructors
@@ -72,12 +76,10 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	//-------------------------------------------------------------------------
 	/**
 	 * Set the JNDI name. If it doesn't begin java:comp/env/
-	 * we add this prefix
+	 * we add this prefix if we're running in a container
 	 * @param jndiName JNDI name of bean to look up
 	 */
 	public final void setJndiName(String jndiName) {
-		if (!jndiName.startsWith(PREFIX))
-			jndiName = PREFIX + jndiName;
 		this.jndiName = jndiName;
 	}
 	
@@ -85,6 +87,20 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 		return jndiName;
 	}
 	
+	/**
+	 * @return
+	 */
+	public boolean isInContainer() {
+		return inContainer;
+	}
+
+	/**
+	 * @param b
+	 */
+	public void setInContainer(boolean inContainer) {
+		this.inContainer = inContainer;
+	}
+
 	
 	//---------------------------------------------------------------------
 	// Implementation of InitializingBean
@@ -95,6 +111,9 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	public final void afterPropertiesSet() throws Exception {
 		if (this.jndiName == null || this.jndiName.equals(""))
 			throw new Exception("Property 'jndiName' must be set on " + getClass().getName());
+			
+		if (this.inContainer && !jndiName.startsWith(PREFIX))
+				jndiName = PREFIX + jndiName;
 		Object o = lookup(jndiName);
 		located(o);
 	}
@@ -121,10 +140,41 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 		logger.info("Looking up object with jndiName '" + jndiName + "'");
 		
 		// This helper will close JNDI context
-		Object o = JndiServices.lookup(jndiName);
+		// Commented out as it's impossible to override context to
+		// use a mock object
+		//Object o = JndiServices.lookup(jndiName);
+		
+		Object o = null;
+		
+		// Do JNDI lookup
+		Context ctx = null;
+		try {
+			ctx = getInitialContext();
+			o = ctx.lookup(jndiName);
+		}
+		finally {
+			try {
+				if (ctx != null)
+					ctx.close();
+			}
+			catch (NamingException ex) {
+				logger.warn("InitialContext threw exception on close", ex);
+			}
+		}
 		
 		logger.debug("Looked up objet with jndiName '" + jndiName + "' OK: [" + o + "]");
 		return o;
 	}
 	
-} 	// class AbstractServiceLocator
+	/**
+	 * May be overriden by subclasses to return a mock object.
+	 * This implementation creates a new InitialContext(), relying on
+	 * server context or jndi.properties.
+	 * @return
+	 */
+	protected Context getInitialContext() throws NamingException {
+		return new InitialContext();
+	}
+	
+	
+} 	// class AbstractJndiLocator
