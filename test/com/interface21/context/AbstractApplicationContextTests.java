@@ -97,11 +97,11 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 	}
 
 	public void testMessageSource() throws NoSuchMessageException {
-		assertEquals(applicationContext.getMessage("code1", Locale.getDefault(), null), "message1");
-		assertEquals(applicationContext.getMessage("code2", Locale.getDefault(), null), "message2");
+		assertEquals(applicationContext.getMessage("code1", null, Locale.getDefault()), "message1");
+		assertEquals(applicationContext.getMessage("code2", null, Locale.getDefault()), "message2");
 
 		try {
-			applicationContext.getMessage("code0", Locale.getDefault(), null);
+			applicationContext.getMessage("code0", null, Locale.getDefault());
 			fail("looking for code0 should throw a NoSuchMessageException");
 		} catch (NoSuchMessageException ex) {
 			// that's how it should be
