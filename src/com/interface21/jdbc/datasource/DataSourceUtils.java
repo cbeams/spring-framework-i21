@@ -75,6 +75,18 @@ public abstract class DataSourceUtils {
 	}
 
 	/**
+	 * Return if the given Connection is bound to the current thread,
+	 * for the given DataSource.
+	 * @param con JDBC Connection that should be checked
+	 * @param ds DataSource that the Connection was created with
+	 * @return if the Connection is bound for the DataSource
+	 */
+	public static boolean isConnectionBoundToThread(Connection con, DataSource ds) {
+		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);
+		return (holder != null && con == holder.getConnection());
+	}
+
+	/**
 	 * Look up the specified DataSource in JNDI, assuming that the lookup
 	 * occurs in a J2EE container, i.e. adding the prefix "java:comp/env/"
 	 * to the JNDI name if it doesn't already contain it.
@@ -149,9 +161,7 @@ public abstract class DataSourceUtils {
 	public static void closeConnectionIfNecessary(Connection con, DataSource ds) throws CannotCloseJdbcConnectionException {
 		if (con == null)
 			return;
-		// only close if it isn't thread-bound
-		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);
-		if (holder == null || con != holder.getConnection()) {
+		if (!isConnectionBoundToThread(con, ds)) {
 			boolean shouldClose = true;
 			// leave the connection open only if the DataSource is our
 			// special data source, and it wants the connection left open

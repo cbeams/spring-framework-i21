@@ -3,21 +3,12 @@ package com.interface21.orm.hibernate;
 import java.util.List;
 
 import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.JDBCException;
-import net.sf.hibernate.ObjectDeletedException;
-import net.sf.hibernate.PersistentObjectException;
-import net.sf.hibernate.QueryException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.StaleObjectStateException;
-import net.sf.hibernate.TransientObjectException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.DataAccessException;
-import com.interface21.dao.InvalidDataAccessApiUsageException;
-import com.interface21.dao.InvalidDataAccessResourceUsageException;
-import com.interface21.dao.OptimisticLockingFailureException;
 
 /**
  * Helper class that simplifies Hibernate data access code, and converts
@@ -72,6 +63,8 @@ public class HibernateTemplate {
 
 	private SessionFactory sessionFactory;
 
+	private boolean forceFlush;
+
 	/**
 	 * Create a new HibernateTemplate instance.
 	 */
@@ -100,6 +93,31 @@ public class HibernateTemplate {
 	 */
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
+	}
+
+	/**
+	 * If a flush of the Hibernate Session should be forced after executing the
+	 * callback code. By default, the template will only trigger a flush if not in
+	 * a Hibernate transaction, as a final flush will occur on commit anyway.
+	 * <p>A forced flush leads to immediate synchronization with the database,
+	 * even if in a Hibernate transaction. This causes inconsistencies to show up
+	 * and throw a respective exception immediately. But the drawbacks are:
+	 * <ul>
+	 * <li>additional communication roundtrips with the database, instead of a
+	 * single batch at transaction commit;
+	 * <li>the fact that an actual database rollback is needed if the Hibernate
+	 * transaction rolls back (due to already submitted SQL statements).
+	 * </ul>
+	 */
+	public void setForceFlush(boolean forceFlush) {
+		this.forceFlush = forceFlush;
+	}
+
+	/**
+	 * Return if a flush should be forced after executing the callback code.
+	 */
+	public boolean isForceFlush() {
+		return forceFlush;
 	}
 
 	/**
@@ -137,51 +155,22 @@ public class HibernateTemplate {
 		Session session = SessionFactoryUtils.openSession(this.sessionFactory);
 		try {
 			Object result = action.doInHibernate(session);
-			// flush the changes, also for validation
-			session.flush();
+			if (this.forceFlush || !SessionFactoryUtils.isSessionBoundToThread(session, this.sessionFactory)) {
+				session.flush();
+			}
 			return result;
 		}
-		catch (JDBCException ex) {
-			// SQLException during Hibernate code used by the application
-			log(ex.getSQLException());
-			throw new HibernateJdbcException("Exception in Hibernate data access code", ex);
-		}
-		catch (QueryException ex) {
-			log(ex);
-			throw new InvalidDataAccessResourceUsageException("Invalid Hibernate query", ex);
-		}
-		catch (StaleObjectStateException ex) {
-			log(ex);
-			throw new OptimisticLockingFailureException("Version check failed", ex);
-		}
-		catch (PersistentObjectException ex) {
-			log(ex);
-			throw new InvalidDataAccessApiUsageException("Invalid object state", ex);
-		}
-		catch (TransientObjectException ex) {
-			log(ex);
-			throw new InvalidDataAccessApiUsageException("Invalid object state", ex);
-		}
-		catch (ObjectDeletedException ex) {
-			log(ex);
-			throw new InvalidDataAccessApiUsageException("Invalid object state", ex);
-		}
 		catch (HibernateException ex) {
-			log(ex);
-			throw new HibernateSystemException("Exception in Hibernate data access code", ex);
+			logger.error("Callback code threw Hibernate exception", ex);
+			throw SessionFactoryUtils.convertHibernateAccessException(ex);
 		}
 		catch (RuntimeException ex) {
-			// application error
-			log(ex);
+			logger.error("Callback code threw application exception", ex);
 			throw ex;
 		}
 		finally {
 			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory);
 		}
-	}
-
-	private void log(Throwable ex) {
-		logger.error("Callback code threw Hibernate exception", ex);
 	}
 
 }

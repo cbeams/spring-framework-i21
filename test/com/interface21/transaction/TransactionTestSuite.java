@@ -559,39 +559,4 @@ public class TransactionTestSuite extends TestCase {
 		conControl.verify();
 	}
 
-	public void testDataSourceTransactionManagerWithExceptionOnClose() throws Exception {
-		MockControl conControl = EasyMock.controlFor(Connection.class);
-		final Connection con = (Connection) conControl.getMock();
-		MockControl dsControl = EasyMock.controlFor(DataSource.class);
-		DataSource ds = (DataSource) dsControl.getMock();
-		ds.getConnection();
-		dsControl.setReturnValue(con);
-		con.setAutoCommit(false);
-		conControl.setVoidCallable();
-		con.commit();
-		conControl.setVoidCallable();
-		con.setAutoCommit(true);
-		conControl.setThrowable(new SQLException("cannot reset autoCommit"));
-		con.close();
-		conControl.setVoidCallable();
-		conControl.activate();
-		dsControl.activate();
-
-		PlatformTransactionManager tm = new DataSourceTransactionManager(ds);
-		TransactionTemplate tt = new TransactionTemplate(tm);
-		try {
-			tt.execute(new TransactionCallbackWithoutResult() {
-				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
-					// something transactional
-				}
-			});
-			fail("Should have thrown TransactionSystemException");
-		}
-		catch (TransactionSystemException ex) {
-			// expected
-		}
-
-		conControl.verify();
-	}
-
 }

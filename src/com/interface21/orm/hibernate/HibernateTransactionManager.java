@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.JDBCException;
 
 import com.interface21.jdbc.datasource.ConnectionHolder;
 import com.interface21.jdbc.datasource.DataSourceUtils;
@@ -18,6 +19,7 @@ import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.TransactionSystemException;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
+import com.interface21.dao.DataAccessResourceFailureException;
 
 /**
  * PlatformTransactionManager implementation for single Hibernate session
@@ -178,7 +180,8 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 				throw new TransactionSystemException("Cannot commit Hibernate transaction", ex.getCause());
 			}
 			catch (HibernateException ex) {
-				throw new TransactionSystemException("Cannot commit Hibernate transaction", ex);
+				// assumably from an implicit flush
+				throw SessionFactoryUtils.convertHibernateAccessException(ex);
 			}
 			finally {
 				closeSession(txObject);
@@ -230,7 +233,15 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		catch (SQLException ex) {
 			logger.warn("Cannot reset transaction isolation", ex);
 		}
-		SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory);
+		finally {
+			try {
+				SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory);
+			}
+			catch (DataAccessResourceFailureException ex) {
+				// just log it, to keep a transaction-related exception
+				logger.error("Cannot close session after transaction", ex);
+			}
+		}
 	}
 	
 }

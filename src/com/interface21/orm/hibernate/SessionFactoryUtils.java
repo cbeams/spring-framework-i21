@@ -8,11 +8,21 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.JDBCException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.QueryException;
+import net.sf.hibernate.StaleObjectStateException;
+import net.sf.hibernate.PersistentObjectException;
+import net.sf.hibernate.TransientObjectException;
+import net.sf.hibernate.ObjectDeletedException;
 import net.sf.hibernate.cfg.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.interface21.dao.CleanupFailureDataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
+import com.interface21.dao.InvalidDataAccessResourceUsageException;
+import com.interface21.dao.OptimisticLockingFailureException;
+import com.interface21.dao.InvalidDataAccessApiUsageException;
+import com.interface21.dao.DataAccessException;
 import com.interface21.jndi.JndiObjectEditor;
 import com.interface21.util.ThreadObjectManager;
 
@@ -41,6 +51,18 @@ public abstract class SessionFactoryUtils {
 	 * Per-thread mappings: SessionFactory -> SessionHolder
 	 */
 	private static final ThreadObjectManager threadObjectManager = new ThreadObjectManager();
+
+	/**
+	 * Return if the given Connection is bound to the current thread,
+	 * for the given DataSource.
+	 * @param session Session that should be checked
+	 * @param sessionFactory SessionFactory that the Session was created with
+	 * @return if the Session is bound for the SessionFactory
+	 */
+	public static boolean isSessionBoundToThread(Session session, SessionFactory sessionFactory) {
+		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
+		return (sessionHolder != null && session == sessionHolder.getSession());
+	}
 
 	/**
 	 * Return the thread object manager for Hibernate session, keeping a
@@ -110,11 +132,41 @@ public abstract class SessionFactoryUtils {
 		}
 		catch (JDBCException ex) {
 			// SQLException underneath
-			throw new DataAccessResourceFailureException("Could not open Hibernate Session", ex.getSQLException());
+			throw new DataAccessResourceFailureException("Cannot not open Hibernate Session", ex.getSQLException());
 		}
 		catch (HibernateException ex) {
-			throw new DataAccessResourceFailureException("Could not open Hibernate Session", ex);
+			throw new DataAccessResourceFailureException("Cannot not open Hibernate Session", ex);
 		}
+	}
+
+	/**
+	 * Convert the given HibernateException to an appropriate exception from
+	 * the com.interface21.dao hierarchy.
+	 * @param ex HibernateException that occured
+	 * @return the corresponding DataAccessException instance
+	 */
+	public static DataAccessException convertHibernateAccessException(HibernateException ex) {
+		if (ex instanceof JDBCException) {
+			// SQLException during Hibernate code used by the application
+			return new HibernateJdbcException("Exception in Hibernate data access code", (JDBCException) ex);
+		}
+		if (ex instanceof QueryException) {
+			return new InvalidDataAccessResourceUsageException("Invalid Hibernate query", ex);
+		}
+		if (ex instanceof StaleObjectStateException) {
+			return new OptimisticLockingFailureException("Version check failed", ex);
+		}
+		if (ex instanceof PersistentObjectException) {
+			return new InvalidDataAccessApiUsageException("Invalid object state", ex);
+		}
+		if (ex instanceof TransientObjectException) {
+			return new InvalidDataAccessApiUsageException("Invalid object state", ex);
+		}
+		if (ex instanceof ObjectDeletedException) {
+			return new InvalidDataAccessApiUsageException("Invalid object state", ex);
+		}
+		// fallback
+		return new HibernateSystemException("Exception in Hibernate data access code", ex);
 	}
 
 	/**
@@ -128,19 +180,17 @@ public abstract class SessionFactoryUtils {
 	    throws DataAccessResourceFailureException {
 		if (session == null)
 			return;
-		// only close if it isn't thread-bound
-		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);;
-		if (sessionHolder == null || session != sessionHolder.getSession()) {
+		if (!isSessionBoundToThread(session, sessionFactory)) {
 			logger.debug("Closing Hibernate session");
 			try {
 				session.close();
 			}
 			catch (JDBCException ex) {
 				// SQLException underneath
-				throw new DataAccessResourceFailureException("Could not close Hibernate Session", ex.getSQLException());
+				throw new CleanupFailureDataAccessException("Cannot close Hibernate Session", ex.getSQLException());
 			}
 			catch (HibernateException ex) {
-				throw new DataAccessResourceFailureException("Could not close Hibernate Session", ex);
+				throw new CleanupFailureDataAccessException("Cannot close Hibernate Session", ex);
 			}
 		}
 	}
