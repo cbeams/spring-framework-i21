@@ -14,7 +14,7 @@
 
     See build.properties for definition of the properties used in this file.
 
-	Note: Does not need a J2EE RI anymore, due to the libraries in lib/j2ee.
+    Note: Does not need a J2EE RI anymore, due to the libraries in lib/j2ee.
 -->
 
 <project name="spring-core" default="usage" basedir=".">
@@ -69,7 +69,9 @@
 
 		</javac>
 
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" 
+		<rmic base="${build.dir}" classname="com.interface21.remoting.rmi.RemoteInvocationWrapper"/> 
+
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml"
 			todir="${build.dir}/com/interface21/jdbc/core" />
 
 	</target>
