@@ -10,7 +10,6 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.interface21.beans.factory.InitializingBean;
 import com.interface21.core.InternalErrorException;
 import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.jdbc.datasource.DataSourceUtils;
@@ -42,24 +41,9 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  */
 
 public class MySQLMaxValueIncrementer
-    extends AbstractDataFieldMaxValueIncrementer
-    implements InitializingBean {
+    extends AbstractDataFieldMaxValueIncrementer {
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
-	private DataSource ds;
-
-	/** The name of the table containing the sequence */
-	private String tableName;
-
-	/** The name of the column to use for this sequence */
-	private String columnName;
-
-	/** The number of keys buffered in a bunch. */
-	private int cacheSize = 1;
-
-	/** Flag if dirty definition */
-	private boolean dirty = true;
 
 	private NextMaxValueProvider nextMaxValueProvider;
 
@@ -73,43 +57,36 @@ public class MySQLMaxValueIncrementer
 	/**
 	 * Constructor
 	 * @param ds the datasource to use
-	 * @param tableName the name of the sequence table to use
+	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
 	 **/
-	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName) {
-		this.ds = ds;
-		this.tableName = tableName;
-		this.columnName = columnName;
+	public MySQLMaxValueIncrementer(DataSource ds, String incrementerName, String columnName) {
+        super(ds, incrementerName, columnName);
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 	}
 
 	/**
 	 * Constructor
 	 * @param ds the datasource to use
-	 * @param tableName the name of the sequence table to use
+	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
 	 * @param cacheSize the number of buffered keys
 	 **/
-	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName, int cacheSize) {
-		this.ds = ds;
-		this.tableName = tableName;
-		this.columnName = columnName;
-		this.cacheSize = cacheSize;
+	public MySQLMaxValueIncrementer(DataSource ds, String incrementerName, String columnName, int cacheSize) {
+        super(ds, incrementerName, columnName, cacheSize);
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 	}
 
 	/**
 	 * Constructor
 	 * @param ds the datasource to use
-	 * @param tableName the name of the sequence table to use
+	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
 	 * @param prefixWithZero in case of a String return value, should the string be prefixed with zeroes
 	 * @param padding the length to which the string return value should be padded with zeroes
 	 **/
-	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName, boolean prefixWithZero, int padding) {
-		this.ds = ds;
-		this.tableName = tableName;
-		this.columnName = columnName;
+	public MySQLMaxValueIncrementer(DataSource ds, String incrementerName, String columnName, boolean prefixWithZero, int padding) {
+        super(ds, incrementerName, columnName);
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
 	}
@@ -117,19 +94,24 @@ public class MySQLMaxValueIncrementer
 	/**
 	 * Constructor
 	 * @param ds the datasource to use
-	 * @param tableName the name of the sequence table to use
+	 * @param incrementerName the name of the sequence/table to use
 	 * @param columnName the name of the column in the sequence table to use
 	 * @param prefixWithZero in case of a String return value, should the string be prefixed with zeroes
 	 * @param padding the length to which the string return value should be padded with zeroes
 	 * @param cacheSize the number of buffered keys
 	 **/
-	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName, boolean prefixWithZero, int padding, int cacheSize) {
-		this.ds = ds;
-		this.tableName = tableName;
-		this.columnName = columnName;
-		this.cacheSize = cacheSize;
+	public MySQLMaxValueIncrementer(DataSource ds, String incrementerName, String columnName, boolean prefixWithZero, int padding, int cacheSize) {
+        super(ds, incrementerName, columnName, cacheSize);
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
+	}
+
+	/**
+	 * Sets the prefixWithZero.
+	 * @param prefixWithZero The prefixWithZero to set
+	 */
+	public void setPrefixWithZero(boolean prefixWithZero, int length) {
+		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, length);
 	}
 
 	/**
@@ -177,7 +159,7 @@ public class MySQLMaxValueIncrementer
 		private long maxId = 0;
 
 		synchronized protected long getNextKey(int type) {
-			if (dirty) {
+			if (isDirty()) {
 				initPrepare();
 			}
 			if (maxId == nextId) {
@@ -190,7 +172,7 @@ public class MySQLMaxValueIncrementer
 				Statement st = null;
 				ResultSet rs = null;
 				try {
-					con = DataSourceUtils.getConnection(ds);
+					con = DataSourceUtils.getConnection(getDataSource());
 					st = con.createStatement();
 					// Increment the sequence column
 					st.executeUpdate(insertSql);
@@ -203,7 +185,7 @@ public class MySQLMaxValueIncrementer
 					}
 					else
 						throw new InternalErrorException("last_insert_id() failed after executing an update");
-					nextId = maxId - cacheSize;
+					nextId = maxId - getCacheSize();
 					nextId++;
 					if (logger.isInfoEnabled())
 						logger.info("nextId is : " + nextId);
@@ -225,7 +207,7 @@ public class MySQLMaxValueIncrementer
 						}
 						catch (SQLException e) {
 						}
-						DataSourceUtils.closeConnectionIfNecessary(con, ds);
+						DataSourceUtils.closeConnectionIfNecessary(con, getDataSource());
 					}
 				}
 			}
@@ -237,71 +219,19 @@ public class MySQLMaxValueIncrementer
 		private void initPrepare() {
 			StringBuffer buf = new StringBuffer();
 			buf.append("update ");
-			buf.append(tableName);
+			buf.append(getIncrementerName());
 			buf.append(" set ");
-			buf.append(columnName);
+			buf.append(getColumnName());
 			buf.append(" = last_insert_id(");
-			buf.append(columnName);
+			buf.append(getColumnName());
 			buf.append(" + ");
-			buf.append(cacheSize);
+			buf.append(getCacheSize());
 			buf.append(")");
 			insertSql = buf.toString();
 			if (logger.isInfoEnabled())
 				logger.info("insertSql = " + insertSql);
-			dirty = false;
+			setDirty(false);
 		}
-	}
-
-	/**
-	 * Sets the data source.
-	 * @param ds The data source to set
-	 */
-	public void setDataSource(DataSource ds) {
-		this.ds = ds;
-		dirty = true;
-	}
-
-	/**
-	 * @see com.interface21.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
-	public void afterPropertiesSet() throws Exception {
-		if (ds == null || tableName == null || columnName == null)
-			throw new Exception("dsName, sequenceName properties must be set on " + getClass().getName());
-	}
-
-	/**
-	 * Sets the prefixWithZero.
-	 * @param prefixWithZero The prefixWithZero to set
-	 */
-	public void setPrefixWithZero(boolean prefixWithZero, int length) {
-		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, length);
-	}
-
-	/**
-	 * Sets the tableName.
-	 * @param tableName The tableName to set
-	 */
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-		dirty = true;
-	}
-
-	/**
-	 * Sets the columnName.
-	 * @param columnName The columnName to set
-	 */
-	public void setColumnName(String columnName) {
-		this.columnName = columnName;
-		dirty = true;
-	}
-
-	/**
-	 * Sets the cacheSize.
-	 * @param cacheSize The number of buffered keys
-	 */
-	public void setCacheSize(int cacheSize) {
-		this.cacheSize = cacheSize;
-		dirty = true;
 	}
 
 }
