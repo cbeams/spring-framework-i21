@@ -107,6 +107,9 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 				// swallow it, we'll retry the other codes
 			}
 		}
+		if (resolvable.getDefaultMessage() == null) {
+			throw new NoSuchMessageException(codes[codes.length-1], locale);
+		}
 		return resolvable.getDefaultMessage();
 	}
 

@@ -8,6 +8,7 @@ import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.BeanThatListens;
 import com.interface21.context.NoSuchMessageException;
+import com.interface21.context.MessageSourceResolvable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class StaticMessageSourceTestSuite
 	protected static final String MSG_TXT1_US = "At '{1,time}' on \"{1,date}\", there was \"{2}\" on planet {0,number,integer}.";
 	protected static final String MSG_TXT1_UK = "At '{1,time}' on \"{1,date}\", there was \"{2}\" on station number {0,number,integer}.";
 	protected static final String MSG_TXT2_US = "This is a test message in the message catalog with no args.";
+	protected static final String MSG_TXT3_US = "This is another test message in the message catalog with no args.";
 
 	//~ Instance variables -----------------------------------------------------
 
@@ -169,6 +171,50 @@ public class StaticMessageSourceTestSuite
 		}
 	}
 
+	public void testMessageSourceResolvable() {
+		// first code valid
+		String[] codes1 = new String[] {"message.format.example3", "message.format.example2"};
+		MessageSourceResolvable resolvable1 = new MessageSourceResolvableImpl(codes1, null, "default");
+		try {
+			System.out.println(sac.getMessage(resolvable1, Locale.US));
+			assertTrue("correct message retrieved", MSG_TXT3_US.equals(sac.getMessage(resolvable1, Locale.US)));
+		}
+		catch (NoSuchMessageException ex) {
+			fail("Should not throw NoSuchMessageException");
+		}
+
+		// only second code valid
+		String[] codes2 = new String[] {"message.format.example99", "message.format.example2"};
+		MessageSourceResolvable resolvable2 = new MessageSourceResolvableImpl(codes2, null, "default");
+		try {
+			assertTrue("correct message retrieved", MSG_TXT2_US.equals(sac.getMessage(resolvable2, Locale.US)));
+		}
+		catch (NoSuchMessageException ex) {
+			fail("Should not throw NoSuchMessageException");
+		}
+
+		// no code valid, but default given
+		String[] codes3 = new String[] {"message.format.example99", "message.format.example98"};
+		MessageSourceResolvable resolvable3 = new MessageSourceResolvableImpl(codes3, null, "default");
+		try {
+			assertTrue("correct message retrieved", "default".equals(sac.getMessage(resolvable3, Locale.US)));
+		}
+		catch (NoSuchMessageException ex) {
+			fail("Should not throw NoSuchMessageException");
+		}
+
+		// no code valid, no default
+		String[] codes4 = new String[] {"message.format.example99", "message.format.example98"};
+		MessageSourceResolvable resolvable4 = new MessageSourceResolvableImpl(codes4, null);
+		try {
+			sac.getMessage(resolvable4, Locale.US);
+			fail("Should have thrown NoSuchMessagException");
+		}
+		catch (NoSuchMessageException ex) {
+			// expected
+		}
+	}
+
 	/** Run for each test */
 	protected ApplicationContext createContext() throws Exception {
 		StaticApplicationContext parent = new StaticApplicationContext();
@@ -212,6 +258,8 @@ public class StaticMessageSourceTestSuite
 		                        MSG_TXT1_US);
 		staticMsgSrc.addMessage("message.format.example2", Locale.US,
 		                        MSG_TXT2_US);
+		staticMsgSrc.addMessage("message.format.example3", Locale.US,
+		                        MSG_TXT3_US);
 		staticMsgSrc.addMessage("message.format.example1", Locale.UK,
 		                        MSG_TXT1_UK);
 
