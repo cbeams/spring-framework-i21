@@ -235,10 +235,11 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Parse an element definition: wW know this is a BEAN element.
+	 * Parse an element definition: We know this is a BEAN element.
 	 */
 	private void loadBeanDefinition(Element el) throws BeansException {
-		String id = getBeanId(el);
+		// The DTD guarantees an id attribute is present
+		String id = el.getAttribute(ID_ATTRIBUTE);
 		logger.debug("Parsing bean definition with id '" + id + "'");
 
 		// Create BeanDefinition now: we'll build up PropertyValues later
@@ -317,15 +318,6 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 		pvs.addPropertyValue(new PropertyValue(propertyName, val));
 	}
 
-	private String getBeanId(Element e) throws BeanDefinitionStoreException {
-		if (!e.getTagName().equals(BEAN_ELEMENT))
-			throw new FatalBeanException("Internal error: trying to treat element with tagname <"
-			                             + e.getTagName() + "> as a <bean> element");
-		String propertyName = e.getAttribute(ID_ATTRIBUTE);
-		if (propertyName == null || "".equals(propertyName))
-			throw new BeanDefinitionStoreException("Bean without id attribute", null);
-		return propertyName;
-	}
 
 	/**
 	 * Get the value of a property element. May be a list.
