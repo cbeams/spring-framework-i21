@@ -87,7 +87,82 @@
 	</target>
 
 
-	<target name="full" depends="build,initdist" description="Build one big jar file containing main source tree class files.">
+	<!--
+		Create beans/AOP distribution. All other JARs (except full) depend on this.
+	-->
+	<target name="beans" depends="build,initdist" description="Create the beans/AOP JAR file (all other JARs depend on this)">
+
+		<delete file="${dist.dir}/${spring-beans.jar}"/>
+
+		<jar jarfile="${dist.dir}/${spring-beans.jar}">
+			<fileset dir="${build.dir}">
+				<include name="com/interface21/aop/**"/>
+				<include name="com/interface21/beans/**"/>
+				<include name="com/interface21/core/**"/>
+				<include name="com/interface21/jndi/**"/>
+				<include name="com/interface21/util/*"/>
+			</fileset>
+		</jar>
+
+	</target>
+
+
+	<!--
+		Create JDBC/ORM distribution. Depends on core JAR.
+	-->
+	<target name="jdbc" depends="build,initdist" description="Create the JDBC/ORM distribution JAR file (requires core JAR)">
+
+		<delete file="${dist.dir}/${spring-jdbc.jar}"/>
+
+		<jar jarfile="${dist.dir}/${spring-jdbc.jar}">
+			<fileset dir="${build.dir}">
+				<include name="com/interface21/dao/**"/>
+				<include name="com/interface21/jdbc/**"/>
+				<include name="com/interface21/orm/**"/>
+				<include name="com/interface21/transaction/**"/>
+			</fileset>
+		</jar>
+
+	</target>
+
+
+	<!--
+		Build the application context classes. Depends on core JAR.
+	-->
+	<target name="context" depends="build,initdist" description="Create the context distribution JAR file (requires core JAR)">
+
+		<delete file="${dist.dir}/${spring-context.jar}"/>
+
+		<jar jarfile="${dist.dir}/${spring-context.jar}">
+			<fileset dir="${build.dir}">
+				<include name="com/interface21/context/**"/>
+				<include name="com/interface21/ejb/**"/>
+				<include name="com/interface21/remoting/**"/>
+				<include name="com/interface21/ui/**"/>
+				<include name="com/interface21/validation/**"/>
+			</fileset>
+		</jar>
+
+	</target>
+
+
+	<!--
+		Build the web framework classes. Depends on core and context JARs.
+	-->
+	<target name="web" depends="build,initdist" description="Create the web distribution JAR file (requires core and context JAR)">
+
+		<delete file="${dist.dir}/${spring-web.jar}"/>
+
+		<jar jarfile="${dist.dir}/${spring-web.jar}">
+			<fileset dir="${build.dir}">
+				<include name="com/interface21/web/**"/>
+			</fileset>
+		</jar>
+
+	</target>
+
+
+	<target name="full" depends="build,initdist" description="Build one big JAR containing main source tree class files">
 
 		<delete file="${dist.dir}/${spring-full.jar}"/>
 
@@ -100,94 +175,7 @@
 	</target>
 
 
-	<!--
-		Create core distribution. All other JARs (except full) depend on this.
-	-->
-	<target name="core" depends="build,initdist" description="Create the core JAR file (JDBC and other JAR files depend on this)">
-
-		<delete file="${dist.dir}/${spring-core.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-core.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/core/**"/>
-				<include name="com/interface21/beans/**"/>
-				<include name="com/interface21/jndi/**"/>
-				<include name="com/interface21/util/*"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<!--
-		Create JDBC distribution. Depends on core JAR.
-	-->
-	<target name="jdbc" depends="build,initdist" description="Create the JDBC distribution JAR file">
-
-		<delete file="${dist.dir}/${spring-jdbc.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-jdbc.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/dao/**"/>
-				<include name="com/interface21/jdbc/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="ejbimpl" depends="build,initdist" description="Create the EJB distribution JAR file">
-
-		<delete file="${dist.dir}/${spring-ejbimpl.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-ejbimpl.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/ejb/support/*"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<!--
-		Build the ApplicationContext classes. Depends on core JAR.
-	-->
-	<target name="context" depends="build,initdist" description="Create the context distribution JAR file (runtime requires core JAR file)">
-
-		<delete file="${dist.dir}/${spring-context.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-context.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/aop/**"/>
-				<include name="com/interface21/context/**"/>
-				<include name="com/interface21/ejb/access/**"/>
-				<include name="com/interface21/orm/**"/>
-				<include name="com/interface21/transaction/**"/>
-				<include name="com/interface21/validation/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<!--
-		Build the framework web classes. Depends on core JAR.
-	-->
-	<target name="web" depends="build,initdist" description="Create the web distribution JAR file (runtime requires core JAR file)">
-
-		<delete file="${dist.dir}/${spring-web.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-web.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/ui/**"/>
-				<include name="com/interface21/web/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="srczip" depends="initdist" description="Create source ZIP file (containing all Java sources)">
+	<target name="srczip" depends="initdist" description="Create source ZIP (containing all Java sources)">
 
 		<delete file="${dist.dir}/${spring-src.zip}"/>
 
@@ -203,7 +191,7 @@
 	<!--
 		Note: Contained classes overlap, e.g. spring-full contains everything.
 	-->
-	<target name="alljars" depends="full,core,jdbc,ejbimpl,context,web,srczip" description="Create all JAR files"/>
+	<target name="alljars" depends="beans,jdbc,context,web,full,srczip" description="Create all JAR files"/>
 
 
 	<target name="javadoc" description="Generate framework Javadocs.">
