@@ -56,6 +56,18 @@ public class SqlUpdate extends SqlOperation {
 	public SqlUpdate() {
 	}
 
+  /**
+   * Constructs an update object with a given DataSource and SQL
+   * to keep consistent with the 
+   * @param ds DataSource to use to obtain connections
+   * @param sql SQL
+   * @param types anonymous parameter declarations.
+   */
+  public SqlUpdate(DataSource ds, String sql) {
+    this(ds, sql, null, Integer.MAX_VALUE);
+  }
+
+
 	/**
 	 * Construct an update object with a given DataSource, SQL
 	 * and anonymous parameters
