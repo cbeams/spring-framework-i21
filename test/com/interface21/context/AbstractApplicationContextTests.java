@@ -24,13 +24,7 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 
 	protected TestListener parentListener = new TestListener();
 
-	/** Creates new SeatingPlanTest */
-	public AbstractApplicationContextTests(String name) {
-		super(name);
-	}
-
-	/** Run for each test */
-	protected final void setUp() throws Exception {
+	public AbstractApplicationContextTests() throws Exception {
 		this.applicationContext = createContext();
 	}
 

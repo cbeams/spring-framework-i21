@@ -31,10 +31,6 @@ import com.interface21.beans.factory.support.AbstractBeanFactory;
  */
 public abstract class AbstractBeanFactoryTests extends TestCase {
 
-	public AbstractBeanFactoryTests(String name) {
-		super(name);
-	}
-
 	protected abstract BeanFactory getBeanFactory();
 
 	/**

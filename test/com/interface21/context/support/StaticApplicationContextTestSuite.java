@@ -22,12 +22,9 @@ import com.interface21.context.BeanThatListens;
  */
 public class StaticApplicationContextTestSuite extends AbstractApplicationContextTests {
 
-
 	protected StaticApplicationContext sac;
 
-	/** Creates new SeatingPlanTest */
-	public StaticApplicationContextTestSuite(String name) {
-		super(name);
+	public StaticApplicationContextTestSuite() throws Exception {
 	}
 
 	/** Run for each test */

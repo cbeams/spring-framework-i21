@@ -38,8 +38,7 @@ public class StaticMessageSourceTestSuite
 
 	//~ Constructors -----------------------------------------------------------
 
-	public StaticMessageSourceTestSuite(String name) {
-		super(name);
+	public StaticMessageSourceTestSuite() throws Exception {
 	}
 
 	//~ Methods ----------------------------------------------------------------

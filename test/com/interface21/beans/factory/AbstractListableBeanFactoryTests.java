@@ -6,7 +6,6 @@
 
 package com.interface21.beans.factory;
 
-
 /**
  *
  * @author Rod Johnson
@@ -20,10 +19,6 @@ public abstract class AbstractListableBeanFactoryTests extends AbstractBeanFacto
 		if (!(bf instanceof ListableBeanFactory))
 			throw new RuntimeException("ListableBeanFactory required");
 		return (ListableBeanFactory) bf;
-	}
-	
-	public AbstractListableBeanFactoryTests(String name) {
-		super(name);
 	}
 	
 	/**
