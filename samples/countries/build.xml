@@ -22,7 +22,7 @@
 	<property name="spring.root" value="../.."/>
 
 	<property file="build.properties"/>
-	<property name="deploy.dir" value="F:\work\jboss-3.2.0\server\sirene\deploy"/>
+	<property name="deploy.dir" value="my_deploy_directory"/>
 
 
 	<path id="master-classpath">
