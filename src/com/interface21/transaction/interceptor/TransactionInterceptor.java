@@ -10,10 +10,10 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.interface21.beans.factory.InitializingBean;
 import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
-import com.interface21.beans.factory.InitializingBean;
 
 /**
  * Interceptor providing declarative transaction management using
@@ -43,14 +43,10 @@ public class TransactionInterceptor implements MethodInterceptor, InitializingBe
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/**
-	 * Delegate used to create, commit and rollback transactions
-	 */
+	/** Delegate used to create, commit and rollback transactions */
 	private PlatformTransactionManager transactionManager;
 	
-	/**
-	 * Helper used to find transaction attributes.
-	 */
+	/** Helper used to find transaction attributes */
 	private TransactionAttributeSource transactionAttributeSource;
 
 	public TransactionInterceptor() {
@@ -61,10 +57,9 @@ public class TransactionInterceptor implements MethodInterceptor, InitializingBe
 	/**
 	 * Sets the transaction manager. This will perform actual
 	 * transaction management: This class is just a way of invoking it.
-	 * @param platformTxManager The platformTxManager to set
 	 */
-	public void setTransactionManager(PlatformTransactionManager platformTxManager) {
-		this.transactionManager = platformTxManager;
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
 	}
 	
 	/**
@@ -75,10 +70,9 @@ public class TransactionInterceptor implements MethodInterceptor, InitializingBe
 	}
 
 	/**
-	 * Sets the transaction attribute source, which is used to
+	 * Sets the transaction attribute source which is used to
 	 * find transaction attributes. The default implementation looks
 	 * at the metadata attributes associated with the current invocation.
-	 * @param transactionAttributeSource The transactionAttributeSource to set
 	 */
 	public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
 		this.transactionAttributeSource = transactionAttributeSource;
@@ -111,7 +105,6 @@ public class TransactionInterceptor implements MethodInterceptor, InitializingBe
 		// Create transaction if necessary
 		if (transAtt != null) {
 			// We need a transaction for this method
-			
 			logger.info("Creating transaction for method '" + invocation.getMethod().getName() + "'");
 			
 			// The PlatformTransactionManager will flag an error if an incompatible tx already exists
@@ -134,7 +127,7 @@ public class TransactionInterceptor implements MethodInterceptor, InitializingBe
 		try {
 			Object retVal = invocation.proceed();
 			if (status != null) {
-				logger.info("COMMITING transaction on method '" + invocation.getMethod().getName() + "'");
+				logger.info("Committing transaction on method '" + invocation.getMethod().getName() + "'");
 				this.transactionManager.commit(status);
 			}
 			return retVal;
@@ -144,16 +137,16 @@ public class TransactionInterceptor implements MethodInterceptor, InitializingBe
 			// Just bail out, as we can't handle it
 			throw ex;
 		}
-		catch (Throwable t) {
+		catch (Throwable ex) {
 			// Target invocation
 			if (status != null) {
-				onThrowable(invocation, transAtt, status, t);
+				onThrowable(invocation, transAtt, status, ex);
 			}
-			else if (status != null && transAtt.rollBackOn(t)) {
+			else if (status != null && transAtt.rollBackOn(ex)) {
 				// Rollback existing transaction
 				status.setRollbackOnly();
 			}
-			throw t;
+			throw ex;
 		}
 		finally {
 			if (transAtt != null) {
