@@ -3,10 +3,12 @@ DATABASE CONFIGURATION
 
 DATABASE
 
-a "test" database" with a "test" user with "test" password having authority to create tables
+A "test" database" with a "test" user with "test" password having authority to create tables
 has to be provided on the database.
 
-This demo assumes the use of MySql.
+For HSql, a user "sa" with no password is assumed. 
+
+This demo assumes the use of MySql or HSql.
 For other databases: 
 	- copy the DaoCountriesJdbcMySql.java file as DaoCountriesJdbcXXX.java
 	- modify the new file for the syntax of your database
@@ -19,12 +21,12 @@ This demo was tested on Jboss 3.0.5 and 3.2.0.
 
 JBoss
 -----
-You will find the MySql driver in the db/MySql directory, it has to be copied, if not already there, 
+You will find the database drivers in the "db" directory, they have to be copied, if not already there, 
 in default/lib directory.
 
-Depending of the JBoss serie you use, copy the xml file from db/MySql/jboss/3.XX.XX in the deploy directory.
+Depending of the JBoss serie you use, copy the xml file from as/jboss/3.xx.xx in the deploy directory.
 
-Copy the jboss-web file from db/MySql/jboss in your war/WEB-INF directory before making the war.
+Copy the jboss-web file from as/jboss in your war/WEB-INF directory before making the war.
 
 For other databases, change these files accordingly.
 

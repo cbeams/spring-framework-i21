@@ -7,12 +7,13 @@
   }
 </script>
 
+<fmt:message key="lnk.countries.main" var="lnk"/>
 <h2><fmt:message key="countries.main.title"/></h2>
   <form action="" method="POST">
 	<table>
 	  <tr class="title">
-	    <th><a href="<c:url value=""><c:param name="sort.property" value="name"/></c:url>"><fmt:message key="name"/></a></th>
-	    <th><a href="<c:url value=""><c:param name="sort.property" value="code"/></c:url>"><fmt:message key="code"/></a></th>
+	    <th><a href="<c:url value="/${lnk}"><c:param name="sort.property" value="name"/></c:url>"><fmt:message key="name"/></a></th>
+	    <th><a href="<c:url value="/${lnk}"><c:param name="sort.property" value="code"/></c:url>"><fmt:message key="code"/></a></th>
 	  </tr>
 	  <tr class="title">
 	    <td><fmt:message key="filter"/>:
@@ -46,7 +47,7 @@
 
     <div class="pagernav">
       <c:if test="${countries.nrOfPages > 1}">
-          <a href="<c:url value=""><c:param name="page" value="0"/></c:url>">1</a>
+          <a href="<c:url value="/${lnk}"><c:param name="page" value="0"/></c:url>">1</a>
           &nbsp;...&nbsp;
           <c:forEach begin="${countries.firstLinkedPage}" end="${countries.lastLinkedPage}" var="crtpg">
             <c:choose>
@@ -54,12 +55,12 @@
                 <strong><c:out value="${crtpg + 1}"/></strong>
               </c:when>
               <c:otherwise>
-                <a href="<c:url value=""><c:param name="page" value="${crtpg}"/></c:url>"><c:out value="${crtpg + 1}"/></a>
+                <a href="<c:url value="/${lnk}"><c:param name="page" value="${crtpg}"/></c:url>"><c:out value="${crtpg + 1}"/></a>
               </c:otherwise>
             </c:choose>
           </c:forEach>
           &nbsp;...&nbsp;
-          <a href="<c:url value=""><c:param name="page" value="${countries.nrOfPages - 1}"/></c:url>"><c:out value="${countries.nrOfPages}"/></a>
+          <a href="<c:url value="/${lnk}"><c:param name="page" value="${countries.nrOfPages - 1}"/></c:url>"><c:out value="${countries.nrOfPages}"/></a>
 	    <fmt:message key="psize" var="ps"/>
       </c:if>
     </div>

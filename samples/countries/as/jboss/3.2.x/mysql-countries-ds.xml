@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  JBoss Server Configuration                                           -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>MySqlCountriesDS</jndi-name>
+    <connection-url>jdbc:mysql://localhost:3306/test</connection-url>
+    <driver-class>org.gjt.mm.mysql.Driver</driver-class>
+    <user-name>test</user-name>
+    <password>test</password>
+  </local-tx-datasource>
+
+</datasources>

@@ -38,7 +38,7 @@
 	  - Exports a "web app root key", i.e. a system property that specifies the root
 	  - directory of this web app, for usage in log file paths.
 	  -->
-	<!-- Don't work with JBoss -->
+	<!-- Uncomment if you use Tomcat -->
 	<!--
 	<listener>
 		<listener-class>com.interface21.web.util.Log4jConfigListener</listener-class>

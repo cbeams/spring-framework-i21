@@ -49,7 +49,7 @@
 	       - Defining a "dataSource" bean.
 	       - Adding the previously defined bean "dataSource" as parameter of "daoCountry" bean.
 
-		By default, the scenario 1 is not commented. For testing another scenarion, please
+		By default, the scenario 1 is not commented. For testing another scenario, please
 		comment the current scenario and uncomment this you will run.
 	 -->
 		      
@@ -59,6 +59,12 @@
 	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem" singleton="true"/>
 
 	
+	<!-- For database mapping, we rely on the JNDI location "(java:comp/env/)jdbc/countries-ds".
+		So changing the real database used is only a matter of mapping this JNDI location.
+		For JBoss, it is done in the provided "jboss-web.xml" file which has to be copied in this
+		directory. 
+	-->
+	
 	<!-- === SCENARIO 2 === -->
 	<!-- ============= In memory + Database version for copying ============= -->
 	<!--
@@ -66,7 +72,7 @@
 		<property name="jndiName"><value>jdbc/countries-ds</value></property>
 	</bean>
 	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem" singleton="true"/>
-	<bean id="secondDaoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql" singleton="true">
+	<bean id="secondDaoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbc" singleton="true">
 		<property name="dataSource"><ref bean="dataSource"/></property>
 		<property name="dropSql"><value>DROP TABLE countries</value></property>
 		<property name="createSql"><value>CREATE TABLE countries (lang CHAR(2), code CHAR(2), name VARCHAR(50))</value></property>
@@ -79,7 +85,7 @@
 	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
 		<property name="jndiName"><value>jdbc/countries-ds</value></property>
 	</bean>
-	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"	singleton="true">
+	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbc" singleton="true">
 		<property name="dataSource"><ref bean="dataSource"/></property>
 	</bean>
 	-->

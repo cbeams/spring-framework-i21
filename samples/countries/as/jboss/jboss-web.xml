@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jboss-web>
+
+	<!-- Use with MySql -->
+	<!--
+    <resource-ref>
+        <res-ref-name>jdbc/countries-ds</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <jndi-name>java:/MySqlCountriesDS</jndi-name>
+    </resource-ref>
+    -->
+
+	<!-- Use with HSql -->
+	
+    <resource-ref>
+        <res-ref-name>jdbc/countries-ds</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <jndi-name>java:/HSqlCountriesDS</jndi-name>
+    </resource-ref>
+	
+
+</jboss-web>
+

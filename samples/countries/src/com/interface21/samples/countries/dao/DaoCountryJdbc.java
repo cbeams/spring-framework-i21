@@ -21,6 +21,7 @@ import com.interface21.jdbc.core.BatchPreparedStatementSetter;
 import com.interface21.jdbc.core.JdbcTemplate;
 import com.interface21.jdbc.core.SqlParameter;
 import com.interface21.jdbc.object.MappingSqlQuery;
+import com.interface21.jdbc.object.SqlUpdate;
 import com.interface21.samples.countries.appli.Country;
 import com.interface21.samples.countries.appli.ICountry;
 
@@ -49,6 +50,17 @@ public class DaoCountryJdbc implements IDaoCountry, InitializingBean {
 
 	/** Holds a default language for not handled Locales. */
 	public static final String DEFAULT_LANG = DEFAULT_LOCALE.getLanguage();
+
+	/** Holds the INSERT SQL Statement. */
+	protected static final String INSERT_SQL = "INSERT INTO countries(lang,code,name) VALUES(?,?,?)"; 
+	//protected static final String INSERT_SQL = "INSERT INTO countries VALUES(?,?,?)"; 
+
+	/** Holds the filtered SELECT SQL Statement. */
+	protected static final String FILTER_SELECT_SQL = 
+		"SELECT * FROM countries WHERE lang = ? and code like ? and name like ? ORDER BY code";
+
+	/** Holds the ALL SELECT SQL Statement. */
+	protected static final String SELECT_SQL = "SELECT * FROM countries WHERE lang = ? ORDER BY code";
 
 	/** Holds the drop table ANSI SQL Statement. */
 	protected static final String ANSI_DROP_SQL = "DROP TABLE countries";
@@ -136,8 +148,12 @@ public class DaoCountryJdbc implements IDaoCountry, InitializingBean {
 		JdbcTemplate tpl = new JdbcTemplate();
 		tpl.setDataSource(this.getDataSource());
 
-		tpl.update(dropSql);
-		logger.info("'countries' table deleted");
+		try {
+			tpl.update(dropSql);
+			logger.info("'countries' table deleted");
+		} catch (DataAccessException e) {
+			logger.info("'countries' table didn't exist. Exception=" + e.getMessage());
+		}
 
 		tpl.update(createSql);
 		logger.info("'countries' table created");
@@ -147,11 +163,24 @@ public class DaoCountryJdbc implements IDaoCountry, InitializingBean {
 	 * @see com.interface21.samples.countries.dao.IDaoCountry#saveCountries(java.util.List, java.util.Locale)
 	 */
 	public final void saveCountries(List countries, Locale locale) {
-		JdbcTemplate tpl = new JdbcTemplate();
-		tpl.setDataSource(this.getDataSource());
-		tpl.batchUpdate(
-			"INSERT INTO countries(lang,code,name) VALUES(?,?,?)", 
-			new BatchSetter(countries, locale));
+		try {
+			// We try to use batch updates
+			// MySql, by example supports it.
+			JdbcTemplate tpl = new JdbcTemplate();
+			tpl.setDataSource(this.getDataSource());
+			tpl.batchUpdate(INSERT_SQL,	new BatchSetter(countries, locale));
+		} catch (DataAccessException e) {
+			// This is normal, by example, for HSql.
+			logger.info("The database driver doesnt support batch updates. Error=" + e.getMessage());
+			// We try a normal loop instead
+			CountriesInsert countriesInsert = new CountriesInsert(this.getDataSource());
+			String lang = locale.getLanguage();
+			Iterator it = countries.iterator();
+			while (it.hasNext()) {
+				ICountry country = (ICountry)it.next();
+				countriesInsert.insert(lang, country.getCode(), country.getName());
+			}
+		}
 	}
 
 	/**
@@ -259,6 +288,26 @@ public class DaoCountryJdbc implements IDaoCountry, InitializingBean {
 	}
 
 	/**
+	 * Alternative class for inserting countries 
+	 * when batch updates are not supported.
+	 */
+	class CountriesInsert extends SqlUpdate {
+
+		protected CountriesInsert(DataSource ds) {
+			super(ds, INSERT_SQL);
+			declareParameter(new SqlParameter(Types.CHAR));
+			declareParameter(new SqlParameter(Types.CHAR));
+			declareParameter(new SqlParameter(Types.VARCHAR));
+			compile();
+		}
+
+		public void insert(String lang, String code, String name) {
+			Object[] objs =	new Object[] {lang, code, name};
+			super.update(objs);
+		}
+	}
+
+	/**
 	 *  Abstract base class for all <code>Country</code> Query Objects.
 	 */
 	abstract class CountriesQuery extends MappingSqlQuery  {
@@ -292,7 +341,7 @@ public class DaoCountryJdbc implements IDaoCountry, InitializingBean {
 		 *  @param ds the DataSource to use for the query.
 		 */
 		protected FilteredCountriesQuery(DataSource ds) {
-			super(ds, "SELECT * FROM countries WHERE lang = ? and code like ? and name like ? ORDER BY code");
+			super(ds, FILTER_SELECT_SQL);
 			declareParameter(new SqlParameter(Types.CHAR));
 			declareParameter(new SqlParameter(Types.CHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
@@ -310,7 +359,7 @@ public class DaoCountryJdbc implements IDaoCountry, InitializingBean {
 		 *  @param ds the DataSource to use for the query.
 		 */
 		protected AllCountriesQuery(DataSource ds) {
-			super(ds, "SELECT * FROM countries WHERE lang = ? ORDER BY code");
+			super(ds, SELECT_SQL);
 			declareParameter(new SqlParameter(Types.CHAR));
 			compile();
 		}

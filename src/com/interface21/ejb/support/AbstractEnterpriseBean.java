@@ -78,7 +78,7 @@ abstract class AbstractEnterpriseBean implements EnterpriseBean {
 
 	/**
 	 * May be called after ejbCreate()
-	 * @return
+	 * @return the bean Factory
 	 */
 	protected BeanFactory getBeanFactory() {
 		return this.beanFactory;
