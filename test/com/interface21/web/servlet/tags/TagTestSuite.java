@@ -29,17 +29,13 @@ import com.interface21.web.servlet.theme.FixedThemeResolver;
  */
 public class TagTestSuite extends TestCase {
 
-	public TagTestSuite(String s) {
-		super(s);
-	}
-
 	public void testHtmlEscapeTag() throws JspException {
 		PageContext pc = createPageContext();
 		HtmlEscapeTag tag = new HtmlEscapeTag();
 		tag.setPageContext(pc);
 		RequestContextAwareTag testTag = new RequestContextAwareTag() {
-			public int doStartTag() throws JspException {
-				return super.doStartTag();
+			public int doStartTagInternal() throws Exception {
+				return EVAL_BODY_INCLUDE;
 			}
 		};
 		testTag.setPageContext(pc);
@@ -133,8 +129,13 @@ public class TagTestSuite extends TestCase {
 		BindErrorsTag tag = new BindErrorsTag();
 		tag.setPageContext(pc);
 		tag.setName("tb");
-		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.SKIP_BODY);
-		assertTrue("Doesn't have errors variable", pc.getAttribute(BindErrorsTag.ERRORS_VARIABLE_NAME) == null);
+		try {
+			tag.doStartTag();
+			fail("Should have thrown JspException");
+		}
+		catch (JspException ex) {
+			// expected
+		}
 	}
 
 	public void testBindTagWithoutErrors() throws JspException {
