@@ -24,7 +24,7 @@ public class MessageSourceResourceBundle extends ResourceBundle {
 
 	protected Object handleGetObject(String code) {
 		try {
-			return source.getMessage(code, locale, null);
+			return source.getMessage(code, null, locale);
 		} catch (NoSuchMessageException e) {
 			return null;
 		}

@@ -67,7 +67,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * ****TODO: this could be parameterized as a JavaBean (with a distinguished name
 	 * if specified), enabling a different thread usage policy for event publication.
 	 */
-	private ApplicationEventMulticaster  eventMulticaster = new ApplicationEventMulticasterImpl();
+	private ApplicationEventMulticaster eventMulticaster = new ApplicationEventMulticasterImpl();
 
 	/** We use this to prevent reloading if it's been forbidden in the config itself */
 	private boolean loaded;
@@ -76,10 +76,10 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * MessageSource helper we delegate our implementation
 	 * of this interface to
 	 */
-	private MessageSource	messageSource;
+	private MessageSource messageSource;
 
 	/** System time in milliseconds this context started */
-	private long	startupTime;
+	private long startupTime;
 
 	/** Special bean to handle configuration */
 	private ContextOptions contextOptions;
@@ -117,7 +117,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	/**
 	 * Return a friendly name for context
 	 * @return a display name for the context
-	*/
+	 */
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -158,7 +158,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * DYNAMIC CLASSLOADER ISSUE...subclass to get classloader!?
 	 */
 	public final void refresh() throws ApplicationContextException {
-		if (contextOptions!= null && !contextOptions.isReloadable())
+		if (contextOptions != null && !contextOptions.isReloadable())
 			throw new ApplicationContextException("Forbidden to reload config");
 
 		this.startupTime = System.currentTimeMillis();
@@ -167,15 +167,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 		try {
 			loadOptions();
-		}
-		catch (BeansException ex) {
+		} catch (BeansException ex) {
 			throw new ApplicationContextException("Unexpected error loading context options", ex);
 		}
 
 		try {
 			this.messageSource = (MessageSource) getBeanFactory().getBean(MESSAGE_SOURCE_BEAN_NAME);
-		}
-		catch (BeansException ex) {
+		} catch (BeansException ex) {
 			logger.warn("No MessageSource defined in ApplicationContext: using parent's");
 			this.messageSource = this.parent;
 			if (this.messageSource == null)
@@ -200,8 +198,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			// Try to load from bean
 			try {
 				this.contextOptions = (ContextOptions) getBeanFactory().getBean(OPTIONS_BEAN_NAME);
-			}
-			catch (NoSuchBeanDefinitionException ex) {
+			} catch (NoSuchBeanDefinitionException ex) {
 				this.contextOptions = ContextOptions.DEFAULT_OPTIONS;
 			}
 		}
@@ -217,7 +214,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		logger.info("Configuring singleton beans in context");
 		String[] beanNames = getBeanDefinitionNames();
 		logger.debug("Found " + beanNames.length + " listeners in bean factory; names=" +
-		StringUtils.arrayToDelimitedString(beanNames, ",") + "]");
+		             StringUtils.arrayToDelimitedString(beanNames, ",") + "]");
 		for (int i = 0; i < beanNames.length; i++) {
 			String beanName = beanNames[i];
 
@@ -226,9 +223,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 				try {
 					Object bean = getBeanFactory().getBean(beanName);
 					configureManagedObject(bean);
-				}
-				catch (BeansException ex) {
-					throw new ApplicationContextException("Couldn't instantiate object with name '" + beanName+ "'", ex);
+				} catch (BeansException ex) {
+					throw new ApplicationContextException("Couldn't instantiate object with name '" + beanName + "'", ex);
 				}
 			}
 		}
@@ -242,7 +238,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		logger.info("Refreshing listeners");
 		String[] listenerNames = getBeanDefinitionNames(ApplicationListener.class);
 		logger.debug("Found " + listenerNames.length + " listeners in bean factory; names=" +
-			StringUtils.arrayToDelimitedString(listenerNames, ",") + "]");
+		             StringUtils.arrayToDelimitedString(listenerNames, ",") + "]");
 		for (int i = 0; i < listenerNames.length; i++) {
 			String beanName = listenerNames[i];
 			try {
@@ -251,13 +247,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 				configureManagedObject(l);
 				addListener(l);
 				logger.info("Bean listener added: [" + l + "]");
-			}
-			catch (BeansException ex) {
-				throw new ApplicationContextException("Couldn't load config listener with name '" + beanName+ "'", ex);
+			} catch (BeansException ex) {
+				throw new ApplicationContextException("Couldn't load config listener with name '" + beanName + "'", ex);
 			}
 		}
 	}	// refreshListeners
-
 
 
 	/**
@@ -313,76 +307,57 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	//---------------------------------------------------------------------
 	// Implementation of MessageSource
 	//---------------------------------------------------------------------
-        /**
-         * Try to resolve the message.Return default message if no message
-         * was found
-         * @param code code to lookup up, such as 'calculator.noRateSet'
-         * @param locale Locale in which to do lookup
-         * @param args Array of arguments that will be filled in for params within
-         * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
-         * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
-         * @param defaultMessage String to return if the lookup fails
-         * @return a resolved message if the lookup is successful;
-         * otherwise return the default message passed as a parameter
-         */
-        public String getMessage(String code, Locale locale, Object args[], String defaultMessage) {
-                return messageSource.getMessage(code, locale, args, defaultMessage);
-        }
+	/**
+	 * Try to resolve the message.Return default message if no message
+	 * was found
+	 * @param code code to lookup up, such as 'calculator.noRateSet'
+	 * @param locale Locale in which to do lookup
+	 * @param args Array of arguments that will be filled in for params within
+	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
+	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
+	 * @param defaultMessage String to return if the lookup fails
+	 * @return a resolved message if the lookup is successful;
+	 * otherwise return the default message passed as a parameter
+	 */
+	public String getMessage(String code, Object args[], String defaultMessage, Locale locale) {
+		return messageSource.getMessage(code, args, defaultMessage, locale);
+	}
 
 
-        /**
-         * Try to resolve the message. Treat as an error if the message can't
-         * be found.
-         * @param code code to lookup up, such as 'calculator.noRateSet'
-         * @param locale Locale in which to do lookup
-         * @param args Array of arguments that will be filled in for params within
-         * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
-         * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
-         * @return message
-         * @throws NoSuchMessageException not found in any locale
-         */
-        public String getMessage(String code, Locale locale, Object args[]) throws
-            NoSuchMessageException {
-          return messageSource.getMessage(code, locale, args);
-        }
+	/**
+	 * Try to resolve the message. Treat as an error if the message can't
+	 * be found.
+	 * @param code code to lookup up, such as 'calculator.noRateSet'
+	 * @param locale Locale in which to do lookup
+	 * @param args Array of arguments that will be filled in for params within
+	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
+	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
+	 * @return message
+	 * @throws NoSuchMessageException not found in any locale
+	 */
+	public String getMessage(String code, Object args[], Locale locale) throws
+	    NoSuchMessageException {
+		return messageSource.getMessage(code, args, locale);
+	}
 
 
-        /**
-          * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
-          * arg that was passed in (except for the <code>locale</code> attribute)</b>,
-          * try to resolve the message from the <code>MessageSource</code> contained within the <code>Context</code>.<p>
-          *
-          * NOTE: We must throw a <code>NoSuchMessageException</code> on this method since
-          * at the time of calling this method we aren't able to determine if the <code>defaultMessage</code>
-          * attribute is null or not.
-          * @param resolvable Value object storing 4 attributes required to properly resolve a message.
-          * @param locale Locale to be used as the "driver" to figuring out what message to return.
-          * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
-          * @return message Resolved message.
-          * @throws NoSuchMessageException not found in any locale
-          */
-        public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
-          return messageSource.getMessage(resolvable.getErrorCode(), locale, resolvable.getErrorArgs(), resolvable.getDefaultMessage());
-        }
-
-        /**
-          * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
-          * arg that was passed in</b> try to resolve the message from the <code>MessageSource</code> contained within the <code>Context</code>.<p>
-          *
-          * NOTE: We must throw a <code>NoSuchMessageException</code> on this method since
-          * at the time of calling this method we aren't able to determine if the <code>defaultMessage</code>
-          * attribute is null or not.
-          * @param resolvable Value object storing 4 attributes required to properly resolve a message.
-          * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
-          * @return message Resolved message.
-          * @throws NoSuchMessageException not found in any locale
-          */
-        public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
-          return messageSource.getMessage(resolvable.getErrorCode(), resolvable.getLocale(), resolvable.getErrorArgs(), resolvable.getDefaultMessage());
-        }
-
-
-
+	/**
+	 * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
+	 * arg that was passed in (except for the <code>locale</code> attribute)</b>,
+	 * try to resolve the message from the <code>MessageSource</code> contained within the <code>Context</code>.<p>
+	 *
+	 * NOTE: We must throw a <code>NoSuchMessageException</code> on this method since
+	 * at the time of calling this method we aren't able to determine if the <code>defaultMessage</code>
+	 * attribute is null or not.
+	 * @param resolvable Value object storing 4 attributes required to properly resolve a message.
+	 * @param locale Locale to be used as the "driver" to figuring out what message to return.
+	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
+	 * @return message Resolved message.
+	 * @throws NoSuchMessageException not found in any locale
+	 */
+	public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
+		return messageSource.getMessage(resolvable.getCode(), resolvable.getArgs(), resolvable.getDefaultMessage(), locale);
+	}
 
 
 	//---------------------------------------------------------------------
@@ -397,8 +372,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			Object bean = getBeanFactory().getBean(name);
 			configureManagedObject(bean);
 			return bean;
-		}
-		catch (NoSuchBeanDefinitionException ex) {
+		} catch (NoSuchBeanDefinitionException ex) {
 			/*
 			***** NOT NECESSARY ANYMORE BECAUSE OF BEANFACTORY INHERITANCE *****
 			// Not found here: let's check parent
@@ -419,8 +393,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			Object bean = getBeanFactory().getBean(name, requiredType);
 			configureManagedObject(bean);
 			return bean;
-		}
-		catch (NoSuchBeanDefinitionException ex) {
+		} catch (NoSuchBeanDefinitionException ex) {
 			// Not found here: let's check parent
 			// A more serious exception can just be rethrown
 			if (this.parent != null)
@@ -460,8 +433,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		Object o = sharedObjects.remove(key);
 		if (o == null) {
 			logger.warn("Shared object '" + key + "' not present; could not be removed");
-		}
-		else {
+		} else {
 			logger.info("Removed shared object '" + key + "'");
 		}
 		return o;
