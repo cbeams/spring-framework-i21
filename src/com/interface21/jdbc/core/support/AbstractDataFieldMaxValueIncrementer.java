@@ -16,6 +16,7 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * <li>19/04/2003 : modified by Isabelle Muszynski, added nextDoubleValue
  * <li>09/05/2003 : modified by JPP, added nextLongValue
  * <li>17/06/2003 : modified by Ken Krebs, added common functionality form subclasses
+ * <li>20/06/2003 : modified by Dmitriy Kopylenko, added dsName property
  * @author Dmitriy Kopylenko
  * @author Isabelle Muszynski
  * @author Jean-Pierre Pawlak
