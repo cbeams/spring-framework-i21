@@ -35,7 +35,9 @@ public class XmlWebApplicationContext
 					extends AbstractXmlApplicationContext 
 					implements WebApplicationContext {
 
-	public static final String CONFIG_URL = "configUrl";
+	public static final String CONFIG_URL_PARAM = "configUrl";
+
+	public static final String DEFAULT_CONFIG_URL = "/WEB-INF/applicationContext.xml";
 
 	//---------------------------------------------------------------------
 	// Instance data
@@ -77,16 +79,16 @@ public class XmlWebApplicationContext
 	public void setServletContext(ServletContext servletContext) throws ServletException {
 		this.servletContext = servletContext;
 		if (this.getParent() == null) {
-			String configURL = servletContext.getInitParameter(CONFIG_URL);
-			if (configURL == null) {
-				throw new ServletException("Cannot initialize context of " + getClass() + ": missing required context param with name '" + CONFIG_URL + "'");
-			}
+			String configURL = servletContext.getInitParameter(CONFIG_URL_PARAM);
+			if (configURL == null)
+				configURL = DEFAULT_CONFIG_URL;
 			this.url = configURL;
 		}
 		else {
 			this.url =  "/WEB-INF/" + url + ".xml";
 		}
 
+		logger.info("Using config URL '" + this.url + "'");
 		refresh();
 		if (this.getParent() == null) {
 			// We're the root context
