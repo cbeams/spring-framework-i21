@@ -165,14 +165,9 @@ public class StoredProcedureTestSuite extends TestCase {
 		}
 	}
 
-	// Could implement an interface
+
 	private class AddInvoice extends StoredProcedure {
 
-		/**
-		 * Constructor for AddInvoice.
-		 * @param cf
-		 * @param name
-		 */
 		public AddInvoice(DataSource ds) {
 			setDataSource(ds);
 			setSql("add_invoice");
@@ -186,10 +181,9 @@ public class StoredProcedureTestSuite extends TestCase {
 			Map in = new HashMap();
 			in.put("amount", new Integer(amount));
 			in.put("custid", new Integer(custid));
-			in.put("newid", new Integer(-1));
 			Map out = execute(in);
-			Number Id = (Number) out.get("newid");
-			return Id.intValue();
+			Number id = (Number) out.get("newid");
+			return id.intValue();
 		}
 	}
 
@@ -214,11 +208,9 @@ public class StoredProcedureTestSuite extends TestCase {
 		}
 	}
 
+
 	private class NoSuchStoredProcedure extends StoredProcedure {
 
-		/**
-		 * Constructor for AddInvoice.
-		 */
 		public NoSuchStoredProcedure(DataSource ds) {
 			setDataSource(ds);
 			setSql("no_sproc_with_this_name");
@@ -230,6 +222,7 @@ public class StoredProcedureTestSuite extends TestCase {
 		}
 	}
 
+
 	private class UncompiledStoredProcedure extends StoredProcedure {
 
 		public UncompiledStoredProcedure(DataSource ds) {
@@ -239,8 +232,8 @@ public class StoredProcedureTestSuite extends TestCase {
 		public void execute() {
 			execute(new HashMap());
 		}
-
 	}
+
 
 	private class UnnamedParameterStoredProcedure extends StoredProcedure {
 
@@ -256,8 +249,8 @@ public class StoredProcedureTestSuite extends TestCase {
 			Map out = execute(in);
 
 		}
-
 	}
+
 
 	private class MissingParameterStoredProcedure extends StoredProcedure {
 
@@ -273,11 +266,9 @@ public class StoredProcedureTestSuite extends TestCase {
 		}
 	}
 
+
 	private class StoredProcedureExceptionTranslator extends StoredProcedure {
 
-		/**
-		 * Constructor for AddInvoice.
-		 */
 		public StoredProcedureExceptionTranslator(DataSource ds) {
 			setDataSource(ds);
 			setSql("no_sproc_with_this_name");
@@ -295,6 +286,7 @@ public class StoredProcedureTestSuite extends TestCase {
 		}
 	}
 
+
 	private class CustomDataException extends DataAccessException {
 
 		public CustomDataException(String s) {
@@ -307,4 +299,3 @@ public class StoredProcedureTestSuite extends TestCase {
 	}
 
 }
-
