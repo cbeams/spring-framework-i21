@@ -5,6 +5,7 @@ import javax.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.interface21.beans.BeansException;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.support.XmlWebApplicationContext;
 
@@ -59,6 +60,9 @@ public class ContextLoader {
 		} catch (ApplicationContextException ex) {
 			handleException("Failed to initialize application context", ex);
 
+		} catch (BeansException ex) {
+			handleException("Failed to initialize beans in application context", ex);
+
 		} catch (ClassNotFoundException ex) {
 			handleException("Failed to load config class '" + contextClass + "'", ex);
 
@@ -69,7 +73,7 @@ public class ContextLoader {
 			handleException("Illegal access while finding or instantiating config class '" + contextClass + "': does it have a public no arg constructor?", ex);
 
 		} catch (Throwable ex) {
-			handleException("Unexpected error loading config", ex);
+			handleException("Unexpected error loading context configuration", ex);
 		}
 
 		return null;
