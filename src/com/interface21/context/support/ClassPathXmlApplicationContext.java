@@ -9,11 +9,11 @@ import com.interface21.context.ApplicationContextException;
  * Standalone XML application context, taking the context definition
  * files from the classpath. Mainly useful for test harnesses,
  * but also for application contexts embedded within JARs.
- * <p>Note: Generally treats relative paths as class path resources
- * (when using ApplicationContext.getResourceAsStream).
+ * <p>Note: Generally treats (file) paths as class path resources,
+ * when using ApplicationContext.getResourceAsStream.
  * @author Rod Johnson, Juergen Hoeller
  * @see com.interface21.context.ApplicationContext#getResourceAsStream
- * @see #getResourceByRelativePath
+ * @see #getResourceByPath
  */
 public class ClassPathXmlApplicationContext extends FileSystemXmlApplicationContext {
 
@@ -26,9 +26,14 @@ public class ClassPathXmlApplicationContext extends FileSystemXmlApplicationCont
 	}
 
 	/**
-	 * This implementation treats relative paths as class path resources.
+	 * This implementation treats paths as class path resources.
 	 */
-	protected InputStream getResourceByRelativePath(String path) throws IOException {
+	protected InputStream getResourceByPath(String path) throws IOException {
+		if (!path.startsWith("/")) {
+			// always use root,
+			// as loading relative to this class' package doesn't make sense
+			path = "/" + path;
+		}
 		return getClass().getResourceAsStream(path);
 	}
 

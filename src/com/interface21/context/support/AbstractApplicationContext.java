@@ -11,6 +11,7 @@ package com.interface21.context.support;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -295,9 +296,10 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * This implementation supports fully qualified URLs, absolute file paths,
-	 * and relative file paths (via getResourceByRelativePath).
-	 * @see #getResourceByRelativePath
+	 * This implementation supports fully qualified URLs and appropriate
+	 * (file) paths, via getResourceByPath.
+	 * Throws a FileNotFoundException if getResourceByPath returns null.
+	 * @see #getResourceByPath
 	 */
 	public final InputStream getResourceAsStream(String location) throws IOException {
 		try {
@@ -306,30 +308,27 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			logger.debug("Opening as URL: " + location);
 			return url.openStream();
 		} catch (MalformedURLException ex) {
-			// no URL -> try absolute file path
-			File file = new File(location);
-			if (file.isAbsolute()) {
-				logger.debug("Opening as absolute file: " + location);
-				return new FileInputStream(location);
-			} else {
-				// try specific relative path handling
-				logger.debug("Opening as relative path: " + location);
-				return getResourceByRelativePath(location);
+			// no URL -> try (file) path
+			InputStream in = getResourceByPath(location);
+			if (in == null) {
+				throw new FileNotFoundException("Location isn't a URL and cannot be interpreted as (file) path");
 			}
+			return in;
 		}
 	}
 
 	/**
-	 * Return input stream to the resource at the given relative path.
-	 * <p>Default implementation supports file paths relative to the
-	 * application's working directory. This should be appropriate for
-	 * standalone implementations but can be overridden, e.g. for
-	 * implementations targetted at a container.
+	 * Return input stream to the resource at the given (file) path.
+	 * <p>Default implementation supports file paths, either absolute or
+	 * relative to the application's working directory. This should be
+	 * appropriate for standalone implementations but can be overridden,
+	 * e.g. for implementations targetted at a container.
 	 * @param path path to the resource
-	 * @return InputStream for the specified resource
+	 * @return InputStream for the specified resource, can be null if
+	 * not found (instead of throwing an exception)
 	 * @throws IOException exception when opening the specified resource
 	 */
-	protected InputStream getResourceByRelativePath(String path) throws IOException {
+	protected InputStream getResourceByPath(String path) throws IOException {
 		return new FileInputStream(path);
 	}
 

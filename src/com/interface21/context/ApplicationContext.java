@@ -93,10 +93,14 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	void publishEvent(ApplicationEvent e);
 
 	/**
-	 * Open an InputStream to the specified resource.
-	 * Must support fully qualified URLs, e.g. "file:C:/test.dat".
-	 * Must support absolute file paths, e.g. "C:/test.dat".
-	 * May allow for relative file paths, e.g. "/WEB-INF/test.dat".
+	 * Open an InputStream to the specified resource:
+	 * <ul>
+	 * <li>Must support fully qualified URLs, e.g. "file:C:/test.dat".
+	 * <li>Should support relative file paths, e.g. "WEB-INF/test.dat".
+	 * <li>May allow for absolute file paths, e.g. "C:/test.dat".
+	 * </ul>
+	 * Note that the safest way to access an absolute file path is via
+	 * a "file:" URL, as this must be supported by all implementations.
 	 * <p>Note: Callers are responsible for closing the input stream.
 	 * @param location location to the resource
 	 * @return InputStream for the specified resource

@@ -1,33 +1,28 @@
 package com.interface21.web.util;
 
-import java.io.File;
-
 import javax.servlet.http.HttpServlet;
 
 import com.interface21.util.Log4jConfigurer;
 import com.interface21.web.util.WebUtils;
 
 /**
- * Servlet that performs custom Log4J initialization,
- * supporting 3 init parameters:
+ * Servlet that performs custom Log4J initialization, supporting
+ * 3 init parameters:
  * <ul>
- * <li>"location": the name of the Log4J config file
- * (absolute or relative to the web application root directory,
- * e.g. "WEB-INF/log4j.properties");
- * <li>"xmlFile": a boolean that indicates whether the
- * specified file is an XML file, or a properties file else;
- * <li>"refreshInterval": the interval between config file
- * refresh checks.
+ * <li>"location": name of the Log4J config file (relative to the
+ * web application root directory, e.g. "WEB-INF/log4j.properties");
+ * <li>"xmlFile": boolean that indicates whether the specified file
+ * is an XML file, or a properties file else;
+ * <li>"refreshInterval": interval between config file refresh* checks.
  * </ul>
  *
- * <p>Note: For correct initialization order, this servlet
- * should not be used with ContextLoaderListener but rather with
- * ContextLoaderServlet, and it needs a lower load-on-startup
- * number than the latter.
+ * <p>Note: For correct initialization order, this servlet should not be
+ * used with ContextLoaderListener but rather with ContextLoaderServlet,
+ * and it needs a lower load-on-startup number than the latter.
  *
- * <p>Note: Sets the web app root system property implicitly,
- * for ${key} substitutions within log file locations in the Log4J
- * config file. The default system property key is "webapp.root".
+ * <p>Note: Sets the web app root system property implicitly, for ${key}
+ * substitutions within log file locations in the Log4J config file.
+ * The default system property key is "webapp.root".
  * Example, using context-param "webAppRootKey" = "demo.root":
  * log4j.appender.myfile.File=${demo.root}/WEB-INF/demo.log
  *
@@ -46,11 +41,9 @@ public class Log4jConfigServlet extends HttpServlet {
 		// only perform custom Log4J initialization in case of a config file
 		String location = getInitParameter("location");
 		if (location != null) {
-			File configFile = new File(location);
 
-			// interpret relative location as relative to the web application root directory
-			if (!configFile.isAbsolute())
-				location = getServletContext().getRealPath(location);
+			// interpret location as relative to the web application root directory
+			location = getServletContext().getRealPath(location);
 
 			// XML file or properties file?
 			boolean xmlFile = Boolean.valueOf(getInitParameter("xmlFile")).booleanValue();
@@ -62,8 +55,12 @@ public class Log4jConfigServlet extends HttpServlet {
 				refreshInterval = Long.parseLong(intervalString);
 			}
 
+			// write log message to server log
+			getServletContext().log("Initializing Log4J from " + location);
+
 			// perform actual Log4J initialization
 			Log4jConfigurer.initLogging(location, xmlFile, refreshInterval);
 		}
 	}
+
 }

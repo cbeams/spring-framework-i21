@@ -23,9 +23,20 @@ import com.interface21.context.support.AbstractXmlApplicationContext;
 import com.interface21.web.context.WebApplicationContext;
 
 /**
- * WebApplicationContext implementation that takes configuration from an XML document.
- * Used in the sample application included in 
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>.
+ * WebApplicationContext implementation that takes configuration from
+ * an XML document.
+ *
+ * <p>Supports various servlet context init parameters for config file
+ * lookup. By default, the lookup occurs in the web app's WEB-INF
+ * directory, looking for "WEB-INF/applicationContext.xml" for a root
+ * context, and "WEB-INF/test-servlet.xml" for a namespaced context
+ * with the name "test-servlet" (like for a ControllerServlet instance
+ * with the web.xml servlet name "test").
+ *
+ * <p>Interprets (file) paths as servlet context resources, i.e. as
+ * paths beneath the web application root. Thus, absolute paths, i.e.
+ * files outside the web app root, should be accessed via "file:" URLs.
+ *
  * @author Rod Johnson, Juergen Hoeller
  * @version $Revision$
  */
@@ -165,10 +176,10 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	}
 
 	/**
-	 * This implementation supports relative file paths beneath the root
+	 * This implementation supports file paths beneath the root
 	 * of the web application.
 	 */
-	protected InputStream getResourceByRelativePath(String path) throws IOException {
+	protected InputStream getResourceByPath(String path) throws IOException {
 		return getServletContext().getResourceAsStream(path);
 	}
 

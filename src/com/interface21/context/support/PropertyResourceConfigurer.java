@@ -35,9 +35,8 @@ public class PropertyResourceConfigurer implements ApplicationListener {
 	private String location;
 
 	/**
-	 * Set the location of the properties file.
-	 * Allows for both a URL and an absolute or a relative file location
-	 * (according to the respective ApplicationContext).
+	 * Set the location of the properties file. Allows for both a URL
+	 * and a (file) path, according to the respective ApplicationContext.
 	 * @see com.interface21.context.ApplicationContext#getResourceAsStream
 	 */
 	public void setLocation(String location) {
