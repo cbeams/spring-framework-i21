@@ -2,7 +2,6 @@ package com.interface21.beans;
 
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,8 +32,7 @@ public abstract class BeanUtils {
 	}
 
 	/**
-	 * Copy the property values of the given source bean into the given target bean,
-	 * ignoring the given ignoreProperties.
+	 * Copy the property values of the given source bean into the target bean.
 	 * @param source source bean
 	 * @param target target bean
 	 * @throws IllegalArgumentException if the classes of source and target do not match
@@ -54,8 +52,9 @@ public abstract class BeanUtils {
 	 */
 	public static void copyProperties(Object source, Object target, String[] ignoreProperties)
 	    throws IllegalArgumentException, BeansException {
-		if (source == null || target == null || !source.getClass().isInstance(target))
+		if (source == null || target == null || !source.getClass().isInstance(target)) {
 			throw new IllegalArgumentException("Target must an instance of source");
+		}
 		List ignoreList = (ignoreProperties != null) ? Arrays.asList(ignoreProperties) : null;
 		BeanWrapper sourceBw = new BeanWrapperImpl(source);
 		BeanWrapper targetBw = new BeanWrapperImpl(target);
@@ -70,39 +69,6 @@ public abstract class BeanUtils {
 			}
 		}
 		targetBw.setPropertyValues(values);
-	}
-
-	/**
-	 * Sorts the given List by the given propertyName.
-	 * <p>Note: Contained objects have to provide the given propertyName in the form of a
-	 * bean property, i.e. a getXXX method.
-	 * @param source the input List
-	 * @param propertyName the property to sort by
-	 * @param ignoreCase ignore upper and lower case in Strings
-	 * @param ascending ascending or descending?
-	 * @throws IllegalArgumentException in case of a missing propertyName
-	 */
-	public static void sortByProperty(List source, String propertyName, boolean ascending, boolean ignoreCase)
-	    throws BeansException {
-		Collections.sort(source, new BeanPropertyComparator(propertyName, ascending, ignoreCase));
-	}
-
-	/**
-	 * Sorts the given source by the given bean property.
-	 * <p>Note: Contained objects have to provide the given propertyName in the form of a
-	 * bean property, i.e. a getXXX method.
-	 * @param source input source
-	 * @param propertyName the property to sort by
-	 * @param ignoreCase ignore upper and lower case in Strings
-	 * @param ascending ascending or descending?
-	 * @return the sorted source
-	 * @throws IllegalArgumentException in case of a missing propertyName
-	 */
-	public static Object[] sortByProperty(Object[] source, String propertyName, boolean ascending, boolean ignoreCase)
-	    throws BeansException {
-		Object[] result = (Object[]) source.clone();
-		Arrays.sort(result, new BeanPropertyComparator(propertyName, ascending, ignoreCase));
-		return result;
 	}
 
 }

@@ -339,8 +339,9 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			AbstractBeanDefinition beanDefinition = null;
 			if (classname != null) {
 				// Load the class using a special class loader if one is available.
-				// Otherwise rely on the default behavior of Class.forName().
-				Class clazz = (this.classLoader != null) ? Class.forName(classname, true, this.classLoader) : Class.forName(classname);
+				// Otherwise rely on the thread context classloader.
+				ClassLoader cl = (this.classLoader != null) ? this.classLoader : Thread.currentThread().getContextClassLoader();
+				Class clazz = Class.forName(classname, true, cl);
 				beanDefinition = new RootBeanDefinition(clazz, pvs, singleton);
 			}
 			else {
