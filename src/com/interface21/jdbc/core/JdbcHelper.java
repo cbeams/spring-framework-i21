@@ -23,6 +23,7 @@ import com.interface21.dao.InvalidDataAccessResourceUsageException;
  * it could also be used from within a web application.
  * @author  Rod Johnson
  * @since May 30, 2001
+ * @version $Id$
  */
 public class JdbcHelper {
 	
