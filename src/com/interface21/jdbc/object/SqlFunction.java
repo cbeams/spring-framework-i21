@@ -41,7 +41,7 @@ import com.interface21.jdbc.util.JdbcUtils;
  * 09/05/2003 : modified by JPP, added case Types.BIGINT in function extract
  */
 
-public class SqlFunction extends ManualExtractionSqlQuery {
+public class SqlFunction extends MappingSqlQuery {
 	
     /**
      * Constructor to allow use as a JavaBean.
@@ -125,7 +125,7 @@ public class SqlFunction extends ManualExtractionSqlQuery {
      * is treated as an error.
      * @see ManualExtractionSqlQuery#extract(ResultSet, int)
      */
-    protected Object extract(ResultSet rs, int rownum) throws SQLException, InvalidDataAccessApiUsageException {
+    protected Object mapRow(ResultSet rs, int rownum) throws SQLException, InvalidDataAccessApiUsageException {
 	if (rownum != 0) {
 	    throw new InvalidDataAccessApiUsageException("SQL function '" + getSql() + "' can't return more than one row");	
 	}
