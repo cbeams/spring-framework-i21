@@ -25,19 +25,22 @@ import com.interface21.jdbc.core.SqlParameter;
 
 /** 
  * Root of the JDBC object hierarchy, as described in Chapter 9 of
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002).
- * <br>An "RDBMS operation" is a multithreaded, reusable object representing a query, update or stored procedure.
- * <br/>An RDBMS operation is <b>not</b> a command, as a command isn't be reusable.
- * However, execute methods may take commands as arguments.
- * <br/>Subclasses should be Java beans, allowing easy configuration.
- * <br/>This class and subclasses throw runtime exceptions, defined in the com.interface21.dao
- * package (and as thrown by the com.interface21.jdbc.core package,
- * which the classes in this package use to perform raw JDBC actions).
- * <br/>Subclasses should set DataSource, sql and add
- * parameters, before invoking the compile() method.
- * The order in which parameters are added is significant.
+ * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">
+ * Expert One-On-One J2EE Design and Development</a> by Rod Johnson (Wrox, 2002).
+ *
+ * <p>An "RDBMS operation" is a multithreaded, reusable object representing
+ * a query, update or stored procedure. An RDBMS operation is <b>not</b> a command,
+ * as a command isn't be reusable. However, execute methods may take commands as
+ * arguments. Subclasses should be Java beans, allowing easy configuration.
+ *
+ * <p>This class and subclasses throw runtime exceptions, defined in the
+ * com.interface21.dao package (and as thrown by the com.interface21.jdbc.core
+ * package, which the classes in this package use to perform raw JDBC actions).
+ *
+ * <p>Subclasses should set DataSource, sql and add parameters, before invoking
+ * the compile() method. The order in which parameters are added is significant.
  * The appropriate execute or update method can then be invoked.
+ *
  * @see com.interface21.dao
  * @see com.interface21.jdbc.core
  * @author Rod Johnson
@@ -45,10 +48,6 @@ import com.interface21.jdbc.core.SqlParameter;
  */
 public abstract class RdbmsOperation implements InitializingBean {
 	
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
@@ -74,20 +73,27 @@ public abstract class RdbmsOperation implements InitializingBean {
 	private boolean compiled;
 	
 	
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
-
 	/**
-	 *  Construct a new RdbmsOperation
+	 * Create a new RdbmsOperation.
 	 */
 	protected RdbmsOperation() {
 	}
-	
-	
-	//---------------------------------------------------------------------
-	//  Configuration methods
-	//---------------------------------------------------------------------
+
+
+	/**
+	 * Sets the DataSource used to obtain connections.
+	 * @param dataSource the DataSource to use
+	 */
+	public final void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+	/**
+	 * Gets the DataSource used to obtain connections.
+	 * @return the DataSource used to obtain connections
+	 */
+	protected final DataSource getDataSource() {
+		return this.dataSource;
+	}
 
 	/**
 	 * Add anonymous parameters, specifying only their SQL types as defined in the
@@ -108,8 +114,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * Declare a parameter. The order in which this method is called is significant.
 	 * @param param SqlParameter to add. This will specify SQL type and (optionally)
@@ -122,8 +127,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 			throw new InvalidDataAccessApiUsageException("Cannot add parameters once query is compiled");
 		declaredParameters.add(param);
 	}
-	
-	
+
 	/**
 	 * Return a list of the declared SqlParameter objects
 	 * @return a list of the declared SqlParameter objects
@@ -133,6 +137,14 @@ public abstract class RdbmsOperation implements InitializingBean {
 	}
 	
 	/**
+	 * Set the SQL executed by this operation
+	 * @param sql the SQL executed by this operation
+	 */
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	/**
 	 * Subclasses can override this to supply dynamic SQL if they wish,
 	 * but SQL is normally set by calling the setSql() method
 	 * or in a subclass constructor.
@@ -141,48 +153,15 @@ public abstract class RdbmsOperation implements InitializingBean {
 		return sql;
 	}
 
-	/**
-	 * Set the SQL executed by this operation
-	 * @param sql the SQL executed by this operation
-	 */
-	public void setSql(String sql) {
-		this.sql = sql;
-	}
-	 
-	/**
-	 * Gets the DataSource in use
-	 * @return Returns the DataSource used to obtain connections
-	 */
-	protected final DataSource getDataSource() {
-		return this.dataSource;
-	}
 	
 	/**
-	 * Sets the DataSource used to obtain connections
-	 * @param dataSource The DataSource to set
-	 */
-	public final void setDataSource(DataSource dataSource) {		
-		this.dataSource = dataSource;
-	}
-	
-	
-	//---------------------------------------------------------------------
-	// Implementation of InitializingBean
-	//---------------------------------------------------------------------
-
-	/**
-	 * Ensures compilation if used in a bean factory
-	 * @see InitializingBean#afterPropertiesSet()
+	 * Ensures compilation if used in a bean factory.
 	 */
 	public void afterPropertiesSet()  {
 		compile();
 	}
 	
 	
-	//---------------------------------------------------------------------
-	// Other methods
-	//---------------------------------------------------------------------
-
 	/**
 	 * Is this operation "compiled"? Compilation, as in JDO,
 	 * means that the operation is fully configured, and ready to use.
@@ -192,8 +171,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 	public boolean isCompiled() {
 		return compiled;
 	}
-	
-	
+
 	/**
 	 * Compile this query.
 	 * Ignore subsequent attempts to compile
@@ -212,8 +190,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 			logger.info("Compiled OK");
 		}
 	}
-	
-	
+
 	/**
 	 * Subclasses must implement to perform their own compilation.
 	 * Invoked after this class's compilation is complete.
@@ -224,12 +201,9 @@ public abstract class RdbmsOperation implements InitializingBean {
 	 */
 	protected abstract void compileInternal() throws InvalidDataAccessApiUsageException;
 
-
 	/**
-	 * Validate the parameters passed to an execute method
-	 * based on declared parameters.
-	 * Subclasses should invoke this method before every execute() or update()
-	 * method.
+	 * Validate the parameters passed to an execute methodbased on declared parameters.
+	 * Subclasses should invoke this method before every execute() or update() method.
 	 * @param parameters parameters supplied. May be null.
 	 * @throws InvalidDataAccessApiUsageException if the parameters are invalid
 	 */

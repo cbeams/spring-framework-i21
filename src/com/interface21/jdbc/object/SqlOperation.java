@@ -19,18 +19,16 @@ import com.interface21.jdbc.util.JdbcUtils;
 
 /** 
  * RdbmsOperation using a JdbcTemplate and representing a SQL-based
- * operation such as a query or update, as opposed to a stored
- * procedure.
- * <br>Configures a PreparedStatementCreatorFactory based on the declared
+ * operation such as a query or update, as opposed to a stored procedure.
+ *
+ * <p>Configures a PreparedStatementCreatorFactory based on the declared
  * parameters.
+ *
  * @author Rod Johnson
  * @version $Id$
  */
 public abstract class SqlOperation extends RdbmsOperation { 
 	
-	//-------------------------------------------------------------------------
-	// Instance data
-	//-------------------------------------------------------------------------
  	/** Lower-level class used to execute SQL */
  	private JdbcTemplate jdbcTemplate;
  		
@@ -40,26 +38,18 @@ public abstract class SqlOperation extends RdbmsOperation {
  	 */
  	private PreparedStatementCreatorFactory preparedStatementFactory;
 
-	//-------------------------------------------------------------------------
-	// Constructors
-	//-------------------------------------------------------------------------
 	/**
-	 * Allow use as a bean
+	 * Create a new SqlOperation.
 	 */
 	public SqlOperation() {
 	}
 
-
-	//-------------------------------------------------------------------------
-	// Bean properties
-	//-------------------------------------------------------------------------
 	/**
 	 * Return the JdbcTemplate object used by this object
 	 */
 	protected final JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
-	
 
 	/**
 	 * Return a PreparedStatementCreator to perform an operation
@@ -94,14 +84,11 @@ public abstract class SqlOperation extends RdbmsOperation {
 		onCompileInternal();
 	}
 	
-	
 	/**
-	 * Hook method that subclasses may override to react
-	 * to compilation.
+	 * Hook method that subclasses may override to react to compilation.
 	 * This implementation does nothing.
 	 */
 	protected void onCompileInternal() {
-		logger.debug("NOP onCompileInternal");
 	}
 
 }
