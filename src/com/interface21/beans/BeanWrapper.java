@@ -1,12 +1,6 @@
-/**
- * Generic framework code included with
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002).
- * This code is free to use and modify. However, please
- * acknowledge the source and include the above URL in each
- * class using or derived from this code.
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
 
 package com.interface21.beans;
@@ -43,7 +37,7 @@ import java.util.Map;
  * 
  * @author Rod Johnson
  * @since 13 April 2001
- * @version $Revision$
+ * @version $Id$
  */
 public interface BeanWrapper {
 
@@ -181,17 +175,6 @@ public interface BeanWrapper {
 	 * class than create a new wrapper to work with a new object
 	 */
 	void newWrappedInstance() throws BeansException;
-
-	/**
-	 * This method is included for efficiency. If an implementation
-	 * caches all necessary information about the class, it might be
-	 * <b>much</b> faster to instantiate a new wrapper copying
-	 * the cached information than to use introspection again.
-	 * <p>The wrapped instance is independent, as is the new BeanWrapper:
-	 * Only the cached introspection information is copied.
-	 * Does <b>not</b> copy listeners.
-	 */
-	BeanWrapper newWrapper(Object obj) throws BeansException;
 
 	/**
 	 * Convenience method to return the class of the wrapped object.
