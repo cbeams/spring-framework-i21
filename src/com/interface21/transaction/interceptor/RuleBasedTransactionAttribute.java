@@ -70,7 +70,6 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute {
 			if (next instanceof RollbackRuleAttribute) {
 				RollbackRuleAttribute rule = (RollbackRuleAttribute) next;
 				int depth = rule.getDepth(t);
-				//System.out.println("Depth=" + depth + "; deepest=" + deepest + ": checking rule" + rule);
 				if (depth >= 0 && depth < deepest) {
 					deepest = depth;
 					winner = rule;

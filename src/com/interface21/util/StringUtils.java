@@ -111,13 +111,12 @@ public abstract class StringUtils {
 			return new String[]{s};
 
 		/*
-	    StringTokenizer st = new StringTokenizer(s, delimiter);
-	    String[] tokens = new String[st.countTokens()];
-	    System.out.println("length is  " +tokens.length);
-	    for (int i = 0; i < tokens.length; i++) {
-	        tokens[i] = st.nextToken();
-	    }
-	    return tokens;
+		StringTokenizer st = new StringTokenizer(s, delimiter);
+		String[] tokens = new String[st.countTokens()];
+		for (int i = 0; i < tokens.length; i++) {
+			tokens[i] = st.nextToken();
+		}
+		return tokens;
 	  */
 
 		List l = new LinkedList();

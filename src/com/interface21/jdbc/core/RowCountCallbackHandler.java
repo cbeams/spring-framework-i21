@@ -27,9 +27,6 @@ import java.sql.SQLException;
  */
 public class RowCountCallbackHandler implements RowCallbackHandler {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
 	/** Rows we've seen so far */
 	private int rowCount;
 
@@ -43,10 +40,7 @@ public class RowCountCallbackHandler implements RowCallbackHandler {
 	
 	private String[] columnNames;
 
-	//---------------------------------------------------------------------
-	// Public methods
-	//---------------------------------------------------------------------
-	/** 
+	/**
 	 * Implementation of ResultSetCallbackHandler.
 	 * Work out column size if this is the first row,
 	 * otherwise just count rows.
@@ -68,7 +62,6 @@ public class RowCountCallbackHandler implements RowCallbackHandler {
 		processRow(rs, rowCount++);
 	}
 
-
 	/** 
 	 * Subclasses may override this to perform custom extraction
 	 * or processing. This class's implementation does nothing.
@@ -77,10 +70,7 @@ public class RowCountCallbackHandler implements RowCallbackHandler {
 	 * @param rowNum number of the current row (starting from 0)
 	 */
 	protected void processRow(ResultSet rs, int rowNum) throws SQLException {
-		//System.out.println("in processrow...");
-		//System.out.println("default process row: value at 0 is "  + rs.getObject(1));
 	}
-
 
 	/** 
 	 * Return the types of the columns as java.sql.Types constants
@@ -122,4 +112,4 @@ public class RowCountCallbackHandler implements RowCallbackHandler {
 		return columnCount;
 	}
 
-}	// class RowCountCallbackHandler
+}

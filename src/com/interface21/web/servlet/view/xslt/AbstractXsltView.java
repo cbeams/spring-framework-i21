@@ -242,7 +242,6 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 		Node dom = null;
 		String docRoot = null;
 
-		//System.out.println("INitializing XML: view with hc=" + hashCode());
 		// Value of a single element in the map, if there is one
 		Object singleModel = null;
 

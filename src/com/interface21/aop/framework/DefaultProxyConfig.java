@@ -118,7 +118,6 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 */
 	private void addAspectInterfacesIfNecessary(Interceptor interceptor) {
 		 if (interceptor instanceof IntroductionInterceptor) {
-		 	System.out.println("Added new aspect interface");
 			 IntroductionInterceptor aii = (IntroductionInterceptor) interceptor;
 			 for (int i = 0; i < aii.getIntroducedInterfaces().length; i++) {
 				 addInterface(aii.getIntroducedInterfaces()[i]);
@@ -137,7 +136,6 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
 			if (pc.getInterceptor() instanceof ProxyInterceptor) {
 				if (i < pointcuts.size() -1) {
-					//System.out.println("HaCK: commented out");
 					throw new AopConfigException("Can only have ProxyInterceptor at end of list: had " + i + " and " + pointcuts.size());
 				}
 				else {
@@ -179,6 +177,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 */
 	protected final void addInterface(Class newInterface) {
 		this.interfaces.add(newInterface);
+		logger.info("Added new aspect interface: " + newInterface);
 	}
 
 	/**

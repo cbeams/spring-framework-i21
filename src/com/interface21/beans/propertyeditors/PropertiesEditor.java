@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-
 /**
  * Editor for java.util.Properties objects. Handles
  * conversion from String to Properties object. Not
@@ -59,7 +58,6 @@ public class PropertiesEditor extends PropertyEditorSupport {
 		StringTokenizer st = new StringTokenizer(s);
 		while (st.hasMoreTokens()) {
 			String tok = st.nextToken();
-			//System.out.println("Tok=[" + tok + "]");
 
 			// Tokens look like "/welcome.html=mainController"
 			int eqpos = tok.indexOf("=");
@@ -117,7 +115,6 @@ public class PropertiesEditor extends PropertyEditorSupport {
 		}
 		for (int i = 0; i < commentKeys.size(); i++) {
 			String key = (String) commentKeys.get(i);
-			//System.out.println("Removed comment " + commentKeys.get(i));
 			props.remove(key);
 		}
 	}

@@ -217,7 +217,6 @@ public abstract class PathMatcher {
 			// left in the pattern. If so, we succeeded. Otherwise failure.
 			for (int i = patIdxStart; i <= patIdxEnd; i++) {
 				if (patArr[i] != '*') {
-					System.out.println("false14");
 					return false;
 				}
 			}
