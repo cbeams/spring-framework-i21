@@ -4,11 +4,12 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 
 /**
- * Callback that let initialize a binder with custom editors before the binding.
- * Used by BindUtils.
- * 
+ * Callback that allows for initialization of a binder with
+ * custom editors before the binding. Used by BindUtils.
  * @author Jean-Pierre PAWLAK
  * @since 08.05.2003
+ * @see BindUtils#bind(ServletRequest,Object,String,BindInitializer)
+ * @see BindUtils#bindAndValidate(ServletRequest,Object,String,com.interface21.validation.Validator,BindInitializer)
  */
 public interface BindInitializer {
 
@@ -22,8 +23,8 @@ public interface BindInitializer {
 	 * @param request current request
 	 * @param binder new binder instance
 	 * @throws ServletException in case of invalid state or arguments
-	 * @see BindUtils
-	 * @see com.interface21.web.bind.ServletRequestDataBinder
+	 * @see com.interface21.validation.DataBinder#registerCustomEditor
+	 * @see BindUtils#bind(ServletRequest,Object,String,BindInitializer)
 	 */
 	public void initBinder(ServletRequest request, ServletRequestDataBinder binder)
 			throws ServletException ;
