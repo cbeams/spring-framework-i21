@@ -14,8 +14,6 @@ package com.interface21.web.servlet;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 /**
  * Holder for both Model and View in our MVC framework.
  * Note that these are entirely distinct. This class merely holds
@@ -30,9 +28,6 @@ import org.apache.log4j.Logger;
  * @author  Rod Johnson
  */
 public class ModelAndView {
-
-	/** Static for efficiency, as a lot of ModelAndView objects are created in web applications */
-	private static Logger logger = Logger.getLogger(ModelAndView.class.getName());
 
 	//---------------------------------------------------------------------
 	// Instance data
@@ -53,7 +48,7 @@ public class ModelAndView {
 	//---------------------------------------------------------------------
 	/** 
 	 * Creates new ModelAndView given a View reference and a model
-	 * @param View view to render this model
+	 * @param view view to render this model
 	 * @param model Map of model names (Strings) to
 	 * models (Objects). Model entries may not be null, but the
 	 * model may be null if there is no model data.
@@ -187,7 +182,6 @@ public class ModelAndView {
 		s += isReference() ? "reference to view with name '" + viewname + "'" : "materialized View is " + view;
 		s += "; Model=[" + model + "]";
 		return s;
-
 	}
 
-}	// class ModelAndView
+}

@@ -50,9 +50,6 @@
 	</target>
 
 
-	<!--
-		Delete all binaries and generated distribution units.
-	-->
 	<target name="clean" description="Cleans ALL output dirs (build, dist, test, clover)">
 
 		<delete dir="${build.dir}"/>
@@ -63,29 +60,22 @@
 	</target>
 
 
-	<!--
-		Compile main source tree.
-  -->
 	<target name="build" description="Compile main source tree java files into class files (no-jarring)">
 
 		<mkdir dir="${build.dir}"/>
 
-		<javac destdir="${build.dir}"
-			debug="${debug}"
-			deprecation="false" optimize="false"
-			failonerror="true"
-			>
+		<javac destdir="${build.dir}"	debug="${debug}"
+			deprecation="false" optimize="false" failonerror="true">
+
 			<src path="${src.dir}"/>
 
 			<classpath refid="master-classpath"/>
 
 		</javac>
+
 	</target>
 
 
-	<!--
-		Initialize the distribition directory.
-  -->
 	<target name="initdist" description="Initialize the distribition directory.">
 
 		<mkdir dir="${dist.dir}"/>
@@ -93,19 +83,19 @@
 	</target>
 
 
-	<!-- Build one big JAR -->
 	<target name="full" depends="build,initdist" description="Build one big jar file containing main source tree class files.">
 
 		<jar jarfile="${dist.dir}/${spring-full.jar}">
+
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/**"/>
 			</fileset>
+
 		</jar>
 
 	</target>
 
 
-	<!-- Create the core JAR file -->
 	<target name="core" depends="build,initdist" description="Create the core JAR file. JDBC and other JAR files depend on this.">
 
 		<!-- We inherit this property from calling ant script -->
@@ -139,17 +129,16 @@
 	</target>
 
 
-	<!--
-		Create the XML Bean implementation JAR file.
-	-->
 	<target name="xmlbean" depends="build,initdist" description="Create the XML Bean implementation JAR file.">
 
 		<!-- We inherit this property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-xmlbean.jar}">
+
 			<fileset dir="${build.dir}">
 				<!-- The bean factory classes excluded from the spring-core.jar -->
 				<include name="com/interface21/beans/factory/support/X*"/>
 			</fileset>
+
 		</jar>
 
 	</target>
@@ -162,46 +151,48 @@
 
 		<!-- We inherit the spring-jdbc property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-jdbc.jar}">
+
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/dao/**"/>
 				<include name="com/interface21/jdbc/**"/>
 			</fileset>
+
 		</jar>
 
 	</target>
 
 
-	<!--
-		Create the EJB implementation JAR file.
-  -->
 	<target name="ejbimpl" depends="build,initdist" description="Create the EJB distribution JAR file.">
 
 		<!-- We inherit this property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-ejbimpl.jar}">
+
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/ejb/support/*"/>
 				<include name="com/interface21/jndi/JndiBeanFactory.class"/>
 				<include name="com/interface21/jndi/JndiPropertyValues.class"/>
 			</fileset>
+
 		</jar>
 
 	</target>
 
 
 	<!--
-	    Build the framework web classes.
-	    This JAR will depend on the core JAR, so can't be used in isolation.
-	    We go to trouble to exclude stuff here to try to avoid class
-	    loader issues with application servers such as WebLogic
-	    in which the EJB class loader is the parent of the WAR class loader.
-	    Of course these problems only apply to applications using EJB.
+		Build the framework web classes.
+		This JAR will depend on the core JAR, so can't be used in isolation.
+		We go to trouble to exclude stuff here to try to avoid class
+		loader issues with application servers such as WebLogic
+		in which the EJB class loader is the parent of the WAR class loader.
+		Of course these problems only apply to applications using EJB.
 	-->
 	<target name="web" depends="build,initdist" description="Create the web distribution JAR file (runtime requires use of core JAR file).">
 
 		<!-- We inherit this property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-web.jar}">
-			<!--       manifest="framework/webmanifest"
-			   -->
+
+			<!-- manifest="framework/webmanifest" -->
+
 			<fileset dir="${build.dir}">
 
 				<!-- This is web only and shouldn't be loaded from EJB class loader -->
@@ -215,21 +206,31 @@
 				<include name="com/interface21/jms/*"/>
 
 			</fileset>
+
 		</jar>
 
 	</target>
 
 
+	<target name="srczip" depends="initdist" description="Create source ZIP file (containing all Java sources).">
+
+		<zip zipfile="${dist.dir}/${spring-src.zip}">
+
+			<fileset dir="${src.dir}">
+				<include name="**/*.java"/>
+			</fileset>
+
+		</zip>
+
+	</target>
+
+
 	<!--
-		Build all JAR files.
 		Note: Contained classes overlap, e.g. spring-full contains everything.
 	-->
-	<target name="all" depends="full,core,xmlbean,jdbc,ejbimpl,web" description="Create all JAR files."/>
+	<target name="all" depends="full,core,xmlbean,jdbc,ejbimpl,web,srczip" description="Create all JAR files."/>
 
 
-	<!--
-		Create Javadocs.
-	-->
 	<target name="javadoc" description="Generate framework Javadocs.">
 
 		<delete dir="${docs.dir}"/>
@@ -243,10 +244,13 @@
 			version="true"
 			use="true"
 			windowtitle="Spring Framework">
+
 			<doctitle><![CDATA[<h1>Spring Framework</h1>]]></doctitle>
 			<bottom><![CDATA[<i>Rod Johnson and Spring contributors 2001-2003.</i>]]></bottom>
 			<classpath refid="master-classpath"/>
+
 		</javadoc>
+
 	</target>
 
 
@@ -265,11 +269,9 @@
 
 		<mkdir dir="${testbuild.dir}"/>
 
-		<javac destdir="${testbuild.dir}"
-			debug="${debug}"
-			deprecation="false" optimize="false"
-			failonerror="false"
-			>
+		<javac destdir="${testbuild.dir}" debug="${debug}"
+			deprecation="false" optimize="false" failonerror="false">
+
 			<src path="${test.dir}"/>
 
 			<exclude name="**/jta/**"/>
@@ -279,9 +281,9 @@
 			<classpath location="${build.dir}"/>
 
 		</javac>
-		
+
 		<copy file="${src.dir}/sql-error-codes.xml" todir="${testbuild.dir}"/>
-		
+
 	</target>
 
 
@@ -289,11 +291,9 @@
 
 		<mkdir dir="${livetestbuild.dir}"/>
 
-		<javac destdir="${livetestbuild.dir}"
-			debug="${debug}"
-			deprecation="false" optimize="false"
-			failonerror="false"
-			>
+		<javac destdir="${livetestbuild.dir}"	debug="${debug}"
+			deprecation="false" optimize="false" failonerror="false">
+
 			<src path="${livetest.dir}"/>
 
 			<!-- Will pull in dependencies as required  -->
@@ -301,9 +301,9 @@
 			<classpath location="${build.dir}"/>
 
 		</javac>
-		
+
 		<copy file="${src.dir}/sql-error-codes.xml" todir="${testbuild.dir}"/>
-		
+
 	</target>
 
 
@@ -330,15 +330,12 @@
 
 			<classpath refid="master-classpath"/>
 
-
 			<formatter type="plain"/>
 
 			<batchtest fork="yes" todir="${reports.dir}">
+
 				<!-- Wildcards are specified as properties -->
-				<fileset dir="test"
-					includes="${test.includes}"
-					excludes="${test.excludes}"
-					/>
+				<fileset dir="test"	includes="${test.includes}"	excludes="${test.excludes}"/>
 
 			</batchtest>
 
@@ -348,16 +345,15 @@
 
 
 	<target name="clover.build" description="Compile main source tree java files WITH CLOVER into class files.">
+
 		<!-- switch on clover by specifying it as the compiler to use -->
 		<property name="build.compiler" value="org.apache.tools.ant.taskdefs.CloverCompilerAdapter"/>
 
 		<mkdir dir="${clover.build.dir}"/>
 
-		<javac destdir="${clover.build.dir}"
-			debug="${debug}"
-			deprecation="false" optimize="false"
-			failonerror="false"
-			>
+		<javac destdir="${clover.build.dir}" debug="${debug}"
+			deprecation="false" optimize="false" failonerror="false">
+
 			<src path="${src.dir}"/>
 
 			<classpath refid="master-classpath"/>
@@ -370,7 +366,6 @@
 	<target name="clover.tests" depends="buildtests,clover.build" description="Run clover tests.">
 
 		<junit printsummary="yes" haltonfailure="yes">
-
 
 			<!-- Must go first to ensure the jndi.properties takes precedence  -->
 			<classpath location="${testbuild.dir}"/>
@@ -388,14 +383,12 @@
 					/>
 
 			</batchtest>
+
 		</junit>
 
 	</target>
 
 
-	<!--
-		Run Clover tests and bring up Swing coverage viewer.
-	-->
 	<target name="clover.swing" depends="clover.tests" description="Run Clover tests and bring up Swing coverage viewer.">
 
 		<echo>Launching coverage viewer</echo>
@@ -408,9 +401,6 @@
 	</target>
 
 
-	<!--
-		Generate Clover HTML coverage reports from an existing Clover database.
-	-->
 	<target name="clover.html" description="Generate Clover HTML coverage reports from an existing Clover database.">
 
 		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
