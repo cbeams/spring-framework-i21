@@ -23,7 +23,7 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
-	/*package*/ ListableBeanFactoryImpl defaultBeanFactory = new ListableBeanFactoryImpl();
+	ListableBeanFactoryImpl defaultBeanFactory;
 
 	/** Namespace --> name */	
 	private HashMap beanFactoryHash = new HashMap(); 
@@ -33,16 +33,15 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	// Constructor
 	//---------------------------------------------------------------------	
 	public StaticApplicationContext() throws BeansException, ApplicationContextException {
-		// Register the message source bean
-		defaultBeanFactory.registerBeanDefinition(MESSAGE_SOURCE_BEAN_NAME, 
-			new DefaultRootBeanDefinition(StaticMessageSource.class, null, true));
-			
-		//refresh();			
-	} 
+		this(null);
+	}
 	
 	public StaticApplicationContext(ApplicationContext parent) throws BeansException, ApplicationContextException {
 		super(parent);
-		
+
+		// create bean factory with parent
+		defaultBeanFactory = new ListableBeanFactoryImpl(parent);
+
 		// Register the message source bean
 		defaultBeanFactory.registerBeanDefinition(MESSAGE_SOURCE_BEAN_NAME, 
 			new DefaultRootBeanDefinition(StaticMessageSource.class, null, true));

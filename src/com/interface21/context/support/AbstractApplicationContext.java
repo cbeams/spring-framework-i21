@@ -170,10 +170,10 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			this.messageSource = (MessageSource) getBeanFactory().getBean(MESSAGE_SOURCE_BEAN_NAME);
 		}
 		catch (BeansException ex) {
-			logger.info("No MessageSource defined in ApplicationContext: using parent's");
+			logger.warn("No MessageSource defined in ApplicationContext: using parent's");
 			this.messageSource = this.parent;
 			if (this.messageSource == null)
-				throw new ApplicationContextException("No MessageSource defined in WebApplicationContext and no parent", ex);
+				logger.warn("No MessageSource defined in WebApplicationContext and no parent");
 		}
 		if ((this.messageSource instanceof NestingMessageSource) && this.parent != null) {
 			( (NestingMessageSource) messageSource).setParent(this.parent);
@@ -299,6 +299,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * otherwise return the default message passed as a parameter
 	 */
 	public String getMessage(String code, Locale locale, String defaultMessage) {
+		if (messageSource == null)
+			return defaultMessage;
 		return messageSource.getMessage(code, locale, defaultMessage);
 	}
 	
@@ -311,6 +313,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * @throws NoSuchMessageException not found in any locale
 	 */
 	public String getMessage(String code, Locale locale) throws NoSuchMessageException {
+		if (messageSource == null)
+			throw new NoSuchMessageException("no message source defined");
 		return messageSource.getMessage(code, locale);
 	}
 	
@@ -329,10 +333,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			return bean;
 		}
 		catch (NoSuchBeanDefinitionException ex) {
+			/*
+			***** NOT NECESSARY ANYMORE BECAUSE OF BEANFACTORY INHERITANCE *****
 			// Not found here: let's check parent
 			// A more serious exception can just be rethrown
 			if (this.parent != null)
 				return parent.getBean(name);
+			*/
 		}
 		throw new NoSuchBeanDefinitionException(name);
 	}

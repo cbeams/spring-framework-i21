@@ -23,7 +23,7 @@ import com.interface21.context.ApplicationContextException;
  * Convenient abstract superclass for ApplicationContext implementations
  * drawing their configuration from XML documents containing bean definitions
  * understood by an XMLBeanFactory
- * @see com.interface21.beans.factory.xml.XMLBeanFactory
+ * @see com.interface21.beans.factory.support.XmlBeanFactory
  * @author  Rod Johnson
  * @version $Revision$
  */
@@ -88,7 +88,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 		//log4jCategory.debug("Parsed XML configuration from well-formed '" + getURL() + "': processing document...");
 
 		try {
-			listableBeanFactory = new XmlBeanFactory(doc);
+			listableBeanFactory = new XmlBeanFactory(doc, getParent());
 			logger.info("**** BeanFactory for application config is [" + listableBeanFactory + "]");
 		}
 		catch (NoSuchBeanDefinitionException ex) {
