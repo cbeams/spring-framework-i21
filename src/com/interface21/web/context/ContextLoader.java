@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import com.interface21.beans.BeansException;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.support.XmlWebApplicationContext;
+import com.interface21.web.context.support.WebApplicationContextUtils;
 
 /**
  * Performs the actual initialization work for the root application context.
@@ -39,6 +40,7 @@ public class ContextLoader {
 	 * @return the new WebApplicationContext
 	 */
 	public static WebApplicationContext initContext(ServletContext servletContext) throws ApplicationContextException {
+		servletContext.log("Loading root WebApplicationContext");
 		String contextClass = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);
 
 		// Now we must load the WebApplicationContext.
@@ -49,8 +51,7 @@ public class ContextLoader {
 			logger.info("Loading root WebApplicationContext: using context class '" + clazz.getName() + "'");
 
 			if (!WebApplicationContext.class.isAssignableFrom(clazz)) {
-				String msg = "Context class is no WebApplicationContext: " + contextClass;
-				throw new ApplicationContextException(msg);
+				throw new ApplicationContextException("Context class is no WebApplicationContext: " + contextClass);
 			}
 
 			WebApplicationContext webApplicationContext = (WebApplicationContext) clazz.newInstance();
@@ -90,6 +91,11 @@ public class ContextLoader {
 		else {
 			throw new ApplicationContextException(msg, ex);
 		}
+	}
+
+	public static void closeContext(ServletContext servletContext) {
+		servletContext.log("Closing root WebApplicationContext");
+		WebApplicationContextUtils.getWebApplicationContext(servletContext).close();
 	}
 
 }
