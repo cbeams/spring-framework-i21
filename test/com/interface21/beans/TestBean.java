@@ -4,6 +4,8 @@
 
 package com.interface21.beans;
 
+import java.util.Date;
+
 
 /**
  * Simple test bean used for testing bean factories,
@@ -22,7 +24,9 @@ public class TestBean implements ITestBean, IOther {
 	private ITestBean spouse;
 	
 	private String touchy;
-	
+
+	private Date date = new Date();
+
 	public String getTouchy() {
 		return touchy;
 	}
@@ -84,7 +88,15 @@ public class TestBean implements ITestBean, IOther {
 	public void setSpouse(ITestBean spouse) {
 		this.spouse = spouse;
 	}
-	
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 	public boolean equals(Object other) {
 		if (other == null || !(other instanceof TestBean)) 
 			return false;

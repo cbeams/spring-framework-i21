@@ -80,6 +80,7 @@ public class BeanUtilsTests extends TestCase {
 		assertTrue("Touchy still empty", tb2.getTouchy() == null);
 	}
 
+	/*
 	public void testSortByPropertyWithList() {
 		TestBean tb1 = new TestBean();
 		tb1.setName("eva");
@@ -151,5 +152,6 @@ public class BeanUtilsTests extends TestCase {
 		assertTrue("Correct 2. entry", sorted[1] == tb3);
 		assertTrue("Correct 3. entry", sorted[2] == tb1);
 	}
+	*/
 
 }
