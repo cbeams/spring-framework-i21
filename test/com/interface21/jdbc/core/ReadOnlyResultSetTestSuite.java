@@ -127,18 +127,19 @@ public class ReadOnlyResultSetTestSuite extends TestCase {
   public void testNullResultSetProxy() {
     try {
       ReadOnlyResultSet rors = new ReadOnlyResultSet(null);
-      fail("Constructor should have thrown an InvalidParameterException");
-    } catch (InvalidParameterException ex) {
+      fail("Constructor should have thrown an IllegalArgumentException");
+    } catch (IllegalArgumentException ex) {
+	    // expected
     } catch (Exception ex) {
-      fail("Wrong exception type. Should have been InvalidParameterException");
+      fail("Wrong exception type. Should have been IllegalArgumentException");
     }
   }
   
   public void testCorrectResultSetProxy() {
     try {
       ReadOnlyResultSet rors = new ReadOnlyResultSet(rs);
-    } catch (InvalidParameterException ex) {
-      fail("Constructor should have thrown an InvalidParameterException");
+    } catch (IllegalArgumentException ex) {
+      fail("Constructor should not have thrown an IllegalArgumentException");
     }
   }
   

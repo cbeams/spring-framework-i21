@@ -59,7 +59,6 @@ public class JdbcTemplateTestSuite extends TestCase {
 		MockControl dsControl = EasyMock.niceControlFor(DataSource.class);
 		final int expectedRowsUpdated = 111;
 		DataSource ds = (DataSource) dsControl.getMock();
-		// Don't expect any calls
 		dsControl.activate();
 	
 		JdbcTemplate t = new JdbcTemplate(ds);
@@ -313,9 +312,9 @@ public class JdbcTemplateTestSuite extends TestCase {
 		DataSource ds = (DataSource) dsControl.getMock();
 		
 		MockConnection con = MockConnectionFactory.statement(sql, new Object[0][0], false, null, null);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 2);
 		dsControl.activate();
 		
 		JdbcTemplate template2 = new JdbcTemplate(ds);
@@ -537,10 +536,9 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.activate();
 		
 		MockConnection con = MockConnectionFactory.update(sql, mockPs);
-		con.setExpectedCloseCalls(1);
-	
+		con.setExpectedCloseCalls(2);
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 2);
 		dsControl.activate();
 		
 		BatchPreparedStatementSetter setter = new BatchPreparedStatementSetter() {
@@ -795,10 +793,9 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.activate();
 		
 		MockConnection con = MockConnectionFactory.update(sql, mockPs);
-		con.setExpectedCloseCalls(1);
-	
+		con.setExpectedCloseCalls(2);
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 2);
 		dsControl.activate();
 		PreparedStatementSetter pss = new PreparedStatementSetter() {
 			public void setValues(PreparedStatement ps) throws SQLException {

@@ -33,15 +33,12 @@ public class ReadOnlyResultSet implements ResultSet {
   /**
    * Constructor. Creates an instance of the ResultSet wrapper using the 
    * ResultSet to be wrapped as a parameter.
-   * @param rs The wrapped ResultSet instance
-   * @throws InvalidParameterException when the wrapped ResultSet instance
-   *          is null.
+   * @param rs the wrapped ResultSet instance
    */
   public ReadOnlyResultSet(ResultSet rs) {
     if (rs == null) {
-      throw new InvalidParameterException("rs", "null");
+      throw new IllegalArgumentException("ResultSet may not be null");
     }
-    
     this.rs = rs;
   }
   

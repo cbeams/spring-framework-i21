@@ -84,10 +84,6 @@ public class JdbcTemplate implements InitializingBean {
 	};
 
 
-	//-------------------------------------------------------------------------
-	// Instance data
-	//-------------------------------------------------------------------------
-
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
@@ -103,12 +99,8 @@ public class JdbcTemplate implements InitializingBean {
 	private SQLExceptionTranslater exceptionTranslater;
 
 
-	//-------------------------------------------------------------------------
-	// Constructors
-	//-------------------------------------------------------------------------
-
 	/**
-	 * Construct a new JdbcTemplate.
+	 * Construct a new JdbcTemplate for bean usage.
 	 * Note: The DataSource has to be set before using the instance.
 	 * This constructor can be used to prepare a JdbcTemplate via a BeanFactory,
 	 * typically setting the DataSource via setDataSourceName.
@@ -119,25 +111,19 @@ public class JdbcTemplate implements InitializingBean {
 
 	/**
 	 * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
+	 * Note: This will trigger eager initialization of the exception translater.
 	 * @param dataSource JDBC DataSource to obtain connections from
-	 * @throws InvalidParameterException when dataSource is null
 	 */
-	public JdbcTemplate(DataSource dataSource) throws InvalidParameterException {
+	public JdbcTemplate(DataSource dataSource) {
 		setDataSource(dataSource);
+		afterPropertiesSet();
 	}
 
-
-	//-------------------------------------------------------------------------
-	// Configuration properties
-	//-------------------------------------------------------------------------
 
 	/**
 	 * Set the JDBC DataSource to obtain connections from.
 	 */
-	public void setDataSource(DataSource dataSource) throws InvalidParameterException {
-		if (dataSource == null) {
-			throw new InvalidParameterException("dataSource", "null");
-		}
+	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 
@@ -413,7 +399,6 @@ public class JdbcTemplate implements InitializingBean {
 		}
 	}
 
-
 	/**
 	 * Issue an update using a PreparedStatementSetter to set bind parameters,
 	 * with given SQL. Simpler than using a PreparedStatementCreator
@@ -478,7 +463,6 @@ public class JdbcTemplate implements InitializingBean {
 			DataSourceUtils.closeConnectionIfNecessary(con, this.dataSource);
 		}
 	}
-
 
 	/**
 	 * Convenience method to throw a JdbcSqlWarningException if we're
