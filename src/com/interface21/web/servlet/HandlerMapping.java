@@ -28,20 +28,25 @@ import com.interface21.context.ApplicationContextException;
  * possible to write a custom mapping based on session state, cookie
  * state or many other variables. No other MVC framework I am aware
  * of is equally flexible.
+ *
+ * <p>Note: Implementations can implement the Ordered interface to be
+ * able to specify a sorting order and thus a priority for getting
+ * applied by ControllerServlet. Non-Ordered instances get treated as
+ * lowest priority.
+ *
  * @author Rod Johnson
+ * @see com.interface21.core.Ordered
  */
 public interface HandlerMapping extends ApplicationContextAware, LocaleResolverAware {
 	
 	/** 
-	 * Will be invoked <b>after</b> setApplicationContext().
+	 * Will be invoked after setApplicationContext() and setLocaleResolver().
 	 * Handler objects are normally taken from the BeanFactory.
 	 * This means that implementing classes should never need to open
 	 * configuration files for themselves.
-	 * @throws ApplicationContextException if this handler map cannot
-	 * initialize correctly. Any root cause should be nested within this
-	 * exception.
+	 * @throws Exception if this handler mapping cannot initialize correctly.
 	 */
-	void init() throws ApplicationContextException;
+	void initHandlerMapping() throws Exception;
 	
 	/**
 	 * Return a handler for this request.
