@@ -6,6 +6,7 @@
 package com.interface21.aop.framework;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.BeanFactoryAware;
 import com.interface21.beans.factory.ListableBeanFactory;
+import com.interface21.beans.factory.support.BeanFactoryUtils;
 import com.interface21.core.OrderComparator;
 
 /** 
@@ -200,18 +202,18 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	 * Add all global interceptors and pointcuts.
 	 */
 	private void addGlobalInterceptorsAndPointcuts(ListableBeanFactory beanFactory, String prefix) {
-		String[] globalPointcutNames = beanFactory.getBeanDefinitionNames(MethodPointcut.class);
-		String[] globalInterceptorNames = beanFactory.getBeanDefinitionNames(Interceptor.class);
-		List beans = new ArrayList(globalPointcutNames.length + globalInterceptorNames.length);
+		Collection globalPointcutNames = BeanFactoryUtils.beanNamesIncludingAncestors(MethodPointcut.class, beanFactory);
+		Collection globalInterceptorNames = BeanFactoryUtils.beanNamesIncludingAncestors(Interceptor.class, beanFactory);
+		List beans = new ArrayList(globalPointcutNames.size() + globalInterceptorNames.size());
 		Map names = new HashMap();
-		for (int i = 0; i < globalPointcutNames.length; i++) {
-			String name = globalPointcutNames[i];
+		for (Iterator itr = globalPointcutNames.iterator(); itr.hasNext();) {
+			String name = (String) itr.next();
 			Object bean = beanFactory.getBean(name);
 			beans.add(bean);
 			names.put(bean, name);
 		}
-		for (int i = 0; i < globalInterceptorNames.length; i++) {
-			String name = globalInterceptorNames[i];
+		for (Iterator itr = globalInterceptorNames.iterator(); itr.hasNext();) {
+			String name = (String) itr.next();
 			Object bean = beanFactory.getBean(name);
 			beans.add(bean);
 			names.put(bean, name);
