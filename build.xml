@@ -9,12 +9,11 @@
     of the JAR files produced by this build script, and how
     they can be deployed in applications.
 
-    This script requires a /lib
-    directory containing the necessary third party JAR files.
+    This script requires a /lib directory containing the
+    necessary third party JAR files.
 
-    See build.properties for definition of the properties used in this file.
-
-    Note: Does not need a J2EE RI anymore, due to the libraries in lib/j2ee.
+    See build.properties for the definitions of the properties
+    used in this file.
 -->
 
 <project name="spring-core" default="usage" basedir=".">
@@ -34,14 +33,13 @@
 
 		<echo message=""/>
 		<echo message="${name} build file"/>
-		<echo message=" Clover excludes: ${clover.excludes}"/>
 		<echo message="------------------------------------------------------"/>
 		<echo message=""/>
-		<echo message=" Available targets are :"/>
+		<echo message="Among the available targets are :"/>
 		<echo message=""/>
-		<echo message="all    --> create all JAR files"/>
-		<echo message="build    --> build all; don't create JARs"/>
-		<echo message=" "/>
+		<echo message="all --> create all JAR files"/>
+		<echo message="build --> build all; don't create JARs"/>
+		<echo message=""/>
 
 	</target>
 
@@ -72,10 +70,12 @@
 		<rmic base="${build.dir}" classname="com.interface21.remoting.rmi.RemoteInvocationWrapper"/>
 
 		<copy todir="${build.dir}">
+
 			<fileset dir="${src.dir}">
 				<include name="**/*.xml"/>
 				<include name="**/*.dtd"/>
 			</fileset>
+
 		</copy>
 
 	</target>
@@ -113,12 +113,10 @@
 		<jar jarfile="${dist.dir}/${spring-core.jar}">
 
 			<fileset dir="${build.dir}">
-
 				<include name="com/interface21/core/**"/>
 				<include name="com/interface21/beans/**"/>
 				<include name="com/interface21/jndi/**"/>
 				<include name="com/interface21/util/*"/>
-
 			</fileset>
 
 		</jar>
@@ -250,7 +248,9 @@
 		<taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask"/>
 
 		<checkstyle failureProperty="checkstyle.failure" failOnViolation="false" properties="checkstyleConventions.properties">
+
 			<fileset dir="${src.dir}" includes="com/interface21/beans/BeanWrapperImpl.java"/>
+
 		</checkstyle>
 
 	</target>
@@ -265,34 +265,11 @@
 
 			<src path="${test.dir}"/>
 
-			<exclude name="**/jta/**"/>
-
 			<!-- Will pull in dependencies as required  -->
 			<classpath refid="master-classpath"/>
 			<classpath location="${build.dir}"/>
 
 		</javac>
-
-	</target>
-
-
-	<target name="buildlivetests" depends="build" description="Compile live test source tree java files into class files.">
-
-		<mkdir dir="${livetestbuild.dir}"/>
-
-		<javac destdir="${livetestbuild.dir}"	debug="${debug}"
-			deprecation="false" optimize="false" failonerror="false">
-
-			<src path="${livetest.dir}"/>
-
-			<!-- Will pull in dependencies as required  -->
-			<classpath refid="master-classpath"/>
-			<classpath location="${build.dir}"/>
-
-		</javac>
-
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml"
-			todir="${testbuild.dir}/com/interface21/jdbc/core" />
 
 	</target>
 
@@ -324,14 +301,29 @@
 
 			<batchtest fork="yes" todir="${reports.dir}">
 
-				<!-- Wildcards are specified as properties -->
-				<fileset dir="test"
-					includes="${test.includes}"
-					excludes="${test.excludes}"/>
+				<fileset dir="test" includes="${test.includes}"	excludes="${test.excludes}"/>
 
 			</batchtest>
 
 		</junit>
+
+	</target>
+
+
+	<target name="buildlivetests" depends="build" description="Compile live test source tree java files into class files.">
+
+		<mkdir dir="${livetestbuild.dir}"/>
+
+		<javac destdir="${livetestbuild.dir}"	debug="${debug}"
+			deprecation="false" optimize="false" failonerror="false">
+
+			<src path="${livetest.dir}"/>
+
+			<!-- Will pull in dependencies as required  -->
+			<classpath refid="master-classpath"/>
+			<classpath location="${build.dir}"/>
+
+		</javac>
 
 	</target>
 
@@ -352,15 +344,14 @@
 
 		</javac>
 
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml"
-			todir="${clover.build.dir}/com/interface21/jdbc/core" />
+		<copy todir="${clover.build.dir}">
 
-		<!--
-			Copy the log4j file so we always get verbose logging, with conditional
-			blocks fired
-		-->
-		<copy file="${test.dir}/log4j.properties"
-			todir="${clover.build.dir}" />
+			<fileset dir="${src.dir}">
+				<include name="**/*.xml"/>
+				<include name="**/*.dtd"/>
+			</fileset>
+
+		</copy>
 
 	</target>
 
@@ -379,10 +370,8 @@
 			<classpath refid="master-classpath"/>
 
 			<batchtest fork="yes">
-				<fileset dir="test"
-					includes="${test.includes}"
-					excludes="${test.excludes}"
-					/>
+
+				<fileset dir="test"	includes="${test.includes}"	excludes="${test.excludes}"/>
 
 			</batchtest>
 
@@ -393,16 +382,20 @@
 
 	<!--
 		Run test suite under Clover coverage analysis, and bring up
-		Clover's Swing browser to display the results
+		Clover's Swing browser to display the results.
 	-->
 	<target name="clover.swing" depends="clover.tests" description="Run Clover tests and bring up Swing coverage viewer.">
 
 		<echo>Launching coverage viewer</echo>
 
 		<java classname="com.cortexeb.tools.clover.reporters.jfc.Viewer" fork="yes">
+
 			<arg value="${clover.initstring}"/>
+
 			<classpath refid="master-classpath"/>
+
 		</java>
+
 	</target>
 
 
@@ -410,14 +403,16 @@
 		Run test suite under Clover coverage analysis, and use Clover
 		to generate Javadoc/style HTML results that may be browsed later.
 	-->
-	<target name="clover.html"
-		depends="clover.tests"
-		description="Generate Clover HTML coverage reports from an existing Clover database.">
+	<target name="clover.html" depends="clover.tests"	description="Generate Clover HTML coverage reports from an existing Clover database.">
 
 		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
+
 			<arg line="-o '${clover.html.outdir}' -i '${clover.initstring}' -t 'Spring Framework'"/>
+
 			<classpath refid="master-classpath"/>
+
 		</java>
+
 	</target>
 
 </project>
