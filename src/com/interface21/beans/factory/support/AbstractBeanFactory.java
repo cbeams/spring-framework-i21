@@ -41,7 +41,7 @@ import com.interface21.beans.factory.NoSuchBeanDefinitionException;
  * method.
  * This class handles resolution of runtime bean references,
  * FactoryBean dereferencing, and management of collection properties.
- * @author  Rod Johnson
+ * @author Rod Johnson
  * @since 15 April 2001
  * @version $Id$
  */
@@ -149,10 +149,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
 	/**
 	 * Get a singleton instance of this bean name. Note that this method shouldn't
-	 * be called too often: callers should keep hold of instances. Hence, the whole
+	 * be called too often: Callers should keep hold of instances. Hence, the whole
 	 * method is synchronized here.
-	 * TODO: there probably isn't any need for this to be
-	 * synchronized, at least not if we pre-instantiate singletons.
+	 * TODO: There probably isn't any need for this to be synchronized,
+	 * at least not if we pre-instantiate singletons.
 	 * @param pname name that may include factory dereference prefix
 	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
 	 * if triggered by the creation of another bean, or null else
@@ -256,15 +256,17 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	public final Object getBean(String name, Class requiredType) throws BeansException {
 		Object bean = getBean(name);
 		Class clazz = bean.getClass();
-		if (!requiredType.isAssignableFrom(clazz))
+		if (!requiredType.isAssignableFrom(clazz)) {
 			throw new BeanNotOfRequiredTypeException(name, requiredType, bean);
+		}
 		return bean;
 	}
 
 	/**
 	 * @see BeanFactory#isSingleton(String)
 	 */
-	public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
+	public boolean isSingleton(String pname) throws NoSuchBeanDefinitionException {
+		String name = transformedBeanName(pname);
 		try {
 			return getBeanDefinition(name).isSingleton();
 		}
@@ -513,7 +515,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		this.aliasMap.put(alias, name);
 	}
 
-	public final String[] getAliases(String name) {
+	public final String[] getAliases(String pname) {
+		String name = transformedBeanName(pname);
 		List aliases = new ArrayList();
 		for (Iterator it = this.aliasMap.entrySet().iterator(); it.hasNext();) {
 			Map.Entry entry = (Map.Entry) it.next();
