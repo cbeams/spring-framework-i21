@@ -1,14 +1,27 @@
 # Sample Apache JCS configuration for Hibernate
 
-# DEFAULT CACHE REGION (memory cache)
-jcs.default=DC
+# DEFAULT CACHE REGION
+jcs.default=
 jcs.default.cacheattributes=org.apache.jcs.engine.CompositeCacheAttributes
 jcs.default.cacheattributes.MaxObjects=2000
 jcs.default.cacheattributes.MemoryCacheName=org.apache.jcs.engine.memory.lru.LRUMemoryCache
 jcs.default.elementattributes=org.apache.jcs.engine.ElementAttributes
 jcs.default.elementattributes.IsEternal=false
-jcs.default.elementattributes.MaxLifeSeconds=24000
-jcs.default.elementattributes.IdleTime=180000
+jcs.default.elementattributes.MaxLifeSeconds=240
+jcs.default.elementattributes.IdleTime=1800
 jcs.default.elementattributes.IsSpool=false
 jcs.default.elementattributes.IsRemote=false
 jcs.default.elementattributes.IsLateral=false
+
+# SPECIFIC CACHE REGION FOR "example.ExampleDomainObject"
+jcs.region.example.ExampleDomainObject=
+jcs.region.example.ExampleDomainObject.cacheattributes=org.apache.jcs.engine.CompositeCacheAttributes
+jcs.region.example.ExampleDomainObject.cacheattributes.MaxObjects=1000
+jcs.region.example.ExampleDomainObject.cacheattributes.MemoryCacheName=org.apache.jcs.engine.memory.lru.LRUMemoryCache
+jcs.region.example.ExampleDomainObject.elementattributes=org.apache.jcs.engine.ElementAttributes
+jcs.region.example.ExampleDomainObject.elementattributes.IsEternal=false
+jcs.region.example.ExampleDomainObject.elementattributes.MaxLifeSeconds=120
+jcs.region.example.ExampleDomainObject.elementattributes.IdleTime=90
+jcs.region.example.ExampleDomainObject.elementattributes.IsSpool=false
+jcs.region.example.ExampleDomainObject.elementattributes.IsRemote=false
+jcs.region.example.ExampleDomainObject.elementattributes.IsLateral=false
