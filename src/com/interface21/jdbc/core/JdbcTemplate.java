@@ -63,9 +63,9 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * @author Yann Caroff
  * @author Thomas Risberg
  * @author Isabelle Muszynski
- * @see com.interface21.dao
  * @version $Id$
  * @since May 3, 2001
+ * @see com.interface21.dao
  * @see com.interface21.jndi.JndiObjectFactoryBean
  */
 public class JdbcTemplate implements InitializingBean {
@@ -82,6 +82,7 @@ public class JdbcTemplate implements InitializingBean {
 			// do nothing
 		}
 	};
+
 
 	//-------------------------------------------------------------------------
 	// Instance data
@@ -118,7 +119,7 @@ public class JdbcTemplate implements InitializingBean {
 
 	/**
 	 * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
-	 * @param dataSource J2EE DataSource to obtain connections from
+	 * @param dataSource JDBC DataSource to obtain connections from
 	 * @throws InvalidParameterException when dataSource is null
 	 */
 	public JdbcTemplate(DataSource dataSource) throws InvalidParameterException {
@@ -131,7 +132,7 @@ public class JdbcTemplate implements InitializingBean {
 	//-------------------------------------------------------------------------
 
 	/**
-	 * Set the J2EE DataSource to obtain connections from.
+	 * Set the JDBC DataSource to obtain connections from.
 	 */
 	public void setDataSource(DataSource dataSource) throws InvalidParameterException {
 		if (dataSource == null) {
@@ -177,7 +178,7 @@ public class JdbcTemplate implements InitializingBean {
 	 * Return the exception translater for this instance.
 	 * Create a default one for the specified DataSource if none set.
 	 */
-	protected SQLExceptionTranslater getExceptionTranslater() {
+	protected synchronized SQLExceptionTranslater getExceptionTranslater() {
 		if (this.exceptionTranslater == null) {
 			this.exceptionTranslater = SQLExceptionTranslaterFactory.getInstance().getDefaultTranslater(this.dataSource);
 		}
