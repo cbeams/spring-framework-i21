@@ -7,6 +7,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.CleanupFailureDataAccessException;
 
 /**
@@ -60,7 +61,7 @@ import com.interface21.dao.CleanupFailureDataAccessException;
  * @author Juergen Hoeller
  * @since 13.06.2003
  */
-public class JdoInterceptor implements MethodInterceptor {
+public class JdoInterceptor implements MethodInterceptor, InitializingBean {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -68,6 +69,12 @@ public class JdoInterceptor implements MethodInterceptor {
 
 	public void setPersistenceManagerFactory(PersistenceManagerFactory persistenceManagerFactory) {
 		this.persistenceManagerFactory = persistenceManagerFactory;
+	}
+
+	public void afterPropertiesSet() {
+		if (this.persistenceManagerFactory == null) {
+			throw new IllegalArgumentException("persistenceManagerFactory is required");
+		}
 	}
 
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable {

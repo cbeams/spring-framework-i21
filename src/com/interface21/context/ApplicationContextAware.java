@@ -17,16 +17,15 @@ package com.interface21.context;
 public interface ApplicationContextAware {
 	
 	/** 
-	 * Set the ApplicationContext used by this object.
+	 * Set the application context used by this object.
 	 * Normally this call will be used to initialize the object.
-	 * Note that this call can occur multiple times: The implementation
+	 * <p>Note that this call can occur multiple times: The implementation
 	 * must check itself that if it is already initialized resp. if it
 	 * wants to perform reinitialization.
-	 * @param ctx ApplicationContext object used by this object
-	 * @throws ApplicationContextException if initialization attempted by this object
-	 * after it has access to the WebApplicatinContext fails
+	 * @param ctx ApplicationContext object to be used by this object
+	 * @throws ApplicationContextException if initialization attempted
+	 * by this object fails
 	 */
 	void setApplicationContext(ApplicationContext ctx) throws ApplicationContextException;
 
 }
-

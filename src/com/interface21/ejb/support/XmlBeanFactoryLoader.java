@@ -21,21 +21,23 @@ import com.interface21.beans.factory.xml.XmlBeanFactory;
 import com.interface21.jndi.JndiTemplate;
 
 /**
- * Implementation of the BeanFactoryLoader interface useful in 
- * EJBs (although not tied to the EJB API).
- * This class will look for the JNDI environment key java:comp/env/ejb/BeanFactoryPath
- * for the classpath location of an XML bean factory definition.
+ * Implementation of the BeanFactoryLoader interface useful in EJBs
+ * (although not tied to the EJB API).
+ *
+ * <p>This class will look for the JNDI environment key
+ * "java:comp/env/ejb/BeanFactoryPath" for the classpath location
+ * of an XML bean factory definition.
+ *
  * @author Rod Johnson
  * @since 20-Jul-2003
  * @version $Id$
  */
 public class XmlBeanFactoryLoader implements BeanFactoryLoader {
 	
-	private Log logger = LogFactory.getLog(getClass());
-	
-	public static final String BEAN_FACTORY_PATH_ENVIRONMENT_KEY = "java:comp/env/ejb/BeanFactoryPath"; 
-	
-	
+	public static final String BEAN_FACTORY_PATH_ENVIRONMENT_KEY = "java:comp/env/ejb/BeanFactoryPath";
+
+	private final Log logger = LogFactory.getLog(getClass());
+
 	/**
 	 * Load the bean factory. 
 	 * @throws BootstrapException if the JNDI key is missing or if

@@ -277,7 +277,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		BeanWrapper instanceWrapper = new BeanWrapperImpl(mergedBeanDefinition.getBeanClass());
 		Object bean = instanceWrapper.getWrappedInstance();
 
-		// cache new instance to be able resolve circular references, but ignore
+		// Cache new instance to be able resolve circular references, but ignore
 		// FactoryBean instances as they can't create objects if not initialized
 		if (!(bean instanceof FactoryBean)) {
 			if (newlyCreatedBeans == null) {
@@ -339,12 +339,12 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * the value must be placed in a list.
 	 */
 	private Object resolveValueIfNecessary(BeanWrapper bw, Map newlyCreatedBeans, PropertyValue pv)
-		throws BeansException {
+	    throws BeansException {
 		Object val;
 		
 		// Now we must check each PropertyValue to see whether it
-		 // requires a runtime reference to another bean to be resolved.
-		 // If it does, we'll attempt to instantiate the bean and set the reference.
+		// requires a runtime reference to another bean to be resolved.
+		// If it does, we'll attempt to instantiate the bean and set the reference.
 		if (pv.getValue() != null && (pv.getValue() instanceof RuntimeBeanReference)) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) pv.getValue();
 			val = resolveReference(pv.getName(), ref, newlyCreatedBeans);
@@ -384,7 +384,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	}
 	
 	/**
-	 * Resolve a reference to another bean in the factory
+	 * Resolve a reference to another bean in the factory.
 	 * @param name included for diagnostics
 	 */
 	private Object resolveReference(String name, RuntimeBeanReference ref, Map newlyCreatedBeans) {
@@ -399,8 +399,6 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 			throw new FatalBeanException("Can't resolve reference to bean [" + ref.getBeanName() + "] while setting properties on bean [" + name + "]", ex);
 		}
 	}
-
-
 
 	/**
 	 * For each element in the ManagedMap, resolve references if necessary.
@@ -424,7 +422,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	}
 
 	/**
-	 * For each element in the ManagedList, resolve reference if necessary
+	 * For each element in the ManagedList, resolve reference if necessary.
 	 */
 	private ManagedList resolveManagedList(String name, ManagedList l, Map newlyCreatedBeans) {
 		for (int j = 0; j < l.size(); j++) {
@@ -436,7 +434,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	}
 	
 	private Object managedListToArray(BeanWrapper bw, PropertyValue pv, Object val, Class componentType, List l)
-		throws NegativeArraySizeException, BeansException, BeanDefinitionStoreException {
+	    throws NegativeArraySizeException, BeansException, BeanDefinitionStoreException {
 		try {
 			Object[] arr = (Object[]) Array.newInstance(componentType, l.size());
 			for (int i = 0; i < l.size(); i++) {
@@ -460,9 +458,11 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * @param bean new bean instance we may need to initialize
 	 * @param name the bean has in the factory. Used for debug output.
 	 */
-	private void callLifecycleMethodsIfNecessary(Object bean, String name, RootBeanDefinition rbd, BeanWrapper bw) throws BeansException {
+	private void callLifecycleMethodsIfNecessary(Object bean, String name, RootBeanDefinition rbd, BeanWrapper bw)
+	    throws BeansException {
+
 		if (bean instanceof InitializingBean) {
-			logger.debug("configureBeanInstance calling afterPropertiesSet() on bean with name '" + name + "'");
+			logger.debug("Calling afterPropertiesSet() on bean with name '" + name + "'");
 			try {
 				((InitializingBean) bean).afterPropertiesSet();
 			}
@@ -472,13 +472,13 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		}
 		
 		if (rbd.getInitMethodName() != null) {
-			logger.debug("configureBeanInstance calling custom init method '" + rbd.getInitMethodName() + "' on bean with name '" + name + "'");
+			logger.debug("Calling custom init method '" + rbd.getInitMethodName() + "' on bean with name '" + name + "'");
 			bw.invoke(rbd.getInitMethodName(), null);
 			// Can throw MethodInvocationException
 		}
 
 		if (bean instanceof BeanFactoryAware) {
-			logger.debug("configureBeanInstance calling setBeanFactory() on BeanFactoryAware bean with name '" + name + "'");
+			logger.debug("Calling setBeanFactory() on BeanFactoryAware bean with name '" + name + "'");
 			try {
 				((BeanFactoryAware) bean).setBeanFactory(this);
 			}
@@ -489,7 +489,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 				throw new FatalBeanException("BeanFactoryAware method on bean with name '" + name + "' threw an exception", ex);
 			}
 		}
-	}	// callLifecycleMethodsIfNecessary
+	}
 
 	/**
 	 * Make a RootBeanDefinition, even by traversing parent if the parameter is a child definition.

@@ -9,7 +9,7 @@ import javax.jms.MessageListener;
 
 /** 
  * Convenient superclass for JMS MDBs.
- * Requires subclasses to implement the JMS  interface MessageListener
+ * Requires subclasses to implement the JMS interface MessageListener.
  * @author Rod Johnson
  * @version $RevisionId: ResultSetHandler.java,v 1.1 2001/09/07 12:48:57 rod Exp $
  */

@@ -19,11 +19,21 @@ import com.interface21.context.ApplicationContextAware;
 import com.interface21.context.ApplicationContextException;
 
 /**
- * Convenient superclass for web application objects such as controllers.
- * Saves WebApplicationContext and provides an initialization hook method.
- * There is no requirement to subclass this class: It just makes things
- * a little easier.
- * @author Rod Johnson, Juergen Hoeller
+ * Convenient superclass for application objects that want to be aware of
+ * the application context, e.g. for custom lookup of collaborating beans
+ * or for context-specific resource access. It saves the application
+ * context reference and provides an initialization callback method.
+ *
+ * <p>There is no requirement to subclass this class: It just makes things
+ * a little easier. Note that many application objects do not need to be
+ * aware of the application context all, as they can receive collaborating
+ * beans via bean references.
+ *
+ * <p>Many framework classes are derived from this class, especially
+ * within the web support.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  */
 public abstract class ApplicationObjectSupport implements ApplicationContextAware {
 	
@@ -33,9 +43,6 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
 	/** ApplicationContext this object runs in */
 	private ApplicationContext applicationContext;
 
-	public ApplicationObjectSupport() {
-	}
-	
 	public final void setApplicationContext(ApplicationContext ctx) throws ApplicationContextException {
 		// ignore reinitialization
 		if (this.applicationContext == null) {
@@ -54,6 +61,8 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
 	/**
 	 * Subclasses can override this for custom initialization behavior.
 	 * Gets called by setApplicationContext() after setting the context instance.
+	 * @throws ApplicationContextException if initialization attempted
+	 * by this object fails
 	 */
 	protected void initApplicationContext() throws ApplicationContextException {
 	}
