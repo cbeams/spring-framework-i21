@@ -1,10 +1,14 @@
 package com.interface21.jdbc.core.support;
 
+import java.sql.Types;
+
 import javax.sql.DataSource;
 
 import com.interface21.beans.factory.InitializingBean;
+import com.interface21.core.InternalErrorException;
 import com.interface21.jdbc.object.SqlFunction;
 import com.interface21.jdbc.object.SqlUpdate;
+import com.interface21.jdbc.util.JdbcUtils;
 
 /**
  * Class to increment maximum value of a given MySQL table with an auto-increment column
@@ -188,7 +192,26 @@ public class MySQLMaxValueIncrementer
 				SqlFunction sqlf = new SqlFunction(ds, "select last_insert_id()",type);
 				sqlf.compile();
 				// Even if it's an int, it can be casted to a long
-				maxId =((Long)sqlf.runGeneric()).longValue();
+				// old code: maxId =((Long)sqlf.runGeneric()).longValue();
+				// Convert to long
+				switch(JdbcUtils.translateType(type)) {
+				case Types.BIGINT:
+					maxId = ((Long)sqlf.runGeneric()).longValue();
+					break;
+				case Types.INTEGER:
+					maxId = ((Integer)sqlf.runGeneric()).intValue();
+					break;
+				case Types.NUMERIC:
+					maxId = (long)((Double)sqlf.runGeneric()).doubleValue();
+					break;
+				case Types.VARCHAR:
+					try {
+					maxId = Long.parseLong((String)sqlf.runGeneric());
+					} catch (NumberFormatException ex) {
+					throw new InternalErrorException("Key value could not be converted to long");
+					}
+					break;
+				}
 				nextId = maxId - incrementBy;
 			}
 			nextId++;
