@@ -205,9 +205,6 @@ public class ResourceBundleMessageSourceTestSuite
 
         MockServletContext sc = new MockServletContext(WAR_ROOT);
 
-        // This is required for the framework
-        sc.addInitParameter("configUrl", "/WEB-INF/applicationContext.xml");
-
         this.servletContext = sc;
 
         root.setServletContext(sc);

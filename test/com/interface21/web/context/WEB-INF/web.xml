@@ -7,12 +7,6 @@
 	
 	<distributable/>
 	
-	<!-- Argument for XMLWebApplicationContext -->
-	<context-param>
-		<param-name>configUrl</param-name>
-  		<param-value>/WEB-INF/applicationContext.xml</param-value>   	
-	</context-param>
-	
 	<!--
 	<listener>
 		<listener-class>com.wrox.j2eedd.ticket.web.SessionCleanupListener</listener-class>
