@@ -107,11 +107,11 @@
   </welcome-file-list>
 
 	<!--
-	  - Displays a stack trace 
+	  - Errors pages 
 	  -->
   <error-page>
-    <exception-type>java.lang.Exception</exception-type>
-    <location>/WEB-INF/views/jsp/errors/uncaughtException.jsp</location>
+    <error-code>404</error-code>
+    <location>/notfound.htm</location>
   </error-page>
 
 	<!--

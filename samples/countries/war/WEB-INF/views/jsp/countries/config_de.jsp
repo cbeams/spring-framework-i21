@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/views/jsp/common/includes.jsp" %>
 
 <h2><fmt:message key="config.title"/></h2>
-<br>
+<br />
 <p>Sie können dieses demo in drei anderen Konfigurationen benutzen:</p>
 <h3>Vorstellung</h3>
 <h4>1. Konfiguration <strong>Einfach</strong></h4>
@@ -15,7 +15,7 @@
 <h4>3. Konfiguration <strong>Datenbank </strong></h4>
 <p>Die Liste der Länder wird seit der Datenbank gelesen.</p>
 <p>Man muß die <strong>Kopie</strong> Konfiguration getestet haben und erfolgreich benutzt die Kopiefunktion in der Datenbank, um diese Konfiguration benutzen zu können.</p>
-<br>
+<br />
 <h3>Technik</h3>
 <h4>1. Configuration <strong>Einfach</strong></h4>
 <p>Es gibt nichts zu ändern, es ist die gelieferte Konfiguration.</p>
@@ -25,4 +25,4 @@
 <h4>3. Configuration <strong>data base</strong></h4>
 <p>In <strong>countries-servlet.xml</strong>, kommentieren den Teil <strong>MEMORY+DATABASE IMPLEMENTATION FOR COPYING FROM MEMORY TO DATABASE</strong>. Abkommentieren den Teil <strong>ONLY MEMORY OR ONLY DATABASE IMPLEMENTATION</strong>. Sie sind so zur Ausgangslage zurückgekommen.</p>
 <p>In <strong>applicationContext.xml</strong>, kommentieren den Teil <strong>In memory + Database version for copying</strong>. Abkommentieren den Teil <strong>Database only version</strong>.</p>
-<br>
+<br />

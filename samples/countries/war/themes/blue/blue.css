@@ -3,19 +3,16 @@ body {PADDING-RIGHT: 0px; PADDING-LEFT: 0px; BACKGROUND: #000250; PADDING-BOTTOM
 body.popup {background-image: none;background-color: #696dff;}
 img {border: none;}
 form {border: none;padding: 0;margin-top:0px}
-textarea,button,input,select,option,label {font-size: xx-small;color: #006;background-color: #fffae1;font-family: Verdana, Helvetica, Arial, sans-serif;}
+textarea,button,input,select,option,label {font-size: 12px;color: #006;background-color: #fffae1;font-weight: normal;}
 input,select,option,label {border: none;margin: 0;padding: 0;}
 
 /* =========== CONTENT ============= */
-div#content {BORDER-RIGHT: #696dff 5px solid; PADDING-RIGHT: 10px; BORDER-TOP: #696dff 5px solid; PADDING-LEFT: 10px; RIGHT: 25px; BACKGROUND: #000099; LEFT: 135px; PADDING-BOTTOM: 10px; BORDER-LEFT: #696dff 5px solid; COLOR: #fffae1; PADDING-TOP: 10px; BORDER-BOTTOM: #696dff 5px solid; POSITION: absolute; TOP: 50px; clear:right;
-font-weight: bold;
-font-size: 14px;}
-div#content div.news {margin: 0 10% 1em 10%;border: #000250 double;background-color: #b5defd;font-size: 18px;text-align: center;padding: 2em;color: #000250;width:100%;
+div#content {BORDER-RIGHT: #696dff 5px solid; PADDING-RIGHT: 10px; BORDER-TOP: #696dff 5px solid; PADDING-LEFT: 10px; RIGHT: 10px; BACKGROUND: #000099; LEFT: 135px; PADDING-BOTTOM: 10px; BORDER-LEFT: #696dff 5px solid; COLOR: #fffae1; PADDING-TOP: 10px; BORDER-BOTTOM: #696dff 5px solid; POSITION: absolute; TOP: 50px; clear:right;font-weight: normal;font-size: 14px;}
+div#content div.news {margin: 0 2px 1em 10%;border: #000250 double;background-color: #b5defd;font-size: 18px;text-align: center;padding: 2em;color: #000250;width:100%;
 voice-family: "\"}\"";
 voice-family:inherit;
-width:70%;
+width:60%;
 }
-div#content div.news strong{font-size: 140%;font-weight: bold;color: purple;}
 
 div#content h1 {PADDING-RIGHT: 10px; PADDING-LEFT: 0px; BACKGROUND: #0006f0; PADDING-BOTTOM: 4px; MARGIN: -9px -9px 2px -9px; font-size: 25px; VERTICAL-ALIGN: middle; TEXT-TRANSFORM: lowercase; COLOR: #ffee91; PADDING-TOP: 12px; WHITE-SPACE: nowrap; LETTER-SPACING: 0.5em; TEXT-ALIGN: right}
 div#content h1 div {font-size: x-small;font-weight: bold;text-align: left;position: absolute;left: 1em;LETTER-SPACING: normal;TEXT-TRANSFORM: none;}
@@ -25,18 +22,24 @@ div#content h4 {color: yellow;font-size: 16px;}
 div#content h4 strong {color: white;font-size: 120%;}
 div#content p {MARGIN: 0 0 2px 0;vertical-align: bottom;}
 div#content p strong {color: #ffee91;font-weight: bold;}
+div#content p.version {MARGIN: 0 0 1em 0;}
+div#content .info {font-size: 12px;font-weight: bold;}
+div#content .info a, .info a:link, .info a:visited {color: yellow;}
+div#content div {text-align:center;width:auto;}
+div#content .news ul {text-align: left;}
+div#content .news strong{font-size: 140%;font-weight: bold;color: purple;}
 
 /* Tables */
-div#content table {border-collapse: collapse;  width: 100%; margin-bottom: 5px; color: #fffae1;background-color:#fff;
+div#content table {border-collapse: collapse;  width: 80%; margin-bottom: 5px; color: #fffae1;background-color:#fff;
 font-size: 14px;}
 div#content table.normal {width: auto;}
 div#content tr.title {font-weight: bold;background-color: #0006f0;color: #ffee91;}
 div#content tr.title th {padding: 2px;border-left: 1px #fff solid;color: #ffee91;}
 div#content tr.title td {color: #ffee91;}
 div#content td {padding: 0em 0.5em 0em 0.5em;color: #009;}
-div#content th {font-weight: bold;background-color: #E4EFF3;}
-div#content th a {background-color: #ffee91;padding: 0em 0.5em 0em 0.5em;color: #009;font-weight: bold;text-decoration: none;width:100%;}
-div#content th a:link {background-color: #ffee91;color: #009;}
+div#content th {font-weight: bold;background-color: #ffee91;}
+div#content th a {padding: 0em 0.5em 0em 0.5em;color: #009;font-weight: bold;text-decoration: none;width:100%;}
+div#content th a:link {color: #009;}
 div#content th a:visited {background-color: #ffee91;color: #009;}
 div#content th a:hover {background-color: #E4EFF3;color: #000;}
 
@@ -47,11 +50,11 @@ div#nav li {padding: 0;margin:0;border:none;display: inline;}
 div#nav li a {BORDER-TOP-WIDTH: 0px; BORDER-RIGHT: #b9bbff 5px solid; PADDING-RIGHT: 10px; DISPLAY: block; PADDING-LEFT: 10px; BORDER-LEFT-WIDTH: 0px; BACKGROUND: #696dff; BORDER-BOTTOM-WIDTH: 0px; PADDING-BOTTOM: 2px; MARGIN: 0px 0px 1px; COLOR: #fffae1; PADDING-TOP: 2px; TEXT-ALIGN: center; TEXT-DECORATION: none; font-weight: bold;}
 div#nav li a:hover {BORDER-RIGHT: white 5px double; BACKGROUND: #ffee91; COLOR: #009}
 div#nav li a span {DISPLAY: none}
-div#nav li a:hover span {PADDING-RIGHT: 5px; DISPLAY: block; PADDING-LEFT: 5px; Z-INDEX: 100; BACKGROUND: #000250; LEFT: 0px; PADDING-BOTTOM: 5px; MARGIN: 10px; font-size: 10px; font-family: Verdana, Helvetica, Arial, sans-serif; WIDTH: 110px; COLOR: #aaa; PADDING-TOP: 5px; POSITION: absolute; TOP: 200px; TEXT-ALIGN: center}
+div#nav li a:hover span {PADDING-RIGHT: 5px; DISPLAY: block; PADDING-LEFT: 5px; Z-INDEX: 100; BACKGROUND: #000250; LEFT: 0px; PADDING-BOTTOM: 5px; MARGIN: 10px; font-size: 10px; WIDTH: 110px; COLOR: #aaa; PADDING-TOP: 5px; POSITION: absolute; TOP: 200px; TEXT-ALIGN: center}
 div#nav p {WIDTH: 135px;border: none;margin: 0em;}
 
 /* ========= PIED DE PAGE ========== */
-div#footer {font-size: 10px;color:#fff;text-align:center;position: absolute;bottom: 0;left: 0;width: 100%;margin: 0;}
+div#footer {font-size: 10px;color:#fff;text-align:center;position: fixed;bottom: 0;left: 0;width: 99%;margin: 0;}
 div#footer img {vertical-align: bottom;}
 div#footer li {padding: 0;display: inline;}
 div#footer li a {text-decoration: none;padding: 2px;}
@@ -64,14 +67,10 @@ div#footer li a:hover {color: #009;border-bottom: 2px #fff solid;background-colo
 div#top {position: absolute;top: 0;left: 0;width: 100%;height:75px}
 div#top {background-color: #E4EFF3;background-image: url(logo.gif);background-position: 100px 1px;;background-repeat: no-repeat; height: 50px; padding:0; border: none;margin: 0;}
 
-.pagernav {float: left;color: #000; background-color: #fffae1; font-weight: bold;
-margin: 0;padding: 1px 0.5em 1px 0.5em ;text-align: right;
-font-size: 18px;}
+.pagernav {float: left;color: #000; background-color: #fffae1; font-weight: bold;margin: 0;padding: 1px 0.5em 1px 0.5em ;text-align: right;font-size: 14px;width:auto;}
 .pagernav a {text-decoration: none;}
 .pagernav a:hover {background-color: #0006f0;color: #fff;}
-.pager {color: #fff; width: 100%;clear:both; margin-top: 5px;}
-div#content .pager table {
-font-size: 12px;}
-.psize {float: right;}
-
+.pager {color: #fff; width: 98%;clear:both; margin-top: 5px;font-weight: normal;}
+div#content .pager table {font-size: 10px;}
+div#content .psize {float: right;width:auto;}
 .odd {background-color: #f0f3ff;color: #009}

@@ -15,9 +15,9 @@
 </c:if>
 <c:if test="${not (rc.locale.language == 'fr')}">
   <fmt:message key="img.fr" var="img"/>
-  <li><a href="<c:url value=""><c:param name="locale" value="fr_FR"/></c:url>"><img src="<c:url value="/${img}"/>" alt="<fmt:message key="nav.lang.fr"/>"><span> <fmt:message key="nav.lang.fr.info"/></span></a></li> 
+  <li><a href="<c:url value=""><c:param name="locale" value="fr_FR"/></c:url>"><img src="<c:url value="/${img}"/>" alt="<fmt:message key="nav.lang.fr"/>" /><span> <fmt:message key="nav.lang.fr.info"/></span></a></li> 
 </c:if>
 <c:if test="${not (rc.locale.language == 'de')}">
   <fmt:message key="img.de" var="img"/>
-  <li><a href="<c:url value=""><c:param name="locale" value="de_GE"/></c:url>"><img src="<c:url value="/${img}"/>" alt="<fmt:message key="nav.lang.de"/>"><span> <fmt:message key="nav.lang.de.info"/></span></a></li> 
+  <li><a href="<c:url value=""><c:param name="locale" value="de_GE"/></c:url>"><img src="<c:url value="/${img}"/>" alt="<fmt:message key="nav.lang.de"/>" /><span> <fmt:message key="nav.lang.de.info"/></span></a></li> 
 </c:if>

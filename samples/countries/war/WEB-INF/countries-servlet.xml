@@ -39,6 +39,7 @@
 				<prop key="/main/detail.htm">countriesController</prop>
 				<prop key="/main/countries.xls">countriesController</prop>
 				<prop key="/main/countries.pdf">countriesController</prop>
+				<prop key="/notfound.htm">errorsController</prop>
 			</props>
 		</property>
 	</bean>
@@ -69,12 +70,12 @@
 	  - Uses the MethodNameResolver definition defined above.
 	  -->
 	<!-- ONLY MEMORY OR ONLY DATABASE IMPLEMENTATION -->
-
+	
 	<bean id="countriesController" class="com.interface21.samples.countries.web.CountriesController">
 		<property name="methodNameResolver"><ref bean="countriesMethodNameResolver"/></property>
 		<property name="daoCountry"><ref external="daoCountry"/></property>
 	</bean>
-
+	
 	<!-- MEMORY+DATABASE IMPLEMENTATION FOR COPYING FROM MEMORY TO DATABASE -->
 	<!--
 	<bean id="countriesController" class="com.interface21.samples.countries.web.CountriesController">
@@ -83,5 +84,28 @@
 		<property name="secondDaoCountry"><ref external="secondDaoCountry"/></property>
 	</bean>
 	-->
+
+
+	<!-- HTTP ERRORS CONTROLLER -->
+	<!--
+	  - Method name resolver definition for MultiActionControllers,
+	  - mapping certain URLs to certain methods of the controller class.
+	  -->
+	<bean id="errorsMethodNameResolver" class="com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/notfound.htm">handleHttp404</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!--
+	  - MultiActionController implementation
+	  - (according to the URL handler mapping definition above).
+	  - Uses the MethodNameResolver definition defined above.
+	  -->
+	<bean id="errorsController" class="com.interface21.samples.countries.web.ErrorsController">
+		<property name="methodNameResolver"><ref bean="errorsMethodNameResolver"/></property>
+	</bean>
 	
 </beans>

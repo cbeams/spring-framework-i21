@@ -7,7 +7,6 @@
   }
 </script>
 
-
 <h2><fmt:message key="countries.main.title"/></h2>
   <form action="<c:url value=""/>" method="POST">
 	<table>
@@ -18,10 +17,10 @@
 	  <tr class="title">
 	    <td><fmt:message key="filter"/>:
 	      <input type="text" name="filter.name" value="<c:out value="${countries.filter.name}"/>"
-	      onchange="document.forms[0].submit()">
+	      onchange="document.forms[0].submit()" />
 	    </td>
 	    <td><fmt:message key="filter"/>:
-          <select name="filter.code" onchange="document.forms[0].submit()">
+          <select name="filter.code" onChange="document.forms[0].submit()">
             <option></option>
             <c:forTokens items="A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,W,X,Y,Z" delims="," var="crtcode">
               <option 
@@ -43,7 +42,7 @@
 	  </c:forEach>
 	</table>
 
-	<hr>
+    <hr/>
 
     <div class="pagernav">
       <c:if test="${countries.nrOfPages > 1}">
@@ -65,7 +64,7 @@
       </c:if>
     </div>
     <div class="psize">
-        <select name="pageSize" onchange="document.forms[0].submit()">
+        <select name="pageSize" onChange="document.forms[0].submit()">
           <c:forTokens items="5,10,15,20,30,40,80" delims="," var="crtps">
             <option 
               <c:if test="${countries.pageSize == crtps}">selected </c:if>
@@ -75,12 +74,12 @@
         </select>
     </div>
 
-    <hr>
+	<div>-=+=-</div>
     
     <div class="pager">
       <table>
         <tr>
-          <td width="33%">
+          <td align="left" width="33%">
             <fmt:message key="pg.pages">
               <fmt:param value="${countries.page + 1}"/>
               <fmt:param value="${countries.nrOfPages}"/>
@@ -100,7 +99,7 @@
       </table>
     </div>
     
-    <hr>
+    <hr/>
     
     <fmt:message key="sort.crt"/>
     <c:out value="${countries.sort.property}"/>

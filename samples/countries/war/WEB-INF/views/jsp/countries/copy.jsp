@@ -10,7 +10,7 @@
     <h3><fmt:message key="copy.nok"/></h3>
   </c:otherwise>
 </c:choose>
-<br>
-<br>
-<br>
+<br/>
+<br/>
+<br/>
 
