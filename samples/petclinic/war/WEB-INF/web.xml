@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC
+	"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	"http://java.sun.com/dtd/web-app_2_3.dtd">
+  
+<web-app>
+
+	<display-name>petclinic1</display-name>
+	<description>Petclinic demo/tutorial application version 1</description>
+
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>petclinic.root</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>com.interface21.web.util.Log4jConfigListener</listener-class>
+	</listener>
+
+  <!--
+    The definition of this listener is necessary to make available
+    a set of beans that are available to all DispatcherServlets.
+    Web applications will by default use an instance of 
+    com.interface21.web.context.support.XmlWebApplicationContext to provide
+    configuration. The configuration is a set of bean definitions that will by
+    default be found in /WEB-INF/applicationContext.xml.
+  -->      
+	<listener>
+		<listener-class>com.interface21.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+  <!--
+    This servlet is used as a Front Controller (i.e. DispatcherServlet) for the application.
+    Bean definitions used only for a particular DispatcherServlet should by default
+    be placed in /WEB-INF/<servlet-name>-servlet.xml,
+    i.e. in this case, /WEB-INF/petclinic-servlet.xml.
+  -->
+  <servlet>
+    <servlet-name>petclinic</servlet-name>
+    <servlet-class>com.interface21.web.servlet.DispatcherServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <!--
+    When using this mapping for .html files, URL's for static web page resources
+    should end in .html to avoid being routed through the specified servlet.
+  -->
+  <servlet-mapping>
+    <servlet-name>petclinic</servlet-name>
+    <url-pattern>*.htm</url-pattern>
+  </servlet-mapping>
+
+  <session-config>
+    <session-timeout>10</session-timeout>
+  </session-config>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+  <error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/WEB-INF/jsp/uncaughtException.jsp</location>
+  </error-page>
+
+  <taglib>
+		<taglib-uri>/i21</taglib-uri>
+		<taglib-location>/WEB-INF/i21.tld</taglib-location>
+  </taglib>
+  
+</web-app>

@@ -1,0 +1,81 @@
+CREATE DATABASE petclinic;
+
+GRANT ALL ON petclinic.* TO pc@localhost IDENTIFIED BY 'pc';
+
+USE petclinic;
+
+CREATE TABLE owners (
+  id INT(4) UNSIGNED NOT NULL PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30),
+  address VARCHAR(255),
+  city VARCHAR(80),
+  telephone VARCHAR(20),
+  INDEX(last_name)
+);
+
+CREATE TABLE owners_seq (
+  seq INT(4) NOT NULL
+);
+
+CREATE TABLE pets (
+  id INT(4) UNSIGNED NOT NULL PRIMARY KEY,
+  name VARCHAR(30),
+  birth_date DATE,
+  type_id INT(4) UNSIGNED NOT NULL REFERENCES types(id),
+  owner_id INT(4) UNSIGNED NOT NULL REFERENCES owner(id),
+  INDEX(name)
+);
+
+CREATE TABLE pets_seq (
+  seq INT(4) NOT NULL
+);
+
+CREATE TABLE types (
+  id INT(4) UNSIGNED NOT NULL PRIMARY KEY,
+  name VARCHAR(80),
+  INDEX(name)
+);
+
+CREATE TABLE types_seq (
+  seq INT(4) NOT NULL
+);
+
+CREATE TABLE vets (
+  id INT(4) UNSIGNED NOT NULL PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30),
+  INDEX(last_name)
+);
+
+CREATE TABLE vets_seq (
+  seq INT(4) NOT NULL
+);
+
+CREATE TABLE specialties (
+  id INT(4) UNSIGNED NOT NULL PRIMARY KEY,
+  name VARCHAR(80),
+  INDEX(name)
+);
+
+CREATE TABLE specialties_seq (
+  seq INT(4) NOT NULL
+);
+
+CREATE TABLE vet_specialties (
+  vet_id INT(4) UNSIGNED NOT NULL REFERENCES vet(id),
+  specialty_id INT(4) UNSIGNED NOT NULL REFERENCES specialties(id)
+);
+
+CREATE TABLE visits (
+  id INT(4) UNSIGNED NOT NULL PRIMARY KEY,
+  pet_id INT(4) UNSIGNED NOT NULL REFERENCES pets(id),
+  visit_date DATE,
+  description VARCHAR(255),
+  INDEX(pet_id)
+);
+
+CREATE TABLE visits_seq (
+  seq INT(4) NOT NULL
+);
+

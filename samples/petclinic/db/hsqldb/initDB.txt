@@ -1,0 +1,81 @@
+CREATE TABLE owners (
+  id INT(4) NOT NULL PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30),
+  address VARCHAR(255),
+  city VARCHAR(80),
+  telephone VARCHAR(20)
+);
+CREATE INDEX owners_last_name ON owners(last_name);
+
+CREATE TABLE owners_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE types (
+  id INT(4) NOT NULL PRIMARY KEY,
+  name VARCHAR(80)
+);
+CREATE INDEX types_name ON types(name);
+
+CREATE TABLE types_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE pets (
+  id INT(4) NOT NULL PRIMARY KEY,
+  name VARCHAR(30),
+  birth_date DATE,
+  type_id INT(4) NOT NULL,
+  owner_id INT(4) NOT NULL
+);
+alter table pets add constraint fk_pets_owners foreign key (owner_id) references owners(id);
+alter table pets add constraint fk_pets_types foreign key (type_id) references types(id);
+CREATE INDEX pets_name ON pets(name);
+
+CREATE TABLE pets_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE vets (
+  id INT(4) NOT NULL PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30)
+);
+CREATE INDEX vets_last_name ON vets(last_name);
+
+CREATE TABLE vets_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE specialties (
+  id INT(4) NOT NULL PRIMARY KEY,
+  name VARCHAR(80)
+);
+CREATE INDEX specialties_name ON specialties(name);
+
+CREATE TABLE specialties_seq (
+  seq IDENTITY
+);
+
+CREATE TABLE vet_specialties (
+  vet_id INT(4) NOT NULL,
+  specialty_id INT(4) NOT NULL
+);
+alter table vet_specialties add constraint fk_vet_specialties_vets foreign key (vet_id) references vets(id);
+alter table vet_specialties add constraint fk_vet_specialties_specialties foreign key (specialty_id) references specialties(id);
+
+CREATE TABLE visits (
+  id INT(4) NOT NULL PRIMARY KEY,
+  pet_id INT(4) NOT NULL,
+  visit_date DATE,
+  description VARCHAR(255)
+);
+alter table visits add constraint fk_visits_pets foreign key (pet_id) references pets(id);
+CREATE INDEX visits_pet_id ON visits(pet_id);
+
+CREATE TABLE visits_seq (
+  seq IDENTITY
+);
+
+

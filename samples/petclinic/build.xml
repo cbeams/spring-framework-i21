@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+
+<project name="petclinic" basedir="." default="usage">
+
+  <property name="name" value="petclinic1"/>
+  <property name="version" value="1.0"/>
+
+	<property name="war.dir" value="war"/>
+  <property name="src.dir" value="src"/>
+	<property name="lib.dir" value="lib"/>
+  <property name="build.dir" value="build"/>
+  <property name="dist.dir" value="dist"/>
+  <property name="db.dir" value="db"/>
+
+  <property name="test.dir" value="test"/>
+  <property name="testsrc.dir" value="${test.dir}/src"/>
+  <property name="testbuild.dir" value="${test.dir}/build"/>
+  <property name="testreports.dir" value="${test.dir}/reports"/>
+  <property name="testhtml.dir" value="${testreports.dir}/html"/>
+
+  <property name="docs.dir" value="${war.dir}/docs"/>
+
+  <property name="prj.zip" value="${name}-${version}.zip"/>
+
+	<property file="build.properties"/>
+
+	<path id="master-classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+
+  <target name="usage">
+		<echo message=""/>
+		<echo message="${name} ${version} build file"/>
+		<echo message="------------------------------------------------------"/>
+		<echo message=""/>
+		<echo message=" Available targets are :"/>
+		<echo message=""/>
+		<echo message="clean    --> Cleans ALL output dirs"/>
+		<echo message="build    --> Compile main source tree java files into class files"/>
+		<echo message="setupDB  --> Initialize the database"/>
+		<echo message="webapp   --> Builds the web application archive"/>
+		<echo message="docs     --> Create complete Javadoc documentation"/>
+		<echo message="test     --> Run tests using initialized database"/>
+		<echo message="all      --> Clean,webapp,docs,test"/>
+		<echo message=" "/>
+  </target>
+
+	<target name="clean" description="Cleans ALL output dirs (build, dist, testbuild)">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+		<delete dir="${testbuild.dir}"/>
+	</target>
+
+	<target name="build" description="Compile main source tree java files into class files, generate jar files">
+		<mkdir dir="${build.dir}"/>
+		<javac destdir="${build.dir}"	debug="true" deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}"/>
+			<classpath refid="master-classpath"/>
+		</javac>
+    <jar jarfile="${war.dir}/WEB-INF/lib/petclinic.jar" compress="true" basedir="${build.dir}"/>
+		<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.dir}">
+				<include name="commons-logging.jar"/>
+				<include name="spring-full*.jar"/>
+				<include name="hsqldb.jar"/>
+				<include name="mysql*.jar"/>
+			</fileset>
+		</copy>
+	</target>
+
+  <target name="docs" depends="build" description="Create complete Javadoc documentation">
+    <delete dir="${docs.dir}"/>
+    <mkdir dir="${docs.dir}"/>
+    <javadoc sourcepath="${src.dir}" destdir="${docs.dir}" packagenames="*" private="true">
+			<classpath refid="master-classpath"/>
+    </javadoc>
+  </target>
+
+	<target name="warfile" depends="build,docs" description="Build the web application archive">
+		<mkdir dir="${dist.dir}"/>
+		<war warfile="${dist.dir}/${name}.war" basedir="${war.dir}" webxml="${war.dir}/WEB-INF/web.xml">
+			<include name="*"/>
+			<include name="docs/**"/>
+			<include name="WEB-INF/*.xml"/>
+			<include name="WEB-INF/*.tld"/>
+			<include name="WEB-INF/classes/*.properties"/>
+			<include name="WEB-INF/lib/**"/>
+			<include name="WEB-INF/jsp/**"/>
+			<exclude name="**/.nbattrs"/>
+		</war>
+	</target>
+
+	<target name="setupHSQL" description="Setup HSQL database properties" if="useHSQL">
+		<property name="db.driver" value="${hsql.driver}"/>
+		<property name="db.url" value="${hsql.url}"/>
+		<property name="db.user" value="${hsql.user}"/>
+		<property name="db.pw" value="${hsql.pw}"/>
+	</target>
+
+  <target name="setupMYSQL" description="Setup MYSQL database properties" if="useMYSQL">
+    <property name="db.driver" value="${mysql.driver}"/>
+    <property name="db.url" value="${mysql.url}"/>
+    <property name="db.user" value="${mysql.user}"/>
+    <property name="db.pw" value="${mysql.pw}"/>
+  </target>
+
+  <target name="setupDB" depends="setupHSQL,setupMYSQL" description="Initialize the selected database">
+    <ant dir="${db.dir}"/>
+  </target>
+
+  <target name="test" depends="build,setupDB" description="Run tests using initialized database">
+    <delete dir="${testbuild.dir}"/>
+    <mkdir dir="${testbuild.dir}"/>
+    <delete dir="${testreports.dir}"/>
+    <mkdir dir="${testreports.dir}"/>
+    <delete dir="${testhtml.dir}"/>
+    <mkdir dir="${testhtml.dir}"/>
+
+    <javac srcdir="${testsrc.dir}" destdir="${testbuild.dir}" deprecation="true">
+			<classpath path="${build.dir}"/>
+			<classpath refid="master-classpath"/>
+    </javac>
+
+    <junit printsummary="true" fork="yes">
+      <formatter type="xml"/>
+      <test name="petclinic.ClinicImplTest" todir="${testreports.dir}"/>
+			<classpath path="${build.dir}"/>
+			<classpath path="${testbuild.dir}"/>
+			<classpath path="${testsrc.dir}"/>
+			<classpath refid="master-classpath"/>
+    </junit>
+
+    <junitreport todir="${testhtml.dir}">
+      <fileset dir="${testreports.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="${testhtml.dir}"/>
+    </junitreport>
+
+    <!-- restore the database -->
+    <ant dir="${db.dir}" />
+  </target>
+
+	<target name="prjzip" description="Create project ZIP file (containing all sources)">
+		<mkdir dir="${dist.dir}"/>
+		<delete file="${dist.dir}/${prj.zip}"/>
+		<zip destfile="${dist.dir}/${prj.zip}">
+			<fileset dir="${basedir}">
+				<include name="${db.dir}/**"/>
+				<include name="${src.dir}/**"/>
+				<include name="${testsrc.dir}/**"/>
+				<include name="${war.dir}/**"/>
+				<include name="*"/>
+				<exclude name="**/.nbattrs"/>
+			</fileset>
+		</zip>
+	</target>
+
+</project>

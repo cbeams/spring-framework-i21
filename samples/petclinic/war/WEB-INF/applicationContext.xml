@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>		
+
+	<!-- Global Message source -->
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">	
+		<property name="basename"><value>messages</value></property>										
+	</bean>
+
+  <!-- ======= START of Data Configuration section ===========================-->
+  
+	<!-- NOTE: In the Data Configuration section, choose exactly 1
+             "dataSource" bean and exactly 1 "incrementer" bean.
+             The database types of the 2 beans must be compatible. -->
+
+	<!-- NOTE: For each JNDI DataSource reference, the respective DriverManagerDataSource
+	           definition can be used as an alternative (e.g. to avoid container-specific
+						 JNDI setup for development environments). -->
+
+  <bean id="incrementer" singleton="false" class="com.interface21.jdbc.core.support.HsqlMaxValueIncrementer">
+    <property name="dataSource"><ref bean="dataSource"/></property>
+    <property name="columnName"><value>seq</value></property>
+  </bean>
+
+	<!--
+  <bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+    <property name="jndiName"><value>jdbc/petclinicHSQL</value></property>
+  </bean>
+	-->
+
+	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
+		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
+		<property name="username"><value>sa</value></property>
+		<property name="password"><value></value></property>
+	</bean>
+
+	<!--
+  <bean id="incrementer" singleton="false" class="com.interface21.jdbc.core.support.MySQLMaxValueIncrementer" >
+    <property name="dataSource"><ref bean="dataSource"/></property>
+    <property name="columnName"><value>seq</value></property>
+  </bean>
+
+  <bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+    <property name="jndiName"><value>jdbc/petclinicMYSQL</value></property>
+  </bean>
+
+	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
+		<property name="url"><value>jdbc:mysql://localhost:3306/petclinic</value></property>
+		<property name="username"><value>pc</value></property>
+		<property name="password"><value>pc</value></property>
+	</bean>
+	-->
+
+  <bean id="clinicDAO" class="petclinic.dao.ClinicJdbcDAO">
+    <property name="dataSource"><ref bean="dataSource"/></property>
+  </bean>
+    
+	<bean id="clinic" class="petclinic.ClinicImpl">
+    <property name="dao"><ref bean="clinicDAO"/></property>
+	</bean>
+	
+	<!-- ======= END of Data Configuration section =============================-->
+
+</beans>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="viewResolver" class="com.interface21.web.servlet.view.ResourceBundleViewResolver">			
+		<!--	Name of the View resource bundle loaded from the classpath. -->	
+		<property name="basename"><value>views</value></property>
+	</bean>
+
+  <bean id="urlMapping" class="com.interface21.web.servlet.handler.SimpleUrlHandlerMapping"> 
+		<property name="mappings">
+			<props>
+				<prop key="/welcome.htm">clinicController</prop>
+				<prop key="/vets.htm">clinicController</prop>
+				<prop key="/owner.htm">clinicController</prop>
+				<prop key="/findOwners.htm">findOwnersForm</prop>
+				<prop key="/editOwner.htm">editOwnerForm</prop>
+				<prop key="/addOwner.htm">addOwnerForm</prop>
+				<prop key="/addVisit.htm">addVisitForm</prop>
+				<prop key="/addPet.htm">addPetForm</prop>
+				<prop key="/editPet.htm">editPetForm</prop>
+			</props>
+		</property>
+  </bean>
+  
+  <bean id="clinicControllerMethodNameResolver" class="com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+    <property name="mappings">
+			<props>
+				<prop key="/welcome.htm">welcomeHandler</prop>
+				<prop key="/vets.htm">vetsHandler</prop>
+				<prop key="/owner.htm">ownerHandler</prop>
+			</props>
+    </property>
+  </bean>
+
+  <bean id="clinicController" class="petclinic.web.ClinicController">
+    <property name="methodNameResolver"><ref bean="clinicControllerMethodNameResolver"/></property>
+    <property name="clinic"><ref external="clinic"/></property>
+   </bean>
+
+	<bean id="findOwnersValidator" class="petclinic.validation.FindOwnersValidator"/>
+
+	<bean id="findOwnersForm" class="petclinic.web.FindOwnersForm">
+		<property name="formView"><value>findOwnersForm</value></property>
+		<property name="selectView"><value>selectOwnerView</value></property>
+		<property name="successView"><value>ownerRedirect</value></property>
+		<property name="validator"><ref bean="findOwnersValidator"/></property>
+    <property name="clinic"><ref external="clinic"/></property>
+	</bean>
+	
+	<bean id="ownerValidator" class="petclinic.validation.OwnerValidator"/>
+
+  <bean id="addOwnerForm" class="petclinic.web.AddOwnerForm">
+		<property name="sessionForm"><value>true</value></property>
+		<property name="formView"><value>ownerForm</value></property>
+		<property name="successView"><value>ownerRedirect</value></property>
+		<property name="validator"><ref bean="ownerValidator"/></property>
+    <property name="clinic"><ref external="clinic"/></property>
+	</bean>
+	
+  <bean id="editOwnerForm" class="petclinic.web.EditOwnerForm">
+		<property name="sessionForm"><value>true</value></property>
+		<property name="bindOnNewForm"><value>true</value></property>
+		<property name="formView"><value>ownerForm</value></property>
+		<property name="successView"><value>ownerRedirect</value></property>
+		<property name="validator"><ref bean="ownerValidator"/></property>
+    <property name="clinic"><ref external="clinic"/></property>
+	</bean>
+	
+	<bean id="petValidator" class="petclinic.validation.PetValidator"/>
+  
+	<bean id="addPetForm" class="petclinic.web.AddPetForm">
+		<property name="sessionForm"><value>true</value></property>
+		<property name="formView"><value>petForm</value></property>
+		<property name="successView"><value>ownerRedirect</value></property>
+		<property name="validator"><ref bean="petValidator"/></property>
+    <property name="clinic"><ref external="clinic"/></property>
+	</bean>
+	
+	<bean id="editPetForm" class="petclinic.web.EditPetForm">
+		<property name="sessionForm"><value>true</value></property>
+		<property name="bindOnNewForm"><value>true</value></property>
+		<property name="formView"><value>petForm</value></property>
+		<property name="successView"><value>ownerRedirect</value></property>
+		<property name="validator"><ref bean="petValidator"/></property>
+    <property name="clinic"><ref external="clinic"/></property>
+	</bean>
+	
+	<bean id="visitValidator" class="petclinic.validation.VisitValidator"/>
+  
+	<bean id="addVisitForm" class="petclinic.web.AddVisitForm">
+		<property name="sessionForm"><value>true</value></property>
+		<property name="formView"><value>visitForm</value></property>
+		<property name="successView"><value>ownerRedirect</value></property>
+		<property name="validator"><ref bean="visitValidator"/></property>
+    <property name="clinic"><ref external="clinic"/></property>
+	</bean>
+	
+</beans>

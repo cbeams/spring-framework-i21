@@ -1,0 +1,13 @@
+DROP TABLE visits_seq;
+DROP TABLE visits;
+DROP TABLE vet_specialties;
+DROP TABLE specialties_seq;
+DROP TABLE specialties;
+DROP TABLE vets_seq;
+DROP TABLE vets;
+DROP TABLE pets_seq;
+DROP TABLE pets;
+DROP TABLE types_seq;
+DROP TABLE types;
+DROP TABLE owners_seq;
+DROP TABLE owners; 
