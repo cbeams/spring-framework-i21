@@ -7,7 +7,7 @@ import com.interface21.beans.BeanWrapperImpl;
 
 /**
  *
- * @author Rod Johnson
+ * @author Rod Johnson, Juergen Hoeller
  */
 public class BindException extends Exception implements Errors {
 
@@ -39,9 +39,7 @@ public class BindException extends Exception implements Errors {
 
 	private String fixedField(String field) {
 		// Add nested path, if present, allowing context changes
-		field = nestedPath + field;
-		//System.out.println("Fixed field = '" + field + "'");
-		return field;
+		return nestedPath + field;
 	}
 
 	protected void addFieldError(FieldError fe) {
@@ -59,18 +57,14 @@ public class BindException extends Exception implements Errors {
 		return objectName;
 	}
 
-        public void reject(String resolvedMessage) {
-                errors.add(new ObjectError(this.objectName, resolvedMessage));
-        }
-
-	public void reject(String errorCode, String defaultMessage) {
-		errors.add(new ObjectError(this.objectName, errorCode, (Object[])null, defaultMessage));
+	public void reject(String errorCode, Object[] errorArgs, String defaultMessage) {
+		errors.add(new ObjectError(this.objectName, errorCode, errorArgs, defaultMessage));
 	}
 
-	public void rejectValue(String field, String errorCode, String defaultMessage) throws InvalidBinderUsageException {
+	public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) throws InvalidBinderUsageException {
 		field = fixedField(field);
 		Object newVal = getBeanWrapper().getPropertyValue(field);
-		FieldError fe = new FieldError(this.objectName, field, newVal, errorCode, defaultMessage);
+		FieldError fe = new FieldError(this.objectName, field, newVal, errorCode, errorArgs, defaultMessage);
 		errors.add(fe);
 	}
 
