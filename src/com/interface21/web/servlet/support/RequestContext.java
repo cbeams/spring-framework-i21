@@ -48,7 +48,7 @@ public class RequestContext {
 	private Map errorsMap;
 
 	/**
-	 * Creates a new RequestContext for the given request,
+	 * Create a new RequestContext for the given request,
 	 * using the request attributes for Errors retrieval.
 	 * <p>This only works with InternalResourceViews, as Errors instances
 	 * are part of the model and not normally exposed as request attributes.
@@ -60,7 +60,7 @@ public class RequestContext {
 	}
 
 	/**
-	 * Creates a new RequestContext for the given request,
+	 * Create a new RequestContext for the given request,
 	 * using the given model attributes for Errors retrieval.
 	 * <p>This works with all View implementations.
 	 * It will typically be used by View implementations.
@@ -76,14 +76,14 @@ public class RequestContext {
 	}
 
 	/**
-	 * Returns the current WebApplicationContext.
+	 * Return the current WebApplicationContext.
 	 */
 	public WebApplicationContext getWebApplicationContext() {
 		return webApplicationContext;
 	}
 
 	/**
-	 * (De)actives default HTML escaping for messages and errors.
+	 * (De)active default HTML escaping for messages and errors.
 	 */
 	public void setDefaultHtmlEscape(boolean defaultHtmlEscape) {
 		this.defaultHtmlEscape = defaultHtmlEscape;
@@ -97,21 +97,21 @@ public class RequestContext {
 	}
 
 	/**
-	 * Returns the current locale.
+	 * Return the current locale.
 	 */
 	public Locale getLocale() {
 		return locale;
 	}
 
 	/**
-	 * Returns the current theme.
+	 * Return the current theme.
 	 */
 	public Theme getTheme() {
 		return theme;
 	}
 
 	/**
-	 * Retrieves the message for the given code, using the defaultHtmlEscape setting.
+	 * Retrieve the message for the given code, using the defaultHtmlEscape setting.
 	 * @param code code of the message
 	 * @param args arguments for the message, or null if none
 	 * @return the message
@@ -121,7 +121,7 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the message for the given code.
+	 * Retrieve the message for the given code.
 	 * @param code code of the message
 	 * @param args arguments for the message, or null if none
 	 * @param htmlEscape HTML escape the message?
@@ -133,7 +133,7 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance),
+	 * Retrieve the given MessageSourceResolvable (e.g. an ObjectError instance),
 	 * using the defaultHtmlEscape setting.
 	 * @param resolvable the MessageSourceResolvable
 	 * @return the message
@@ -143,7 +143,7 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance).
+	 * Retrieve the given MessageSourceResolvable (e.g. an ObjectError instance).
 	 * @param resolvable the MessageSourceResolvable
 	 * @param htmlEscape HTML escape the message?
 	 * @return the message
@@ -154,22 +154,26 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the Errors instance for the given bind object,
+	 * Retrieve the Errors instance for the given bind object,
 	 * using the defaultHtmlEscape setting.
 	 * @param name name of the bind object
 	 * @return the Errors instance
+	 * @throws ServletException if the Errors instance could not be found
+	 * in the request
 	 */
-	public Errors getErrors(String name) {
+	public Errors getErrors(String name) throws ServletException {
 		return getErrors(name, this.defaultHtmlEscape);
 	}
 
 	/**
-	 * Retrieves the Errors instance for the given bind object.
+	 * Retrieve the Errors instance for the given bind object.
 	 * @param name name of the bind object
 	 * @param htmlEscape create an Errors instance with automatic HTML escaping?
 	 * @return the Errors instance
+	 * @throws ServletException if the Errors instance could not be found
+	 * in the request
 	 */
-	public Errors getErrors(String name, boolean htmlEscape) {
+	public Errors getErrors(String name, boolean htmlEscape) throws ServletException {
 		if (this.errorsMap == null) {
 			this.errorsMap = new HashMap();
 		}
@@ -177,6 +181,9 @@ public class RequestContext {
 		boolean put = false;
 		if (errors == null) {
 			errors = retrieveErrors(name);
+			if (errors == null) {
+				throw new ServletException("Invalid bind name [" + name + "]: Errors instance not found in request");
+			}
 			put = true;
 		}
 		if (htmlEscape && !(errors instanceof EscapedErrors)) {

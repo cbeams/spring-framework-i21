@@ -61,9 +61,7 @@ public class MessageTag extends RequestContextAwareTag {
 		this.text = ExpressionEvaluationUtils.evaluateString("text", text, pageContext);
 	}
 
-	public final int doStartTag() throws JspException {
-		super.doStartTag();
-
+	protected final int doStartTagInternal() throws Exception {
 		MessageSource messageSource = getMessageSource();
 		if (messageSource == null) {
 			throw new JspTagException("No corresponding MessageSource found");
@@ -87,9 +85,6 @@ public class MessageTag extends RequestContextAwareTag {
 		}
 		catch (NoSuchMessageException ex) {
 			throw new JspTagException(getNoSuchMessageExceptionDescription(ex));
-		}
-		catch (IOException ex) {
-			throw new JspTagException("Can't write message: " + ex.getMessage());
 		}
 		return EVAL_BODY_INCLUDE;
 	}

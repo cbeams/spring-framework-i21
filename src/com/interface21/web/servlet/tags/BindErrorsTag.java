@@ -1,6 +1,7 @@
 package com.interface21.web.servlet.tags;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.ServletException;
 
 import com.interface21.validation.Errors;
 import com.interface21.web.util.ExpressionEvaluationUtils;
@@ -25,12 +26,9 @@ public class BindErrorsTag extends RequestContextAwareTag {
 		this.name = ExpressionEvaluationUtils.evaluateString("name", name, pageContext);
 	}
 
-	public int doStartTag() throws JspException {
-		super.doStartTag();
-
+	protected int doStartTagInternal() throws ServletException {
 		Errors errors = getRequestContext().getErrors(this.name, isHtmlEscape());
-
-		if (errors != null && errors.hasErrors()) {
+		if (errors.hasErrors()) {
 			this.pageContext.setAttribute(ERRORS_VARIABLE_NAME, errors);
 			return EVAL_BODY_INCLUDE;
 		}

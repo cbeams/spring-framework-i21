@@ -3,6 +3,7 @@ package com.interface21.web.servlet.tags;
 import java.util.List;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.ServletException;
 
 import com.interface21.context.NoSuchMessageException;
 import com.interface21.validation.Errors;
@@ -62,9 +63,7 @@ public class BindTag extends RequestContextAwareTag {
 		return property;
 	}
 
-	public int doStartTag() throws JspException {
-		super.doStartTag();
-
+	protected int doStartTagInternal() throws Exception {
 		// determine name of the object and property
 		String name = null;
 		this.property = null;
@@ -81,11 +80,6 @@ public class BindTag extends RequestContextAwareTag {
 
 		// retrieve errors object
 		this.errors = getRequestContext().getErrors(name, false);
-
-		if (this.errors == null) {
-			throw new JspException("Invalid bind path [" + this.path + "]: Errors instance not found in request");
-		}
-
 		List fes = null;
 		Object value = null;
 
@@ -121,16 +115,11 @@ public class BindTag extends RequestContextAwareTag {
 	/**
 	 * Extract the error messages from the given ObjectError list.
 	 */
-	private String[] getErrorMessages(List fes) throws JspException {
+	private String[] getErrorMessages(List fes) throws NoSuchMessageException {
 		String[] messages = new String[fes.size()];
 		for (int i = 0; i < fes.size(); i++) {
 			ObjectError error = (ObjectError) fes.get(i);
-			try {
-				messages[i] = getRequestContext().getMessage(error, isHtmlEscape());
-			}
-			catch (NoSuchMessageException ex) {
-				throw new JspException(ex.getMessage());
-			}
+			messages[i] = getRequestContext().getMessage(error, isHtmlEscape());
 		}
 		return messages;
 	}

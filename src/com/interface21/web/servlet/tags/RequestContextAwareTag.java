@@ -1,6 +1,5 @@
 package com.interface21.web.servlet.tags;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -14,10 +13,10 @@ import com.interface21.web.util.ExpressionEvaluationUtils;
  * The RequestContext instance provides easy access to current
  * state like WebApplicationContext, Locale, Theme, etc.
  *
- * <p>Supports a HTML escaping setting per tag instance,
+ * <p>Supports an HTML escaping setting per tag instance,
  * overriding any default setting at the page or web.xml level.
  *
- * <p>Note: Works only in DispatcherServlet requests!
+ * <p>Note: Only intended for DispatcherServlet requests!
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -58,16 +57,28 @@ public abstract class RequestContextAwareTag extends TagSupport {
 
 	/**
 	 * Create and set the current RequestContext.
-	 * Note: Do not forget to call super.doStartTag() in subclasses!
+	 * Delegates to doStartTagInternal for actual work.
 	 */
-	public int doStartTag() throws JspException {
+	public final int doStartTag() throws JspException {
 		try {
 			this.requestContext = new RequestContext((HttpServletRequest) this.pageContext.getRequest());
+			return doStartTagInternal();
 		}
-		catch (ServletException ex) {
+		catch (JspException ex) {
+			throw ex;
+		}
+		catch (Exception ex) {
 			throw new JspTagException(ex.getMessage());
 		}
-		return EVAL_BODY_INCLUDE;
 	}
+
+	/**
+	 * Called by doStartTag to perform the actual work.
+	 * @return same as TagSupport.doStartTag
+	 * @throws Exception any exception, every other than JspException
+	 * gets wrapped in a JspException by doStartTag
+	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag
+	 */
+	protected abstract int doStartTagInternal() throws Exception;
 
 }
