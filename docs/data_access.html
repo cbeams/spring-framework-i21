@@ -2,7 +2,7 @@
 <body>
 
 <h2>Data Access and Transaction Abstraction with the Spring Framework</h2>
-(with Hibernate examples)
+(featuring Hibernate examples)
 
 <p><i>Juergen Hoeller<br>
 June 2003</i>
@@ -22,7 +22,7 @@ June 2003</i>
 <p>The basic programming model for templating looks as follows, for methods that can be part of any custom data access object or business object. There are no restrictions on the implementation of the surrounding object at all, it just needs to provide a Hibernate SessionFactory. It can get the latter from anywhere, but preferably as bean reference from a Spring application context - via a simple setSessionFactory bean property setter.
 
 <p><code>
-public List loadProductsByCategory(String category) {<br>
+public List loadProductsByCategory(final String category) {<br>
 &nbsp;&nbsp;HibernateTemplate hibernateTemplate = new HibernateTemplate(this.sessionFactory);<br>
 &nbsp;&nbsp;return (List) hibernateTemplate.execute(<br>
 &nbsp;&nbsp;&nbsp;&nbsp;new HibernateCallback() {<br>
@@ -78,7 +78,7 @@ public List loadProductsByCategory(String category) throws MyException {<br>
 <p>On top of such lower-level data access services, transactions can be demarcated in a higher level of the application, spanning any number of operations. There are no restrictions on the implementation of the surrounding business object here too, it just needs a Spring PlatformTransactionManager. Again, he latter can come from anywhere, but preferably as bean reference via a setTransactionManager method - just like the productDAO should be set via a setProductDAO method:
 
 <p><code>
-public void increasePriceOfAllProductsInCategory(String category) {<br>
+public void increasePriceOfAllProductsInCategory(final String category) {<br>
 &nbsp;&nbsp;TransactionTemplate transactionTemplate = new TransactionTemplate(this.transactionManager);<br>
 &nbsp;&nbsp;transactionTemplate.execute(<br>
 &nbsp;&nbsp;&nbsp;&nbsp;new TransactionCallback() {<br>
