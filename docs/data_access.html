@@ -29,7 +29,7 @@ public List loadProductsByCategory(final String category) {<br>
 &nbsp;&nbsp;return (List) hibernateTemplate.execute(<br>
 &nbsp;&nbsp;&nbsp;&nbsp;new HibernateCallback() {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public Object doInHibernate(Session session) throws HibernateException {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List result = session.find("from product in class test.Product where product.category = '" + category + "'");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List result = session.find("from test.Product product where product.category=?", category, Hibernate.STRING);<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// do some further stuff with the result list<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return result;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
@@ -43,7 +43,7 @@ public List loadProductsByCategory(final String category) {<br>
 <p><code>
 public List loadProductsByCategory(String category) {<br>
 &nbsp;&nbsp;HibernateTemplate hibernateTemplate = new HibernateTemplate(this.sessionFactory);<br>
-&nbsp;&nbsp;return hibernateTemplate.find("from product in class test.Product where product.category = '" + category + "'");<br>
+&nbsp;&nbsp;return hibernateTemplate.find("from test.Product product where product.category=?", category, Hibernate.STRING);<br>
 }
 </code>
 
@@ -58,7 +58,7 @@ public List loadProductsByCategory(String category) {<br>
 public List loadProductsByCategory(String category) throws MyException {<br>
 &nbsp;&nbsp;Session session = SessionFactoryUtils.getSession(this.sessionFactory, false);<br>
 &nbsp;&nbsp;try {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;List result = session.find("from product in class test.Product where product.category = '" + category + "'");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;List result = session.find("from test.Product product where product.category=?", category, Hibernate.STRING);<br>
 &nbsp;&nbsp;&nbsp;&nbsp;if (result == null) {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw new MyException("test");<br>
 &nbsp;&nbsp;&nbsp;&nbsp;}<br>
