@@ -31,9 +31,12 @@ public class ContextLoader {
 	/**
 	 * Initializes Spring's web application context for the given servlet context,
 	 * solely regarding the servlet context init parameter.
+	 * 
+	 * @param servletContext  the current servlet context
+	 * @return the new WebApplicationContext
 	 */
-	public static void initContext(ServletContext servletContext) throws ServletException {
-		initContext(servletContext, null);
+	public static WebApplicationContext initContext(ServletContext servletContext) throws ServletException {
+		return initContext(servletContext, null);
 	}
 
 	/**
@@ -42,8 +45,9 @@ public class ContextLoader {
 	 *
 	 * @param servletContext  the current servlet context
 	 * @param contextClass  the context class to use, or null for default initialization
+	 * @return the new WebApplicationContext
 	 */
-	public static void initContext(ServletContext servletContext, String contextClass) throws ServletException {
+	public static WebApplicationContext initContext(ServletContext servletContext, String contextClass) throws ServletException {
 		if (contextClass == null)
 			contextClass = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);
 
@@ -55,18 +59,23 @@ public class ContextLoader {
 			logger.info("Using context class '" + clazz.getName() + "'");
 			WebApplicationContext webApplicationContext = (WebApplicationContext)clazz.newInstance();
 			webApplicationContext.setServletContext(servletContext);
+			return webApplicationContext;
+
 		} catch (ClassNotFoundException ex) {
 			String mesg = "Failed to load config class '" + contextClass + "'";
 			logger.error(mesg, ex);
 			throw new ServletException(mesg + ": " + ex);
+
 		} catch (InstantiationException ex) {
 			String mesg = "Failed to instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
 			logger.error(mesg, ex);
 			throw new ServletException(mesg + ": " + ex);
+
 		} catch (IllegalAccessException ex) {
 			String mesg = "Failed with IllegalAccess to find or instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
 			logger.error(mesg, ex);
 			throw new ServletException(mesg + ": " + ex);
+
 		} catch (Throwable t) {
 			String mesg = "Unexpected error loading config: " + t;
 			logger.error(mesg, t);
