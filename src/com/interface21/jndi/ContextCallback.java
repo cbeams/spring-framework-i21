@@ -31,11 +31,12 @@ public interface ContextCallback {
 	 * Do something with the given JNDI context.
 	 * Implementations don't need to worry about error handling
 	 * or cleanup, as the JndiServices class will handle this.
-	 * @param ctx JNDI context
-	 * @throws NamingException Implementations don't need
+	 * @param ctx  the current JNDI context
+	 * @throws NamingException  Implementations don't need
 	 * to catch naming exceptions
+	 * @return  a result object, or null
 	 */
-    void doInContext(Context ctx) throws NamingException;
+  Object doInContext(Context ctx) throws NamingException;
 
 }
 
