@@ -69,10 +69,14 @@
 
 		</javac>
 
-		<rmic base="${build.dir}" classname="com.interface21.remoting.rmi.RemoteInvocationWrapper"/> 
+		<rmic base="${build.dir}" classname="com.interface21.remoting.rmi.RemoteInvocationWrapper"/>
 
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml"
-			todir="${build.dir}/com/interface21/jdbc/core"/>
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.xml"/>
+				<include name="**/*.dtd"/>
+			</fileset>
+		</copy>
 
 	</target>
 
@@ -287,7 +291,7 @@
 
 		</javac>
 
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" 
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml"
 			todir="${testbuild.dir}/com/interface21/jdbc/core" />
 
 	</target>
@@ -321,8 +325,8 @@
 			<batchtest fork="yes" todir="${reports.dir}">
 
 				<!-- Wildcards are specified as properties -->
-				<fileset dir="test"	
-					includes="${test.includes}"	
+				<fileset dir="test"
+					includes="${test.includes}"
 					excludes="${test.excludes}"/>
 
 			</batchtest>
@@ -348,14 +352,14 @@
 
 		</javac>
 
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" 
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml"
 			todir="${clover.build.dir}/com/interface21/jdbc/core" />
-			
-		<!-- 
+
+		<!--
 			Copy the log4j file so we always get verbose logging, with conditional
 			blocks fired
 		-->
-		<copy file="${test.dir}/log4j.properties" 
+		<copy file="${test.dir}/log4j.properties"
 			todir="${clover.build.dir}" />
 
 	</target>
@@ -406,7 +410,7 @@
 		Run test suite under Clover coverage analysis, and use Clover
 		to generate Javadoc/style HTML results that may be browsed later.
 	-->
-	<target name="clover.html" 
+	<target name="clover.html"
 		depends="clover.tests"
 		description="Generate Clover HTML coverage reports from an existing Clover database.">
 
