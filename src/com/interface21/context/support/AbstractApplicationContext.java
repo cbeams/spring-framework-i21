@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +62,7 @@ import com.interface21.util.StringUtils;
  * parent context.
  *
  * @author Rod Johnson
+ * @author Juergen Hoeller
  * @since January 21, 2001
  * @version $Revision$
  * @see #refreshBeanFactory
@@ -83,6 +86,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 */
 	public static final String MESSAGE_SOURCE_BEAN_NAME = "messageSource";
 
+
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
@@ -102,6 +106,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	/** Special bean to handle configuration */
 	private ContextOptions contextOptions;
 
+	/** MessageSource helper we delegate our implementation of this interface to */
+	private MessageSource messageSource;
+
 	/**
 	 * Helper class used in event publishing.
 	 * TODO: This could be parameterized as a JavaBean (with a distinguished name
@@ -110,13 +117,12 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	private ApplicationEventMulticaster eventMulticaster = new ApplicationEventMulticasterImpl();
 
 	/**
-	 * MessageSource helper we delegate our implementation of this interface to
+	 * Set of ApplicationContextAware objects that have already received the context
+	 * reference, to be able to avoid double initialization of managed objects.
 	 */
-	private MessageSource messageSource;
+	private Set managedSingletons = new HashSet();
 
-	/**
-	 * Hash table of shared objects, keyed by String.
-	 */
+	/** Map of shared objects, keyed by String */
 	private Map sharedObjects = new HashMap();
 
 
@@ -208,38 +214,31 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		this.startupTime = System.currentTimeMillis();
 
 		refreshBeanFactory();
+
 		if (getBeanDefinitionCount() == 0)
 			logger.warn("No beans defined in ApplicationContext: " + getDisplayName());
 		else
 			logger.info(getBeanDefinitionCount() + " beans defined in ApplicationContext: " + getDisplayName());
 
+		// invoke configurers that can override values in the bean definitions
 		invokeContextConfigurers();
-		preInstantiateSingletons();
+
+		// load options bean for this context
+		loadOptions();
+
+		// initialize message source for this context
+		initMessageSource();
+
+		// initialize other special beans in specific context subclasses
+		onRefresh();
+
+		// check for listener beans and register them
 		refreshListeners();
 
-		try {
-			loadOptions();
-		}
-		catch (BeansException ex) {
-			throw new ApplicationContextException("Unexpected error loading context options", ex);
-		}
+		// instantiate singletons this late to allow them to access the message source
+		preInstantiateSingletons();
 
-		try {
-			this.messageSource = (MessageSource) getBeanFactory().getBean(MESSAGE_SOURCE_BEAN_NAME);
-			// set parent message source if applicable,
-			// and if the message source is defined in this context, not in a parent
-			if (this.parent != null && (this.messageSource instanceof NestingMessageSource) &&
-			    Arrays.asList(getBeanFactory().getBeanDefinitionNames()).contains(MESSAGE_SOURCE_BEAN_NAME)) {
-				((NestingMessageSource) this.messageSource).setParent(this.parent);
-			}
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-			logger.warn("No MessageSource found for: " + getDisplayName());
-			// use empty message source to be able to accept getMessage calls
-			this.messageSource = new StaticMessageSource();
-		}
-
-		onRefresh();
+		// last step: publish respective event
 		publishEvent(new ContextRefreshedEvent(this));
 	}
 
@@ -252,32 +251,45 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * Load the options bean.
-	 * The BeanFactory must be loaded before this method is called.
-	 */
-	private void loadOptions() throws BeansException {
-		if (this.contextOptions == null) {
-			// Try to load from bean
-			try {
-				this.contextOptions = (ContextOptions) getBeanFactory().getBean(OPTIONS_BEAN_NAME);
-			} catch (NoSuchBeanDefinitionException ex) {
-				logger.info("No options bean (\"" + OPTIONS_BEAN_NAME + "\") found: using default");
-				this.contextOptions = new ContextOptions();
-			}
-		}
-	}
-
-	/**
 	 * Instantiate and invoke all registered BeanFactoryPostProcessor beans.
 	 * Must be called before singleton instantiation.
 	 */
-	private void invokeContextConfigurers() throws ApplicationContextException {
+	private void invokeContextConfigurers() {
 		String[] beanNames = getBeanDefinitionNames(BeanFactoryPostProcessor.class);
 		for (int i = 0; i < beanNames.length; i++) {
 			String beanName = beanNames[i];
 			BeanFactoryPostProcessor configurer = (BeanFactoryPostProcessor) getBean(beanName);
-			configureManagedObject(configurer);
 			configurer.postProcessBeanFactory(getBeanFactory());
+		}
+	}
+
+	/**
+	 * Load the options bean.
+	 * The BeanFactory must be loaded before this method is called.
+	 */
+	private void loadOptions() {
+		try {
+			this.contextOptions = (ContextOptions) getBean(OPTIONS_BEAN_NAME);
+		} catch (NoSuchBeanDefinitionException ex) {
+			logger.info("No options bean (\"" + OPTIONS_BEAN_NAME + "\") found: using default");
+			this.contextOptions = new ContextOptions();
+		}
+	}
+
+	private void initMessageSource() {
+		try {
+			this.messageSource = (MessageSource) getBean(MESSAGE_SOURCE_BEAN_NAME);
+			// set parent message source if applicable,
+			// and if the message source is defined in this context, not in a parent
+			if (this.parent != null && (this.messageSource instanceof NestingMessageSource) &&
+			    Arrays.asList(getBeanDefinitionNames()).contains(MESSAGE_SOURCE_BEAN_NAME)) {
+				((NestingMessageSource) this.messageSource).setParent(this.parent);
+			}
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			logger.warn("No MessageSource found for: " + getDisplayName());
+			// use empty message source to be able to accept getMessage calls
+			this.messageSource = new StaticMessageSource();
 		}
 	}
 
@@ -286,7 +298,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * in the context. This involves instantiating the objects.
 	 * Only singletons will be instantiated eagerly.
 	 */
-	private void preInstantiateSingletons() throws ApplicationContextException {
+	private void preInstantiateSingletons() {
 		logger.info("Configuring singleton beans in context");
 		String[] beanNames = getBeanDefinitionNames();
 		logger.debug("Found " + beanNames.length + " listeners in bean factory: names=[" +
@@ -294,50 +306,46 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		for (int i = 0; i < beanNames.length; i++) {
 			String beanName = beanNames[i];
 			if (isSingleton(beanName)) {
-				try {
-					Object bean = getBeanFactory().getBean(beanName);
-					configureManagedObject(bean);
-				}
-				catch (BeansException ex) {
-					throw new ApplicationContextException("Couldn't instantiate object with name '" + beanName + "'", ex);
-				}
+				getBean(beanName);
 			}
 		}
 	}
 
 	/**
 	 * If the object is context-aware, give it a reference to this object.
-	 * Note that the implementation of the ApplicationContextAware interface
-	 * must check itself that if it is already initialized resp. if it wants
-	 * to perform reinitialization.
-	 * @param o object to invoke the setApplicationContext() method on,
+	 * @param bean object to invoke the setApplicationContext() method on,
 	 * if it implements the ApplicationContextAware interface
 	 */
-	protected void configureManagedObject(Object o) throws ApplicationContextException {
-		if (o instanceof ApplicationContextAware) {
-			logger.debug("Setting application context on ApplicationContextAware object [" + o + "]");
-			ApplicationContextAware aca = (ApplicationContextAware) o;
+	private void configureManagedObject(String name, Object bean) {
+		if (bean instanceof ApplicationContextAware &&
+				(!isSingleton(name) || !this.managedSingletons.contains(bean))) {
+			logger.debug("Setting application context on ApplicationContextAware object [" + bean + "]");
+			ApplicationContextAware aca = (ApplicationContextAware) bean;
 			aca.setApplicationContext(this);
+			this.managedSingletons.add(bean);
 		}
 	}
 
 	/**
-	 * Add beans that implement listener as listeners.
+	 * Add beans that implement ApplicationListener as listeners.
 	 * Doesn't affect other listeners, which can be added without being beans.
 	 */
-	private void refreshListeners() throws ApplicationContextException {
+	private void refreshListeners() {
 		logger.info("Refreshing listeners");
 		List listeners = BeanFactoryUtils.beansOfType(ApplicationListener.class, this);
 		logger.debug("Found " + listeners.size() + " listeners in bean factory");
 		for (int i = 0; i < listeners.size(); i++) {
-			ApplicationListener l = (ApplicationListener) listeners.get(i);
-			addListener(l);
-			logger.info("Bean listener added: [" + l + "]");
+			ApplicationListener listener = (ApplicationListener) listeners.get(i);
+			addListener(listener);
+			logger.info("Bean listener added: [" + listener + "]");
 		}
 	}
 
 	/**
 	 * Publish the given event to all listeners.
+	 * <p<Note: Listeners get initialized after the message source, to be able to access
+	 * it within listener implementations. Thus, they cannot
+	 * be used in message source implementations.
 	 * @param event event to publish. The event may be application-specific,
 	 * or a standard framework event.
 	 */
@@ -349,8 +357,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * Add a listener. Any beans that are listeners are
-	 * automatically added.
+	 * Add a listener. Any beans that are listeners are automatically added.
 	 */
 	protected void addListener(ApplicationListener l) {
 		this.eventMulticaster.addApplicationListener(l);
@@ -481,17 +488,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	public Object getBean(String name) throws BeansException {
 		Object bean = getBeanFactory().getBean(name);
-		if (!isSingleton(name)) {
-			configureManagedObject(bean);
-		}
+		configureManagedObject(name, bean);
 		return bean;
 	}
 
 	public Object getBean(String name, Class requiredType) throws BeansException {
 		Object bean = getBeanFactory().getBean(name, requiredType);
-		if (!isSingleton(name)) {
-			configureManagedObject(bean);
-		}
+		configureManagedObject(name, bean);
 		return bean;
 	}
 
@@ -499,7 +502,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		return getBeanFactory().isSingleton(name);
 	}
 
-	public String[] getAliases(String name) {
+	public String[] getAliases(String name) throws BeansException {
 		return getBeanFactory().getAliases(name);
 	}
 
