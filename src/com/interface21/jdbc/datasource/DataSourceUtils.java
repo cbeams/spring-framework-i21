@@ -13,24 +13,43 @@ import java.beans.PropertyEditorManager;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
 import com.interface21.aop.framework.ProxyFactory;
+import com.interface21.jndi.AbstractJndiLocator;
 import com.interface21.jndi.JndiObjectEditor;
+import com.interface21.jndi.JndiTemplate;
 import com.interface21.util.ThreadObjectManager;
  
 /**
  * Class containing static methods to obtain connections from JNDI and close
  * connections if necessary. Has support for thread-bound connections,
  * for example for using DataSourceTransactionManager.
- * 
+ *
+ * <p>Note: The getDataSourceFromJndi methods are targetted at applications
+ * that do not use a BeanFactory resp. an ApplicationContext. With the latter,
+ * it is preferable to preconfigure your beans or even JdbcTemplate instances
+ * in the factory:
+ * <ul>
+ * <li>JndiObjectFactoryBean can be used to fetch a DataSource
+ * from JNDI and give the DataSource bean reference to other beans.
+ * <li>JndiObjectEditor is a property editor that allows for directly
+ * specifying a (non-beanRef) JNDI name on a DataSource bean property.
+ * </ul>
+ * Switching to another DataSource is just a matter of configuration then:
+ * You can even replace the definition of the FactoryBean with a non-JNDI
+ * DriverManagerDataSource!
+ *
  * @version $Id$
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+ * @see com.interface21.jndi.JndiObjectFactoryBean
+ * @see com.interface21.jndi.JndiObjectEditor
  */
 public abstract class DataSourceUtils {
 
@@ -56,7 +75,46 @@ public abstract class DataSourceUtils {
 	}
 
 	/**
-	 * Get a connection from the given J2EE DataSource. Changes any SQL exception into
+	 * Look up the specified DataSource in JNDI, assuming that the lookup
+	 * occurs in a J2EE container, i.e. adding the prefix "java:comp/env/"
+	 * to the JNDI name if it doesn't already contain it.
+	 * <p>Use getDataSourceFromJndi(jndiName,false) in case of a custom JNDI name.
+	 * @param jndiName jndiName of the DataSource
+	 * @return the DataSource
+	 * @throws CannotGetJdbcConnectionException if the data source cannot be located
+	 * @see #getDataSourceFromJndi(String,boolean)
+	 */
+	public static DataSource getDataSourceFromJndi(String jndiName) throws CannotGetJdbcConnectionException {
+		return getDataSourceFromJndi(jndiName, true);
+	}
+
+	/**
+	 * Look up the specified DataSource in JNDI, explicitly specifying
+	 * if the lookup occurs in a J2EE container.
+	 * @param jndiName jndiName of the DataSource
+	 * @param inContainer if the lookup occurs in a J2EE container, i.e. if the prefix
+	 * "java:comp/env/" needs to be added if the JNDI name doesn't already contain it.
+	 * @return the DataSource
+	 * @throws CannotGetJdbcConnectionException if the data source cannot be located
+	 */
+	public static DataSource getDataSourceFromJndi(String jndiName, boolean inContainer) throws CannotGetJdbcConnectionException {
+		if (jndiName == null || "".equals(jndiName)) {
+			throw new IllegalArgumentException("jndiName must not be empty");
+		}
+		if (inContainer && !jndiName.startsWith(AbstractJndiLocator.CONTAINER_PREFIX)) {
+			jndiName = AbstractJndiLocator.CONTAINER_PREFIX + jndiName;
+		}
+		try {
+			// Perform JNDI lookup to obtain resource manager connection factory
+			return (DataSource) new JndiTemplate().lookup(jndiName);
+		}
+		catch (NamingException ex) {
+			throw new CannotGetJdbcConnectionException("Naming exception looking up JNDI data source [" + jndiName + "]", ex);
+		}
+	}
+
+	/**
+	 * Get a connection from the given DataSource. Changes any SQL exception into
 	 * the Spring hierarchy of unchecked generic data access exceptions, simplifying
 	 * calling code and making any exception that is thrown more meaningful.
 	 * <p>Is aware of a respective connection bound to the current thread,
