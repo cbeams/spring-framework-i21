@@ -15,6 +15,9 @@ import javax.sql.DataSource;
 
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.JdbcUpdateAffectedIncorrectNumberOfRowsException;
+import com.interface21.jdbc.core.KeyBinder;
+import com.interface21.jdbc.core.DataFieldMaxValueIncrementer;
+import com.interface21.jdbc.core.JdbcTemplate;
 
 /**
  * RdbmsOperation subclass representing a SQL update.
@@ -26,6 +29,7 @@ import com.interface21.jdbc.core.JdbcUpdateAffectedIncorrectNumberOfRowsExceptio
  * to add a custom update method) it can easily be parameterized by setting
  * SQL and declaring parameters.
  * @author Rod Johnson
+ * @author Isabelle Muszynski
  */
 public class SqlUpdate extends SqlOperation {
 
@@ -182,5 +186,79 @@ public class SqlUpdate extends SqlOperation {
     public int update(String p) {
 	return update(new Object[] { p });
     }
+    /**
+     * Generic method to execute the insert given arguments and using a key generator.
+     * All other insert() methods with a key generator invoke this method.
+     * @param args array of object arguments
+  	 * @param binder the callback interface for binding the generated key value into the prepared statement
+     * @param keygen the key generator instance to use
+     * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue} 
+     * @return the number of rows affected by the update
+     * @throws IllegalArgumentException if the key class is of an unsupported type
+     * @throws DataAccessException if there is any problem. 
+     */
+    public JdbcTemplate.InsertRetval update(Object[] args, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) 
+	throws InvalidDataAccessApiUsageException {
+	validateParameters(args);
 
+	JdbcTemplate.InsertRetval retval = getJdbcTemplate().update(newPreparedStatementCreator(args), binder, keygen, keyClass);
+	logger.debug(getSql());
+
+	return retval;
+    }		
+    /**
+     * Convenience method to execute an insert with no parameters and using
+     * a key generator
+  	 * @param binder the callback interface for binding the generated key value into the prepared statement
+     * @param keygen the key generator instance to use
+     * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue} 
+     * @return the number of rows affected by the insert and the newly generated key
+     * @throws IllegalArgumentException if the key class is of an unsupported type
+     * @throws DataAccessException if there is any problem. 
+     */
+    public JdbcTemplate.InsertRetval update(KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) {
+	return update((Object[]) null, binder, keygen, keyClass);
+    }
+
+    /** 
+     * Convenient method to execute an insert given one int arg and using
+     * a key generator
+  	 * @param binder the callback interface for binding the generated key value into the prepared statement
+     * @param keygen the key generator instance to use
+     * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue} 
+     * @return the number of rows affected by the insert and the newly generated key
+     * @throws IllegalArgumentException if the key class is of an unsupported type
+     * @throws DataAccessException if there is any problem. 
+     */
+    public JdbcTemplate.InsertRetval update(int p1, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) {
+	return update(new Object[] { new Integer(p1)}, binder, keygen, keyClass);
+    }
+	
+    /** 
+     * Convenient method to execute an insert given two int args and using
+     * a key generator
+  	 * @param binder the callback interface for binding the generated key value into the prepared statement
+     * @param keygen the key generator instance to use
+     * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue} 
+     * @return the number of rows affected by the insert and the newly generated key
+     * @throws IllegalArgumentException if the key class is of an unsupported type
+     * @throws DataAccessException if there is any problem. 
+     */
+    public JdbcTemplate.InsertRetval update(int p1, int p2, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) {
+	return update(new Object[] { new Integer(p1), new Integer(p2)}, binder, keygen, keyClass);
+    }
+	
+    /** 
+     * Convenient method to execute an insert given one String arg and using
+     * a key generator
+  	 * @param binder the callback interface for binding the generated key value into the prepared statement
+     * @param keygen the key generator instance to use
+     * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue} 
+     * @return the number of rows affected by the insert and the newly generated key
+     * @throws IllegalArgumentException if the key class is of an unsupported type
+     * @throws DataAccessException if there is any problem. 
+     */
+    public JdbcTemplate.InsertRetval update(String p, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) {
+	return update(new Object[] { p }, binder, keygen, keyClass);
+	}
 }
