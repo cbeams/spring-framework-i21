@@ -13,7 +13,6 @@ package com.interface21.web.context.support;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
 
 import org.apache.log4j.Logger;
 
@@ -22,7 +21,6 @@ import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextAware;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.servlet.ControllerServlet;
 
 /**
  * Utilities common to all WebApplicationContext implementations
@@ -38,6 +36,15 @@ public abstract class WebApplicationContextUtils {
 	 */
 	protected static Logger logger = Logger.getLogger(WebApplicationContextUtils.class.getName());
 
+
+	/**
+	 * Returns if the given ServletContext has a WebApplicationContext attribute.
+	 */
+	public static boolean hasWebApplicationContext(ServletContext servletContext) {
+		return (servletContext.getAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME) != null);
+	}
+
+
 	/**
 	 * Find the root WebApplicationContext for this web app
 	 * @param sc ServletContext of web application to find application ontext for
@@ -47,31 +54,6 @@ public abstract class WebApplicationContextUtils {
 	public static WebApplicationContext getWebApplicationContext(ServletContext sc) throws ServletException {
 		WebApplicationContext waca =
 			(WebApplicationContext) sc.getAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
-		if (waca == null) {
-			String msg = "No WebApplicationContext found: has ContextLoaderServlet been set to run on startup with index=1?";
-			logger.error(msg);
-			throw new ServletException(msg);
-		}
-		return waca;
-	}
-	
-	
-	/**
-	 * Look for the WebApplicationContext associated with the controller serlvet that has initiated
-	 * request processing, and for the global context if none was found associated with the current request.
-	 * This method is useful to allow components outside our framework proper,
-	 * such as JSP tag handlers, to access the most specific application context 
-	 * available.
-	 * @return the request-specific or global web application context if no request-specific 
-	 * context has been set
-	 * @throws ServletException if no request-specific or global context can be found
-	 */
-	public static WebApplicationContext getWebApplicationContext(ServletRequest request, ServletContext sc) throws ServletException {
-		WebApplicationContext waca = (WebApplicationContext) request.getAttribute(
-				ControllerServlet.SERVLET_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-		if (waca == null && sc != null) {
-			waca = getWebApplicationContext(sc);
-		}
 		if (waca == null) {
 			String msg = "No WebApplicationContext found: has ContextLoaderServlet been set to run on startup with index=1?";
 			logger.error(msg);
