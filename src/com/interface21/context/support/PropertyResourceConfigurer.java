@@ -2,19 +2,18 @@ package com.interface21.context.support;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.Iterator;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.interface21.beans.BeansException;
 import com.interface21.beans.BeanWrapper;
 import com.interface21.beans.BeanWrapperImpl;
+import com.interface21.beans.BeansException;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.context.ApplicationEvent;
 import com.interface21.context.ApplicationContext;
+import com.interface21.context.ApplicationEvent;
 import com.interface21.context.ApplicationListener;
-import com.interface21.context.support.ContextRefreshedEvent;
 
 /**
  * Allows for configuration of individual bean properties from a
@@ -22,7 +21,7 @@ import com.interface21.context.support.ContextRefreshedEvent;
  * Useful for custom config files targetted at system administrators
  * that override bean properties configured in the application context.
  *
- * Expects configuration lines of the following form:
+ * <p>Expects configuration lines of the following form:<br>
  *   beanName.property=value
  *
  * @author Juergen Hoeller
@@ -30,9 +29,12 @@ import com.interface21.context.support.ContextRefreshedEvent;
  */
 public class PropertyResourceConfigurer implements ApplicationListener {
 
-	private Logger logger = Logger.getLogger(getClass());
+	private final Logger logger = Logger.getLogger(getClass());
 
 	private String location;
+
+	public PropertyResourceConfigurer() {
+	}
 
 	/**
 	 * Set the location of the properties file. Allows for both a URL
@@ -45,8 +47,9 @@ public class PropertyResourceConfigurer implements ApplicationListener {
 
 	public void onApplicationEvent(ApplicationEvent e) {
 		if (e instanceof ContextRefreshedEvent) {
-			ApplicationContext ctx = (ApplicationContext) e.getSource();
-			if (location != null) {
+			ApplicationContext ctx = ((ContextRefreshedEvent) e).getApplicationContext();
+			if (this.location != null) {
+				logger.error("Loading properties '" + this.location + "'");
 				Properties prop = new Properties();
 				try {
 					prop.load(ctx.getResourceAsStream(this.location));
