@@ -21,4 +21,8 @@ public class ClassEditor extends PropertyEditorSupport {
 		setValue(clazz);
 	}
 
+	public String getAsText() {
+		return ((Class) getValue()).getName();
+	}
+
 }
