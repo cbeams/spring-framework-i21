@@ -508,7 +508,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 			if (ex.getTargetException() instanceof PropertyVetoException)
 				throw (PropertyVetoException) ex.getTargetException();
 			if (ex.getTargetException() instanceof ClassCastException)
-				throw new TypeMismatchException(propertyChangeEvent, pd.getPropertyType(), ex);
+				throw new TypeMismatchException(propertyChangeEvent, pd.getPropertyType(), ex.getTargetException());
 			throw new MethodInvocationException(ex.getTargetException(), propertyChangeEvent);
 		}
 		catch (IllegalAccessException ex) {
