@@ -1,13 +1,5 @@
 package com.interface21.web.context;
 
-import com.interface21.context.AbstractApplicationContextTests;
-import com.interface21.context.ApplicationContext;
-import com.interface21.context.NoSuchMessageException;
-
-import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.context.support.XmlWebApplicationContext;
-import com.interface21.web.mock.MockServletContext;
-
 import java.util.Date;
 import java.util.Locale;
 
@@ -15,6 +7,15 @@ import javax.servlet.ServletContext;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import com.interface21.context.AbstractApplicationContextTests;
+import com.interface21.context.ApplicationContext;
+import com.interface21.context.MessageSource;
+import com.interface21.context.NoSuchMessageException;
+import com.interface21.ui.context.Theme;
+import com.interface21.web.context.support.XmlWebApplicationContext;
+import com.interface21.web.mock.MockServletContext;
+import com.interface21.web.servlet.theme.AbstractThemeResolver;
 
 
 /**
@@ -33,7 +34,9 @@ import junit.framework.TestSuite;
  * it was copied from the com.interface21.web.context.WebApplicationContextTestSuite
  * class.
  *
- * @author  Rod Johnson / Tony Falabella
+ * @author  Rod Johnson
+ * @author  Tony Falabella
+ * @author  Jean-Pierre Pawlak
  * @version
  */
 public class ResourceBundleMessageSourceTestSuite
@@ -49,6 +52,7 @@ public class ResourceBundleMessageSourceTestSuite
 
     ServletContext servletContext;
     private WebApplicationContext root;
+    private MessageSource themeMsgSource;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -94,6 +98,7 @@ public class ResourceBundleMessageSourceTestSuite
                    root.getMessage("message.format.example2", null, "This is a default msg if not found in msg.cat.", Locale.US
                    )
                        .equals("This is a test message in the message catalog with no args."));
+        // root.getTheme("theme").getMessageSource().getMessage()
     }
 
     /**
@@ -200,6 +205,45 @@ public class ResourceBundleMessageSourceTestSuite
         }
     }
 
+	/**
+	 * @see com.interface21.context.support.AbstractNestingMessageSource for more details.
+	 * NOTE:  Messages are contained within the "test/com/interface21/web/context/WEB-INF/themeXXX.properties" files.
+	 */
+	public void testGetMessageWithDefaultPassedInAndFoundInThemeCatalog() {
+		
+		// Try with Locale.US
+		String msg = getThemeMessage("theme.example1", null, "This is a default theme msg if not found in theme cat.", Locale.US);
+		assertTrue("valid msg from theme resourcebundle with default msg passed in returned default msg.  Expected msg from catalog. Received: " + msg ,
+			msg.equals("This is a test message in the theme message catalog."));
+		// Try with Locale.UK
+		msg = getThemeMessage("theme.example1", null, "This is a default theme msg if not found in theme cat.", Locale.UK);
+		assertTrue("valid msg from theme resourcebundle with default msg passed in returned default msg.  Expected msg from catalog.",
+			msg.equals("This is a test message in the theme message catalog with no args."));
+	}
+
+	/**
+	 * @see com.interface21.context.support.AbstractNestingMessageSource for more details.
+	 * NOTE:  Messages are contained within the "test/com/interface21/web/context/WEB-INF/themeXXX.properties" files.
+	 */
+	public void testGetMessageWithDefaultPassedInAndNotFoundInThemeCatalog() {
+		assertTrue("bogus msg from theme resourcebundle with default msg passed in returned default msg",
+				   getThemeMessage("bogus.message", null, "This is a default msg if not found in theme cat.", Locale.UK
+				   )
+					   .equals("This is a default msg if not found in theme cat."));
+	}
+
+	private String getThemeMessage(String code, Object args[], String defaultMessage, Locale locale) {
+		return themeMsgSource.getMessage( code, args, defaultMessage, locale);
+	}
+
+//	private String getThemeMessage(String code, Object args[], Locale locale) throws NoSuchMessageException {
+//		return themeMsgSource.getMessage( code, args, locale);		
+//	}
+
+//	private String getThemeMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
+//		return themeMsgSource.getMessage( resolvable, locale);		
+//	}
+
     protected ApplicationContext createContext() throws Exception {
         root = new XmlWebApplicationContext();
 
@@ -209,11 +253,16 @@ public class ResourceBundleMessageSourceTestSuite
 
         root.setServletContext(sc);
 
-        WebApplicationContext wac = new XmlWebApplicationContext(root,
-                                                                 "test-servlet");
+        WebApplicationContext wac = new XmlWebApplicationContext(root, "test-servlet");
 
         wac.setServletContext(sc);
-
+ 
+		Theme theme = root.getTheme(AbstractThemeResolver.DEFAULT_THEME);
+		assertNotNull(theme);
+		assertTrue("Theme name has to be the default theme name",AbstractThemeResolver.DEFAULT_THEME.equals(theme.getName()));
+		themeMsgSource = theme.getMessageSource();
+		assertNotNull(themeMsgSource);
+               
         // Add listeners expected by parent test case
         //wac.(this.listener);
         return wac;

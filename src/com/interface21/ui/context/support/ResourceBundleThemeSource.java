@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.interface21.context.support.ResourceBundleMessageSource;
 import com.interface21.ui.context.NestingThemeSource;
 import com.interface21.ui.context.Theme;
@@ -18,6 +21,8 @@ import com.interface21.ui.context.ThemeSource;
  * @see #setBasenamePrefix
  */
 public class ResourceBundleThemeSource implements NestingThemeSource {
+
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private ThemeSource parent;
 
@@ -51,6 +56,7 @@ public class ResourceBundleThemeSource implements NestingThemeSource {
 		Theme theme = (Theme) this.themes.get(themeName);
 		if (theme == null) {
 			ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+			logger.info("Theme created: name=" + themeName + ", baseName=" + this.basenamePrefix + themeName);
 			messageSource.setBasename(this.basenamePrefix + themeName);
 			theme = new SimpleTheme(themeName, messageSource);
 			initParent(theme);

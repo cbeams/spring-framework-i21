@@ -42,8 +42,7 @@ public class ResourceBundleMessageSource extends AbstractNestingMessageSource {
 	protected String resolve(String code, Locale locale) throws MissingResourceException {
 		ResourceBundle bundle = null;
 		try {
-			bundle = ResourceBundle.getBundle(this.basename, locale,
-																											 Thread.currentThread().getContextClassLoader());
+			bundle = ResourceBundle.getBundle(this.basename, locale, Thread.currentThread().getContextClassLoader());
 		} catch (MissingResourceException ex) {
 			logger.warn("No ResourceBundle found for MessageSource: " + ex.getMessage());
 			// assume bundle not found
