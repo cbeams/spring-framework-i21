@@ -1,10 +1,7 @@
 package com.interface21.jndi;
 
-import javax.naming.NamingException;
-
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.FactoryBean;
-import com.interface21.beans.factory.InitializingBean;
 
 /**
  * FactoryBean that looks up a JNDI object. Behaves like the object when
@@ -14,7 +11,7 @@ import com.interface21.beans.factory.InitializingBean;
  * DriverManagerDataSource definition!
  *
  * <p>The typical usage will be to register this as singleton factory
- * (e.g. for a certain JNDI data source) in an application context,
+ * (e.g. for a certain JNDI DataSource) in an application context,
  * and give bean references to application services that need it.
  *
  * <p>Of course, service implementations can lookup e.g. a DataSource from
@@ -32,39 +29,16 @@ import com.interface21.beans.factory.InitializingBean;
  * @see JndiObjectEditor
  * @see com.interface21.jdbc.core.JdbcTemplate#setDataSource
  */
-public class JndiObjectFactoryBean implements FactoryBean, InitializingBean {
-
-	private JndiTemplate jndiTemplate = new JndiTemplate();
-
-	private String jndiName;
+public class JndiObjectFactoryBean extends AbstractJndiLocator implements FactoryBean {
 
 	private Object jndiObject;
 
-	/**
-	 * Set the JndiTemplate to use for JNDI lookup.
-	 * A default one is used if not set.
-	 */
-	public final void setJndiTemplate(JndiTemplate jndiTemplate) {
-		this.jndiTemplate = jndiTemplate;
+	protected void located(Object o) {
+		this.jndiObject = o;
 	}
 
 	/**
-	 * Set the JNDI jndiName of the DataSource.
-	 * Supports "test", "jdbc/test", and "java:comp/env/jdbc/test" syntaxes.
-	 */
-	public final void setJndiName(String jndiName) {
-		this.jndiName = jndiName;
-	}
-
-	/**
-	 * Initialize the object from JNDI.
-	 */
-	public void afterPropertiesSet() throws NamingException {
-		this.jndiObject = this.jndiTemplate.lookup(this.jndiName);
-	}
-
-	/**
-	 * Return the singleton SessionFactory.
+	 * Return the singleton JNDI object.
 	 */
 	public Object getObject() {
 		return this.jndiObject;
