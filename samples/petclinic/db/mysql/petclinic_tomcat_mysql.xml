@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Context path="/petclinic1" docBase="petclinic1" debug="4" reloadable="true">
+<Context path="/petclinic" docBase="petclinic" debug="4" reloadable="true">
+  <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_petclinic_log." suffix=".txt" timestamp="true"/>
 
   <!-- Define a database connection pool for MYSQL -->
   <Resource name="jdbc/petclinicMYSQL" auth="Container" type="javax.sql.DataSource"/>
