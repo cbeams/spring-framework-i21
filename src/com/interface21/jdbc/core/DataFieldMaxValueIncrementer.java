@@ -14,7 +14,7 @@ import com.interface21.dao.DataAccessException;
  * @author <a href="mailto:dkopylenko@acs.rutgers.edu>Dmitriy Kopylenko</a>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
  * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
- * @version 1.0
+ * @version $Id$
  */
 public interface DataFieldMaxValueIncrementer {
 	
