@@ -8,7 +8,6 @@ package com.interface21.transaction.interceptor;
 import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
-
 import org.aopalliance.AttributeRegistry;
 import org.aopalliance.Invocation;
 import org.easymock.EasyMock;
@@ -16,18 +15,13 @@ import org.easymock.MockControl;
 
 import com.interface21.aop.framework.AopContext;
 import com.interface21.aop.framework.ProxyFactory;
-
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;
 import com.interface21.transaction.CannotCreateTransactionException;
-import com.interface21.transaction.UnexpectedRollbackException;
 import com.interface21.transaction.PlatformTransactionManager;
-import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.TransactionDefinition;
-import com.interface21.transaction.interceptor.DefaultTransactionAttribute;
-import com.interface21.transaction.interceptor.TransactionAttribute;
-import com.interface21.transaction.interceptor.TransactionInterceptor;
-import com.interface21.transaction.jta.JtaTransactionManager;
+import com.interface21.transaction.TransactionStatus;
+import com.interface21.transaction.UnexpectedRollbackException;
 
 /**
  * Mock object based tests for TransactionInterceptor. 
@@ -48,12 +42,6 @@ public class TransactionInterceptorTests extends TestCase {
 		super(arg0);
 	}
 	
-	public void testPropertyDefaults() throws Exception {
-		TransactionInterceptor ti = new TransactionInterceptor();
-		
-		assertTrue(ti.getTransactionManager() instanceof JtaTransactionManager);
-	}
-
 	public void testNoTransaction() throws Exception {
 		// Could do this	
 		/*

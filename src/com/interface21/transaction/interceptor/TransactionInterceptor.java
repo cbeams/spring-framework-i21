@@ -13,20 +13,19 @@ import org.apache.commons.logging.LogFactory;
 import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
-import com.interface21.transaction.interceptor.AttributeRegistryTransactionAttributeSource;
-import com.interface21.transaction.interceptor.TransactionAttribute;
-import com.interface21.transaction.interceptor.TransactionAttributeSource;
-import com.interface21.transaction.jta.JtaTransactionManager;
 
 /**
  * Interceptor providing declarative transaction management using
  * the common Spring transaction infrastructure.
  * TransactionInterceptors are threadsafe.
- * <br>
- * Uses the <b>Strategy</b> design pattern. Implementations of the
- * PlatformTransactionManager interface will associate an object
- * with a transaction.
- * <br>Uses JTA as the default transaction infrastructure.
+ *
+ * <p>Uses the <b>Strategy</b> design pattern. Implementations of
+ * the PlatformTransactionManager interface will associate an
+ * object with a transaction.
+ *
+ * <p>This class could set JTA as default transaction manager as that
+ * implementation does not need any specific configuration. JTA is
+ * not the default though to avoid unnecessary dependencies.
  *  
  * @version $Id$
  * @author Rod Johnson
@@ -36,7 +35,7 @@ public class TransactionInterceptor implements MethodInterceptor {
 	/**
 	 * Name of transaction attribute in Invocation.
 	 * Target classes can use this to find TransactionStatus.
-	 * <b>NB: the AOP proxy owning this TransactionInterceptor
+	 * <b>NB: The AOP proxy owning this TransactionInterceptor
 	 * must be set to expose invocations for this to be accessible.</b>
 	 */
 	public static final String TRANSACTION_STATUS_ATTACHMENT_NAME = TransactionInterceptor.class.getName() + "TRANSACTION_STATUS";
@@ -56,20 +55,11 @@ public class TransactionInterceptor implements MethodInterceptor {
 	public TransactionInterceptor() {
 		// Set default properties, which may be changed later
 		this.transactionAttributeSource = new AttributeRegistryTransactionAttributeSource();
-		this.transactionManager = new JtaTransactionManager();
 	}
 	
 	/**
-	 * @return PlatformTransactionManager helper
-	 */
-	public PlatformTransactionManager getTransactionManager() {
-		return transactionManager;
-	}
-
-	/**
-	 * Sets the platformTxManager. This will perform actual
-	 * transaction management: this class is just a way of
-	 * invoking it.
+	 * Sets the transaction manager. This will perform actual
+	 * transaction management: This class is just a way of invoking it.
 	 * @param platformTxManager The platformTxManager to set
 	 */
 	public void setTransactionManager(PlatformTransactionManager platformTxManager) {
@@ -77,20 +67,27 @@ public class TransactionInterceptor implements MethodInterceptor {
 	}
 	
 	/**
-	 * @return TransactionAttributeSource helper 
+	 * Returns the transaction manager.
 	 */
-	public TransactionAttributeSource getTransactionAttributeSource() {
-		return transactionAttributeSource;
+	public PlatformTransactionManager getTransactionManager() {
+		return transactionManager;
 	}
 
 	/**
-	 * Sets the transactionAttributeSource helper, which is used to
+	 * Sets the transaction attribute source, which is used to
 	 * find transaction attributes. The default implementation looks
 	 * at the metadata attributes associated with the current invocation.
 	 * @param transactionAttributeSource The transactionAttributeSource to set
 	 */
 	public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
 		this.transactionAttributeSource = transactionAttributeSource;
+	}
+
+	/**
+	 * Returns the transaction attribute source.
+	 */
+	public TransactionAttributeSource getTransactionAttributeSource() {
+		return transactionAttributeSource;
 	}
 
 	/**
