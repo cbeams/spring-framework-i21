@@ -54,6 +54,12 @@ public interface ProxyConfig {
 	void addMethodPointcut(MethodPointcut pc);
 	
 	/**
+	 * Add a pointcut
+	 * @param pc
+	 */
+	void addMethodPointcut(int pos, MethodPointcut pc);
+	
+	/**
 	 * Remove the interceptor
 	 * @param interceptor
 	 * @return if the interceptor was found and removed
