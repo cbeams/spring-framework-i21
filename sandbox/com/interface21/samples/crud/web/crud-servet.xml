@@ -1,0 +1,15 @@
+	<!--
+	  - Controleur de gestion des Sirenes.
+	  -->
+	<bean id="sirenesControleur" class="org.sis.sirene.web.SirenesControleur">
+		<property name="listView"><value>vueSirene_liste</value></property>
+		<property name="formView"><value>vueSirene_saisie</value></property>
+	</bean>
+
+	<!--
+	  - Controleur de gestion des utilisateurs.
+	  -->
+	<bean id="adminUtilisateursControleur" class="org.sis.sirene.web.AdminUtilisateursControleur">
+		<property name="listView"><value>vueAdminUtilisateur_liste</value></property>
+		<property name="formView"><value>vueAdminUtilisateur_saisie</value></property>
+	</bean>
