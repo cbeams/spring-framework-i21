@@ -26,6 +26,7 @@ import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.xml.XmlBeanFactory;
 import com.interface21.jdbc.datasource.DataSourceUtils;
+import com.interface21.util.ClassLoaderUtils;
 
 /**
  * Factory for creating SQLExceptionTranslator based on the
@@ -82,9 +83,9 @@ public class SQLExceptionTranslaterFactory {
 	 */
 	private SQLExceptionTranslaterFactory() {
 		try {
-			InputStream is = SQLExceptionTranslaterFactory.class.getResourceAsStream(SQL_ERROR_CODE_OVERRIDE_PATH);
+			InputStream is = ClassLoaderUtils.getResourceAsStream(getClass(), SQL_ERROR_CODE_OVERRIDE_PATH);
 			if (is == null) {
-				is = SQLExceptionTranslaterFactory.class.getResourceAsStream(SQL_ERROR_CODE_DEFAULT_PATH);
+				is = ClassLoaderUtils.getResourceAsStream(getClass(), SQL_ERROR_CODE_DEFAULT_PATH);
 				if (is == null)
 					throw new BeanDefinitionStoreException("Unable to locate file [" + SQL_ERROR_CODE_DEFAULT_PATH +"]",null);
 			}

@@ -5,10 +5,10 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.interface21.util.ClassLoaderAnalyzer;
+import com.interface21.util.ClassLoaderUtils;
 
 /**
- * Trivial classloader analyzer interceptor
+ * Trivial classloader analyzer interceptor.
  * @version $Id$
  * @author Rod Johnson
  * @author Dmitriy Kopylenko
@@ -18,17 +18,16 @@ public class ClassLoaderAnalyzerInterceptor implements MethodInterceptor {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	public Object invoke(MethodInvocation pInvocation) throws Throwable {
-		logger.info("Begin...");
+		logger.debug("Begin class loader analysis");
 
-		logger.info(ClassLoaderAnalyzer.showClassLoaderHierarchy(
+		logger.info(ClassLoaderUtils.showClassLoaderHierarchy(
 			pInvocation.getThis(),
 			pInvocation.getThis().getClass().getName(),
 			"\n",
 			"-"));
 		Object rval = pInvocation.proceed();
 
-		logger.info("End.");
-
+		logger.debug("End class loader analysis");
 		return rval;
 	}
 

@@ -3,8 +3,9 @@ package com.interface21.context.support;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.interface21.context.ApplicationContextException;
 import com.interface21.context.ApplicationContext;
+import com.interface21.context.ApplicationContextException;
+import com.interface21.util.ClassLoaderUtils;
 
 /**
  * Standalone XML application context, taking the context definition
@@ -46,7 +47,7 @@ public class ClassPathXmlApplicationContext extends FileSystemXmlApplicationCont
 			// as loading relative to this class' package doesn't make sense
 			path = "/" + path;
 		}
-		return getClass().getResourceAsStream(path);
+		return ClassLoaderUtils.getResourceAsStream(getClass(), path);
 	}
 
 	/**
