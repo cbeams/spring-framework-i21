@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.support.XmlBeanFactory;
 import com.interface21.beans.factory.BeanDefinitionStoreException;
+import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**
  * Factory for creating SQLExceptionTranslator based on the
@@ -118,7 +119,7 @@ public class SQLExceptionTranslaterFactory {
 			return new SQLStateSQLExceptionTranslater();
 		}
 		finally {
-			DataSourceUtils.closeConnectionIfNecessary(ds, con);
+			DataSourceUtils.closeConnectionIfNecessary(con, ds);
 		}
 		SQLErrorCodes sec = null;
 		if (dbName != null)

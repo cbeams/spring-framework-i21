@@ -21,7 +21,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import com.interface21.dao.InvalidDataAccessApiUsageException;
-import com.interface21.jdbc.core.DataSourceUtils;
+import com.interface21.jdbc.datasource.DataSourceUtils;
 import com.interface21.jdbc.core.SQLExceptionTranslater;
 import com.interface21.jdbc.core.SQLExceptionTranslaterFactory;
 import com.interface21.jdbc.core.SQLStateSQLExceptionTranslater;
@@ -210,7 +210,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 			throw this.exceptionTranslater.translate("Call to stored procedure '" + getSql() + "'", this.callString, ex);
 		}
 		finally {
-			DataSourceUtils.closeConnectionIfNecessary(ds, con);
+			DataSourceUtils.closeConnectionIfNecessary(con, ds);
 		}
 	} 	// execute
 	
