@@ -77,6 +77,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 */
 	private ClassLoader	classLoader;
 
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
@@ -108,9 +109,18 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			this.classLoader = caller.getClass().getClassLoader();
 	}
 
+
 	//---------------------------------------------------------------------
 	// Implementation of ListableBeanFactory
 	//---------------------------------------------------------------------
+	/**
+	 * @see ListableBeanFactory#getBeanDefinitionCount()
+	 */
+	public int getBeanDefinitionCount() {
+		return beanDefinitionHash.size();
+	}
+
+
 	/**
 	 * @see ListableBeanFactory#getBeanDefinitionNames()
 	 */
@@ -127,14 +137,6 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	
 	
 	/**
-	 * @see ListableBeanFactory#getBeanDefinitionCount()
-	 */
-	public int getBeanDefinitionCount() {
-		return beanDefinitionHash.size();
-	}
-	
-	
-	/** 
 	 * Note that this method is slow. Don't invoke it too often:
 	 * it's best used only in application initialization.
 	 */
@@ -146,7 +148,6 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			String name = (String) itr.next();
 			Class clazz = getBeanClass((AbstractBeanDefinition) beanDefinitionHash.get(name));
 			if (type.isAssignableFrom(clazz)) {
-				//log4jCategory.debug("Added " + name + " of type " + type);
 				matches.add(name);
 			}
 		}
@@ -211,7 +212,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * @param prefix The match or filter within the keys
 	 * in the map: e.g. 'beans.'
 	 * @return the number of bean definitions found
-	 * @throws ReflectionException if there is an error trying to register a definition
+	 * @throws BeansException if there is an error trying to register a definition
 	 */
 	public final int registerBeanDefinitions(Map m, String prefix) throws BeansException {
 		if (prefix == null)
@@ -359,9 +360,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	
 	
 	public String toString() {
-		String s = getClass() + ": ";
-		s += " defined prototypes [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
-		return s;
+		return getClass() + ": defined prototypes [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
 	}
 	
 }	// class ListableBeanFactoryImpl
