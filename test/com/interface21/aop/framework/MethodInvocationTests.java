@@ -16,6 +16,7 @@ import org.aopalliance.AttributeRegistry;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
+import com.interface21.aop.attributes.Attrib4jAttributeRegistry;
 import com.interface21.beans.TestBean;
 
 /**

@@ -5,26 +5,26 @@
 
 package com.interface21.aop.framework;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.LinkedList;
+import java.util.List;
+
+import junit.framework.TestCase;
 
 import org.aopalliance.AspectException;
 import org.aopalliance.AttributeRegistry;
-import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
+import com.interface21.aop.attributes.Attrib4jAttributeRegistry;
 import com.interface21.aop.interceptor.misc.DebugInterceptor;
 import com.interface21.beans.IOther;
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;
-
-import junit.framework.TestCase;
 
 /**
  * 
