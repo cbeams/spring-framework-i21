@@ -50,6 +50,25 @@ public class JdbcTemplateTestSuite extends TestCase {
 		assertTrue("can set NOT to ignore warnings", !t.getIgnoreWarnings());
 	}
 	
+	
+	public void testCannotRunStaticSqlWithBindParameters() throws Exception {
+		final String sql = "UPDATE FOO SET NAME='tony' WHERE ID > ?";
+		MockControl dsControl = EasyMock.niceControlFor(DataSource.class);
+		final int expectedRowsUpdated = 111;
+		DataSource ds = (DataSource) dsControl.getMock();
+		// Don't expect any calls
+		dsControl.activate();
+	
+		JdbcTemplate t = new JdbcTemplate(ds);
+		try {
+			t.query(sql, new RowCountCallbackHandler());
+			fail("Should have objected to bind variables");
+		}
+		catch (InvalidDataAccessApiUsageException ex) {
+			// Ok 
+		}
+		dsControl.verify();
+	}
 
 	public void testUpdateCount() throws Exception {
 		final String sql = "UPDATE INVOICE SET DATE_DISPATCHED = SYSDATE WHERE ID = ?";
@@ -177,7 +196,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 			{" portia" }
 		};
 		
-		MockConnection con = MockConnectionFactory.preparedStatement(sql, null, results, true);
+		MockConnection con = MockConnectionFactory.statement(sql, results, true, null, null);
 		con.setExpectedCloseCalls(2);
 		
 		ds.getConnection();
@@ -266,7 +285,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		
 		DataSource ds = (DataSource) dsControl.getMock();
-		MockConnection con = MockConnectionFactory.preparedStatement(sql, null, new Object[0][0], false);
+		MockConnection con = MockConnectionFactory.statement(sql, new Object[0][0], false, null, null);
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
@@ -285,14 +304,12 @@ public class JdbcTemplateTestSuite extends TestCase {
 	
 
 
-
-
 	public void testCloseConnOnRequest() throws Exception {
 		String sql = "SELECT ID, FORENAME FROM CUSTMR WHERE ID < 3";
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		
-		MockConnection con = MockConnectionFactory.preparedStatement(sql, null, new Object[0][0], false);
+		MockConnection con = MockConnectionFactory.statement(sql, new Object[0][0], false, null, null);
 		con.setExpectedCloseCalls(2);
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -393,7 +410,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 			{ new Integer(1) },
 			{ new Integer(2) }
 		};
-		Connection con = MockConnectionFactory.preparedStatement(sql, null, results, true);
+		Connection con = MockConnectionFactory.statement(sql, results, true, null, null);
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
@@ -653,8 +670,6 @@ public class JdbcTemplateTestSuite extends TestCase {
 		// Don't expect any calls 
 		dsControl.activate(); 
 
-
-
 		JdbcTemplate mockTemplate = new JdbcTemplate(ds); 
 		try { 
 				mockTemplate.query(sql, null, null); 
@@ -676,8 +691,6 @@ public class JdbcTemplateTestSuite extends TestCase {
 		// Don't expect any calls 
 		dsControl.activate(); 
 
-
-
 		JdbcTemplate mockTemplate = new JdbcTemplate(ds); 
 		try { 
 				mockTemplate.query(sql, null, null); 
@@ -698,11 +711,9 @@ public class JdbcTemplateTestSuite extends TestCase {
 		// Don't expect any calls 
 		dsControl.activate(); 
 
-
-
 		JdbcTemplate mockTemplate = new JdbcTemplate(ds); 
 		try { 
-				mockTemplate.query(sql, null); 
+				mockTemplate.query(sql, (RowCallbackHandler) null); 
 				fail("Null SQL isn't permitted"); 
 		} 
 		catch (InvalidDataAccessApiUsageException ex) { 
@@ -825,6 +836,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.verify();
 	}
 	
+	
 	public void testCouldntClose() throws Exception {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
@@ -873,7 +885,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		SQLWarning warnings = new SQLWarning("My warning");
-		MockConnection con = MockConnectionFactory.preparedStatement(sql, null, new Object[0][0], true, null, warnings);
+		MockConnection con = MockConnectionFactory.statement(sql, new Object[0][0], true, null, warnings);
 		
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -907,7 +919,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 			DataSource ds = (DataSource) dsControl.getMock();
 			
 		SQLWarning warnings = new SQLWarning("My warning");
-		MockConnection con = MockConnectionFactory.preparedStatement(sql, null, new Object[0][0], true, null, warnings);
+		MockConnection con = MockConnectionFactory.statement(sql, new Object[0][0], true, null, warnings);
 		
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -942,7 +954,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 			{ new Integer(2) }
 		};
 		MockControl conControl = EasyMock.controlFor(Connection.class);
-		Connection con = MockConnectionFactory.preparedStatement(sql, null, results, true);
+		Connection con = MockConnectionFactory.statement(sql, results, true, null, null);
 		MockControl dbmdControl = EasyMock.controlFor(DatabaseMetaData.class);
 		DatabaseMetaData dbmd = (DatabaseMetaData) dbmdControl.getMock();
 
