@@ -82,21 +82,22 @@ public class DispatcherServletTestSuite extends TestCase {
 			simpleControllerServlet.doGet(request, response);
 			assertTrue("forwarded to form", "form".equals(response.forwarded));
 			MessageSourceResolvableImpl resolvable = new MessageSourceResolvableImpl(new String[] {"test"}, null);
+			RequestContext rc = new RequestContext(request);
 
 			assertTrue("hasn't RequestContext attribute", request.getAttribute("rc") == null);
 			assertTrue("Correct WebApplicationContext", RequestContextUtils.getWebApplicationContext(request) instanceof SimpleWebApplicationContext);
 			assertTrue("Correct Locale", Locale.CANADA.equals(RequestContextUtils.getLocale(request)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, "test", null)));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null)));
 
-			assertTrue("Correct Errors", !(RequestContextUtils.getErrors(request, BaseCommandController.DEFAULT_BEAN_NAME) instanceof EscapedErrors));
-			assertTrue("Correct Errors", !(RequestContextUtils.getErrors(request, BaseCommandController.DEFAULT_BEAN_NAME, false) instanceof EscapedErrors));
-			assertTrue("Correct Errors", RequestContextUtils.getErrors(request, BaseCommandController.DEFAULT_BEAN_NAME, true) instanceof EscapedErrors);
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, "test", null)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, "test", null, false)));
-			assertTrue("Correct message", "Canadian &amp; test message".equals(RequestContextUtils.getMessage(request, "test", null, true)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, resolvable)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, resolvable, false)));
-			assertTrue("Correct message", "Canadian &amp; test message".equals(RequestContextUtils.getMessage(request, resolvable, true)));
+			assertTrue("Correct Errors", !(rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME) instanceof EscapedErrors));
+			assertTrue("Correct Errors", !(rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME, false) instanceof EscapedErrors));
+			assertTrue("Correct Errors", rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME, true) instanceof EscapedErrors);
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null)));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null, false)));
+			assertTrue("Correct message", "Canadian &amp; test message".equals(rc.getMessage("test", null, true)));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage(resolvable)));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage(resolvable, false)));
+			assertTrue("Correct message", "Canadian &amp; test message".equals(rc.getMessage(resolvable, true)));
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());

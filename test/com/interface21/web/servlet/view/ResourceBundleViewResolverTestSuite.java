@@ -56,7 +56,7 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 	}
 
 	public void testDebugViewEnglish() throws Exception {
-		View v = rb.resolveViewname("debugView", Locale.ENGLISH);
+		View v = rb.resolveViewName("debugView", Locale.ENGLISH);
 		assertTrue("debugView must be of type InternalResourceView", v instanceof InternalResourceView);
 		InternalResourceView jv = (InternalResourceView) v;
 		assertTrue("debugView must have correct URL", "jsp/debug/debug.jsp".equals(jv.getUrl()));
@@ -75,7 +75,7 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 	}
 
 	public void testDebugViewFrench() throws Exception {
-		View v = rb.resolveViewname("debugView", Locale.FRENCH);
+		View v = rb.resolveViewName("debugView", Locale.FRENCH);
 		assertTrue("French debugView must be of type InternalResourceView", v instanceof InternalResourceView);
 		InternalResourceView jv = (InternalResourceView) v;
 		assertTrue("French debugView must have correct URL", "jsp/debug/deboug.jsp".equals(jv.getUrl()));
@@ -86,7 +86,7 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 
 	public void testNoSuchViewEnglish() throws Exception {
 		try {
-			View v = rb.resolveViewname("xxxxxxweorqiwuopeir", Locale.ENGLISH);
+			View v = rb.resolveViewName("xxxxxxweorqiwuopeir", Locale.ENGLISH);
 			fail("No such view should fail with servlet exception");
 		} catch (ServletException ex) {
 			// OK
@@ -111,27 +111,27 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 	
 	
 	public void testOnSetContextCalledOnce() throws Exception {
-		TestView tv = (TestView) rb.resolveViewname("test", Locale.ENGLISH);
-		tv = (TestView) rb.resolveViewname("test", Locale.ENGLISH);
-		tv = (TestView) rb.resolveViewname("test", Locale.ENGLISH);
+		TestView tv = (TestView) rb.resolveViewName("test", Locale.ENGLISH);
+		tv = (TestView) rb.resolveViewName("test", Locale.ENGLISH);
+		tv = (TestView) rb.resolveViewName("test", Locale.ENGLISH);
 		assertTrue("test should have been initialized once, not " + tv.initCount + " times", tv.initCount == 1);
 			
 	} 
 	
 	public void testNameSet() throws Exception {
-		TestView tv = (TestView) rb.resolveViewname("test", Locale.ENGLISH);
+		TestView tv = (TestView) rb.resolveViewName("test", Locale.ENGLISH);
 		assertTrue("test has correct name", "test".equals(tv.getName()));
 			
 	} 
 	
 	public void testCopyXSLTViewOnNull() throws Exception {
-		View v = rb.resolveViewname("XintResultView", Locale.GERMAN);
+		View v = rb.resolveViewName("XintResultView", Locale.GERMAN);
 		//assertTrue("test was inited", tv.inited());
 			
 	} 
 	
 	public void testCopyXSLTViewOnEmptyString() throws Exception {
-		View v = rb.resolveViewname("XintResultView3", Locale.GERMAN);
+		View v = rb.resolveViewName("XintResultView3", Locale.GERMAN);
 		//assertTrue("test was inited", tv.inited());
 			
 	} 
@@ -163,7 +163,7 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 		try {
 			ResourceBundleViewResolver rb2 = new ResourceBundleViewResolver();
 			rb2.setBasename("weoriwoierqupowiuer");
-			View v = rb2.resolveViewname("debugView", Locale.ENGLISH);
+			View v = rb2.resolveViewName("debugView", Locale.ENGLISH);
 			fail("No such basename: all requests should fail with servlet exception");
 		} catch (ServletException ex) {
 			// OK

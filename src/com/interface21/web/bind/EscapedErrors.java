@@ -21,7 +21,6 @@ import com.interface21.web.util.HtmlUtils;
  * @author Juergen Hoeller
  * @since 01.03.2003
  * @see com.interface21.web.servlet.support.RequestContext#getErrors
- * @see com.interface21.web.servlet.support.RequestContextUtils#getErrors
  * @see com.interface21.web.tags.BindTag
  */
 public class EscapedErrors implements Errors {

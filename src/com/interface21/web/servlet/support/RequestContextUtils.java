@@ -5,20 +5,18 @@ import java.util.Locale;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
-import com.interface21.context.MessageSourceResolvable;
-import com.interface21.context.NoSuchMessageException;
-import com.interface21.validation.BindException;
-import com.interface21.validation.Errors;
-import com.interface21.web.bind.EscapedErrors;
+import com.interface21.ui.context.Theme;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.context.support.WebApplicationContextUtils;
 import com.interface21.web.servlet.DispatcherServlet;
-import com.interface21.web.util.HtmlUtils;
-import com.interface21.ui.context.Theme;
+import com.interface21.web.servlet.LocaleResolver;
+import com.interface21.web.servlet.ThemeResolver;
 
 /**
- * Utility class for easy access to various request-specific state.
+ * Utility class for easy access to various request-specific state,
+ * set by the DispatcherServlet.
  *
  * @author Juergen Hoeller
  * @since 03.03.2003
@@ -62,94 +60,28 @@ public abstract class RequestContextUtils {
 	}
 
 	/**
-	 * Retrieves the current locale from the given request.
+	 * Retrieves the current locale from the given request,
+	 * using the LocaleResolver bound to the request by the DispatcherServlet.
 	 * @param request current HTTP request
 	 * @return the current locale
 	 */
-	public static Locale getLocale(ServletRequest request) {
-		return (Locale) request.getAttribute(DispatcherServlet.LOCALE_ATTRIBUTE);
+	public static Locale getLocale(HttpServletRequest request) {
+		LocaleResolver localeResolver = (LocaleResolver) request.getAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE);
+		return localeResolver.resolveLocale(request);
 	}
 
 	/**
-	 * Retrieves the current theme from the given request.
+	 * Retrieves the current theme from the given request,
+	 * using the ThemeResolver bound to the request by the DispatcherServlet,
+	 * and the current WebApplicationContext.
 	 * @param request current HTTP request
 	 * @return the current theme
 	 */
-	public static Theme getTheme(ServletRequest request) {
-		return (Theme) request.getAttribute(DispatcherServlet.THEME_ATTRIBUTE);
-	}
-
-	/**
-	 * Resolves the given message code using the current WebApplicationContext.
-	 * @param request request to retrieve the WebApplicationContext from
-	 * @param code code of the message
-	 * @param args arguments for the message, or null if none
-	 * @param htmlEscape HTML escape the message?
-	 * @return the message
-	 */
-	public static String getMessage(ServletRequest request, String code, Object[] args, boolean htmlEscape)
-	    throws ServletException, NoSuchMessageException {
+	public static Theme getTheme(HttpServletRequest request) throws ServletException {
 		WebApplicationContext context = getWebApplicationContext(request);
-		String msg = context.getMessage(code, args, getLocale(request));
-		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
-	}
-
-	/**
-	 * Resolves the given message code using the current WebApplicationContext.
-	 * @param request request to retrieve the WebApplicationContext from
-	 * @param code code of the message
-	 * @param args arguments for the message, or null if none
-	 * @return the message
-	 */
-	public static String getMessage(ServletRequest request, String code, Object[] args)
-	    throws ServletException, NoSuchMessageException {
-		return getMessage(request, code, args, false);
-	}
-
-	/**
-	 * Resolves the given message code using the current WebApplicationContext.
-	 * @param request request to retrieve the WebApplicationContext from
-	 * @param resolvable the MessageSourceResolvable
-	 * @param htmlEscape HTML escape the message?
-	 * @return the message
-	 */
-	public static String getMessage(ServletRequest request, MessageSourceResolvable resolvable, boolean htmlEscape)
-	    throws ServletException, NoSuchMessageException {
-		String msg = getWebApplicationContext(request).getMessage(resolvable, getLocale(request));
-		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
-	}
-
-	/**
-	 * Resolves the given message code using the current WebApplicationContext.
-	 * @param request request to retrieve the WebApplicationContext from
-	 * @param resolvable the MessageSourceResolvable
-	 * @return the message
-	 */
-	public static String getMessage(ServletRequest request, MessageSourceResolvable resolvable)
-	    throws ServletException, NoSuchMessageException {
-		return getMessage(request, resolvable, false);
-	}
-
-	/**
-	 * Retrieves the Errors instance for the given bind object.
-	 * @param request request to retrieve the instance from
-	 * @param name name of the bind object
-	 * @param htmlEscape create an Errors instance with automatic HTML escaping?
-	 * @return the Errors instance
-	 */
-	public static Errors getErrors(ServletRequest request, String name, boolean htmlEscape) {
-		Errors errors = (Errors)request.getAttribute(BindException.ERROR_KEY_PREFIX + name);
-		return (htmlEscape ? new EscapedErrors(errors) : errors);
-	}
-
-	/**
-	 * Retrieves the Errors instance for the given bind object.
-	 * @param request request to retrieve the instance from
-	 * @param name name of the bind object
-	 * @return the Errors instance
-	 */
-	public static Errors getErrors(ServletRequest request, String name) {
-		return getErrors(request, name, false);
+		ThemeResolver themeResolver = (ThemeResolver) request.getAttribute(DispatcherServlet.THEME_RESOLVER_ATTRIBUTE);
+		String themeName = themeResolver.resolveThemeName(request);
+		return context.getTheme(themeName);
 	}
 
 }

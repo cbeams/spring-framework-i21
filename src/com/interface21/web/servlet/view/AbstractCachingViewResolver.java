@@ -39,36 +39,36 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
 	private boolean cache = true;
 
 	/**
-	 * Disable caching. Do this only for debugging and development. Default is
-	 * for caching to be enabled. 
-	 * <br><b>Warning: disabling caching severely impacts performance.</b>
-	 * Tests indicate that turning caching off
-	 * reduces performance by at least 20%. Increased object churn
-	 * probably eventually makes the problem even worse.
+	 * Enable caching. Disable this only for debugging and development.
+	 * Default is for caching to be enabled.
+	 * <p><b>Warning: disabling caching severely impacts performance.</b>
+	 * Tests indicate that turning caching off reduces performance by at
+	 * least 20%. Increased object churn probably eventually makes the
+	 * problem even worse.
 	 */
 	public void setCache(boolean cache) {
 		this.cache = cache;
 	}
 
 	/**
-	 * Return whether caching is enabled.
+	 * If caching is enabled.
 	 */
-	public boolean getCache() {
-		return this.cache;
+	public boolean isCache() {
+		return cache;
 	}
 
-	public final View resolveViewname(String viewname, Locale locale) throws ServletException {
+	public final View resolveViewName(String viewName, Locale locale) throws ServletException {
 		View v = null;
 		if (!cache) {
 			logger.warn("View caching is SWITCHED OFF -- DEVELOPMENT SETTING ONLY: this will severely impair performance");
-			v = loadAndConfigureView(viewname, locale);
+			v = loadAndConfigureView(viewName, locale);
 		}
 		else {
 			// We're caching - don't really need synchronization
-			v = (View) viewHash.get(getCacheKey(viewname, locale));
+			v = (View) this.viewHash.get(getCacheKey(viewName, locale));
 			if (v == null) {
 				// Ask the subclass to load the View
-				v = loadAndConfigureView(viewname, locale);
+				v = loadAndConfigureView(viewName, locale);
 			}
 		}
 		return v;
@@ -101,7 +101,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
 
 			String cacheKey = getCacheKey(viewname, locale);
 			logger.info("Cached view '" + cacheKey + "'");
-			viewHash.put(cacheKey, v);
+			this.viewHash.put(cacheKey, v);
 		}
 
 		return v;
@@ -117,12 +117,12 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
 
 	/**
 	 * Subclasses must implement this method. There need be no concern for efficiency,
-	 * as this class will cache views.
+	 * as this class will cache views. Not all subclasses may support internationalization:
+	 * A subclass that doesn't can ignore the locale parameter.
 	 * @param viewName name of the view to retrieve
-	 * @param locale Locale to retrieve the view for. Not all subclasses may support
-	 * internationalization. A subclass that doesn't can ignore this parameter.
+	 * @param locale Locale to retrieve the view for
 	 * @throws ServletException if there is an error trying to resolve the view
-	 * @return the View if it can be resolved; otherwise null.
+	 * @return the View if it can be resolved, or null
 	 */
 	protected abstract View loadView(String viewName, Locale locale) throws ServletException;
 

@@ -29,11 +29,9 @@ import com.interface21.core.OrderComparator;
 import com.interface21.web.servlet.handler.BeanNameUrlHandlerMapping;
 import com.interface21.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import com.interface21.web.servlet.mvc.SimpleControllerHandlerAdapter;
-import com.interface21.web.servlet.theme.*;
 import com.interface21.web.servlet.theme.FixedThemeResolver;
 import com.interface21.web.servlet.view.InternalResourceViewResolver;
 import com.interface21.web.util.WebUtils;
-import com.interface21.ui.context.Theme;
 
 /**
  * Concrete front controller for use within the Interface21 MVC framework.<br>
@@ -106,13 +104,13 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * Request attribute to hold current locale, retrievable by views.
 	 * @see com.interface21.web.servlet.support.RequestContext
 	 */
-	public static final String LOCALE_ATTRIBUTE = DispatcherServlet.class.getName() + ".LOCALE";
+	public static final String LOCALE_RESOLVER_ATTRIBUTE = DispatcherServlet.class.getName() + ".LOCALE";
 
 	/**
 	 * Request attribute to hold current theme, retrievable by views.
 	 * @see com.interface21.web.servlet.support.RequestContext
 	 */
-	public static final String THEME_ATTRIBUTE = DispatcherServlet.class.getName() + ".THEME";
+	public static final String THEME_RESOLVER_ATTRIBUTE = DispatcherServlet.class.getName() + ".THEME";
 
 	/** LocaleResolver used by this servlet */
 	private LocaleResolver localeResolver;
@@ -357,15 +355,11 @@ public class DispatcherServlet extends FrameworkServlet {
 		// Make web application context available
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
 
-		// Make locale available
-		Locale locale = this.localeResolver.resolveLocale(request);
-		request.setAttribute(LOCALE_ATTRIBUTE, locale);
-		response.setLocale(locale);
+		// Make locale resolver available
+		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
 
-		// Make theme available */
-		String themeName = this.themeResolver.resolveThemeName(request);
-		Theme theme = getWebApplicationContext().getTheme(themeName);
-		request.setAttribute(THEME_ATTRIBUTE, theme);
+		// Make theme resolver available */
+		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
 
 		Object mappedHandler = getHandler(request);
 
@@ -386,6 +380,8 @@ public class DispatcherServlet extends FrameworkServlet {
 		ModelAndView mv = ha.handle(request, response, mappedHandler);
 		if (mv != null) {
 			logger.debug("Will render model in DispatcherServlet with name '" + getServletName() + "'");
+			Locale locale = this.localeResolver.resolveLocale(request);
+			response.setLocale(locale);
 			render(mv, request, response, locale);
 		}
 		else {
@@ -495,8 +491,8 @@ public class DispatcherServlet extends FrameworkServlet {
 	    throws ServletException, IOException {
 		View v = null;
 		if (mv.isReference()) {
-			// We need to resolve this viewname
-			v = this.viewResolver.resolveViewname(mv.getViewName(), locale);
+			// We need to resolve this view name
+			v = this.viewResolver.resolveViewName(mv.getViewName(), locale);
 		}
 		else {
 			// No need to lookup: the ModelAndView object contains the actual view

@@ -5,15 +5,16 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import com.interface21.context.MessageSourceResolvable;
 import com.interface21.context.NoSuchMessageException;
+import com.interface21.ui.context.Theme;
+import com.interface21.validation.BindException;
 import com.interface21.validation.Errors;
 import com.interface21.web.bind.EscapedErrors;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.util.HtmlUtils;
-import com.interface21.ui.context.Theme;
 
 /**
  * Context holder for request-specific state, like current web application context,
@@ -29,7 +30,9 @@ import com.interface21.ui.context.Theme;
  */
 public class RequestContext {
 
-	private ServletRequest request;
+	private HttpServletRequest request;
+
+	private Map model;
 
 	private WebApplicationContext webApplicationContext;
 
@@ -42,13 +45,31 @@ public class RequestContext {
 	private Map errorsMap;
 
 	/**
-	 * Creates a new RequestContext for the given request.
+	 * Creates a new RequestContext for the given request,
+	 * using the request attributes for Errors retrieval.
+	 * <p>This only works with InternalResourceViews, as Errors instances
+	 * are part of the model and not normally exposed as request attributes.
+	 * It will typically be used within JSPs or custom tags.
+	 * @param request current HTTP request
 	 */
-	public RequestContext(ServletRequest request) throws ServletException {
+	public RequestContext(HttpServletRequest request) throws ServletException {
+		this(request, null);
+	}
+
+	/**
+	 * Creates a new RequestContext for the given request,
+	 * using the given model attributes for Errors retrieval.
+	 * <p>This works with all View implementations.
+	 * It will typically be used by View implementations.
+	 * @param request current HTTP request
+	 * @param model the model attributes for the current view
+	 */
+	public RequestContext(HttpServletRequest request, Map model) throws ServletException {
 		this.request = request;
 		this.webApplicationContext = RequestContextUtils.getWebApplicationContext(request);
 		this.locale = RequestContextUtils.getLocale(request);
 		this.theme = RequestContextUtils.getTheme(request);
+		this.model = model;
 	}
 
 	/**
@@ -87,18 +108,6 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the message for the given code.
-	 * @param code code of the message
-	 * @param args arguments for the message, or null if none
-	 * @param htmlEscape HTML escape the message?
-	 * @return the message
-	 */
-	public String getMessage(String code, Object[] args, boolean htmlEscape) throws NoSuchMessageException {
-		String msg = this.webApplicationContext.getMessage(code, args, locale);
-		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
-	}
-
-	/**
 	 * Retrieves the message for the given code, using the defaultHtmlEscape setting.
 	 * @param code code of the message
 	 * @param args arguments for the message, or null if none
@@ -106,6 +115,28 @@ public class RequestContext {
 	 */
 	public String getMessage(String code, Object[] args) throws NoSuchMessageException {
 		return getMessage(code, args, this.defaultHtmlEscape);
+	}
+
+	/**
+	 * Retrieves the message for the given code.
+	 * @param code code of the message
+	 * @param args arguments for the message, or null if none
+	 * @param htmlEscape HTML escape the message?
+	 * @return the message
+	 */
+	public String getMessage(String code, Object[] args, boolean htmlEscape) throws NoSuchMessageException {
+		String msg = this.webApplicationContext.getMessage(code, args, this.locale);
+		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
+	}
+
+	/**
+	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance),
+	 * using the defaultHtmlEscape setting.
+	 * @param resolvable the MessageSourceResolvable
+	 * @return the message
+	 */
+	public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
+		return getMessage(resolvable, this.defaultHtmlEscape);
 	}
 
 	/**
@@ -120,13 +151,13 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance),
+	 * Retrieves the Errors instance for the given bind object,
 	 * using the defaultHtmlEscape setting.
-	 * @param resolvable the MessageSourceResolvable
-	 * @return the message
+	 * @param name name of the bind object
+	 * @return the Errors instance
 	 */
-	public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
-		return getMessage(resolvable, this.defaultHtmlEscape);
+	public Errors getErrors(String name) {
+		return getErrors(name, this.defaultHtmlEscape);
 	}
 
 	/**
@@ -142,7 +173,7 @@ public class RequestContext {
 		Errors errors = (Errors) this.errorsMap.get(name);
 		boolean put = false;
 		if (errors == null) {
-			errors = RequestContextUtils.getErrors(this.request, name);
+			errors = retrieveErrors(name);
 			put = true;
 		}
 		if (htmlEscape && !(errors instanceof EscapedErrors)) {
@@ -160,13 +191,17 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the Errors instance for the given bind object,
-	 * using the defaultHtmlEscape setting.
-	 * @param name name of the bind object
-	 * @return the Errors instance
+	 * Retrieve the Errors instance for the given bind object,
+	 * either from the model or from the request attributes.
 	 */
-	public Errors getErrors(String name) {
-		return getErrors(name, this.defaultHtmlEscape);
+	private Errors retrieveErrors(String name) {
+		String key = BindException.ERROR_KEY_PREFIX + name;
+		if (this.model != null) {
+			return (Errors) this.model.get(key);
+		}
+		else {
+			return (Errors) this.request.getAttribute(key);
+		}
 	}
 
 }
