@@ -71,6 +71,7 @@ public abstract class AbstractCommandController extends BaseCommandController {
 	 * @return a ModelAndView to render, or null
 	 */
 	protected abstract ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
-	                                       Object command, Errors errors);
+	                                       Object command, Errors errors)
+	    throws ServletException, IOException;
 
 }

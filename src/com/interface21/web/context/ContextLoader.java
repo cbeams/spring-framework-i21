@@ -9,21 +9,20 @@ import com.interface21.web.context.support.XmlWebApplicationContext;
 
 /**
  * Performs the actual initialization work for the root application context.
- * Called by both ContextLoaderServlet and ContextLoaderListener.
+ * Called by both ContextLoaderListener.
  *
- * <p>Regards a "contextClass" parameter at the servlet cpontext resp. web.xml root level,
+ * <p>Regards a "contextClass" parameter at the servlet context resp. web.xml root level,
  * falling back to the default context class (XmlWebApplicationContext) if not found.
  *
  * @author Juergen Hoeller
  * @since 17.02.2003
- * @see ContextLoaderServlet
  * @see ContextLoaderListener
  * @see XmlWebApplicationContext
  */
 public class ContextLoader {
 
 	/**
-	 * Config param to this servlet for the WebApplicationContext implementation class to use.
+	 * Config param for the root WebApplicationContext implementation class to use.
 	 */
 	public static final String CONTEXT_CLASS_PARAM = "contextClass";
 
@@ -39,24 +38,11 @@ public class ContextLoader {
 	 * @return the new WebApplicationContext
 	 */
 	public static WebApplicationContext initContext(ServletContext servletContext) throws ApplicationContextException {
-		return initContext(servletContext, null);
-	}
-
-	/**
-	 * Initializes Spring's web application context for the given servlet context,
-	 * using the given context class, or the servlet context init parameter as a fallback.
-	 *
-	 * @param servletContext  the current servlet context
-	 * @param contextClass  the context class to use, or null for default initialization
-	 * @return the new WebApplicationContext
-	 */
-	public static WebApplicationContext initContext(ServletContext servletContext, String contextClass) throws ApplicationContextException {
-		if (contextClass == null)
-			contextClass = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);
+		String contextClass = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);
 
 		// Now we must load the WebApplicationContext.
 		// It configures itself: all we need to do is construct the class with a no-arg
-		// constructor, and invoke setServletContext
+		// constructor, and invoke setServletContext.
 		try {
 			Class clazz = (contextClass != null ? Class.forName(contextClass) : DEFAULT_CONTEXT_CLASS);
 			logger.info("Using context class '" + clazz.getName() + "'");
@@ -90,7 +76,7 @@ public class ContextLoader {
 		return null;
 	}
 
-	private static void handleException(String msg, Throwable t) {
+	private static void handleException(String msg, Throwable t) throws ApplicationContextException {
 		logger.error(msg, t);
 		throw new ApplicationContextException(msg, t);
 	}

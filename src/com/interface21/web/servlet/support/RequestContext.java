@@ -29,9 +29,13 @@ import com.interface21.web.bind.EscapedErrors;
 public class RequestContext {
 
 	private ServletRequest request = null;
+
 	private WebApplicationContext webApplicationContext = null;
+
 	private Locale locale = null;
+
 	private boolean defaultHtmlEscape = false;
+
 	private Map errorsMap = null;
 
 	/**
@@ -73,9 +77,9 @@ public class RequestContext {
 
 	/**
 	 * Retrieves the message for the given code.
-	 * @param code  the code of the message
-	 * @param args  the arguments for the message, or null if none
-	 * @param htmlEscape  HTML escape the message?
+	 * @param code code of the message
+	 * @param args arguments for the message, or null if none
+	 * @param htmlEscape HTML escape the message?
 	 * @return the message
 	 */
 	public String getMessage(String code, Object[] args, boolean htmlEscape) throws NoSuchMessageException {
@@ -84,10 +88,9 @@ public class RequestContext {
 	}
 
 	/**
-	 * Retrieves the message for the given code,
-	 * using the defaultHtmlEscape setting.
-	 * @param code  the code of the message
-	 * @param args  the arguments for the message, or null if none
+	 * Retrieves the message for the given code, using the defaultHtmlEscape setting.
+	 * @param code code of the message
+	 * @param args arguments for the message, or null if none
 	 * @return the message
 	 */
 	public String getMessage(String code, Object[] args) throws NoSuchMessageException {
@@ -96,8 +99,8 @@ public class RequestContext {
 
 	/**
 	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance).
-	 * @param resolvable  the MessageSourceResolvable
-	 * @param htmlEscape  HTML escape the message?
+	 * @param resolvable the MessageSourceResolvable
+	 * @param htmlEscape HTML escape the message?
 	 * @return the message
 	 */
 	public String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
@@ -108,7 +111,7 @@ public class RequestContext {
 	/**
 	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance),
 	 * using the defaultHtmlEscape setting.
-	 * @param resolvable  the MessageSourceResolvable
+	 * @param resolvable the MessageSourceResolvable
 	 * @return the message
 	 */
 	public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
@@ -117,8 +120,8 @@ public class RequestContext {
 
 	/**
 	 * Retrieves the Errors instance for the given bind object.
-	 * @param name  the name of the bind object
-	 * @param htmlEscape  create an Errors instance with automatic HTML escaping?
+	 * @param name name of the bind object
+	 * @param htmlEscape create an Errors instance with automatic HTML escaping?
 	 * @return the Errors instance
 	 */
 	public Errors getErrors(String name, boolean htmlEscape) {
@@ -142,10 +145,11 @@ public class RequestContext {
 	/**
 	 * Retrieves the Errors instance for the given bind object,
 	 * using the defaultHtmlEscape setting.
-	 * @param name  the name of the bind object
+	 * @param name name of the bind object
 	 * @return the Errors instance
 	 */
 	public Errors getErrors(String name) {
 		return getErrors(name, defaultHtmlEscape);
 	}
+
 }

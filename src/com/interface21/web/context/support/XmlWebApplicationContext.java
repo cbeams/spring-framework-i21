@@ -47,19 +47,19 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	 * Name of servlet context parameter that can specify the config location prefix
 	 * for namespaced contexts, falling back to DEFAULT_CONFIG_LOCATION_PREFIX.
 	 */
-	public static final String CONFIG_LOCATION_PREFIX_PARAM = "configLocationPrefix";
+	public static final String CONFIG_LOCATION_PREFIX_PARAM = "contextConfigLocationPrefix";
 
 	/**
 	 * Name of servlet context parameter that can specify the config location suffix
 	 * for namespaced contexts, falling back to DEFAULT_CONFIG_LOCATION_SUFFIX.
 	 */
-	public static final String CONFIG_LOCATION_SUFFIX_PARAM = "configLocationSuffix";
+	public static final String CONFIG_LOCATION_SUFFIX_PARAM = "contextConfigLocationSuffix";
 
 	/**
 	 * Name of servlet context parameter that can specify the config location
 	 * for the root context, falling back to DEFAULT_CONFIG_LOCATION.
 	 */
-	public static final String CONFIG_LOCATION_PARAM = "configLocation";
+	public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
 
 	/** Default prefix for config locations, followed by the namespace */
 	public static final String DEFAULT_CONFIG_LOCATION_PREFIX = "/WEB-INF/";

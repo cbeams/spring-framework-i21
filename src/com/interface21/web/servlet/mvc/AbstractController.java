@@ -37,15 +37,10 @@ import com.interface21.web.servlet.ModelAndView;
  * <br>This class uses the Template Method design pattern.
  * @author Rod Johnson
  */
-public abstract class AbstractController 
-	extends WebContentGenerator
-	implements Controller {
+public abstract class AbstractController extends WebContentGenerator implements Controller {
 	
-	
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/** HashMap of method (GET/POST etc.) --> Object or null depending on whether supported.
+	/**
+	 * HashMap of method (GET/POST etc.) --> Object or null depending on whether supported.
 	 * GET and POST are supported by default.
 	 */
 	private Map	supportedMethods;
@@ -54,10 +49,6 @@ public abstract class AbstractController
 	
 	private int cacheSeconds = -1;
 	
-	
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
 	/**
 	 * Create a new Controller supporting GET and POST methods
 	 */
@@ -67,10 +58,6 @@ public abstract class AbstractController
 		supportedMethods.put("GET", Boolean.TRUE);
 	}
 	
-	
-	//---------------------------------------------------------------------
-	// Bean properties
-	//---------------------------------------------------------------------
 	/**
 	 * Set as CSV: automatic property editor will get the type right
 	 * @param supportedMethodsArray
@@ -93,10 +80,8 @@ public abstract class AbstractController
 		logger.info("Requires session set to " + requireSession);
 	}
 	
-	
 	/**
-	 * if 0 disable caching.
-	 * default is no caching header generation
+	 * If 0 disable caching, default is no caching header generation.
 	 * Only if this is set to 0 (no cache) or a positive value (cache for this many
 	 * seconds) will this class generate cache headers.
 	 * They can be overwritten by subclasses anyway, before content is generated.
@@ -105,14 +90,6 @@ public abstract class AbstractController
 		this.cacheSeconds = seconds;
 	}
 	
-	
-	
-	//---------------------------------------------------------------------
-	// Implementation of Controller
-	//---------------------------------------------------------------------
-	/**
-	 * @see Controller#handleRequest(HttpServletRequest, HttpServletResponse)
-	 */
 	public final ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
 		// Check whether we should support the request method
@@ -147,8 +124,7 @@ public abstract class AbstractController
 		
 		// If everything's OK, leave subclass to do the business
 		return handleRequestInternal(request, response);
-	}	// handleRequest
-	
+	}
 	
 	/**
 	 * Template method. Subclasses must implement this. The contract is
@@ -156,4 +132,4 @@ public abstract class AbstractController
 	 */
 	protected abstract ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 
-}	// class AbstractController
+}
