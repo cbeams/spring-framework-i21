@@ -45,7 +45,8 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager im
 
 	public static final String DEFAULT_USER_TRANSACTION_NAME = "java:comp/UserTransaction";
 
-	private JndiTemplate jndiTemplate;
+	//Default
+	private JndiTemplate jndiTemplate = new JndiTemplate();
 
 	private String userTransactionName;
 
@@ -84,7 +85,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager im
 	protected Object doGetTransaction() {
 		try {
 			return (UserTransaction) this.jndiTemplate.lookup(
-			    this.userTransactionName != null ? this.userTransactionName : DEFAULT_USER_TRANSACTION_NAME);
+				this.userTransactionName != null ? this.userTransactionName : DEFAULT_USER_TRANSACTION_NAME);
 		}
 		catch (NamingException ex) {
 			throw new CannotCreateTransactionException("JTA is not available", ex);
@@ -119,11 +120,15 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager im
 		}
 		catch (NotSupportedException ex) {
 			// assume "nested transactions not supported"
-			throw new NestedTransactionNotPermittedException("JTA implementation does not support nested transactions", ex);
+			throw new NestedTransactionNotPermittedException(
+				"JTA implementation does not support nested transactions",
+				ex);
 		}
 		catch (UnsupportedOperationException ex) {
 			// assume "nested transactions not supported"
-			throw new NestedTransactionNotPermittedException("JTA implementation does not support nested transactions", ex);
+			throw new NestedTransactionNotPermittedException(
+				"JTA implementation does not support nested transactions",
+				ex);
 		}
 		catch (SystemException ex) {
 			throw new TransactionSystemException("JTA failure on begin", ex);
