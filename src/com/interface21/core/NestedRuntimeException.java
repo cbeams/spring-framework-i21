@@ -14,20 +14,23 @@ import java.io.PrintWriter;
 
 /**
  * Handy class for wrapping runtime Exceptions with a root cause. This time-honoured
- * technique is no longer necessary in Java 1.4, which provides built-in
- * support for exception nesting. Thus exceptions in applications written to use Java 1.4 need not
+ * technique is no longer necessary in Java 1.4, which provides built-in support for
+ * exception nesting. Thus exceptions in applications written to use Java 1.4 need not
  * extend this class.
- * <br/>printStackTrace() etc. are forwarded to the wrapped Exception.
- * <br/>Abstact to force the programmer to extend the class.
- * <br/>****TODO: could make this implement ErrorCoded to ensure internationalization.
- * The present assumption is that all application-specific exceptions that could be displayed to humans
- * (users, administrators etc.) will implement the ErrorCoded interface.
- * The similarity between this class and the NestedCheckedException class is unavoidable,
- * as Java forces these two classes to have different superclasses. (Ah, the inflexibility
- * of concrete inheritance!)
- * <br/><b>As discussed in <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>,
+ *
+ * <p>Abstract to force the programmer to extend the class.
+ * printStackTrace() etc. are forwarded to the wrapped Exception.
+ * The present assumption is that all application-specific exceptions that could be
+ * displayed to humans (users, administrators etc.) will implement the ErrorCoded interface.
+ *
+ * <p>The similarity between this class and the NestedCheckedException class is unavoidable,
+ * as Java forces these two classes to have different superclasses (ah, the inflexibility
+ * of concrete inheritance!).
+ *
+ * <p>As discussed in <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>,
  * runtime exceptions are often a better alternative to checked exceptions. However, all exceptions
  * should preserve their stack trace, if caused by a lower-level exception.
+ *
  * @author Rod Johnson
  * @version $Id$
  */
@@ -85,7 +88,7 @@ public abstract class NestedRuntimeException extends RuntimeException implements
 			super.printStackTrace(ps);
 		}
 		else {
-			ps.println(this);
+			//ps.println(this);
 			rootCause.printStackTrace(ps);
 		}
 	}
@@ -100,16 +103,9 @@ public abstract class NestedRuntimeException extends RuntimeException implements
 			super.printStackTrace(pw);
 		}
 		else {
-			pw.println(this);
+			//pw.println(this);
 			rootCause.printStackTrace(pw);
 		}
-	}
-
-	/**
-	 * Prints the composite message to <code>System.err</code>.
-	 */
-	public void printStackTrace() {
-		printStackTrace(System.err);
 	}
 
 }

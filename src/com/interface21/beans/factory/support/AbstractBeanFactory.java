@@ -143,7 +143,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * be called too often: callers should keep hold of instances. Hence, the whole
 	 * method is synchronized here.
 	 * TODO: there probably isn't any need for this to be
-	 * synchronized, at least not if we pre-instantiate singletons
+	 * synchronized, at least not if we pre-instantiate singletons.
 	 * @param pname name that may include factory dereference prefix
 	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
 	 * if triggered by the creation of another bean, or null else
@@ -153,14 +153,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		// Get rid of the dereference prefix if there is one
 		String name = transformedBeanName(pname);
 
-		Object beanInstance = sharedInstanceCache.get(name);
+		Object beanInstance = this.sharedInstanceCache.get(name);
 		if (beanInstance == null) {
 			logger.info("Cached shared instance of Singleton bean '" + name + "'");
 			if (newlyCreatedBeans == null) {
 				newlyCreatedBeans = new HashMap();
 			}
 			beanInstance = createBean(name, newlyCreatedBeans);
-			sharedInstanceCache.put(name, beanInstance);
+			this.sharedInstanceCache.put(name, beanInstance);
 		}
 		else {
 			if (logger.isDebugEnabled())
@@ -359,14 +359,15 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * @param name the bean has in the factory. Used for debug output.
 	 */
 	private void callLifecycleMethodsIfNecessary(Object bean, String name) throws BeansException {
-		// Do nothing unless the bean implements the InitializingBean interface
 		if (bean instanceof InitializingBean) {
 			logger.debug("configureBeanInstance calling afterPropertiesSet on bean with name '" + name + "'");
 			try {
 				((InitializingBean) bean).afterPropertiesSet();
 			}
+			catch (BeansException ex) {
+				throw ex;
+			}
 			catch (Exception ex) {
-				logger.error("afterPropertiesSet on InitializingBean with name '" + name + "' threw an exception", ex);
 				throw new FatalBeanException("afterPropertiesSet on with name '" + name + "' threw an exception", ex);
 			}
 		}
@@ -376,8 +377,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			try {
 				((Lifecycle) bean).setBeanFactory(this);
 			}
+			catch (BeansException ex) {
+				throw ex;
+			}
 			catch (Exception ex) {
-				logger.error("Lifecycle method on Lifecycle bean with name '" + name + "' threw an exception", ex);
 				throw new FatalBeanException("Lifecycle method on bean with name '" + name + "' threw an exception", ex);
 			}
 		}
@@ -400,10 +403,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 				return getBeanClass(getBeanDefinition(cbd.getParentName()));
 			}
 			catch (NoSuchBeanDefinitionException ex) {
-				throw new RuntimeException("Shouldn't happen: BeanDefinition store corrupted: cannot resolve parent " + cbd.getParentName());
+				throw new FatalBeanException("Shouldn't happen: BeanDefinition store corrupted: cannot resolve parent " + cbd.getParentName());
 			}
 		}
-		throw new RuntimeException("Shouldn't happen: BeanDefinition " + bd + " is Neither a rootBeanDefinition or a ChildBeanDefinition");
+		throw new FatalBeanException("Shouldn't happen: BeanDefinition " + bd + " is Neither a rootBeanDefinition or a ChildBeanDefinition");
 	}
 
 
