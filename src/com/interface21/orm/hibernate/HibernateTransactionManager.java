@@ -61,7 +61,7 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * 
  * @author Juergen Hoeller
  * @since 02.05.2003
- * @see SessionFactoryUtils#openSession
+ * @see SessionFactoryUtils#getSession
  * @see SessionFactoryUtils#closeSessionIfNecessary
  * @see HibernateTemplate#execute
  * @see #setDataSource
@@ -135,7 +135,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			return new HibernateTransactionObject(sessionHolder);
 		}
 		else {
-			SessionHolder sessionHolder = new SessionHolder(SessionFactoryUtils.openSession(this.sessionFactory));
+			SessionHolder sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory));
 			return new HibernateTransactionObject(sessionHolder);
 		}
 	}

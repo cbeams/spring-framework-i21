@@ -55,7 +55,7 @@ public abstract class SessionFactoryUtils {
 	 * Return the thread object manager for Hibernate sessions, keeping a
 	 * SessionFactory/SessionHolder map per thread for Hibernate transactions.
 	 * @return the thread object manager
-	 * @see #openSession
+	 * @see #getSession
 	 * @see HibernateTransactionManager
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
@@ -112,14 +112,14 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Open a Hibernate session via the given factory.
+	 * Get a Hibernate session via the given factory.
 	 * Is aware of a respective session bound to the current thread,
 	 * for example when using HibernateTransactionManager.
 	 * @param sessionFactory Hibernate SessionFactory to create the session with
 	 * @return the Hibernate Session
 	 * @throws DataAccessResourceFailureException if the Session couldn't be created
 	 */
-	public static Session openSession(SessionFactory sessionFactory)
+	public static Session getSession(SessionFactory sessionFactory)
 	    throws DataAccessResourceFailureException {
 		SessionHolder holder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
 		if (holder != null) {

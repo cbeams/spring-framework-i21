@@ -156,7 +156,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * @see com.interface21.transaction
 	 */
 	public Object execute(HibernateCallback action) throws DataAccessException, RuntimeException {
-		Session session = SessionFactoryUtils.openSession(this.sessionFactory);
+		Session session = SessionFactoryUtils.getSession(this.sessionFactory);
 		try {
 			Object result = action.doInHibernate(session);
 			if (this.forceFlush || !SessionFactoryUtils.isSessionBoundToThread(session, this.sessionFactory)) {
