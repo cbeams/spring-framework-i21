@@ -6,7 +6,8 @@ package com.interface21.beans;
 
 
 /**
- *
+ * Simple test bean used for testing bean factories,
+ * AOP framework etc.
  * @author  Rod Johnson
  * @since 15 April 2001
  */
@@ -119,7 +120,7 @@ public class TestBean implements ITestBean, IOther {
 	 * @see IOther#absquatulate()
 	 */
 	public void absquatulate() {
-		System.out.println("IOther.absquatulate");
+		//System.out.println("IOther.absquatulate");
 	}
 
 }	// class Test
