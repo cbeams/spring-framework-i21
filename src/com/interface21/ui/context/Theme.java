@@ -9,6 +9,7 @@ import com.interface21.context.MessageSource;
  * @author Juergen Hoeller
  * @since 17.06.2003
  * @see ThemeSource
+ * @see com.interface21.web.servlet.theme
  */
 public interface Theme {
 
