@@ -208,8 +208,6 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		}
 		catch (SQLException ex) {
 			//throw new UncategorizedSQLException("Call to stored procedure '" + getSql() + "' failed", ex);
-			System.out.println(this.callString);
-			System.out.println(this.exceptionTranslater);
 			throw this.exceptionTranslater.translate("Call to stored procedure '" + getSql() + "'", this.callString, ex);
 		}
 		finally {
