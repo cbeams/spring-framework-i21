@@ -2,12 +2,13 @@
 
 <project name="setupDB" basedir="." default="all">
 
-  <target name="createHSQLTables" if="useJBossHSQL">
-		<echo message="CREATE TABLES USING: ${db.driver} ${db.url}"/>
+  <target name="dropHSQLTables" if="useJBossHSQL">
+		<echo message="DROP TABLES USING: ${db.driver} ${db.url}"/>
     <sql driver="${db.driver}"
          url="${db.url}"
          userid="${db.user}"
-         password="${db.pw}">  
+         password="${db.pw}"
+         onerror="continue">  
 
 	<classpath>
 		<fileset dir="../lib">
@@ -29,6 +30,23 @@ DROP TABLE types;
 DROP TABLE owners_seq;
 DROP TABLE owners; 
 
+    </sql> 
+  </target>
+
+
+  <target name="createHSQLTables" if="useJBossHSQL">
+		<echo message="CREATE TABLES USING: ${db.driver} ${db.url}"/>
+    <sql driver="${db.driver}"
+         url="${db.url}"
+         userid="${db.user}"
+         password="${db.pw}"
+         onerror="continue">  
+
+	<classpath>
+		<fileset dir="../lib">
+			<include name="*.jar"/>
+		</fileset>
+	</classpath>
 
 CREATE TABLE owners (
   id INT(4) NOT NULL PRIMARY KEY,
@@ -113,6 +131,7 @@ CREATE TABLE visits_seq (
 
     </sql> 
   </target>
+
 
   <target name="emptyTables">
 		<echo message="USING: ${db.driver} ${db.url}"/>
@@ -227,6 +246,6 @@ INSERT INTO visits_seq VALUES (5);
     </sql> 
   </target>
     
-  <target name="all" depends="createHSQLTables,emptyTables,populateTables" />
+  <target name="all" depends="dropHSQLTables,createHSQLTables,emptyTables,populateTables" />
     
 </project>

@@ -41,11 +41,11 @@
 	  - This web app specifies "petclinic.root" (see log4j.properties file).
 	  -->
 	<!-- Comment the listener if using JBoss -->
-	 
+	<!-- 
 	<listener>
 		<listener-class>com.interface21.web.util.Log4jConfigListener</listener-class>
 	</listener>
-	
+	-->
 	
 	<!--
 	  - Loads the root application context of this web app at startup,
@@ -112,5 +112,21 @@
 		<taglib-uri>/spring</taglib-uri>
 		<taglib-location>/WEB-INF/spring.tld</taglib-location>
 	</taglib>
+
+  <resource-ref>
+    <description>Resource reference to RDBMS</description>
+    <res-ref-name>jdbc/petclinicHSQL</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+    <res-sharing-scope>Shareable</res-sharing-scope>
+  </resource-ref>
+  
+  <resource-ref>
+    <description>Resource reference to RDBMS</description>
+    <res-ref-name>jdbc/petclinicMYSQL</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+    <res-sharing-scope>Shareable</res-sharing-scope>
+  </resource-ref>
 
 </web-app>

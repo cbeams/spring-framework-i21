@@ -23,4 +23,6 @@ call the Ant with target all or test.
 General note for JBoss users:
 - in web.xml: comment the the log4j listener
 - in build.properties: uncomment the jboss.root property
+- if using JBoss 3.2.x, copy the files db/jboss/3.2.x/*.xml in your deploy directory
+- For time being no database descriptor is provided for other JBoss versions, you have to write them
  
