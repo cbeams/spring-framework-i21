@@ -1,13 +1,13 @@
 package com.interface21.orm.hibernate;
 
-import java.util.List;
 import java.io.Serializable;
-
-import javax.sql.DataSource;
+import java.util.List;
 
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.ObjectNotFoundException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.type.Type;
 
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.DataAccessException;
@@ -67,8 +67,6 @@ public class HibernateTemplate implements InitializingBean {
 
 	private SessionFactory sessionFactory;
 
-	private DataSource dataSource;
-
 	private boolean forceFlush = false;
 
 	/**
@@ -87,17 +85,6 @@ public class HibernateTemplate implements InitializingBean {
 	}
 
 	/**
-	 * Create a new HibernateTemplate instance.
-	 * @param sessionFactory SessionFactory to create Sessions
-	 * @param dataSource JDBC DataSource to use Connections from
-	 */
-	public HibernateTemplate(SessionFactory sessionFactory, DataSource dataSource) {
-		this.sessionFactory = sessionFactory;
-		this.dataSource = dataSource;
-		afterPropertiesSet();
-	}
-
-	/**
 	 * Set the Hibernate SessionFactory that should be used to create
 	 * Hibernate Sessions.
 	 */
@@ -111,23 +98,6 @@ public class HibernateTemplate implements InitializingBean {
 	 */
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
-	}
-
-	/**
-	 * Set the JDBC DataSource that this instance should use Connections from.
-   * A Connection from this DataSource will be used for the Hibernate Session.
-   * The Hibernate configuration does not need to specify an own connection
-	 * provider then, avoiding config duplication.
-	 */
-	public final void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-
-	/**
-	 * Return the JDBC DataSource that this instance manages transactions for.
-	 */
-	public DataSource getDataSource() {
-		return dataSource;
 	}
 
 	/**
@@ -179,10 +149,11 @@ public class HibernateTemplate implements InitializingBean {
 	 * @see com.interface21.transaction
 	 */
 	public Object execute(HibernateCallback action) throws DataAccessException, RuntimeException {
-		Session session = SessionFactoryUtils.getSession(this.sessionFactory, this.dataSource, true);
+		Session session = SessionFactoryUtils.getSession(this.sessionFactory, true);
 		try {
 			Object result = action.doInHibernate(session);
 			if (this.forceFlush || !SessionFactoryUtils.isSessionBoundToThread(session, this.sessionFactory)) {
+				// forced flush, or not in a transaction -> explicit flush
 				session.flush();
 			}
 			return result;
@@ -195,8 +166,22 @@ public class HibernateTemplate implements InitializingBean {
 			throw ex;
 		}
 		finally {
-			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory, this.dataSource);
+			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory);
 		}
+	}
+
+	/**
+	 * Execute the specified action assuming that the result object is a List.
+	 * This is a convenience method for executing Hibernate find calls within
+	 * an action.
+	 * @param action action object that specifies the Hibernate action
+	 * @return a result object returned by the action, or null
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @throws RuntimeException in case of application exceptions thrown by
+	 * the action object
+	 */
+	public List executeFind(HibernateCallback action) throws DataAccessException, RuntimeException {
+		return (List) execute(action);
 	}
 
 	/**
@@ -217,20 +202,64 @@ public class HibernateTemplate implements InitializingBean {
 	}
 
 	/**
-	 * Return the persistent instance of the given entity class
-	 * with the given identifier.
+	 * Execute a query for persistent instances,
+	 * binding one value to a "?" parameter in the query.
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.find.
+	 * @param query a query expressed in Hibernate's query language
+	 * @return the List of persistent instances
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#find(String)
+	 */
+	public List find(final String query, final Object value, final Type type) {
+		return (List) execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return session.find(query, value, type);
+			}
+		});
+	}
+
+	/**
+	 * Execute a query for persistent instances,
+	 * binding a number of values to "?" parameters in the query.
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.find.
+	 * @param query a query expressed in Hibernate's query language
+	 * @return the List of persistent instances
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#find(String)
+	 */
+	public List find(final String query, final Object[] values, final Type[] types) {
+		return (List) execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return session.find(query, values, types);
+			}
+		});
+	}
+
+	/**
+	 * Return the persistent instance of the given entity class with the
+	 * given identifier. Note that this method returns null if not found,
+	 * in contrast to Session.load itself.
 	 * <p>This is a convenience method for single step actions,
 	 * mirroring Session.load.
 	 * @param entityClass a persistent class
 	 * @param id an identifier of the persistent instance
-	 * @return the persistent instance
+	 * @return the persistent instance, or null if not found
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#load(Class,Serializable)
 	 */
 	public Object load(final Class entityClass, final Serializable id) throws DataAccessException {
 		return execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				return session.load(entityClass, id);
+				try {
+					return session.load(entityClass, id);
+				}
+				catch (ObjectNotFoundException ex) {
+					// Session.load throws this exception if not found
+					// -> the contract of this template method is to return null
+					return null;
+				}
 			}
 		});
 	}

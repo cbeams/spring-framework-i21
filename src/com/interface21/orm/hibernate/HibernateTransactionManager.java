@@ -34,19 +34,19 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * Hibernate for transactional data access, but it also supports direct
  * data source access within a transaction (i.e. plain JDBC code working
  * with the same DataSource). This allows for mixing services that access
- * Hibernate including proper transactional caching, and services that use
+ * Hibernate including proper transactional caching and services that use
  * plain JDBC without being aware of Hibernate! Application code needs to
  * stick to the same simple Connection lookup pattern as with
  * DataSourceTransactionManager (i.e. DataSourceUtils.getConnection).
  *
- * <p>To be able to register a DataSource's Connection for plain JDBC code,
- * this instance needs to be aware of the DataSource (see setDataSource).
- * Note that the same JDBC Connection will be used for the Hibernate
- * Session then: The Hibernate configuration does not need to specify an
- * own connection provider, avoiding config duplication. The same DataSource
- * needs to be passed to HibernateTemplate or SessionFactoryUtils too then.
- * The DataSource can also just be used for exporting a transaction to
- * plain JDBC code, via setting "useDataSourceForExportOnly" to true.
+ * <p>Note that to be able to register a DataSource's Connection for plain
+ * JDBC code, this instance needs to be aware of the DataSource (see
+ * setDataSource). The given DataSource should obviously match the one used
+ * by the given SessionFactory. To achieve this, either configure both to
+ * the same JNDI DataSource, or create the SessionFactory by supplying the
+ * same DataSource to LocalSessionFactoryBean. In the latter case, the
+ * Hibernate settings do not have to define a connection provider at all,
+ * avoiding duplicated configuration.
  *
  * <p>JTA resp. JtaTransactionManager is necessary for accessing multiple
  * transactional resources. The DataSource that Hibernate uses needs to be
@@ -79,8 +79,6 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	private SessionFactory sessionFactory;
 
 	private DataSource dataSource;
-
-	private boolean useDataSourceForExportOnly = false;
 
 	/**
 	 * Create a new HibernateTransactionManager instance.
@@ -117,14 +115,10 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 
 	/**
 	 * Set the JDBC DataSource that this instance should manage transactions for.
-   * A Connection from this DataSource will be provided to both the Hibernate
-	 * Session and to application code accessing this DataSource directly.
-	 * <p>Note that by default, this DataSource overrides any connection provider
-	 * in the Hibernate configuration. Thus, the same DataSource should be passed
-	 * to any HibernateTemplate or SessionFactoryUtils, to avoid inconsistencies.
-	 * The Hibernate configuration shouldn't specify a connection provider then,
-	 * to force the use of user-provided, i.e. Spring-provided, connections.
-	 * @see #setUseDataSourceForExportOnly
+   * The DataSource should match the one used by the Hibernate SessionFactory.
+	 * <p>A transactional JDBC Connection for this DataSource will be provided to
+	 * application code accessing this DataSource directly via DataSourceUtils
+	 * or JdbcTemplate. The Connection will be taken from the Hibernate Session.
 	 */
 	public final void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -135,21 +129,6 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	 */
 	public final DataSource getDataSource() {
 		return dataSource;
-	}
-
-	/**
-	 * Set if the specified DataSource should be used for exporting a Hibernate
-	 * transaction's JDBC Connection only. Else, the DataSource will also be used
-	 * for Hibernate Session creation, overriding any connection provider in the
-	 * Hibernate configuration. The latter is default.
-	 * <p>Warning: At least up until Hibernate 2.0.1, user-provided connections
-	 * effectively disable JVM-level read-write caching. So if you'd like to
-	 * simply export the transaction to plain JDBC access code, specify a JNDI
-	 * DataSource in both the Hibernate configuration and the Spring context,
-	 * and set this flag to true.
-	 */
-	public void setUseDataSourceForExportOnly(boolean useDataSourceForExportOnly) {
-		this.useDataSourceForExportOnly = useDataSourceForExportOnly;
 	}
 
 	public void afterPropertiesSet() {
@@ -166,8 +145,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		}
 		else {
 			logger.debug("Opening new Session for Hibernate transaction");
-			Session session = SessionFactoryUtils.getSession(this.sessionFactory,
-			                                                 (!this.useDataSourceForExportOnly ? this.dataSource : null), true);
+			Session session = SessionFactoryUtils.getSession(this.sessionFactory, true);
 			return new HibernateTransactionObject(new SessionHolder(session), true);
 		}
 	}
@@ -287,8 +265,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			if (txObject.isNewSessionHolder()) {
 				logger.debug("Closing Hibernate session after transaction");
 				try {
-					SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(),
-					                                            this.sessionFactory, (!this.useDataSourceForExportOnly ? this.dataSource : null));
+					SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory);
 				}
 				catch (CleanupFailureDataAccessException ex) {
 					// just log it, to keep a transaction-related exception

@@ -1,7 +1,5 @@
 package com.interface21.orm.hibernate;
 
-import javax.sql.DataSource;
-
 import net.sf.hibernate.SessionFactory;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
@@ -71,8 +69,6 @@ public class HibernateInterceptor implements MethodInterceptor {
 
 	private SessionFactory sessionFactory;
 
-	private DataSource dataSource;
-
 	private boolean forceFlush = false;
 
 	/**
@@ -80,14 +76,6 @@ public class HibernateInterceptor implements MethodInterceptor {
 	 */
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
-	}
-
-	/**
-	 * Set the JDBC DataSource that this instance should use Connections from.
-   * A Connection from this DataSource will be used for the Hibernate Session.
-	 */
-	public final void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
 	}
 
 	/**
@@ -112,7 +100,7 @@ public class HibernateInterceptor implements MethodInterceptor {
 		SessionHolder sessionHolder = null;
 		if (!SessionFactoryUtils.getThreadObjectManager().hasThreadObject(this.sessionFactory)) {
 			logger.debug("Using new Session for Hibernate interceptor");
-			sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory, this.dataSource, true));
+			sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory, true));
 			SessionFactoryUtils.getThreadObjectManager().bindThreadObject(this.sessionFactory, sessionHolder);
 		}
 		else {
@@ -130,7 +118,7 @@ public class HibernateInterceptor implements MethodInterceptor {
 			if (sessionHolder != null) {
 				SessionFactoryUtils.getThreadObjectManager().removeThreadObject(this.sessionFactory);
 				try {
-					SessionFactoryUtils.closeSessionIfNecessary(sessionHolder.getSession(), this.sessionFactory, this.dataSource);
+					SessionFactoryUtils.closeSessionIfNecessary(sessionHolder.getSession(), this.sessionFactory);
 				}
 				catch (CleanupFailureDataAccessException ex) {
 					// just log it, to keep an invocation-related exception
