@@ -1,6 +1,6 @@
 package com.interface21.web.bind;
 
-import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpServletRequest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -28,7 +28,7 @@ public class ServletRequestParameterPropertyValuesTestSuite extends AbstractProp
 
 
 	public void testNoPrefix() throws Exception {
-		MockHttpRequest request = new MockHttpRequest(null, "GET", "/test/foobar");
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/test/foobar");
 		request.addParameter("forname", "Tony");
 		request.addParameter("surname", "Blair");
 		request.addParameter("age", "" + 50);
@@ -40,7 +40,7 @@ public class ServletRequestParameterPropertyValuesTestSuite extends AbstractProp
 	//public void testPrefix(String prefix p, String prefixSeparator ps) throws Exception {
 
 	public void testPrefix() throws Exception {
-		MockHttpRequest request = new MockHttpRequest(null, "GET", "/test/foobar");
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/test/foobar");
 		request.addParameter("test_forname", "Tony");
 		request.addParameter("test_surname", "Blair");
 		request.addParameter("test_age", "" + 50);
@@ -55,7 +55,7 @@ public class ServletRequestParameterPropertyValuesTestSuite extends AbstractProp
 
 
 	public void testNoParameters() throws Exception {
-		MockHttpRequest request = new MockHttpRequest(null, "GET", "/test/foobar");
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/test/foobar");
 		ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
 		assertTrue("Found no parameters", pvs.getPropertyValues().length == 0);
 	}
