@@ -82,7 +82,6 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	/** WebApplicationContext for this servlet */
 	private WebApplicationContext webApplicationContext;
 
-
 	/** Holder for debug property */
 	private boolean debug = DEFAULT_DEBUG_SETTING;
 
@@ -98,30 +97,30 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	/** Custom context class */
 	private String contextClass;
 
-	/** Any fatal exception encountered on startup.
+	/**
+	 * Any fatal exception encountered on startup.
 	 * Thrown on each request.
 	 */
 	private ServletException startupException;
 
 
-	/** Convenient method to allow other classes to check whether this is a
-	 * debug request
+	/**
+	 * Convenient method to allow other classes to check whether
+	 * this is a debug request.
 	 */
 	public static boolean isDebugMode(HttpServletRequest request) {
 		return request.getAttribute(DEBUG_REQUEST_ATTRIBUTE) != null;
 	}
 
 	/**
-	 * @return the namespace for the given servlet name
+	 * Return the namespace for the given servlet name.
 	*/
 	public static String getNamespaceForServletName(String servletName) {
 		return servletName + FrameworkServlet.NAMESPACE_SUFFIX;
 	}
 
-
 	/**
 	 * Return the WebApplicationContext in which this servlet runs
-	 * @return the WebApplicationContext in which this servlet runs
 	 */
 	public final WebApplicationContext getWebApplicationContext() {
 		return webApplicationContext;
@@ -154,16 +153,14 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	}
 
 	/**
-	 * Return the value of the debug property
-	 * @return the value of the debug property
+	 * Return the value of the debug property.
 	 */
 	public final boolean getDebug() {
 		return debug;
 	}
 
 	/**
-	 * Return the value of the debuggable property
-	 * @return the value of the debuggable property
+	 * Return the value of the debuggable property.
 	 */
 	public final boolean getDebuggable() {
 		return debuggable;
@@ -217,7 +214,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		}
 		catch (Exception ex) {
 			String msg = "Servlet with name '" + getServletName() + "' failed to initialize";
-			log(msg, ex);
+			logger.error(msg, ex);
 			this.startupException = new ServletException(msg + ", with exception " + ex, ex);
 			throw startupException;
 		}
@@ -318,8 +315,8 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 * have been set and WebApplicationContext and BeanFactory have been loaded
 	 * @throws Exception any exception
 	 */
-	protected abstract void initFrameworkServlet() throws Exception;
-
+	protected void initFrameworkServlet() throws Exception {
+	}
 
 	/**
 	 * It's up to each subclass to decide whether or not it supports a request method.
@@ -378,9 +375,9 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			logger.error("Servlet failed to handle request: IOException", ex);
 			throw ex;
 		}
-		catch (Exception ex) {
+		catch (RuntimeException ex) {
 			failureCause = ex;
-			String mesg = "Unexpected (probably runtime) exception";
+			String mesg = "Unexpected runtime exception";
 			logger.error(mesg, ex);
 			throw new ServletException(mesg, ex);
 		}
