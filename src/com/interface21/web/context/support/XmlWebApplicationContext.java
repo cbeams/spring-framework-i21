@@ -24,8 +24,7 @@ import com.interface21.web.util.WebUtils;
 
 
 /**
- * WebApplicationContext implementation that takes configuration from
- * an XML document.
+ * WebApplicationContext implementation that takes configuration from an XML document.
  * Used in the sample application included in 
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>.
  * @author  Rod Johnson
@@ -42,11 +41,14 @@ public class XmlWebApplicationContext
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
+	/** namespace of this context, or null if root */
+	private String namespace = null;
+
 	/** URL from which the configuration was loaded */
 	private String url;
 
 	private ServletContext servletContext;
-	
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
@@ -64,7 +66,8 @@ public class XmlWebApplicationContext
 	 */
 	public XmlWebApplicationContext(ApplicationContext parent, String namespace) {
 		super(parent);
-		this.url = namespace;
+		this.namespace = namespace;
+		this.url = "/WEB-INF/" + namespace + ".xml";
 		setDisplayName("WebApplicationContext for namespace '" + namespace + "'");
 	}
 
@@ -78,19 +81,18 @@ public class XmlWebApplicationContext
 	 */
 	public void setServletContext(ServletContext servletContext) throws ServletException {
 		this.servletContext = servletContext;
-		if (this.getParent() == null) {
+
+		if (this.namespace == null) {
 			String configURL = servletContext.getInitParameter(CONFIG_URL_PARAM);
 			if (configURL == null)
 				configURL = DEFAULT_CONFIG_URL;
 			this.url = configURL;
 		}
-		else {
-			this.url =  "/WEB-INF/" + url + ".xml";
-		}
-
 		logger.info("Using config URL '" + this.url + "'");
+
 		refresh();
-		if (this.getParent() == null) {
+
+		if (this.namespace == null) {
 			// We're the root context
 			WebApplicationContextUtils.configureConfigObjects(this);
 			// Expose as a ServletContext object
@@ -98,13 +100,15 @@ public class XmlWebApplicationContext
 		}	
 	}	// setServletContext
 	
-
-
-	/**
-	 * @see WebApplicationContext#getServletContext()
-	 */
 	public final ServletContext getServletContext() {
 		return servletContext;
+	}
+
+	/**
+	 * @return the namespace of this context, or null if root
+	 */
+	public String getNamespace() {
+		return namespace;
 	}
 
 	/**
@@ -114,6 +118,14 @@ public class XmlWebApplicationContext
 		return url;
 	}
 
+	/**
+	 * This implementation supports fully qualified URLs, absolute file paths,
+	 * and relative file paths beneath the root of the web application.
+	 * @see com.interface21.context.ApplicationContext
+	 */
+	public InputStream getResourceAsStream(String path) throws IOException {
+		return WebUtils.getResourceInputStream(path, getServletContext());
+	}
 
 	/**
 	 * @return diagnostic information
@@ -124,18 +136,16 @@ public class XmlWebApplicationContext
 		return sb.toString();
 	}
 
-
 	//---------------------------------------------------------------------
 	// Implementation of superclass abstract methods
 	//---------------------------------------------------------------------
 	/**
 	 * Open and return the input stream for the bean factory for this namespace. 
 	 * If namespace is null, return the input stream for the default bean factory.
-	 * @throw IOException if the required XML document isn't found
+	 * @exception IOException if the required XML document isn't found
 	 */
 	protected InputStream getInputStreamForBeanFactory() throws IOException {
-		String xmlFile = getURL();
-		return WebUtils.getResourceInputStream(xmlFile, getServletContext());
+		return getResourceAsStream(getURL());
 	}
 
 }	// class XmlWebApplicationContext
