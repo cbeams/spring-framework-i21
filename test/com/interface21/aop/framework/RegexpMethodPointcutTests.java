@@ -5,6 +5,8 @@
  
 package com.interface21.aop.framework;
 
+import com.interface21.aop.interceptor.DebugInterceptor;
+
 import junit.framework.TestCase;
 
 /**
@@ -21,6 +23,35 @@ public class RegexpMethodPointcutTests extends TestCase {
 	 */
 	public RegexpMethodPointcutTests(String arg0) {
 		super(arg0);
+	}
+	
+	public void testExactMatch() throws Exception {
+		RegexpMethodPointcut rpc = new RegexpMethodPointcut();
+		DebugInterceptor di = new DebugInterceptor();
+		rpc.setInterceptor(di);
+		assertEquals(rpc.getInterceptor(), di);
+		rpc.setPattern("java.lang.Object.hashCode");
+		assertTrue(rpc.applies(Object.class.getMethod("hashCode", null), null));
+	}
+	
+	public void testWildcard() throws Exception {
+		RegexpMethodPointcut rpc = new RegexpMethodPointcut();
+		DebugInterceptor di = new DebugInterceptor();
+		rpc.setInterceptor(di);
+		assertEquals(rpc.getInterceptor(), di);
+		rpc.setPattern(".*Object.hashCode");
+		assertTrue(rpc.applies(Object.class.getMethod("hashCode", null), null));
+		assertFalse(rpc.applies(Object.class.getMethod("wait", null), null));
+	}
+	
+	public void testWildcardForOneClass() throws Exception {
+		RegexpMethodPointcut rpc = new RegexpMethodPointcut();
+		DebugInterceptor di = new DebugInterceptor();
+		rpc.setInterceptor(di);
+		assertEquals(rpc.getInterceptor(), di);
+		rpc.setPattern("java.lang.Object.*");
+		assertTrue(rpc.applies(Object.class.getMethod("hashCode", null), null));
+		assertTrue(rpc.applies(Object.class.getMethod("wait", null), null));
 	}
 
 }
