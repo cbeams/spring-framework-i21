@@ -80,6 +80,7 @@
 
 	<!-- ===========================================================-->
 	<!-- General use Multiaction controller for Errors -->
+
 	<bean id="errorsMethodNameResolver" class="com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
 		<property name="mappings">
 			<props>
@@ -94,7 +95,7 @@
 
 	<!-- ===========================================================-->
 	<!-- Application specific Multiaction controller -->
-	<!--
+
 	<bean id="countriesMethodNameResolver" class="com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
 		<property name="mappings">
 			<props>
@@ -112,7 +113,7 @@
 	<!-- The controller will have to specify the "secondDaoCountry" property only in the scenario 2 (MEMORY+DATABASE). 
 	     The two others properties "methodNameResolver" and "countryDao" are always set, no matter of the scenario.
 	     
-	     *** Notice that parametrizing here has not to be changed when switching from scenario 1 (Memory) to
+	     NOTICE that parametrizing here has not to be changed when switching from scenario 1 (Memory) to
 	     scenario 3 (Database). 
 	     The "daoCountry" implementation is not the same, but it's only an affair of its own setting.
 	-->

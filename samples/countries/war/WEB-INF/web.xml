@@ -37,12 +37,14 @@
 	  -
 	  - Exports a "web app root key", i.e. a system property that specifies the root
 	  - directory of this web app, for usage in log file paths.
-	  - This web app specifies "petclinic.root" (see log4j.properties file).
 	  -->
+	<!-- Don't work with JBoss -->
+	<!--
 	<listener>
 		<listener-class>com.interface21.web.util.Log4jConfigListener</listener-class>
 	</listener>
-
+	-->
+	
 	<!--
 	  - Loads the root application context of this web app at startup,
 	  - by default from "/WEB-INF/applicationContext.xml".
