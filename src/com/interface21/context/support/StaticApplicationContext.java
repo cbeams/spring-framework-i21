@@ -58,12 +58,8 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 		refresh();
 	}
 
-	//---------------------------------------------------------------------
-	// Implementation of abstract methods
-	//---------------------------------------------------------------------
 	/**
 	 * Return the BeanFactory for this namespace
-	 * @see AbstractApplicationContext#loadBeanFactory(String)
 	 */
 	protected BeanFactory loadBeanFactory(String namespace) throws ApplicationContextException {
 		BeanFactory bf = (BeanFactory) beanFactoryHash.get(namespace);
@@ -73,6 +69,9 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 		return bf;
 	}
 
+	//---------------------------------------------------------------------
+	// Implementation of abstract methods
+	//---------------------------------------------------------------------
 	/**
 	 *  Do nothing: we rely on callers to update our public methods
 	 * @see AbstractApplicationContext#refreshDefaultBeanFactory()
@@ -81,7 +80,7 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	}
 
 	/**
-	 * @see ApplicationContext#getBeanFactory()
+	 * @see AbstractApplicationContext#getBeanFactory()
 	 */
 	protected ListableBeanFactory getBeanFactory() {
 		return defaultBeanFactory;

@@ -97,7 +97,7 @@ public interface BeanWrapper {
 	 */
     void setPropertyValues(Map m) throws BeansException;
 	
-	/** <b>The preferred way to perform a bulk update.</b>
+	/** The preferred way to perform a bulk update.
 	 * Note that performing a bulk update differs from performing a single update,
 	 * in that an implementation of this class will continue to update properties
 	 * if a <b>recoverable</b> error (such as a vetoed property change or a type mismatch,
@@ -110,7 +110,7 @@ public interface BeanWrapper {
 	 */
 	void setPropertyValues(PropertyValues pvs) throws BeansException;
 	
-	/** <b>Perform a bulk update with full control over behavior.</b>
+	/** Perform a bulk update with full control over behavior.
 	 * Note that performing a bulk update differs from performing a single update,
 	 * in that an implementation of this class will continue to update properties
 	 * if a <b>recoverable</b> error (such as a vetoed property change or a type mismatch,

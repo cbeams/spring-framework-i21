@@ -351,7 +351,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * attribute is null or not.
 	 * @param resolvable Value object storing 4 attributes required to properly resolve a message.
 	 * @param locale Locale to be used as the "driver" to figuring out what message to return.
-	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
+	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a> for more details.
 	 * @return message Resolved message.
 	 * @throws NoSuchMessageException not found in any locale
 	 */
@@ -365,7 +365,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	//---------------------------------------------------------------------
 	/**
 	 * Try to find the bean instance in the hierarchy
-	 * @see BeanFactory#getBeanInstance(String)
+	 * @see AbstractBeanFactory#getBeanInstance(String)
 	 */
 	public Object getBean(String name) throws BeansException {
 		try {
@@ -386,7 +386,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 
 	/**
-	 * @see BeanFactory#getBeanInstance(String, Class)
+	 * @see AbstractBeanFactory#getBeanInstance(String, Class)
 	 */
 	public Object getBean(String name, Class requiredType) throws BeansException {
 		try {
@@ -404,7 +404,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 
 	/**
-	 * @see BeanFactory#isSingleton(String)
+	 * @see AbstractBeanFactory#isSingleton(String)
 	 */
 	public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
 		return getBeanFactory().isSingleton(name);
@@ -519,7 +519,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * Unimplemented interface method. Subclasses must implement this
 	 * efficiently, so that it can be called repeatedly without a performance penalty.
 	 * @return this application context's default BeanFactory
-	 * @see ApplicationContext#getBeanFactory()
 	 */
 	protected abstract ListableBeanFactory getBeanFactory();
 

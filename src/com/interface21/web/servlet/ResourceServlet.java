@@ -54,7 +54,7 @@ public class ResourceServlet extends HttpServletBean {
 	
 	
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse)
+	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest, HttpServletResponse)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = request.getParameter(PATH_PARAM);

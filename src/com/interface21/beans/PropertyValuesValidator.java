@@ -12,7 +12,8 @@ package com.interface21.beans;
 public interface PropertyValuesValidator {
 	
 	/** 
-	 * Are these PropertyValues invalid? For example,
+	 * Are these PropertyValues invalid?
+	 * For example,
 	 * are required properties missing? Does the presence of a particular
 	 * property require others to be present? Implementations can
 	 * rely on the contains() method of the PropertyValues interface, but cannot

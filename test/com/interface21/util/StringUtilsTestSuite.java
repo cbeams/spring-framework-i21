@@ -42,6 +42,30 @@ public class StringUtilsTestSuite extends TestCase {
 		assertTrue("test last", StringUtils.countOccurrencesOf(s, "r")==2);
 	}
 
+	public void countOccurrencesOfInDelimiters() {
+		
+		assertTrue("null string", StringUtils.countParameterPlaceholders(null, '\0', '\0') == 0);
+		assertTrue("null marker", StringUtils.countParameterPlaceholders("woof",'\0', '\'') == 0);
+		assertTrue("null delimiter", StringUtils.countParameterPlaceholders("woof", '?', '\0') == 0);
+		try {
+		    StringUtils.countParameterPlaceholders("The big bad wolf ate 'RedCap", '?', '\'');
+		    fail("Should raise an IllegalArgumentException : string not properly delimited");
+	
+		} catch (IllegalArgumentException success) {}
+		try {
+		    StringUtils.countParameterPlaceholders("'The big bad wolf ate 'Red''Cap", '?', '\'');
+		    fail("Should raise an IllegalArgumentException : string not properly delimited");
+	
+		} catch (IllegalArgumentException success) {}
+		String s = "The big ? bad wolf ate ?? RedCap ?";
+		assertTrue("count should be 2", StringUtils.countParameterPlaceholders(
+		                            "The big ? bad wolf ate ?? RedCap ? ", '?', '\'') == 2);
+		assertTrue("count should be 2", StringUtils.countParameterPlaceholders(
+		                            "The big ? bad wolf ate ' ? ' RedCap ?", '?', '\'') == 2);
+		assertTrue("count should be 1", StringUtils.countParameterPlaceholders(
+		                            "select * from tab where a=? and b='?''?'", '?', '\'') == 1);
+	}
+
 	public void testCommaDelimitedListToStringArrayNullProducesEmptyArray() {
 		String[] sa = StringUtils.commaDelimitedListToStringArray(null);
 		assertTrue("String array isn't null with null input", sa != null);

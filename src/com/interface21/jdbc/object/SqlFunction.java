@@ -74,7 +74,7 @@ public class SqlFunction extends ManualExtractionSqlQuery {
 	 * value from the single row returned by the function.
 	 * If there are a different number of rows returned, this
 	 * is treated as an error.
-	 * @see CustomExtractionQueryCommand#extract(ResultSet, int)
+	 * @see ManualExtractionSqlQuery#extract(ResultSet, int)
 	 */
 	protected Object extract(ResultSet rs, int rownum) throws SQLException, InvalidDataAccessApiUsageException {
 		if (rownum != 0) {
@@ -107,7 +107,7 @@ public class SqlFunction extends ManualExtractionSqlQuery {
 	 * Analogous to the SqlQuery.execute([]) method. This is a
 	 * generic method to execute a query, taken a number of
 	 * arguments.
-	 * @args array of arguments. These will be objects or
+	 * @param array of arguments. These will be objects or
 	 * object wrapper types for primitives.
 	 * @return the value of the function
 	 */

@@ -80,7 +80,7 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 * attribute is null or not.
 	 * @param resolvable Value object storing 4 attributes required to properly resolve a message.
 	 * @param locale Locale to be used as the "driver" to figuring out what message to return.
-	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
+	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a> for more details.
 	 * @return message Resolved message.
 	 * @throws NoSuchMessageException not found in any locale
 	 */

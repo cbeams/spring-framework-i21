@@ -76,7 +76,6 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	 * Set the exception translater used in this class.
 	 * As in the JdbcTemplate class, this can be parameterized
 	 * @see com.interface21.jdbc.core.SQLExceptionTranslater
-	 * @see com.interface21.jdbc.dao
 	 */
 	public void setExceptionTranslater(SQLExceptionTranslater exceptionTranslater) {
 		this.exceptionTranslater = exceptionTranslater;

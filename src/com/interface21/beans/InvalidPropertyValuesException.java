@@ -10,7 +10,7 @@ import com.interface21.core.ErrorCoded;
  * by a PropertyValuesValidator. After an object of this class
  * is constructed, MissingFieldExceptions can be added one by one.
  * @author Rod Johnson
- * @version
+ * @version 1.0
  */
 public class InvalidPropertyValuesException extends BeansException {
 	

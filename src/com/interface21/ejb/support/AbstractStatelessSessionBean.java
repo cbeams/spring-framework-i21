@@ -36,7 +36,7 @@ public abstract class AbstractStatelessSessionBean extends AbstractSessionBean {
 	public abstract void ejbCreate() throws CreateException;
 	
 	/**
-	 * @see SessionBean#ejbActivate(). This method always throws an exception, as
+	 * @see javax.ejb.SessionBean#ejbActivate(). This method always throws an exception, as
 	 * it should not be invoked by the EJB container.
 	 */
 	public void ejbActivate() throws EJBException {
@@ -44,7 +44,7 @@ public abstract class AbstractStatelessSessionBean extends AbstractSessionBean {
 	}
 
 	/**
-	 * @see SessionBean#ejbPassivate(). This method always throws an exception, as
+	 * @see javax.ejb.SessionBean#ejbPassivate(). This method always throws an exception, as
 	 * it should not be invoked by the EJB container.
 	 */
 	public void ejbPassivate() throws EJBException {

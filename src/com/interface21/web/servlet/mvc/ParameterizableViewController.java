@@ -50,7 +50,7 @@ public class ParameterizableViewController extends AbstractController
 
 
 	/**
-	 * @see SimpleController#handleRequest(HttpServletRequest, HttpServletResponse)
+	 * @see AbstractController#handleRequest(HttpServletRequest, HttpServletResponse)
 	 */
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		return new ModelAndView(this.successView);

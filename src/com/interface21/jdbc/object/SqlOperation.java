@@ -60,6 +60,7 @@ public abstract class SqlOperation extends RdbmsOperation {
 		return jdbcTemplate;
 	}
 	
+
 	/**
 	 * Return a PreparedStatementCreator to perform an operation
 	 * with this parameters
@@ -77,7 +78,8 @@ public abstract class SqlOperation extends RdbmsOperation {
 	protected final void compileInternal() {
 		this.jdbcTemplate = new JdbcTemplate(getDataSource());
 		// Validate parameter count
-		int bindVarCount = StringUtils.countOccurrencesOf(getSql(), "?");
+		//int bindVarCount = StringUtils.countOccurrencesOf(getSql(), "?");
+		int bindVarCount = StringUtils.countParameterPlaceholders(getSql(), '?', '\'');
 		if (bindVarCount != getDeclaredParameters().size())
 			throw new InvalidDataAccessApiUsageException("SQL '" + getSql() + "' requires " + bindVarCount + 
 				" bind variables, but " + getDeclaredParameters().size() + " variables were declared for this object");

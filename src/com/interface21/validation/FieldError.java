@@ -3,7 +3,7 @@ package com.interface21.validation;
 /**
  * Encapsulates an field error, i.e. a reason for rejecting a specific field value.
  * @author Rod Johnson, Juergen Hoeller, Tony Falabella
- * @version
+ * @version 1.0
  */
 public class FieldError extends ObjectError {
 	

@@ -30,7 +30,7 @@ public interface RowCallbackHandler {
 	* a trivial implementation might simply count rows, while another
 	* implementation might build an XML document.
 	* @param ResultSet
-	* @throw SQLException if a SQLException is encountered getting
+	* @throws SQLException if a SQLException is encountered getting
 	* column values (that is, there's no need to catch SQLException)
 	*/
 	void processRow(ResultSet rs) throws SQLException; 

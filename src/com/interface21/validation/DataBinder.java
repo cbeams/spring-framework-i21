@@ -17,7 +17,7 @@ import com.interface21.util.ObjectArrayUtils;
  * Slightly unusual, as it _is_ an exception
  * Supports property change listeners and vetoable change listeners
  * @author Rod Johnson
- * @version
+ * @version 1.0
  */
 public class DataBinder extends BindException {
 
