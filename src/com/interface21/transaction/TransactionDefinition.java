@@ -9,7 +9,7 @@ import java.sql.Connection;
  * @author Juergen Hoeller
  * @since 08.05.2003
  * @see com.interface21.transaction.support.DefaultTransactionDefinition
- * @see com.interface21.aop.interceptor.transaction.TransactionAttribute
+ * @see com.interface21.transaction.interceptor.TransactionAttribute
  */
 public interface TransactionDefinition {
 

@@ -39,7 +39,7 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * @author Juergen Hoeller
  * @since 03.06.2003
  * @see PersistenceManagerFactoryUtils#getPersistenceManager
- * @see PersistenceManagerFactoryUtils#closePersistenceManager
+ * @see PersistenceManagerFactoryUtils#closePersistenceManagerIfNecessary
  * @see JdoTemplate#execute
  * @see com.interface21.orm.hibernate.HibernateTransactionManager
  */
@@ -86,16 +86,20 @@ public class JdoTransactionManager extends AbstractPlatformTransactionManager im
 
 	protected Object doGetTransaction() throws CannotCreateTransactionException, TransactionException {
 		if (PersistenceManagerFactoryUtils.getThreadObjectManager().hasThreadObject(this.persistenceManagerFactory)) {
-			return PersistenceManagerFactoryUtils.getThreadObjectManager().getThreadObject(this.persistenceManagerFactory);
+			logger.debug("Found thread-bound PersistenceManager for JDO transaction");
+			PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) PersistenceManagerFactoryUtils.getThreadObjectManager().getThreadObject(this.persistenceManagerFactory);
+			return new JdoTransactionObject(pmHolder, false);
 		}
 		else {
-			PersistenceManager pm = PersistenceManagerFactoryUtils.getPersistenceManager(this.persistenceManagerFactory);
-			return new PersistenceManagerHolder(pm);
+			logger.debug("Using new PersistenceManager for JDO transaction");
+			PersistenceManager pm = PersistenceManagerFactoryUtils.getPersistenceManager(this.persistenceManagerFactory, true);
+			return new JdoTransactionObject(new PersistenceManagerHolder(pm), true);
 		}
 	}
 
 	protected boolean isExistingTransaction(Object transaction) throws TransactionException {
-		return PersistenceManagerFactoryUtils.getThreadObjectManager().hasThreadObject(this.persistenceManagerFactory);
+		JdoTransactionObject txObject = (JdoTransactionObject) transaction;
+		return txObject.getPersistenceManagerHolder().getPersistenceManager().currentTransaction().isActive();
 	}
 
 	protected void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException {
@@ -105,10 +109,14 @@ public class JdoTransactionManager extends AbstractPlatformTransactionManager im
 		if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
 			throw new InvalidTimeoutException("JdoTransactionManager does not support timeouts");
 		}
-		PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) transaction;
+		JdoTransactionObject txObject = (JdoTransactionObject) transaction;
+		logger.debug("Beginning JDO transaction");
 		try {
-			pmHolder.getPersistenceManager().currentTransaction().begin();
-			PersistenceManagerFactoryUtils.getThreadObjectManager().bindThreadObject(this.persistenceManagerFactory, pmHolder);
+			txObject.getPersistenceManagerHolder().getPersistenceManager().currentTransaction().begin();
+			if (txObject.isNewPersistenceManagerHolder()) {
+				PersistenceManagerFactoryUtils.getThreadObjectManager().bindThreadObject(
+						this.persistenceManagerFactory, txObject.getPersistenceManagerHolder());
+			}
 		}
 		catch (JDOException ex) {
 			throw new CannotCreateTransactionException("Cannot create JDO transaction", ex);
@@ -116,53 +124,59 @@ public class JdoTransactionManager extends AbstractPlatformTransactionManager im
 	}
 
 	protected void doCommit(TransactionStatus status) throws TransactionException {
-		PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) status.getTransaction();
-		if (pmHolder.isRollbackOnly()) {
+		JdoTransactionObject txObject = (JdoTransactionObject) status.getTransaction();
+		if (txObject.getPersistenceManagerHolder().isRollbackOnly()) {
 			// nested JDO transaction demanded rollback-only
 			doRollback(status);
 		}
 		else {
 			logger.debug("Committing JDO transaction");
 			try {
-				pmHolder.getPersistenceManager().currentTransaction().commit();
+				txObject.getPersistenceManagerHolder().getPersistenceManager().currentTransaction().commit();
 			}
 			catch (JDOException ex) {
 				throw new TransactionSystemException("Cannot commit JDO transaction", ex);
 			}
 			finally {
-				closePersistenceManager(pmHolder);
+				closePersistenceManager(txObject);
 			}
 		}
 	}
 
 	protected void doRollback(TransactionStatus status) throws TransactionException {
-		PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) status.getTransaction();
+		JdoTransactionObject txObject = (JdoTransactionObject) status.getTransaction();
 		logger.debug("Rolling back JDO transaction");
 		try {
-			pmHolder.getPersistenceManager().currentTransaction().rollback();
+			txObject.getPersistenceManagerHolder().getPersistenceManager().currentTransaction().rollback();
 		}
 		catch (JDOException ex) {
 			throw new TransactionSystemException("Cannot rollback JDO transaction", ex);
 		}
 		finally {
-			closePersistenceManager(pmHolder);
+			closePersistenceManager(txObject);
 		}
 	}
 
 	protected void doSetRollbackOnly(TransactionStatus status) throws TransactionException {
-		PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) status.getTransaction();
+		JdoTransactionObject txObject = (JdoTransactionObject) status.getTransaction();
 		logger.debug("Setting JDO transaction rollback-only");
-		pmHolder.setRollbackOnly();
+		txObject.getPersistenceManagerHolder().setRollbackOnly();
 	}
 
-	private void closePersistenceManager(PersistenceManagerHolder pmHolder) {
-		PersistenceManagerFactoryUtils.getThreadObjectManager().removeThreadObject(this.persistenceManagerFactory);
-		try {
-			PersistenceManagerFactoryUtils.closePersistenceManager(pmHolder.getPersistenceManager(), this.persistenceManagerFactory);
+	private void closePersistenceManager(JdoTransactionObject txObject) {
+		if (txObject.isNewPersistenceManagerHolder()) {
+			PersistenceManagerFactoryUtils.getThreadObjectManager().removeThreadObject(this.persistenceManagerFactory);
+			try {
+				PersistenceManagerFactoryUtils.closePersistenceManagerIfNecessary(
+				    txObject.getPersistenceManagerHolder().getPersistenceManager(), this.persistenceManagerFactory);
+			}
+			catch (CleanupFailureDataAccessException ex) {
+				// just log it, to keep a transaction-related exception
+				logger.error("Cannot close JDO PersistenceManager after transaction", ex);
+			}
 		}
-		catch (CleanupFailureDataAccessException ex) {
-			// just log it, to keep a transaction-related exception
-			logger.error("Cannot close JDO PersistenceManager after transaction", ex);
+		else {
+			logger.debug("Not closing pre-bound JDO PersistenceManager after transaction");
 		}
 	}
 

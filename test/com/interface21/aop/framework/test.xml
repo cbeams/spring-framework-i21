@@ -17,7 +17,7 @@
 		<property name="target"><ref bean="test"/></property>
 	</bean>
 	
-	<bean id="debugInterceptor" class="com.interface21.aop.interceptor.misc.DebugInterceptor">	
+	<bean id="debugInterceptor" class="com.interface21.aop.interceptor.DebugInterceptor">
 	</bean>
 	
 	<bean id="test1" 
@@ -132,7 +132,7 @@
 		Global debug interceptor
 	-->
 	<bean id="g_debug"
-		class="com.interface21.aop.interceptor.misc.DebugInterceptor">
+		class="com.interface21.aop.interceptor.DebugInterceptor">
 	</bean>
 	
 	<!--

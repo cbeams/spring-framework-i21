@@ -11,7 +11,7 @@ import com.interface21.transaction.TransactionDefinition;
  * @author Juergen Hoeller
  * @since 08.05.2003
  * @see com.interface21.transaction.support.TransactionTemplate
- * @see com.interface21.aop.interceptor.transaction.DefaultTransactionAttribute
+ * @see com.interface21.transaction.interceptor.DefaultTransactionAttribute
  */
 public class DefaultTransactionDefinition implements TransactionDefinition {
 

@@ -60,7 +60,7 @@ public class HibernateTemplate implements InitializingBean {
 
 	private SessionFactory sessionFactory;
 
-	private boolean forceFlush;
+	private boolean forceFlush = false;
 
 	/**
 	 * Create a new HibernateTemplate instance.
@@ -156,7 +156,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * @see com.interface21.transaction
 	 */
 	public Object execute(HibernateCallback action) throws DataAccessException, RuntimeException {
-		Session session = SessionFactoryUtils.getSession(this.sessionFactory);
+		Session session = SessionFactoryUtils.getSession(this.sessionFactory, true);
 		try {
 			Object result = action.doInHibernate(session);
 			if (this.forceFlush || !SessionFactoryUtils.isSessionBoundToThread(session, this.sessionFactory)) {

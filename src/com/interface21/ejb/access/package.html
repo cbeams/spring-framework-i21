@@ -1,7 +1,8 @@
 <body>
 
 This package contains classes that allow easy access to EJBs.
-In particular, the classes in this package allow 
+The basis are AOP interceptors run before and after the EJB invocation.
+In particular, the classes in this package allow
 transparent access to stateless session beans (SLSBs)
 with local interfaces, avoiding the need for application
 code using them to use EJB-specific APIs and JNDI lookups,
@@ -20,10 +21,5 @@ by Rod Johnson (Wrox, 2002).
 <p>However, the implementation and naming of classes in this package has changed.
 It now uses FactoryBeans and AOP, rather than the custom bean definitions described in
 <i>Expert One-on-One J2EE</i>.
-
-<p>
-For EJB proxying with control over the AOP interceptors run before and after the EJB
-invocation, see the
-com.interface21.aop.interceptor.client.ejb package.
 
 </body>

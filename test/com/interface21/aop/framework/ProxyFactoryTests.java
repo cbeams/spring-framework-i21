@@ -10,8 +10,8 @@ import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
-import com.interface21.aop.interceptor.misc.AbstractQaInterceptor;
-import com.interface21.aop.interceptor.misc.DebugInterceptor;
+import com.interface21.aop.interceptor.AbstractQaInterceptor;
+import com.interface21.aop.interceptor.DebugInterceptor;
 import com.interface21.beans.IOther;
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;

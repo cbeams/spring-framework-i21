@@ -6,7 +6,6 @@
 package com.interface21.ejb.access;
 
 import com.interface21.aop.framework.ProxyFactory;
-import com.interface21.aop.interceptor.client.ejb.LocalSlsbInvokerInterceptor;
 import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.BeanFactory;

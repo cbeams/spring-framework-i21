@@ -16,7 +16,7 @@ import org.aopalliance.AttributeRegistry;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
-import com.interface21.aop.interceptor.misc.DebugInterceptor;
+import com.interface21.aop.interceptor.DebugInterceptor;
 import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;

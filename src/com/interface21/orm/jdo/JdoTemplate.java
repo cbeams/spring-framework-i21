@@ -109,7 +109,7 @@ public class JdoTemplate implements InitializingBean {
 	 * @see com.interface21.transaction
 	 */
 	public Object execute(JdoCallback action) throws DataAccessException, RuntimeException {
-		PersistenceManager pm = PersistenceManagerFactoryUtils.getPersistenceManager(this.persistenceManagerFactory);
+		PersistenceManager pm = PersistenceManagerFactoryUtils.getPersistenceManager(this.persistenceManagerFactory, true);
 		try {
 			return action.doInJdo(pm);
 		}
@@ -127,7 +127,7 @@ public class JdoTemplate implements InitializingBean {
 			throw ex;
 		}
 		finally {
-			PersistenceManagerFactoryUtils.closePersistenceManager(pm, this.persistenceManagerFactory);
+			PersistenceManagerFactoryUtils.closePersistenceManagerIfNecessary(pm, this.persistenceManagerFactory);
 		}
 	}
 

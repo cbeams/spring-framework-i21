@@ -112,18 +112,24 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Get a Hibernate session via the given factory.
-	 * Is aware of a respective session bound to the current thread,
+	 * Get a Hibernate Session for the given factory.
+	 * Is aware of a respective Session bound to the current thread,
 	 * for example when using HibernateTransactionManager.
+	 * Will create a new Session else, if allowCreate is true.
 	 * @param sessionFactory Hibernate SessionFactory to create the session with
+	 * @param allowCreate if a new Session should be created if no thread-bound found
 	 * @return the Hibernate Session
 	 * @throws DataAccessResourceFailureException if the Session couldn't be created
+	 * @throws IllegalStateException if no thread-bound Session found and allowCreate false
 	 */
-	public static Session getSession(SessionFactory sessionFactory)
-	    throws DataAccessResourceFailureException {
+	public static Session getSession(SessionFactory sessionFactory, boolean allowCreate)
+	    throws DataAccessResourceFailureException, IllegalStateException {
 		SessionHolder holder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
 		if (holder != null) {
 			return holder.getSession();
+		}
+		if (!allowCreate) {
+			throw new IllegalStateException("Not allowed to create new Session");
 		}
 		try {
 			logger.debug("Opening Hibernate session");
@@ -169,7 +175,7 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Close the given session, created via the given factory,
+	 * Close the given Session, created via the given factory,
 	 * if it isn't bound to the thread.
 	 * @param session Session to close
 	 * @param sessionFactory Hibernate SessionFactory that the Session was created with

@@ -16,7 +16,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.CleanupFailureDataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
-import com.interface21.orm.hibernate.SessionFactoryUtils;
 import com.interface21.util.ThreadObjectManager;
 
 /**
@@ -28,7 +27,7 @@ import com.interface21.util.ThreadObjectManager;
  */
 public abstract class PersistenceManagerFactoryUtils {
 
-	private static final Log logger = LogFactory.getLog(SessionFactoryUtils.class);
+	private static final Log logger = LogFactory.getLog(PersistenceManagerFactoryUtils.class);
 
 	/**
 	 * Per-thread mappings: PersistenceManagerFactory -> PersistenceManagerHolder
@@ -101,15 +100,21 @@ public abstract class PersistenceManagerFactoryUtils {
 	 * Get a JDO PersistenceManager via the given factory.
 	 * Is aware of a respective PersistenceManager bound to the current thread,
 	 * for example when using JdoTransactionManager.
+	 * Will create a new PersistenceManager else, if allowCreate is true.
 	 * @param pmf PersistenceManagerFactory to create the session with
+	 * @param allowCreate if a new PersistenceManager should be created if no thread-bound found
 	 * @return the PersistenceManager
 	 * @throws DataAccessResourceFailureException if the PersistenceManager couldn't be created
+	 * @throws IllegalStateException if no thread-bound PersistenceManager found and allowCreate false
 	 */
-	public static PersistenceManager getPersistenceManager(PersistenceManagerFactory pmf)
+	public static PersistenceManager getPersistenceManager(PersistenceManagerFactory pmf, boolean allowCreate)
 	    throws DataAccessResourceFailureException {
 		PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) threadObjectManager.getThreadObject(pmf);
 		if (pmHolder != null) {
 			return pmHolder.getPersistenceManager();
+		}
+		if (!allowCreate) {
+			throw new IllegalStateException("Not allowed to create new PersistenceManager");
 		}
 		logger.debug("Opening JDO PersistenceManager");
 		try {
@@ -127,7 +132,7 @@ public abstract class PersistenceManagerFactoryUtils {
 	 * @param pmf PersistenceManagerFactory that the PersistenceManager was created with
 	 * @throws DataAccessResourceFailureException if the PersistenceManager couldn't be closed
 	 */
-	public static void closePersistenceManager(PersistenceManager pm, PersistenceManagerFactory pmf)
+	public static void closePersistenceManagerIfNecessary(PersistenceManager pm, PersistenceManagerFactory pmf)
 	    throws CleanupFailureDataAccessException {
 		if (pm == null || isPersistenceManagerBoundToThread(pm, pmf)) {
 			return;

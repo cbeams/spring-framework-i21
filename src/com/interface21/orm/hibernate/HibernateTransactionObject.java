@@ -17,18 +17,25 @@ public class HibernateTransactionObject {
 
 	private SessionHolder sessionHolder;
 
+	private boolean newSessionHolder;
+
 	private Integer previousIsolationLevel;
 
-	protected HibernateTransactionObject(SessionHolder sessionHolder) {
+	protected HibernateTransactionObject(SessionHolder sessionHolder, boolean newSessionHolder) {
 		this.sessionHolder = sessionHolder;
+		this.newSessionHolder = newSessionHolder;
 	}
 
-	protected void setPreviousIsolationLevel(Integer previousIsolationLevel) {
-		this.previousIsolationLevel = previousIsolationLevel;
+	public boolean isNewSessionHolder() {
+		return newSessionHolder;
 	}
 
 	public SessionHolder getSessionHolder() {
 		return sessionHolder;
+	}
+
+	protected void setPreviousIsolationLevel(Integer previousIsolationLevel) {
+		this.previousIsolationLevel = previousIsolationLevel;
 	}
 
 	public Integer getPreviousIsolationLevel() {

@@ -131,17 +131,20 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 
 	protected Object doGetTransaction() throws CannotCreateTransactionException, TransactionException {
 		if (SessionFactoryUtils.getThreadObjectManager().hasThreadObject(this.sessionFactory)) {
+			logger.debug("Found thread-bound Session for Hibernate transaction");
 			SessionHolder sessionHolder = (SessionHolder) SessionFactoryUtils.getThreadObjectManager().getThreadObject(this.sessionFactory);
-			return new HibernateTransactionObject(sessionHolder);
+			return new HibernateTransactionObject(sessionHolder, false);
 		}
 		else {
-			SessionHolder sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory));
-			return new HibernateTransactionObject(sessionHolder);
+			logger.debug("Using new Session for Hibernate transaction");
+			SessionHolder sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory, true));
+			return new HibernateTransactionObject(sessionHolder, true);
 		}
 	}
 
 	protected boolean isExistingTransaction(Object transaction) throws TransactionException {
-		return SessionFactoryUtils.getThreadObjectManager().hasThreadObject(this.sessionFactory);
+		HibernateTransactionObject txObject = (HibernateTransactionObject) transaction;
+		return (txObject.getSessionHolder().getTransaction() != null);
 	}
 
 	protected void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException {
@@ -157,10 +160,12 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 				txObject.setPreviousIsolationLevel(new Integer(session.connection().getTransactionIsolation()));
 				session.connection().setTransactionIsolation(isolationLevel);
 			}
-			// add the Hibernate Transaction to the session holder
+			// add the Hibernate transaction to the session holder
 			txObject.getSessionHolder().setTransaction(session.beginTransaction());
-			// register the session holder
-			SessionFactoryUtils.getThreadObjectManager().bindThreadObject(this.sessionFactory, txObject.getSessionHolder());
+			if (txObject.isNewSessionHolder()) {
+				// bind the session holder to the thread
+				SessionFactoryUtils.getThreadObjectManager().bindThreadObject(this.sessionFactory, txObject.getSessionHolder());
+			}
 			// register the Hibernate Session's JDBC Connection for the DataSource, if set
 			if (this.dataSource != null) {
 				ConnectionHolder conHolder = new ConnectionHolder(session.connection());
@@ -226,8 +231,10 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	}
 
 	private void closeSession(HibernateTransactionObject txObject) {
-		// remove the session holder from the thread
-		SessionFactoryUtils.getThreadObjectManager().removeThreadObject(this.sessionFactory);
+		if (txObject.isNewSessionHolder()) {
+			// remove the session holder from the thread
+			SessionFactoryUtils.getThreadObjectManager().removeThreadObject(this.sessionFactory);
+		}
 		// remove the JDBC connection holder from the thread, if set
 		if (this.dataSource != null) {
 			DataSourceUtils.getThreadObjectManager().removeThreadObject(this.dataSource);
@@ -247,12 +254,17 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			logger.warn("Cannot reset transaction isolation", ex);
 		}
 		finally {
-			try {
-				SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory);
+			if (txObject.isNewSessionHolder()) {
+				try {
+					SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory);
+				}
+				catch (CleanupFailureDataAccessException ex) {
+					// just log it, to keep a transaction-related exception
+					logger.error("Cannot close Hibernate Session after transaction", ex);
+				}
 			}
-			catch (CleanupFailureDataAccessException ex) {
-				// just log it, to keep a transaction-related exception
-				logger.error("Cannot close Hibernate session after transaction", ex);
+			else {
+				logger.debug("Not closing pre-bound Hibernate Session after transaction");
 			}
 		}
 	}
