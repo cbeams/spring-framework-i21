@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+	Definitions for ticketing controller servlet.
+
+	Each <bean> element in this file defines a Java bean instance,
+	providing the necessary class type and property settings.
+	Properties may be set to references to other beans.
+	Type conversion happens automatically.
+
+	Errors in this file will cause the application to fail to start.
+	Check the log file (the location is defined in the log4j.properties file)
+	for information in this case. Error messages usually display pinpoint the
+	problem precisely.
+
+	Certain bean names have special significance: e.g. "messageSource",
+	which defines an internationalizable repository for error and
+	other message, and "viewResolver", which defines where views
+	are defined.
+
+	See also: /WEB-INF/classes/views.properties, which
+	defines the views used by this application. Views are
+	also defined as Java beans, using the same underlying implementation.
+-->
+
+<beans>
+
+	<!-- ===========================================================-->
+	<!-- Message source												-->
+	<!-- ===========================================================-->
+
+
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">
+		<property name="basename">
+			<value>ticket-servlet-messages</value>
+		</property>
+	</bean>
+
+
+
+	<!-- ===========================================================-->
+	<!-- Application beans				-->
+	<!-- ===========================================================-->
+
+	<!-- ===========================================================-->
+	<!-- View resolver. Required by web framework.					-->
+	<!-- ===========================================================-->
+	<bean id="viewResolver" class="com.interface21.web.servlet.view.ResourceBundleViewResolver">
+		<!-- Development only: REPLACE BY true OR COMMENT OUT IN PRODUCTION OR
+		     performance will be severely impacted. **************
+		-->
+		<property name="cache">
+			<value>true</value>
+		</property>
+
+
+		<!-- We can use this to avoid conflict with other command servlets -->
+		<property name="basename">
+			<value>views</value>
+		</property>
+
+	</bean>
+
+
+	<!-- ===========================================================-->
+	<!-- Listeners to this servlet only								-->
+	<!-- ===========================================================-->
+
+	<bean id="consoleListener" class="com.interface21.context.support.ConsoleListener"/>
+
+
+	<bean id="a.urlMap" class="com.interface21.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<value>
+				welcome.html=mainController
+				/**/pathmatchingTest.html=mainController
+				/**/pathmatching??.html=mainController
+				/**/path??matching.html=mainController
+				/**/??path??matching.html=mainController
+				/**/*.jsp=mainController
+				/administrator/**/pathmatching.html=mainController
+				/administrator/**/testlast*=mainController
+				/administrator/another/bla.xml=mainController
+				/administrator/testing/longer/**/**/**/**/**=mainController
+				/administrator/testing/longer2/**/**/bla/**=mainController
+				/*test*.jpeg=mainController
+				/*/test.jpeg=mainController
+				/outofpattern*yeah=mainController
+				/anotherTest*=mainController
+				/stillAnotherTestYeah=mainController
+				/shortpattern/testing=mainController
+				/show123.html=mainController
+				/sho*=mainController
+				/bookseats.html=mainController
+				/reservation.html=mainController
+				/payment.html=mainController
+				/confirmation.html=mainController
+				*=starController
+			</value>
+		</property>
+	</bean>
+
+
+
+	<!-- ===========================================================-->
+	<!-- URL mappings for web framework.							-->
+	<!-- ===========================================================-->
+	<!--
+		These bean definitions have a special meaning to the default
+		com.interface21..web.servlet.UrlHandlerMapping
+		In the following mappings, the bean name is the URL that will be
+		mapped on the bean, which is a request controller.
+		This is not the only way to map requests onto controllers,
+		but it's the simplest and usually the best.
+	-->
+
+
+	<bean id="mainController"
+		class="java.lang.Object">
+	</bean>
+
+	<bean id="starController"
+		class="java.lang.Object">
+	</bean>
+
+	<bean id="anotherController"
+		class="java.lang.Object">
+	</bean>
+
+
+</beans>

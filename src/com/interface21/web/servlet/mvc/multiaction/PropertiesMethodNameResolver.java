@@ -12,6 +12,7 @@
 package com.interface21.web.servlet.mvc.multiaction;
 
 import java.util.Properties;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.web.util.WebUtils;
+import com.interface21.util.PathMatcher;
 
 /**
  * The most sophisticated and useful framework implementation of 
@@ -34,7 +36,13 @@ import com.interface21.web.util.WebUtils;
  * Note that method overloading isn't allowed, so there's no
  * need to specify arguments.
  *
+ * <p>Supports direct matches, e.g. a registered "/test" matches "/test",
+ * and a various Ant-style pattern matches, e.g. a registered "/t*" matches
+ * both "/test" and "/team". For details, see the PathMatcher class.
+ *
  * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @see com.interface21.util.PathMatcher
  */
 public class PropertiesMethodNameResolver implements MethodNameResolver, InitializingBean {
 	
@@ -42,25 +50,7 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 
 	private boolean alwaysUseFullPath = false;
 
-	/** Properties defining the mappings */
 	private Properties mappings;
-
-	/**
-	 * Create a new PropertiesMethodNameResolver. The mappings
-	 * property must be set before use.
-	 */
-	public PropertiesMethodNameResolver() {
-	}
-	
-	/**
-	 * Create a new PropertiesMethodNameResolver, fully configuring this
-	 * class by passing in properties.
-	 * @param mappings property mapping
-	 */
-	public PropertiesMethodNameResolver(Properties mappings) {
-		this.mappings = mappings;
-		afterPropertiesSet();
-	}
 
 	/**
 	 * Set if URL lookup should always use full path within current servlet
@@ -68,14 +58,14 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 	 * if applicable (i.e. in the case of a ".../*" servlet mapping in web.xml).
 	 * Default is false.
 	 */
-	public void setAlwaysUseFullPath(boolean alwaysUseFullPath) {
+	public final void setAlwaysUseFullPath(boolean alwaysUseFullPath) {
 		this.alwaysUseFullPath = alwaysUseFullPath;
 	}
 
 	/**
-	 * Set the mapping properties configuring this class.
+	 * Set the mapping properties for this resolver.
 	 */
-	public void setMappings(Properties mappings) {
+	public final void setMappings(Properties mappings) {
 		this.mappings = mappings;
 	}
 	
@@ -86,12 +76,18 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 	}
 
 	public String getHandlerMethodName(HttpServletRequest request) throws NoSuchRequestHandlingMethodException {
-		String lookupPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
-		String name = this.mappings.getProperty(lookupPath);
+		String urlPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
+		String name = this.mappings.getProperty(urlPath);
 		if (name == null) {
+			for (Iterator it = this.mappings.keySet().iterator(); it.hasNext();) {
+				String registeredPath = (String) it.next();
+				if (PathMatcher.match(registeredPath, urlPath)) {
+					return (String) this.mappings.get(registeredPath);
+				}
+			}
 			throw new NoSuchRequestHandlingMethodException(request);
 		}
-		logger.debug("Returning MultiActionController method name '" + name + "' for lookup path '" + lookupPath + "'");
+		logger.debug("Returning MultiActionController method name '" + name + "' for lookup path '" + urlPath + "'");
 		return name;
 	}
 

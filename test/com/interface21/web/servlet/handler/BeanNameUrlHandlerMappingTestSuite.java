@@ -11,28 +11,16 @@ import com.interface21.web.servlet.HandlerExecutionChain;
 import com.interface21.web.servlet.HandlerMapping;
 
 /**
- *
  * @author Rod Johnson
- * @version $RevisionId$
  */
 public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 
-	/** We use ticket WAR root for file structure.
-	 * We don't attempt to read web.xml.
-	 */
-	//public static final String WAR_ROOT = "d:\\book\\project\\i21-framework\\test\\com\\interface21\\framework\\web";
-	
-	public static final String CONF = "/com/interface21/web/servlet/handler/maps.xml";
+	public static final String CONF = "/com/interface21/web/servlet/handler/map1.xml";
 	
 	private HandlerMapping hm;
 	
 	private ApplicationContext ac;
 
-	//ServletConfig servletConfig;
-	
-	//DispatcherServlet controllerServlet;
-
-	/** Creates new SeatingPlanTest */
 	public BeanNameUrlHandlerMappingTestSuite(String name) {
 		super(name);
 	}
@@ -43,9 +31,6 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 		hm.setApplicationContext(ac);
 	}
 	
-	public void tearDown() {
-	}
-
 	public void testRequestsWithHandlers() throws Exception {
 		Object bean = ac.getBean("godCtrl");
 

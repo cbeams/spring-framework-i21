@@ -1,27 +1,30 @@
 package com.interface21.web.servlet.handler;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.interface21.web.util.WebUtils;
-import com.interface21.context.ApplicationContextException;
 import com.interface21.beans.BeansException;
+import com.interface21.context.ApplicationContextException;
+import com.interface21.util.PathMatcher;
+import com.interface21.web.util.WebUtils;
 
 /**
  * Abstract base class for url-mapped HandlerMapping implementations.
  * Provides infrastructure for mapping handlers to URLs and configurable
  * URL lookup. For information on the latter, see alwaysUseFullPath property.
  *
- * <p>Supports direct matches (given "/test" -> registered "/test")
- * and "*" matches (given "/test" -> registered "/t*").
+ * <p>Supports direct matches, e.g. a registered "/test" matches "/test",
+ * and a various Ant-style pattern matches, e.g. a registered "/t*" matches
+ * both "/test" and "/team". For details, see the PathMatcher class.
  *
  * @author Juergen Hoeller
  * @since 16.04.2003
  * @see #setAlwaysUseFullPath
  * @see #setDefaultHandler
+ * @see com.interface21.util.PathMatcher
  */
 public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
@@ -35,7 +38,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 	 * if applicable (i.e. in the case of a ".../*" servlet mapping in web.xml).
 	 * Default is false.
 	 */
-	public void setAlwaysUseFullPath(boolean alwaysUseFullPath) {
+	public final void setAlwaysUseFullPath(boolean alwaysUseFullPath) {
 		this.alwaysUseFullPath = alwaysUseFullPath;
 	}
 
@@ -44,30 +47,40 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 	 * @param urlPath URL the bean is mapped to
 	 * @param handler the handler instance
 	 */
-	protected void registerHandler(String urlPath, Object handler) {
+	protected final void registerHandler(String urlPath, Object handler) {
 		this.handlerMap.put(urlPath, handler);
 		logger.info("Mapped URL path [" + urlPath + "] onto handler [" + handler + "]");
 	}
 
 	/**
-	 * Lookup a handler instance for the given URL path.
-	 * Supports direct matches (given "/test" -> registered "/test")
-	 * and "*" matches (given "/test" -> registered "/t*").
+	 * Lookup a handler for the URL path of the given request.
+	 * @param request current HTTP request
+	 * @return the looked up handler instance, or null
+	 */
+	protected Object getHandlerInternal(HttpServletRequest request) {
+		String lookupPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
+		logger.debug("Looking up handler for: " + lookupPath);
+		return lookupHandler(lookupPath);
+	}
+
+	/**
+	 * Look up a handler instance for the given URL path.
+	 * <p>Supports direct matches, e.g. a registered "/test" matches "/test",
+	 * and a various Ant-style pattern matches, e.g. a registered "/t*" matches
+	 * both "/test" and "/team". For details, see the PathMatcher class.
 	 * @param urlPath URL the bean is mapped to
 	 * @return the associated handler instance, or null if not found
+	 * @see com.interface21.util.PathMatcher
 	 */
-	protected Object lookupHandler(String urlPath) {
+	protected final Object lookupHandler(String urlPath) {
 		Object handler = this.handlerMap.get(urlPath);
 		if (handler != null) {
 			return handler;
 		}
-		// check for appropriate * mapping
 		for (Iterator it = this.handlerMap.keySet().iterator(); it.hasNext();) {
-			String path = (String) it.next();
-			if (path.endsWith("*") && urlPath.length() >= path.length()-1) {
-				if (path.substring(0, path.length()-1).equals(urlPath.substring(0, path.length()-1))) {
-					return this.handlerMap.get(path);
-				}
+			String registeredPath = (String) it.next();
+			if (PathMatcher.match(registeredPath, urlPath)) {
+				return this.handlerMap.get(registeredPath);
 			}
 		}
 		// no match found
@@ -82,7 +95,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 	 * @return the initialized handler instance
 	 * @throws ApplicationContextException if the bean wasn't found in the context
 	 */
-	protected Object initHandler(String beanName, String urlPath) throws ApplicationContextException {
+	protected final Object initHandler(String beanName, String urlPath) throws ApplicationContextException {
 		try {
 			Object handler = getApplicationContext().getBean(beanName);
 			logger.debug("Initializing handler [" + handler + "] for URL path [" + urlPath + "]");
@@ -96,17 +109,6 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 			// we should have got the name from the bean factory.
 			throw new ApplicationContextException("Error initializing handler bean for URL mapping '" + beanName + "': " + ex.getMessage(), ex);
 		}
-	}
-
-	/**
-	 * Lookup a handler for the URL path of the given request.
-	 * @param request current HTTP request
-	 * @return the looked up handler instance, or null
-	 */
-	protected Object getHandlerInternal(HttpServletRequest request) {
-		String lookupPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
-		logger.debug("Looking up handler for: " + lookupPath);
-		return lookupHandler(lookupPath);
 	}
 
 }
