@@ -26,16 +26,20 @@ import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- * Form controller that autopopulates a form bean from the request, using a new bean
+ * Form controller that autopopulates a form bean from the request, using a new
  * bean instance per request. To achieve population of the same bean instance,
  * "session form" can be activated. This is the common base class for both framework
- * subclasses like AbstractWizardFormController and application controllers.
+ * subclasses like SimpleFormController and AbstractWizardFormController, and
+ * custom application controllers.
  *
  * <p>Subclasses need to override showForm to prepare the form view, and processSubmit
  * to handle submit requests. For the latter, binding errors like type mismatches will
  * be reported via the given "errors" binder. For additional custom form validation,
  * a validator (property inherited from BaseCommandController) can be used, reporting
  * via the same "errors" instance.
+ *
+ * <p>Note: If you decide to have "formView" and "successView" properties specifying
+ * view names instead of programmatic handling, consider using SimpleFormController.
  *
  * <p>This approach is similar to the Struts approach, with the main difference that
  * you can use any beans, with no need to derive from a form base class. Type
@@ -62,6 +66,7 @@ import com.interface21.web.servlet.ModelAndView;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @see SimpleFormController
  * @see AbstractWizardFormController
  * @see #setSessionForm
  * @see #showForm
@@ -80,12 +85,14 @@ public abstract class AbstractFormController extends BaseCommandController {
 
 	/**
 	 * Create a new AbstractFormController.
-	 * <p>Subclasses should set the following properties, either in the
-	 * constructor or via a BeanFactory: commandClass, beanName, sessionForm.
+	 * <p>Subclasses should set the following properties, either in
+	 * the constructor or via a BeanFactory: beanName, commandClass,
+	 * bindOnNewForm, sessionForm.
 	 * Note that commandClass doesn't need to be set when overriding
-	 * formBackingObject, as this determines the class anyway.
-	 * @see #setCommandClass
+	 * formBackingObject, as the latter determines the class anyway.
 	 * @see #setBeanName
+	 * @see #setCommandClass
+	 * @see #setBindOnNewForm
 	 * @see #setSessionForm
 	 */
 	public AbstractFormController() {
@@ -174,8 +181,8 @@ public abstract class AbstractFormController extends BaseCommandController {
 	}
 
 	/**
-	 * Show a new form. Prepares a backing object for the current form and the
-	 * given request, including checking its validity.
+	 * Show a new form. Prepares a backing object for the current form
+	 * and the given request, including checking its validity.
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @return the prepared form view
@@ -216,16 +223,18 @@ public abstract class AbstractFormController extends BaseCommandController {
 
 	/**
 	 * Prepare the form model and view, including reference and error data.
-	 * Can show a configured form page, or to generate a custom (programmatic)
-	 * form view.
-	 * <p>A configuration-based implementation will typically call showForm to prepare
-	 * the form view for a given view name.
+	 * Can show a configured form page, or generate a programmatic form view.
+	 * <p>A typical implementation will call showForm(request,errors,"myView")
+	 * to prepare the form view for a specific view name.
+	 * <p>Note: If you decide to have a "formView" property specifying the
+	 * view name, consider using SimpleFormController.
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param errors binder containing errors
 	 * @return the prepared form view, or null if handled directly
 	 * @throws ServletException in case of invalid state or arguments
 	 * @see #showForm(HttpServletRequest, BindException, String)
+	 * @see SimpleFormController#setFormView
 	 */
 	protected abstract ModelAndView showForm(HttpServletRequest request, HttpServletResponse response,
 	                                         BindException errors) throws ServletException, IOException;
