@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<document>
+
+  <properties>
+    <title>Spring Framework FAQ</title>
+    <author>Luke Taylor</author>
+  </properties>
+
+  <body>
+
+    <section name="Frequently Asked Questions">
+      <p>
+        This document attempts to answer some of the more frequently asked
+        questions regarding various aspects of the Spring Framework.  These questions are
+        typically asked over and over again on the mailing lists. As a
+        courtesy to the developers, we ask that you read this document
+        before posting to the mailing lists.
+      </p>
+      <p>
+        <strong>General</strong>
+      </p>
+      <ol>
+        <li>
+          <a href="#what-is-spring">
+            What is Spring?
+          </a>
+        </li>
+      </ol>
+      
+      <!-- the categories here will probably match the different framework modules -->
+      
+      <p>
+        <strong>More FAQs as they arise :-)</strong>
+      </p>
+
+
+      <section name="General">
+        <dl>
+          <dt>
+            <a name="what-is-spring">
+              What is Spring?
+            </a>
+          </dt>
+          <dd>
+            Please see the
+            <a href="goals.html">Goals</a> and
+            <a
+              href="features.html">Features</a> documents.
+          </dd>
+        </dl>
+      </section>
+      
+      
+
+    </section>
+  </body>
+</document>

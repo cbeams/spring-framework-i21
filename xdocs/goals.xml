@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <author>Luke</author>
+    <title>Spring's Goals</title>
+  </properties>
+
+  <body>
+    <section name="Spring's Goals">
+      <p>
+      Spring's main goal is to provide a framework which simplifies the development of J2EE
+      applications. To achieve this it addresses issues such as:
+        <ul>
+          <li>List of key areas of Spring concern</li>
+        </ul>
+      </p>
+
+    </section>
+  </body>
+</document>

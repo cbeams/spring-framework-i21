@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Finance">
+
+  <title>Spring</title>
+
+  <body>
+   <links>
+      <item name="SF Home Page"               href="http://sf.net/projects/springframework"/>
+   </links>  
+    <menu name="Overview">
+      <item name="Features"                href="/features.html"/>
+      <item name="News and Status"         href="/status.html"/>
+      <item name="FAQ"                     href="/faq.html"/>
+<!--      <item name="Powered By"              href="/powered.html"/>
+      <item name="Tasks"                   href="/tasks.html"/>
+      <item name="Glossary"                href="/glossary.html"/>
+-->      
+      
+    </menu>
+  </body>
+</project>

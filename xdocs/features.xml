@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <author>Luke Taylor</author>
+    <title>Features</title>
+  </properties>
+
+  <body>
+    <section name="Features">
+      <p>
+      <ul>
+        <li>
+         This document should (probably) provide an overview of the problem domains Spring 
+         tackles and a brief explanation of the approach taken in each case and why it is 
+         superior to conventional development practices.
+        </li>
+      </ul>
+      </p>
+    </section>
+  </body>
+</document>

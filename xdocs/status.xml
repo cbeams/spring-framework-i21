@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<document>
+
+  <properties>
+    <title>News and Status</title>
+    <author>Luke</author>
+  </properties>
+
+  <body>
+
+    <section name="News and Status">
+      <p>
+        This document contains the latest news and status regarding the
+        Spring Framework project.
+      </p>
+
+      <subsection name="Current Status">
+        <p>
+         No news yet.
+        </p>
+      </subsection>
+
+    </section>
+
+  </body>
+</document>

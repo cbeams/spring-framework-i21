@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<document>
+
+  <properties>
+    <title>Spring Framework</title>
+    <author email="lukeATmonkeymachine.ltd.uk">Luke</author>
+  </properties>
+
+  <body>
+
+  <section name="Spring">
+    <p>
+      Spring is a framework for developing J2EE applications. It is based on the code published in the book
+      <a href="http://www.wrox.com/books/1861007841.htm"> Expert One-on-One J2EE Design and Development</a> written by
+      Rod Johnson. It includes code for JavaBeans-based configuration management and a JDBC abstraction layer.
+    </p>
+    <p>
+    </p>
+  </section>
+
+<!--
+  <section name="...">
+    <p>
+     ...
+   </p>
+  </section>
+-->
+   </body>
+</document>
