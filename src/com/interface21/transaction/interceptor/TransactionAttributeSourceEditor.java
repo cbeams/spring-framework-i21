@@ -2,37 +2,37 @@
  * The Spring Framework is published under the terms
  * of the Apache Software License.
  */
- 
+
 package com.interface21.transaction.interceptor;
 
 import java.beans.PropertyEditorSupport;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.propertyeditors.PropertiesEditor;
 import com.interface21.transaction.TransactionUsageException;
-import com.interface21.transaction.interceptor.MapTransactionAttributeSource;
-import com.interface21.transaction.interceptor.TransactionAttribute;
-import com.interface21.transaction.interceptor.TransactionAttributeEditor;
 
 /**
- * PropertyEditor implementation. Can convert from Strings to TransactionAttributeSource.
- * Strings are in property syntax, with the form
- * FQN.methodName=&lt;transaction attribute string&gt;
- *
- * <p>For example:
- * com.mycompany.mycode.MyClass.myMethod=PROPAGATION_MANDATORY,ISOLATION_DEFAULT
- * <p>The transaction attribute string must be parseable by the
+ * Property editor that can convert String into TransactionAttributeSource.
+ * The transaction attribute string must be parseable by the
  * TransactionAttributeEditor in this package.
  *
- * TODO address method overloading and * or regexp syntax
+ * <p>Strings are in property syntax, with the form:<br>
+ * <code>FQN.methodName=&lt;transaction attribute string&gt;</code>
+ *
+ * <p>For example:<br>
+ * <code>com.mycompany.mycode.MyClass.myMethod=PROPAGATION_MANDATORY,ISOLATION_DEFAULT</code>
+ *
+ * <p>Note: Will register all overloaded methods for a given name.
+ * Does not support explicit registration of certain overloaded methods.
+ * Supports "xxx*" mappings, e.g. "notify*" for "notify" and "notifyAll".
  *
  * @author Rod Johnson
  * @since 26-Apr-2003
@@ -40,7 +40,7 @@ import com.interface21.transaction.interceptor.TransactionAttributeEditor;
  * @see com.interface21.transaction.interceptor.TransactionAttributeEditor
  */
 public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
-	
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	public void setAsText(String s) throws IllegalArgumentException {
@@ -53,7 +53,7 @@ public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 			PropertiesEditor propertiesEditor = new PropertiesEditor();
 			propertiesEditor.setAsText(s);
 			Properties p = (Properties) propertiesEditor.getValue();
-			
+
 			// Now we have properties, process each one individually
 			Set keys = p.keySet();
 			for (Iterator iter = keys.iterator(); iter.hasNext();) {
@@ -62,10 +62,10 @@ public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 				parseMethodDescriptor(name, value, mtas);
 			}
 		}
-		
+
 		setValue(mtas);
 	}
-	
+
 	/**
 	 * Handle a given property describing one transactional method.
 	 * @param name name of the property. Contains class and method name.
@@ -75,16 +75,16 @@ public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 	 */
 	private void parseMethodDescriptor(String name, String value, MapTransactionAttributeSource tasi) {
 		int lastDotIndex = name.lastIndexOf(".");
-		if (lastDotIndex == -1) 
+		if (lastDotIndex == -1)
 			throw new TransactionUsageException("'" + name + "' is not a valid method name: format is FQN.methodName");
 		String className = name.substring(0, lastDotIndex);
 		String methodName = name.substring(lastDotIndex + 1);
-		logger.debug("Transactional method: " + className + "/" + methodName + 
+		logger.debug("Transactional method: " + className + "/" + methodName +
 				" with transaction attribute string " + value);
-		
+
 		try {
 			Class clazz = Class.forName(className);
-			
+
 			// TODO address method overloading? At present this will
 			// simply match all methods that have the given name.
 			// Consider EJB syntax (int, String) etc.?
@@ -97,7 +97,7 @@ public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 			}
 			if (matchingMethods.isEmpty())
 				throw new TransactionUsageException("Couldn't find method '" + methodName + "' on " + clazz);
-				
+
 			// convert value to a transaction attribute
 			TransactionAttributeEditor pe = newTransactionAttributeEditor();
 			pe.setAsText(value);
@@ -128,11 +128,11 @@ public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 
 	/**
 	 * Getting a TransactionAttributeEditor is in a separate
-	 * protected method to allow for effective unit testing. 
+	 * protected method to allow for effective unit testing.
 	 * @return a new TransactionAttributeEditor instance
 	 */
 	protected TransactionAttributeEditor newTransactionAttributeEditor() {
 		return new TransactionAttributeEditor();
 	}
-	
+
 }
