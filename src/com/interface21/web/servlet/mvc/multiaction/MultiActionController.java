@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpSession;
 
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.bind.ServletRequestDataBinder;
-import com.interface21.web.bind.BindUtils;
 import com.interface21.web.servlet.LastModified;
 import com.interface21.web.servlet.ModelAndView;
 import com.interface21.web.servlet.mvc.Controller;
@@ -88,14 +88,15 @@ public class MultiActionController
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
+
 	/** Methods, keyed by name */
-	private HashMap methodHash;
+	private Map methodHash;
 	
 	/** LastModified methods, keyed by handler method name (without LAST_MODIFIED_SUFFIX) */
-	private HashMap lastModifiedMethodHash;
+	private Map lastModifiedMethodHash;
 	
 	/** Methods, keyed by exception class */
-	private HashMap exceptionHandlerHash;
+	private Map exceptionHandlerHash;
 
 	/** 
 	 * Helper object that knows how to return method names from incoming requests.
@@ -110,6 +111,7 @@ public class MultiActionController
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
+
 	/**
 	 * Constructor for MultiActionController that looks for handler methods
 	 * in the present subclass.
@@ -140,6 +142,7 @@ public class MultiActionController
 	//---------------------------------------------------------------------
 	// Bean properties
 	//---------------------------------------------------------------------
+
 	/**
 	 * Sets the method name resolver used by this class.
 	 * Allows parameterization of mappings.
@@ -236,6 +239,7 @@ public class MultiActionController
 	//---------------------------------------------------------------------
 	// Implementation of LastModified
 	//---------------------------------------------------------------------
+
 	/**
 	 * Try to find an XXXXLastModified method, where XXXX is the name of a handler.
 	 * Return -1, indicating that content must be updated, if there's no such handler.
@@ -271,6 +275,7 @@ public class MultiActionController
 	//---------------------------------------------------------------------
 	// Implementation of Controller
 	//---------------------------------------------------------------------
+
 	/**
 	 * @see com.interface21.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
 	 */
@@ -324,9 +329,7 @@ public class MultiActionController
 			}
 			
 			Object[] parray = params.toArray(new Object[params.size()]);
-			//System.out.println(StringUtils.arrayToDelimitedString(parray, ","));
-			ModelAndView mv = (ModelAndView) m.invoke(this.delegate, parray);
-			return mv;
+			return (ModelAndView) m.invoke(this.delegate, parray);
 		}
 		catch (IllegalAccessException ex) {
 			throw new ServletException("Cannot invoke request handler method [" + m + "]: not accessible", ex);
@@ -334,7 +337,6 @@ public class MultiActionController
 		catch (InvocationTargetException ex) {
 			// This is what we're looking for: the handler method threw an exception
 			Throwable t = ex.getTargetException();
-			
 			return handleException(request, response, t);
 		}
 	}	// invokeNamedMethod
@@ -398,7 +400,8 @@ public class MultiActionController
 	 */
 	protected void bind(ServletRequest request, Object command) throws ServletException {
 		logger.info("Binding request parameters onto command");
-		ServletRequestDataBinder binder = BindUtils.bind(request, command, "command");
+		ServletRequestDataBinder binder = new ServletRequestDataBinder(command, "command");
+		binder.bind(request);
 		binder.closeNoCatch();
 	}
 	
@@ -450,4 +453,4 @@ public class MultiActionController
 		}  
 	}	// invokeExceptionHandler
 	
-}	// class MultiActionController
+}
