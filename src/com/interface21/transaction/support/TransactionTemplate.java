@@ -8,7 +8,7 @@ import com.interface21.util.Constants;
 
 /**
  * Helper class that simplifies programmatic transaction demarcation
- * (via the "execute" method) and exception handling.
+ * and transaction exception handling.
  *
  * <p>The central method is "execute", supporting transactional code implementing
  * the TransactionCallback interface. It handles the transaction lifecycle and
@@ -54,7 +54,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 
 	/**
 	 * Create a new TransactionTemplate instance.
-	 * @param transactionManager transaction manager to be used
+	 * @param transactionManager transaction management strategy to be used
 	 * @see PlatformTransactionManager
 	 */
 	public TransactionTemplate(PlatformTransactionManager transactionManager) {
@@ -62,14 +62,14 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	}
 
 	/**
-	 * Set the transaction manager to be used.
+	 * Set the transaction management strategy to be used.
 	 */
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
 
 	/**
-	 * Return the transaction manager to be used.
+	 * Return the transaction management strategy to be used.
 	 */
 	public PlatformTransactionManager getTransactionManager() {
 		return transactionManager;
@@ -111,17 +111,15 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 
 	/**
 	 * Executes the action specified by the given callback object within a transaction.
-	 * Application exceptions thrown by the callback object get propagated to the caller.
-	 * Allows for returning a result object created within the transaction,
-	 * i.e. a business object or a collection of business objects.
+	 * <p>Allows for returning a result object created within the transaction, i.e.
+	 * a domain object or a collection of domain objects. A RuntimeException thrown
+	 * by the callback is treated as application exception that enforces a rollback.
+	 * An exception gets propagated to the caller of the template.
 	 * @param action callback object that specifies the transactional action
 	 * @return a result object returned by the callback, or null
-	 * @throws TransactionException in case of initialization, rollback,
-	 * or system errors
-	 * @throws RuntimeException in case of application exceptions thrown by
-	 * the callback object
+	 * @throws TransactionException in case of initialization, rollback, or system errors
 	 */
-	public Object execute(TransactionCallback action) throws TransactionException, RuntimeException {
+	public Object execute(TransactionCallback action) throws TransactionException {
 		TransactionStatus status = this.transactionManager.getTransaction(this);
 		try {
 			Object result = action.doInTransaction(status);
@@ -129,10 +127,11 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 			return result;
 		}
 		catch (TransactionException tse) {
+			// transaction management exception -> trying a rollback will not work
 			throw tse;
 		}
 		catch (RuntimeException ex) {
-			// transactional code threw exception
+			// transactional code threw application exception -> rollback
 			this.transactionManager.rollback(status);
 			throw ex;
 		}

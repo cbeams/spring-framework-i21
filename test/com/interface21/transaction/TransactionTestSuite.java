@@ -140,7 +140,7 @@ public class TransactionTestSuite extends TestCase {
 		TransactionTemplate template = new TransactionTemplate(tm);
 		try {
 			template.execute(new TransactionCallbackWithoutResult() {
-				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
 				}
 			});
 			assertTrue("triggered begin", tm.begin);
@@ -158,7 +158,7 @@ public class TransactionTestSuite extends TestCase {
 		TransactionTemplate template = new TransactionTemplate(tm);
 		try {
 			template.execute(new TransactionCallbackWithoutResult() {
-				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					throw new RuntimeException("Some application exception");
 				}
 			});
