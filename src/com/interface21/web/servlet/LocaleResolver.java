@@ -14,9 +14,13 @@ import javax.servlet.http.HttpServletResponse;
  * cookies, etc. The default implementation is AcceptHeaderLocaleResolver,
  * simply using the request's locale provided by the respective HTTP header.
  *
+ * <p>Use RequestContext.getLocale() to retrieve the current locale in
+ * controllers or views, independent of the actual resolution strategy.
+ *
  * @author Juergen Hoeller
  * @since 27.02.2003
  * @see com.interface21.web.servlet.i18n.AcceptHeaderLocaleResolver
+ * @see com.interface21.web.servlet.support.RequestContext#getLocale
  */
 public interface LocaleResolver {
 

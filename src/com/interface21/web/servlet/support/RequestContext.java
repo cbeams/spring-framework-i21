@@ -17,16 +17,19 @@ import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.util.HtmlUtils;
 
 /**
- * Context holder for request-specific state, like current web application context,
- * current locale, and possible binding errors.
+ * Context holder for request-specific state, like current web application
+ * context, current locale, current theme, and potential binding errors.
  *
- * Suitable for exposition to views, and usage within <jsp:useBean>, JSP scriptlets,
- * JSTL EL, Velocity templates, etc. Especially well-suited for views that do not
- * have access to the servlet request, like Velocity templates.
+ * <p>Suitable for exposition to views, and usage within <jsp:useBean>,
+ * JSP scriptlets, JSTL EL, Velocity templates, etc. Necessary for views
+ * that do not have access to the servlet request, like Velocity templates.
+ *
+ * <p>Can be instantiated manually, or automatically exposed to views as
+ * model attribute via AbstractView's requestContextAttribute property.
  *
  * @author Juergen Hoeller
  * @since 03.03.2003
- * @see com.interface21.web.servlet.view.AbstractView
+ * @see com.interface21.web.servlet.view.AbstractView#setRequestContextAttribute
  */
 public class RequestContext {
 

@@ -23,6 +23,13 @@ import com.interface21.web.util.WebUtils;
  */
 public class CookieLocaleResolver implements LocaleResolver {
 
+	/**
+	 * Name of the request attribute that holds the locale. Only used for
+	 * overriding a cookie value if the locale has been changed in the
+	 * course of the current request! Use RequestContext.getLocale() to
+	 * retrieve the current locale in controllers or views.
+	 * @see com.interface21.web.servlet.support.RequestContext#getLocale
+	 */
 	public static final String LOCALE_REQUEST_ATTRIBUTE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";
 
 	public static final String DEFAULT_COOKIE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";

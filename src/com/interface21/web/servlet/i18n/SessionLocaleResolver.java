@@ -21,6 +21,12 @@ import com.interface21.web.util.WebUtils;
  */
 public class SessionLocaleResolver implements LocaleResolver {
 
+	/**
+	 * Name of the session attribute that holds the locale. Only used
+	 * internally by this implementation. Use RequestContext.getLocale()
+	 * to retrieve the current locale in controllers or views.
+	 * @see com.interface21.web.servlet.support.RequestContext#getLocale
+	 */
 	public static final String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
 
 	public Locale resolveLocale(HttpServletRequest request) {
