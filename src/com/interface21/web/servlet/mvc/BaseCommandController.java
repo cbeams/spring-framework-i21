@@ -23,7 +23,7 @@ import com.interface21.web.bind.ServletRequestDataBinder;
  * <p>Controller implementation creating a certain object (the command object)
  * on receipt of request and attempt to populate this object with request
  * parameters.</p>
- * 
+ *
  * <p>This controller is the base for all controller wishing to populate
  * JavaBeans based on request parameters, validate the content of such
  * JavaBeans using {@link com.interface21.validation.Validator Validators}
@@ -54,9 +54,7 @@ import com.interface21.web.bind.ServletRequestDataBinder;
  * the other way around. For instance <code>setLocale(Locale loc)</code> is
  * perfectly possible for a request parameter named <code>locale</code> having
  * a value of <code>en</code>, as long as you register the appropriate
- * PropertyEditor in the Controller (see
- * {@link #initBinder(javax.servlet.http.HttpServletRequest,
- * com.interface21.web.bind.ServletRequestDataBinder) initBinder()}
+ * PropertyEditor in the Controller (see {@link #initBinder initBinder()}
  * for more information on that matter.</p>
  *
  * <p><b>Validators:</b>
@@ -202,7 +200,7 @@ public abstract class BaseCommandController extends AbstractController {
 	private void checkValidator(Validator validator, Class commandClass) throws IllegalArgumentException {
 		if (validator != null && commandClass != null && !validator.supports(commandClass))
 			throw new IllegalArgumentException(
-				"Validator [" + validator + "] can't validate command class of type " + commandClass);
+					"Validator [" + validator + "] can't validate command class of type " + commandClass);
 	}
 
 	/**
@@ -224,14 +222,16 @@ public abstract class BaseCommandController extends AbstractController {
 		logger.info("Must create new command of " + commandClass);
 		try {
 			return commandClass.newInstance();
-		}	catch (InstantiationException ex) {
+		}
+		catch (InstantiationException ex) {
 			throw new ServletException(
-				"Cannot instantiate command " + commandClass + "; does it have a public no arg constructor?",
-				ex);
-		} catch (IllegalAccessException ex) {
+					"Cannot instantiate command " + commandClass + "; does it have a public no arg constructor?",
+					ex);
+		}
+		catch (IllegalAccessException ex) {
 			throw new ServletException(
-				"Cannot instantiate command " + commandClass + "; cannot access constructor",
-				ex);
+					"Cannot instantiate command " + commandClass + "; cannot access constructor",
+					ex);
 		}
 	}
 
@@ -281,15 +281,15 @@ public abstract class BaseCommandController extends AbstractController {
 	/**
 	 * Initialize the given binder instance, e.g. with custom editors.
 	 * Called by createBinder. This method allows you to register custom
-     * editors for certain fields of your command class. For instance, you will
-     * be able to transform Date objects into a String pattern and back, in order
-     * to allow your JavaBeans to have Date properties and still be able to
-     * set and display them in for instance an HTML interface.
+	 * editors for certain fields of your command class. For instance, you will
+	 * be able to transform Date objects into a String pattern and back, in order
+	 * to allow your JavaBeans to have Date properties and still be able to
+	 * set and display them in for instance an HTML interface.
 	 * @param request current request
 	 * @param binder new binder instance
 	 * @throws ServletException in case of invalid state or arguments
+	 * @see com.interface21.validation.DataBinder#registerCustomEditor
 	 * @see #createBinder
-     * @see com.interface21.web.bind.ServletRequestDataBinder
 	 */
 	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder)
 			throws ServletException {
@@ -306,7 +306,7 @@ public abstract class BaseCommandController extends AbstractController {
 	 * @see #bindAndValidate
 	 */
 	protected void onBindAndValidate(HttpServletRequest request, Object command, BindException errors)
-	    throws ServletException {
+			throws ServletException {
 	}
 
 }

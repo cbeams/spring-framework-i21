@@ -7,8 +7,6 @@ import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
 
 /**
- * Classname doesn't match XXXXTestSuite pattern, so as to avoid
- * being invoked by Ant JUnit run, as it's abstract
  * @author Rod Johnson
  * @version $RevisionId$
  */
@@ -32,15 +30,13 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 		return applicationContext;
 	}
 
-	/** Must register a TestListener
-	 *  Must register standard beans
+	/**
+	 * Must register a TestListener.
+	 * Must register standard beans.
 	 * Parent must register rod with name Roderick
-	 * and father with name Albert
+	 * and father with name Albert.
 	 */
 	protected abstract ApplicationContext createContext() throws Exception;
-
-	protected void tearDown() {
-	}
 
 	public void testContextAwareSingletonWasCalledBack() throws Exception {
 		ACATest aca = (ACATest) applicationContext.getBean("aca");

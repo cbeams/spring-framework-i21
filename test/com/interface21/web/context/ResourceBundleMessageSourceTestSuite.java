@@ -102,17 +102,14 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 	 * NOTE:  Messages are contained within the "test/com/interface21/web/context/WEB-INF/messagesXXX.properties" files.
 	 * @see com.interface21.context.support.AbstractNestingMessageSource for more details.
 	 */
-	public void testGetMessageWithMessageAlreadyLookedFor()
-			throws Exception {
+	public void testGetMessageWithMessageAlreadyLookedFor() throws Exception {
 		Object[] arguments = {
 			new Integer(7), new Date(System.currentTimeMillis()),
 			"a disturbance in the Force"
 		};
 
-
 		// The first time searching, we don't care about for this test
 		root.getMessage("message.format.example1", arguments, Locale.US);
-
 
 		// Now msg better be as expected
 		assertTrue("2nd search within MsgFormat cache returned expected message for Locale.US",
@@ -124,7 +121,6 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 			new Integer(8), new Date(System.currentTimeMillis()),
 			"a disturbance in the Force"
 		};
-
 
 		// Now msg better be as expected even with different args
 		assertTrue("2nd search within MsgFormat cache with different args returned expected message for Locale.US",
@@ -159,13 +155,11 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 							 )
 							 .indexOf("there was \"a disturbance in the Force\" on planet 7.") != -1);
 
-
 		// Try with Locale.UK
 		assertTrue("msg from resourcebundle for Locale.UK substituting args for placeholders is as expected",
 							 root.getMessage("message.format.example1", arguments, Locale.UK
 							 )
 							 .indexOf("there was \"a disturbance in the Force\" on station number 7.") != -1);
-
 
 		// Try with Locale.US - different test msg that requires no args
 		assertTrue("msg from resourcebundle that requires no args for Locale.US is as expected",
@@ -227,14 +221,6 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 		return themeMsgSource.getMessage(code, args, defaultMessage, locale);
 	}
 
-//	private String getThemeMessage(String code, Object args[], Locale locale) throws NoSuchMessageException {
-//		return themeMsgSource.getMessage( code, args, locale);
-//	}
-
-//	private String getThemeMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
-//		return themeMsgSource.getMessage( resolvable, locale);
-//	}
-
 	protected ApplicationContext createContext() throws Exception {
 		root = new XmlWebApplicationContext();
 		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
@@ -255,4 +241,5 @@ public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationCon
 		//wac.(this.listener);
 		return wac;
 	}
+
 }
