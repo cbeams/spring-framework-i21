@@ -11,8 +11,6 @@
 
 package com.interface21.jndi;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
@@ -50,6 +48,8 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	
 	private boolean inContainer = true;
 	
+	private JndiTemplate jndiTemplate = new JndiTemplate();
+	
 	
 	//-------------------------------------------------------------------------
 	// Constructors
@@ -86,6 +86,21 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	public final String getJndiName() {
 		return jndiName;
 	}
+	
+	/**
+	 * @return
+	 */
+	public JndiTemplate getJndiTemplate() {
+		return jndiTemplate;
+	}
+
+	/**
+	 * @param template
+	 */
+	public void setJndiTemplate(JndiTemplate template) {
+		jndiTemplate = template;
+	}
+
 	
 	/**
 	 */
@@ -135,44 +150,10 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	 * @throws NamingException
 	 */
 	private Object lookup(String jndiName) throws NamingException {
-		logger.info("Looking up object with jndiName '" + jndiName + "'");
-		
-		// This helper will close JNDI context
-		// Commented out as it's impossible to override context to
-		// use a mock object
-		//Object o = JndiTemplate.lookup(jndiName);
-		
-		Object o = null;
-		
-		// Do JNDI lookup
-		Context ctx = null;
-		try {
-			ctx = getInitialContext();
-			o = ctx.lookup(jndiName);
-		}
-		finally {
-			try {
-				if (ctx != null)
-					ctx.close();
-			}
-			catch (NamingException ex) {
-				logger.warn("InitialContext threw exception on close", ex);
-			}
-		}
-		
+		Object o = this.jndiTemplate.lookup(jndiName);			
 		logger.debug("Looked up objet with jndiName '" + jndiName + "' OK: [" + o + "]");
 		return o;
 	}
 	
-	/**
-	 * May be overriden by subclasses to return a mock object.
-	 * This implementation creates a new InitialContext(), relying on
-	 * server context or jndi.properties.
-	 * @return an InitialContext
-	 */
-	protected Context getInitialContext() throws NamingException {
-		return new InitialContext();
-	}
-	
-	
+
 } 	// class AbstractJndiLocator
