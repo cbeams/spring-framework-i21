@@ -406,11 +406,6 @@ public class JtaTransactionTestSuite extends TestCase {
 					TransactionSynchronizationManager.register(new TransactionSynchronization() {
 						public void afterCompletion(int status) {
 							assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_UNKNOWN);
-							TransactionSynchronizationManager.register(new TransactionSynchronization() {
-								public void afterCompletion(int status) {
-									assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_UNKNOWN);
-								}
-							});
 						}
 					});
 					status.setRollbackOnly();

@@ -19,6 +19,7 @@ import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.TransactionSystemException;
 import com.interface21.transaction.UnexpectedRollbackException;
+import com.interface21.transaction.InvalidTimeoutException;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
 
 /**
@@ -81,6 +82,9 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 	 * A default one is used if not set.
 	 */
 	public final void setJndiTemplate(JndiTemplate jndiTemplate) {
+		if (this.jndiTemplate == null) {
+			throw new IllegalArgumentException("jndiTemplate must not be null");
+		}
 		this.jndiTemplate = jndiTemplate;
 	}
 
@@ -112,13 +116,19 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 		}
 	}
 
-	protected void doBegin(Object transaction, int isolationLevel, int timeout) {
+	protected void doBegin(Object transaction, TransactionDefinition definition) {
 		logger.debug("Beginning JTA transaction");
 		UserTransaction ut = (UserTransaction) transaction;
-		applyIsolationLevel(ut, isolationLevel);
+		applyIsolationLevel(ut, definition.getIsolationLevel());
+		if (definition.isReadOnly()) {
+			logger.warn("JtaTransactionManager does not support read-only transactions: ignoring 'readOnly' hint");
+		}
 		try {
-			if (timeout >= 0) {
-				ut.setTransactionTimeout(timeout);
+			if (definition.getTimeout() < TransactionDefinition.TIMEOUT_DEFAULT) {
+				throw new InvalidTimeoutException("Invalid transaction timeout", definition.getTimeout());
+			}
+			else if (definition.getTimeout() > TransactionDefinition.TIMEOUT_DEFAULT) {
+				ut.setTransactionTimeout(definition.getTimeout());
 			}
 			ut.begin();
 		}
