@@ -1,23 +1,24 @@
 package com.interface21.samples.countries.dao;
 
-import com.interface21.jdbc.core.JdbcTemplate;
-
 /**
+ * MySql Subclass for <code>CountryDaoJdbC</code>.
+ * 
  * @author Jean-Pierre Pawlak
  */
-public class DaoCountryJdbcMySql extends AbstractDaoCountryJdbc {
+public class DaoCountryJdbcMySql extends DaoCountryJdbc {
+
+	protected String DROP_SQL = "DROP TABLE IF EXISTS countries";
+
+	// protected String CREATE_SQL = "CREATE TABLE countries (lang CHAR(2), code CHAR(2), name VARCHAR(50), PRIMARY KEY (lang,code) ) Type InnoDB";
+
+	// We don't include indexes due to the small size of this table.
 
 	/**
-	 * The table could define lang + code as primary key and innoDB type.
-	 * <br>Index may also be created, but for a so small table, the interest is not clear.
 	 * @see com.interface21.samples.countries.dao.IDaoCountry#initBase()
 	 */
 	public void initBase() {
-		JdbcTemplate tpl = new JdbcTemplate();
-		tpl.setDataSource(this.getDataSource());
-		tpl.update("DROP TABLE IF EXISTS countries");
-		logger.info("Table countries deleted");
-		tpl.update("CREATE TABLE countries (lang CHAR(2), code CHAR(2), name VARCHAR(50))");
-		logger.info("Table countries created");
+		this.setDropSql(DROP_SQL);
+		super.initBase();
 	}
+
 }
