@@ -80,9 +80,11 @@ public class RmiServiceExporter implements InitializingBean {
 		try {
 			// retrieve registry
 			registry = LocateRegistry.getRegistry(this.port);
+			registry.list();
 		}
 		catch (RemoteException ex) {
-			logger.warn("Could not detect RMI registry - creating new one", ex);
+			logger.debug("RMI registry access threw exception", ex);
+			logger.warn("Could not detect RMI registry - creating new one");
 			// assume no registry found -> create new one
 			registry = LocateRegistry.createRegistry(this.port);
 		}
