@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans>
+
+	
+	<bean name="test" class="com.interface21.beans.TestBean">	
+		<property name="name">custom</property>
+		<property name="age">666</property>
+	</bean>
+	
+	<bean name="invokerInterceptor" class="com.interface21.aop.framework.InvokerInterceptor">	
+		<property name="target" beanRef="true">test</property>
+	</bean>
+	
+	<bean name="debugInterceptor" class="com.interface21.aop.interceptor.misc.DebugInterceptor">	
+		
+	</bean>
+	
+	<bean name="test1" 
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>		
+		
+		<property name="interceptorNames">debugInterceptor,invokerInterceptor</property>		
+		
+	</bean>
+	
+	<bean name="test2" 
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>		
+		
+		<property name="singleton">false</property>
+		
+		<property name="interceptorNames">invokerInterceptor</property>		
+		
+	</bean>
+	
+	
+	<!--
+	<bean name="noInterceptorPrototype" 
+			class="com.interface21.aop.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>		
+		
+		<property name="singleton">false</property>
+		
+	</bean>
+	-->
+	
+
+</beans>		
+	
+	
