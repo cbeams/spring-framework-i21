@@ -36,13 +36,14 @@ import com.interface21.web.servlet.ModelAndView;
 public interface Controller {	
 
 	/**
-	 * Process the request and return a ModelAndView object which the ControllerServlet
-	 * will render.
-	 * @return a ModelAndView for the ControllerServlet to render. A null 
-	 * return is not an error. It indicates that this object completed 
-	 * request processing itself, and there is no ModelAndView to render.
+	 * Process the request and return a ModelAndView object which the
+	 * ControllerServlet will render. A null return is not an error.
+	 * It indicates that this object completed request processing itself,
+	 * thus there is no ModelAndView to render.
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @return a ModelAndView to render, or null
 	 */
 	ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 	
 }
-

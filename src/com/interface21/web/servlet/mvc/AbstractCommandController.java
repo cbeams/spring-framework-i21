@@ -21,14 +21,14 @@ import com.interface21.validation.Errors;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- * Controller 
+ * Abstract base class for custom command controllers. Autopopulates a
+ * command bean from the request. For command validation, a validator
+ * (property inherited from BaseCommandController) can be used.
+ *
+ * @author Rod Johnson, Juergen Hoeller
  */
 public abstract class AbstractCommandController extends BaseCommandController {
 
-	/**
-	 * Constructor for AbstractCommandController.
-	 * @param commandClass
-	 */
 	public AbstractCommandController(Class commandClass, String beanName) {
 		setCommandClass(commandClass);
 		setBeanName(beanName);
@@ -38,32 +38,27 @@ public abstract class AbstractCommandController extends BaseCommandController {
 		setCommandClass(commandClass);
 	}
 
-	/**
-	 * Constructor for AbstractCommandController.
-	 */
 	public AbstractCommandController() {
 	}
 
-	/**
-	 * @see AbstractController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
-	 */
 	protected final ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
+			throws ServletException, IOException {
 		Object command = userObject(request);
 		Errors errors = bindAndValidate(request, command);
 		return handle(request, response, command, errors);
-		
-		// PUBLISH EVENT
-
 	}
 
 	/**
-	 * Subclasses must check for errors
+	 * Template method for request handling, providing a populated and
+	 * validated instance of the command class, and an Errors object
+	 * containing binding and validation errors.
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @param command the populated command object
+	 * @param errors the binder containing errors
+	 * @return a ModelAndView to render, or null
 	 */
-	protected abstract ModelAndView handle(
-		HttpServletRequest request,
-		HttpServletResponse response,
-		Object command,
-		Errors errors);
+	protected abstract ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
+	                                       Object command, Errors errors);
 
 }
