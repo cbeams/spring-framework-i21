@@ -493,7 +493,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		dsControl.setReturnValue(con);
 		dsControl.activate();
 		
-		PreparedStatementSetter setter = new PreparedStatementSetter() {
+		BulkPreparedStatementSetter setter = new BulkPreparedStatementSetter() {
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				ps.setInt(1, ids[i]);	
 			}
@@ -554,7 +554,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 			dsControl.setReturnValue(con);
 			dsControl.activate();
 		
-			PreparedStatementSetter setter = new PreparedStatementSetter() {
+			BulkPreparedStatementSetter setter = new BulkPreparedStatementSetter() {
 				public void setValues(PreparedStatement ps, int i) throws SQLException {
 					ps.setInt(1, ids[i]);	
 				}
@@ -602,6 +602,116 @@ public class JdbcTemplateTestSuite extends TestCase {
 		}
 	}
 	
+	/**
+	 * Check that if we have a null PreparedStatementSetter we invoke the update method
+	 * with static SQL
+	 * @throws Exception
+	 */
+	public void testPreparedStatementSetterWithNullArg() throws Exception {
+		final String sql = "UPDATE FOO SET NAME='tony' WHERE ID > 1";
+		MockControl dsControl = EasyMock.niceControlFor(DataSource.class);
+		final int expectedRowsUpdated = 111;
+		DataSource ds = (DataSource) dsControl.getMock();
+		// Don't expect any calls
+		dsControl.activate();
+		
+		class MockJdbcTemplate extends JdbcTemplate {
+			private boolean valid = false;
+			public MockJdbcTemplate(DataSource ds) {
+				super(ds);
+			}
+			public int update(String sql) {
+				valid = true;
+				return expectedRowsUpdated;
+			}
+		}
+		
+		MockJdbcTemplate mockTemplate = new MockJdbcTemplate(ds);
+		int actualRowsUpdated = mockTemplate.update(sql, null);
+		assertTrue("updated correct # of rows", actualRowsUpdated == expectedRowsUpdated);
+		assertTrue("invoked update", mockTemplate.valid);
+		dsControl.verify();
+	}
+	
+	
+	public void testPreparedStatementSetterSucceeds() throws Exception {
+		final String sql = "UPDATE FOO SET NAME=? WHERE ID = 1";
+		final String name = "Gary";
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		DataSource ds = (DataSource) dsControl.getMock();
+		int expectedRowsUpdated = 1;
+		
+		MockControl psControl = EasyMock.controlFor(PreparedStatement.class);
+		PreparedStatement mockPs = (PreparedStatement) psControl.getMock();
+		mockPs.setString(1, name);
+		psControl.setVoidCallable(1);
+		mockPs.executeUpdate();
+		psControl.setReturnValue(expectedRowsUpdated, 1);
+		mockPs.close();
+		psControl.setVoidCallable(1);
+		psControl.activate();
+		
+		MockConnection con = MockConnectionFactory.update(sql, mockPs);
+		con.setExpectedCloseCalls(1);
+	
+		ds.getConnection();
+		dsControl.setReturnValue(con);
+		dsControl.activate();
+		PreparedStatementSetter pss = new PreparedStatementSetter() {
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setString(1, name);
+			}
+		};
+		int actualRowsUpdated = new JdbcTemplate(ds).update(sql, pss);
+		assertTrue("updated correct # of rows", actualRowsUpdated == expectedRowsUpdated);
+		dsControl.verify();
+		con.verify();
+		psControl.verify();
+	}
+	
+	public void testPreparedStatementSetterFails() throws Exception {
+		final String sql = "UPDATE FOO SET NAME=? WHERE ID = 1";
+		final String name = "Gary";
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		DataSource ds = (DataSource) dsControl.getMock();
+		int expectedRowsUpdated = 1;
+	
+		SQLException sex = new SQLException();
+		MockControl psControl = EasyMock.controlFor(PreparedStatement.class);
+		PreparedStatement mockPs = (PreparedStatement) psControl.getMock();
+		mockPs.setString(1, name);
+		psControl.setVoidCallable(1);
+		mockPs.executeUpdate();
+		psControl.setThrowable(sex);
+		
+		// Insist on trying to close PreparedStatement
+		//mockPs.close();
+		//psControl.setVoidCallable(1);
+		psControl.activate();
+	
+		MockConnection con = MockConnectionFactory.update(sql, mockPs);
+		con.setExpectedCloseCalls(1);
+
+		ds.getConnection();
+		dsControl.setReturnValue(con);
+		dsControl.activate();
+		PreparedStatementSetter pss = new PreparedStatementSetter() {
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setString(1, name);
+			}
+		};
+		try {
+			new JdbcTemplate(ds).update(sql, pss);
+			fail("Should have failed with SQLException");
+		}
+		catch (DataAccessException ex) {
+			assertTrue("root cause was preserved", ex.getRootCause() == sex);
+		}
+		
+		dsControl.verify();
+		con.verify();
+		psControl.verify();
+	}
 	
 	public void testCouldntClose() throws Exception {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);

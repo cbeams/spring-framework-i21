@@ -292,6 +292,33 @@ public class JdbcTemplate {
 	
 	
 	/**
+	 * Issue an update using a PreparedStatementSetter to set bind parameters,
+	 * with given SQL. Simpler than using a PreparedStatementCreator
+	 * as this method will create the PreparedStatement: the
+	 * PreparedStatementSetter has only to set parameters.
+	 * @param sql SQL, containing bind parameters
+	 * @param pss helper that sets bind parameters. If this is null
+	 * we run an update with static SQL
+	 * @return the number of rows affected
+	 * @throws DataAccessException if there is any problem issuing the update
+	 * TODO add a similar query method
+	 */
+	public int update(final String sql, final PreparedStatementSetter pss) throws DataAccessException {
+		if (pss == null) {
+			return update(sql);
+		}
+		
+		return update(new PreparedStatementCreator() {
+			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
+				PreparedStatement ps = conn.prepareStatement(sql);
+				pss.setValues(ps);
+				return ps;
+			}
+		});
+	}
+	
+	
+	/**
 	 * Issue multiple updates using JDBC 2.0 batch updates and PreparedStatementSetters to 
 	 * set values on a PreparedStatement created by this method
 	 * @param SQL defining PreparedStatement that will be reused.
@@ -301,7 +328,7 @@ public class JdbcTemplate {
 	 * @return an array of the number of rows affected by each statement
 	 * @throws DataAccessException if there is any problem issuing the update
 	 */
-	public int[] batchUpdate(String sql, PreparedStatementSetter setter) throws DataAccessException {
+	public int[] batchUpdate(String sql, BulkPreparedStatementSetter setter) throws DataAccessException {
 		Connection con = null;
 		try {
 			con = DataSourceUtils.getConnection(this.dataSource);
