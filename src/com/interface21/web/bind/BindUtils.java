@@ -2,6 +2,7 @@ package com.interface21.web.bind;
 
 import javax.servlet.ServletRequest;
 
+import com.interface21.validation.BindException;
 import com.interface21.validation.ValidationUtils;
 import com.interface21.validation.Validator;
 
@@ -21,7 +22,7 @@ public abstract class BindUtils {
 	 * @param objectName name of the bind object
 	 * @return the binder used (can be treated as DataBinder or Errors instance)
 	 */
-	public static ServletRequestDataBinder bind(ServletRequest request, Object object, String objectName) {
+	public static BindException bind(ServletRequest request, Object object, String objectName) {
 		ServletRequestDataBinder binder = new ServletRequestDataBinder(object, objectName);
 		binder.bind(request);
 		return binder;
@@ -36,8 +37,8 @@ public abstract class BindUtils {
 	 * @param validator validator to be invoked, or null if no validation
 	 * @return the binder used (can be treated as Errors instance)
 	 */
-	public static ServletRequestDataBinder bindAndValidate(ServletRequest request, Object object, String objectName, Validator validator) {
-		ServletRequestDataBinder binder = bind(request, object, objectName);
+	public static BindException bindAndValidate(ServletRequest request, Object object, String objectName, Validator validator) {
+		BindException binder = bind(request, object, objectName);
 		ValidationUtils.invokeValidator(validator, object, binder);
 		return binder;
 	}
