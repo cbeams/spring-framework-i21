@@ -191,20 +191,16 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		if (!isCompiled())
 			throw new InvalidDataAccessApiUsageException("Stored procedure must be compiled before execution");
 		
-		Connection con = null;
 		DataSource ds = getDataSource();
+		Connection con = DataSourceUtils.getConnection(ds);
 		try {
-			con = ds.getConnection();
-			
 			Map inParams = mapper.createMap(con);
-			
 			CallableStatement call = con.prepareCall(this.callString);
 			processInputParameters(inParams, call);
 
 			// Execute the stored procedure
-			call.execute();
-
 			logger.info("Executing stored procedure [" + callString + "]");
+			call.execute();
 
 			// Now get output parameters. There need not be any.
 			Map outParams = extractOutputParameters(call);

@@ -14,6 +14,8 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.BadSqlGrammarException;
 import com.interface21.jdbc.core.SQLExceptionTranslater;
 import com.interface21.jdbc.core.SqlParameter;
+import com.interface21.jdbc.datasource.ConnectionHolder;
+import com.interface21.jdbc.datasource.DataSourceUtils;
 import com.interface21.jdbc.mock.SpringMockCallableStatement;
 import com.interface21.jdbc.mock.SpringMockConnection;
 import com.interface21.jdbc.mock.SpringMockDataSource;
@@ -27,8 +29,6 @@ public class StoredProcedureTestSuite extends TestCase {
 	private SpringMockDataSource mockDataSource;
 	private SpringMockConnection mockConnection;
 	private SpringMockCallableStatement mockCallable;
-
-	//	private JdbcTemplate template;
 
 	public StoredProcedureTestSuite(String name) {
 		super(name);
@@ -81,8 +81,21 @@ public class StoredProcedureTestSuite extends TestCase {
 		mockConnection.addExpectedCallableStatement(mockCallable);
 		mockCallable.setExpectedExecuteCalls(1);
 		mockDataSource.setExpectedConnectCalls(1);
-
 		testAddInvoice(1106, 3);
+	}
+
+	public void testAddInvoicesWithinTransaction() throws Exception {
+		mockCallable = new SpringMockCallableStatement();
+		mockConnection.addExpectedCallableStatement(mockCallable);
+		mockCallable.setExpectedExecuteCalls(1);
+		mockDataSource.setExpectedConnectCalls(0);
+		DataSourceUtils.getThreadObjectManager().bindThreadObject(mockDataSource, new ConnectionHolder(mockConnection));
+		try {
+			testAddInvoice(1106, 3);
+		}
+		finally {
+			DataSourceUtils.getThreadObjectManager().removeThreadObject(mockDataSource);
+		}
 	}
 
 	public void testNullArg() throws Exception {
@@ -96,16 +109,13 @@ public class StoredProcedureTestSuite extends TestCase {
 	}
 
 	public void testUncompiled() throws Exception {
-		UncompiledStoredProcedure uc =
-			new UncompiledStoredProcedure(mockDataSource);
-
+		UncompiledStoredProcedure uc = new UncompiledStoredProcedure(mockDataSource);
 		try {
 			uc.execute();
 			fail("Shouldn't succeed in executing uncompiled stored procedure");
 		} catch (InvalidDataAccessApiUsageException idaauex) {
 			// OK
 		}
-
 	}
 
 	public void testUnnamedParameter() throws Exception {
