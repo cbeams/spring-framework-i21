@@ -37,14 +37,14 @@
 		<fileset dir="${spring.root}/lib/log4j">
 			<include name="commons-logging.jar"/>
 		</fileset>
-		<fileset dir="${spring.root}/dist">
-			<include name="spring-full*.jar"/>
-		</fileset>
 		<fileset dir="${spring.root}/lib/itext-pdf">
-			<include name="iText.jar"/>
+			<include name="*.jar"/>
 		</fileset>
 		<fileset dir="${spring.root}/lib/poi">
 			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${spring.root}/dist">
+			<include name="spring-full*.jar"/>
 		</fileset>
 
 	</path>
@@ -132,7 +132,7 @@
 	</target>
 
 
-	<target name="warfile" depends="build" description="Build the web application archive">
+	<target name="warfile" depends="build,docs" description="Build the web application archive">
 
 		<mkdir dir="${dist.dir}"/>
 

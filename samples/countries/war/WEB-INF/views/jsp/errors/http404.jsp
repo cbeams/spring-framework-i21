@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/views/jsp/common/includes.jsp" %>
+<%@ include file="../common/includes.jsp" %>
 
 <script language="javascript">
   function back() { history.go(-1);}

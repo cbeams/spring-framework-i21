@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/views/jsp/common/includes.jsp" %>
+<%@ include file="../../common/includes.jsp" %>
 
 <script language="javascript">
   function go(country) {
@@ -8,7 +8,7 @@
 </script>
 
 <h2><fmt:message key="countries.main.title"/></h2>
-  <form action="<c:url value=""/>" method="POST">
+  <form action="" method="POST">
 	<table>
 	  <tr class="title">
 	    <th><a href="<c:url value=""><c:param name="sort.property" value="name"/></c:url>"><fmt:message key="name"/></a></th>

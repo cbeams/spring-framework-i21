@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/views/jsp/common/includes.jsp" %>
+<%@ include file="../common/includes.jsp" %>
 
 <ul>
   <fmt:message key="lnk.home" var="lnk"/>
@@ -13,5 +13,5 @@
   </c:if>
   <fmt:message key="lnk.javadoc" var="lnk"/>
   <li><a href="<c:url value="/${lnk}"/>" target="_blank"><fmt:message key="nav.javadoc"/><span><fmt:message key="nav.javadoc.info"/></span></a></li>
-  <c:import url="/WEB-INF/views/jsp/common/endnav.jsp"/>
+  <c:import url="../common/endnav.jsp"/>
 </ul>

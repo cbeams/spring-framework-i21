@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/views/jsp/common/includes.jsp" %>
+<%@ include file="../common/includes.jsp" %>
 
 <h2><fmt:message key="config.title"/></h2>
 <br />

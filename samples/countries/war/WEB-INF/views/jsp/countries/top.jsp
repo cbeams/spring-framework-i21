@@ -1,1 +1,1 @@
-<%@ include file="/WEB-INF/views/jsp/common/includes.jsp" %>
+<%@ include file="../common/includes.jsp" %>
