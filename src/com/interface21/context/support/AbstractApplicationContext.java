@@ -350,7 +350,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 */
 	public void close() {
 		logger.info("Closing application context [" + getDisplayName() + "]");
+
+		// destroy all cached singletons in this context,
+		// invoking DisposableBean.destroy and/or "destroy-method"
 		getBeanFactory().destroySingletons();
+
+		// publish respective event
+		publishEvent(new ContextClosedEvent(this));
 	}
 
 	/**
