@@ -24,7 +24,6 @@ import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationEvent;
 import com.interface21.web.context.RequestHandledEvent;
 import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.context.ContextLoader;
 import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.context.support.WebApplicationContextUtils;
 
@@ -208,7 +207,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	protected final void initServletBean() throws ServletException {
 
 		long startTime = System.currentTimeMillis();
-		logger.info("-------------- Framework servlet '" + getServletName() + "' init");
+		logger.info("Framework servlet '" + getServletName() + "' init");
 
 		this.webApplicationContext = createWebApplicationContext();
 
@@ -239,14 +238,11 @@ public abstract class FrameworkServlet extends HttpServletBean {
 
 		WebApplicationContext parent = null;
 		try {
-			if (WebApplicationContextUtils.hasWebApplicationContext(sc)) {
+			if (WebApplicationContextUtils.getWebApplicationContext(sc) != null) {
 				// retrieve preloaded parent context
 				parent = WebApplicationContextUtils.getWebApplicationContext(sc);
-			} else {
-				// NEW: implicitly initialize new parent context
-				// ContextLoaderListener/ContextLoaderServlet entries in web.xml are optional now!
-				parent = ContextLoader.initContext(sc);
 			}
+			// else simply create own context without parent
 		} catch (ServletException ex) {
 			this.startupException = ex;
 			throw ex;
@@ -320,7 +316,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 * The implementation may be empty.
 	 * This method will be invoked after any bean properties
 	 * have been set and WebApplicationContext and BeanFactory have been loaded
-	 * @throws any Exception
+	 * @throws Exception any exception
 	 */
 	protected abstract void initFrameworkServlet() throws Exception;
 
