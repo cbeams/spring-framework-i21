@@ -2,6 +2,7 @@ package com.interface21.context.support;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.MissingResourceException;
 
 /**
  * MessageSource that 
@@ -41,9 +42,15 @@ public class ResourceBundleMessageSource extends AbstractNestingMessageSource {
 	/**
 	 * @see AbstractNestingMessageSource#resolve(String, Locale)
 	 */
-	protected String resolve(String code, Locale locale) throws Exception {
-		 ResourceBundle bundle  = ResourceBundle.getBundle(basename, locale);
-		return bundle.getString(code);
+	protected String resolve(String code, Locale locale) {
+		ResourceBundle bundle  = ResourceBundle.getBundle(basename, locale);
+		try {
+			return bundle.getString(code);
+		} catch (MissingResourceException ex) {
+			// just key not found
+			// -> do NOT throw the exception to allow for checking parent message source
+			return null;
+		}
 	}
 	
 	/** Show the state of this object
