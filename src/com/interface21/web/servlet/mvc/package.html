@@ -1,11 +1,43 @@
 <html>
 <body>
 
-Standard handler implementations for Spring's web MVC framework.
-Provides both abstract base classes and concrete implementations.
+<p>
+    Standard controller implementations for the MVC framework that
+    comes with Spring. Provides both abstract base classes and concrete implementations
+    for often seen use cases.
+</p>
 
-<p>A Controller as defined in this package is analogous to a
-Struts Action. Controllers are usually JavaBeans.
+<p>
+    A {@link Controller Controller} - as defined in this package - is analogous to a Struts
+    <code>Action</code>. Usually <code>Controllers</code> are JavaBeans
+    to allow easy configuration using the {@link com.interface21.beans com.interface21.beans}
+    package. Controllers define the <code>C</code> from so-called MVC paradigm
+    and can be used in conjunction with the {@link com.interface21.web.servlet.ModelAndView ModelAndView}
+    to achieve interactive applications. The view might be represented by a
+    HTML interface, but, because of model and the controller being completely
+    independent of the view, PDF views are possible, as well as for instance Excel
+    views.
+</p>
+
+<p>
+    How to actually set up a (web)application using the MVC framework Spring
+    provides is explained in more detail in the
+    <a href="../../../../../../MVC-step-by-step/Spring-MVC-step-by-step.html">MVC-Step-by-Step
+    tutorial</a>, also provided in this package (or have a look
+    <a href="http://www.springframework.org">here</a> for an online version).
+    The classes contained by this package explain in more detail the actual
+    workflow of some of the abstract and concrete controller and how to extend
+    and fully use their functionality.
+</p>
+
+<p>
+    Especially useful to read, while getting into the Spring MVC framework
+    are the following:
+    <ul>
+        <li>bla</li>
+        <li>bla</li>
+    </ul>
+</p>
 
 </body>
 </html>

@@ -20,15 +20,40 @@ import javax.servlet.http.HttpServletResponse;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- * Simple MVC controller interface. Most similar to a Struts Action.
+ * Base class for any Controller implementation. Most similar to the Struts'
+ * notion of <code>Actions</code>.
  *
- * <p>An implementation of the Controller interface is a reusable,
- * threadsafe object that handles multiple HTTP requests throughout
- * the lifecycle of an application. Controllers are normally JavaBeans,
- * allowing for easy and consistent configuration on application startup.
+ * <p>Any implementation of the Controller interface should be a
+ * <i>reusable, threadsafe</i> class, capable of handling multiple
+ * HTTP requests throughout the lifecycle of an application. To be able to
+ * configure Controller in an easy, Controllers are usually JavaBeans.</p>
  *
- * <p>This is the core interface of the default MVC workflow.
- * 
+ * <p><b>Workflow:</b><br>
+ * After the DispatcherServlet has received a request and has done its work
+ * to resolve locales, themes and things a like, it tries to resolve
+ * a Controller, using a {@link com.interface21.web.servlet.HandlerMapping
+ * HandlerMapping}. When a Controller has been found, the \
+ * {@link #handleRequest(HttpServletRequest, HttpServletResponse) handleRequest()}
+ * method will be invoked, which is responsible for handling the actual
+ * request and - if applicable - returning an appropriate ModelAndView.
+ * So actually, this method is the main entrypoint for the
+ * {@link com.interface21.web.servlet.DispatcherServlet DispatcherServlet}
+ * which delegates requests to controllers. This method - and also this interface -
+ * should preferrably not be implemented by custom controllers <i>directly</i>, since
+ * abstract controller also provided by this package already provide a lot
+ * of functionality common for virtually all webapplications. A few examples of
+ * those abstract controllers:
+ * {@link AbstractController AbstractController},
+ * {@link AbstractCommandController AbstractCommandController} and
+ * {@link AbstractFormController AbstractFormController}.
+ * </p>
+ * <p>So basically any <i>direct</i> implementation of the Controller interface
+ * just handles HttpServletRequests and should return a ModelAndView, to be
+ * further used by the DispatcherServlet. Any additional functionality such
+ * as optional validation, formhandling, etcetera should be obtained by
+ * extended one of the abstract controller mentioned above.
+ * </p>
+ *
  * @author Rod Johnson
  * @version $Id$
  */
