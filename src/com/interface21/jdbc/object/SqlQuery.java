@@ -18,7 +18,6 @@ import javax.sql.DataSource;
 
 import com.interface21.dao.DataAccessException;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
-import com.interface21.jdbc.core.PreparedStatementCreatorFactory;
 import com.interface21.jdbc.core.ResultReader;
 
 /**
@@ -38,34 +37,27 @@ import com.interface21.jdbc.core.ResultReader;
  */
 public abstract class SqlQuery extends SqlOperation {
 
-	//-------------------------------------------------------------------------
-	// Instance data
-	//-------------------------------------------------------------------------
 	/**
 	 * Number of rows to expect. If 0, unknown.
 	 */
 	private int rowsExpected;
 
-	/**
-	 * Object used to create PreparedStatementCreators each time this query is executed
-	 * given SQL and declared parameters
-	 */
-	private PreparedStatementCreatorFactory preparedStatementFactory;
 
 	//-------------------------------------------------------------------------
 	// Constructors
 	//-------------------------------------------------------------------------
+
 	/**
-	 * Allow use as a bean
+	 * Allow use as a bean.
 	 */
 	public SqlQuery() {
 	}
 
 	/**
-	 * Convenient constructor.
+	 * Convenient constructor with DataSource and SQL string.
 	 * @param ds DataSource to use to get connections
-	 * @param SQL to execute. SQL can also be supplied at runtime by overriding
-	 * the getSql() method.
+	 * @param sql to execute. SQL can also be supplied at runtime
+	 * by overriding the getSql() method.
 	 */
 	public SqlQuery(DataSource ds, String sql) {
 		setDataSource(ds);
@@ -76,6 +68,7 @@ public abstract class SqlQuery extends SqlOperation {
 	//-------------------------------------------------------------------------
 	// Bean properties
 	//-------------------------------------------------------------------------
+
 	/**
 	 * Gets the number of rows expected. This can be used to ensure
 	 * efficient storage of results. The default behavior
@@ -100,7 +93,7 @@ public abstract class SqlQuery extends SqlOperation {
 	/**
 	 * Subclasses must implement this method to save a List of objects
 	 * returned by the execute() method.
-	 * @param rowsExpected. If 0, we don't know how many rows to expect.
+	 * @param rowsExpected If 0, we don't know how many rows to expect.
 	 * This parameter can be ignored, but may help some implementations
 	 * choose the most efficient Collection type: e.g. ArrayList
 	 * instead of LinkedList for large result sets.
@@ -169,7 +162,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * @param p1 single int parameter
 	 */
 	public final List execute(int p1) throws DataAccessException {
-		return execute(p1, (Map) null);
+		return execute(p1, null);
 	}
 
 	/**
@@ -188,7 +181,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * @param p2 second int parameter
 	 */
 	public final List execute(int p1, int p2) throws DataAccessException {
-		return execute(p1, p2, (Map) null);
+		return execute(p1, p2, null);
 	}
 
 	/**
@@ -205,7 +198,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * @param p1 single long parameter
 	 */
 	public final List execute(long p1) throws DataAccessException {
-		return execute(p1, (Map) null);
+		return execute(p1, null);
 	}
 
 	/**
@@ -222,7 +215,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * @param p1 single String parameter
 	 */
 	public final List execute(String p1) throws DataAccessException {
-		return execute(p1, (Map) null);
+		return execute(p1, null);
 	}
 
 	/**
@@ -245,7 +238,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * Convenience method to find a single object without context
 	 */
 	public final Object findObject(Object[] parameters) throws DataAccessException {
-		return findObject(parameters, (Map) null);
+		return findObject(parameters, null);
 	}
 
 	/**
@@ -259,7 +252,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * Convenience method to find a single object given a single int parameter
 	 */
 	public final Object findObject(int p1) throws DataAccessException {
-		return findObject(p1, (Map) null);
+		return findObject(p1, null);
 	}
 
 	/**
@@ -273,7 +266,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * Convenience method to find a single object given two int parameters
 	 */
 	public final Object findObject(int p1, int p2) throws DataAccessException {
-		return findObject(p1, p2, (Map) null);
+		return findObject(p1, p2, null);
 	}
 
 	/**
@@ -287,7 +280,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * Convenience method to find a single object given a single String parameter
 	 */
 	public final Object findObject(String p1) throws DataAccessException {
-		return findObject(p1, (Map) null);
+		return findObject(p1, null);
 	}
 
 	/**
@@ -301,7 +294,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * Convenience method to find a single object given a single long parameter
 	 */
 	public final Object findObject(long p1) throws DataAccessException {
-		return findObject(p1, (Map) null);
+		return findObject(p1, null);
 	}
 
 	/**
@@ -309,7 +302,6 @@ public abstract class SqlQuery extends SqlOperation {
 	 * compilation. This implementation does nothing.
 	 */
 	protected void onCompileInternal() {
-		logger.debug("NOP onCompileInternal");
 	}
 
 }

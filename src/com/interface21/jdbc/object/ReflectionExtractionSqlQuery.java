@@ -1,6 +1,5 @@
 package com.interface21.jdbc.object;
 
-
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.ResultReader;
 
@@ -13,35 +12,26 @@ import com.interface21.jdbc.core.ResultReader;
  */
 public abstract class ReflectionExtractionSqlQuery extends SqlQuery {
 
-	/** Class of each row of result.
-	 * Must be a concrete class, not an interface and must
-	 * be a bean with a no-arg constructor.
+	/**
+	 * Class of each row of result. Must be a concrete class,
+	 * not an interface, and must be a bean with a no-arg constructor.
 	 */
 	private Class resultClass;
 
 	/**
-	 *  Only subclasses can use this: they must
-	 * remember to set the result class later
+	 * Only subclasses can use this: They must remember to set
+	 * the result class later.
 	 */
 	protected ReflectionExtractionSqlQuery() {
 	}
 
-
-	//-------------------------------------------------------------------------
-	// Bean properties
-	//-------------------------------------------------------------------------
-	public Class getResultClass() {
-		return resultClass;
-	}
-
-
-	public void setResultClassname(String classname) throws InvalidDataAccessApiUsageException {
+	public void setResultClassName(String className) throws InvalidDataAccessApiUsageException {
 		try {
-			setResultClass(Class.forName(classname));
+			setResultClass(Class.forName(className));
 		}
 		catch (ClassNotFoundException ex) {
 			// Eventually use fatal
-			throw new InvalidDataAccessApiUsageException("Result class [" + classname + "] not found");
+			throw new InvalidDataAccessApiUsageException("Result class [" + className + "] not found");
 		}
 	}
 
@@ -49,16 +39,15 @@ public abstract class ReflectionExtractionSqlQuery extends SqlQuery {
 		this.resultClass = resultClass;
 	}
 
+	public Class getResultClass() {
+		return resultClass;
+	}
 
 	protected void onCompileInternal() throws InvalidDataAccessApiUsageException {
 		if (resultClass == null)
 			throw new InvalidDataAccessApiUsageException("ResultClass must be set in class " + getClass().getName());
 	}
 
-
-	//-------------------------------------------------------------------------
-	// Implementation of protected abstract methods
-	//-------------------------------------------------------------------------
 	/**
 	 * Use reflection to extract an object from each row of the result.
 	 */
