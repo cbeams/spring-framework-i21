@@ -34,7 +34,7 @@ public class DemoControllerTestSuite extends TestCase {
 		MockHttpRequest request = new MockHttpRequest(null, "GET", "test.html");
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = this.testController.handleRequest(request, response);
-		assertTrue("View is correct", mv.getViewname().equals(DemoController.ENTER_NAME_VIEW));
+		assertTrue("View is correct", mv.getViewName().equals(DemoController.ENTER_NAME_VIEW));
 		assertTrue("no name parameter", request.getParameter("name") == null);
 	}
 	
@@ -44,7 +44,7 @@ public class DemoControllerTestSuite extends TestCase {
 		request.addParameter("name", name);
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = this.testController.handleRequest(request, response);
-		assertTrue("View is correct", mv.getViewname().equals(DemoController.VALID_NAME_VIEW));
+		assertTrue("View is correct", mv.getViewName().equals(DemoController.VALID_NAME_VIEW));
 		assertTrue("name parameter matches", request.getParameter("name").equals(name));
 	}
 	
@@ -54,8 +54,8 @@ public class DemoControllerTestSuite extends TestCase {
 		request.addParameter("name", name);
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = this.testController.handleRequest(request, response);
-		assertTrue("View is correct: expected '" + DemoController.INVALID_NAME_VIEW + "' not '" + mv.getViewname() + "'", 
-			mv.getViewname().equals(DemoController.INVALID_NAME_VIEW));
+		assertTrue("View is correct: expected '" + DemoController.INVALID_NAME_VIEW + "' not '" + mv.getViewName() + "'",
+			mv.getViewName().equals(DemoController.INVALID_NAME_VIEW));
 		assertTrue("name parameter matches", request.getParameter("name").equals(name));
 	}
 	

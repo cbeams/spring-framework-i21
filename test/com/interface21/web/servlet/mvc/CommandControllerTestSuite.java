@@ -23,7 +23,7 @@ import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.TestBean;
 import com.interface21.validation.Errors;
 import com.interface21.validation.FieldError;
-import com.interface21.web.bind.WebRequestBindingException;
+import com.interface21.web.bind.ServletRequestBindingException;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.servlet.ModelAndView;
@@ -58,7 +58,7 @@ public class CommandControllerTestSuite extends TestCase {
 		HttpServletRequest request = new MockHttpRequest(null, "GET", "/welcome.html");
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
-		assertTrue("returned correct view name", mv.getViewname().equals(request.getServletPath()));
+		assertTrue("returned correct view name", mv.getViewName().equals(request.getServletPath()));
 		TestBean person = (TestBean) mv.getModel().get("command");
 		Errors errors = (Errors) mv.getModel().get("errors");
 		assertTrue("command and errors non null", person != null && errors != null);
@@ -77,7 +77,7 @@ public class CommandControllerTestSuite extends TestCase {
 		request.addParameter("age", "" + age);
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
-		assertTrue("returned correct view name", mv.getViewname().equals(request.getServletPath()));
+		assertTrue("returned correct view name", mv.getViewName().equals(request.getServletPath()));
 		TestBean person = (TestBean) mv.getModel().get("command");
 		Errors errors = (Errors) mv.getModel().get("errors");
 		assertTrue("command and errors non null", person != null && errors != null);
@@ -95,7 +95,7 @@ public class CommandControllerTestSuite extends TestCase {
 		request.addParameter("age", age);
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
-		assertTrue("returned correct view name", mv.getViewname().equals(request.getServletPath()));
+		assertTrue("returned correct view name", mv.getViewName().equals(request.getServletPath()));
 		TestBean person = (TestBean) mv.getModel().get("command");
 		Errors errors = (Errors) mv.getModel().get("errors");
 		assertTrue("command and errors non null", person != null && errors != null);

@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 
 import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.TestBean;
-import com.interface21.web.bind.WebRequestBindingException;
+import com.interface21.web.bind.ServletRequestBindingException;
 import com.interface21.web.mock.MockHttpRequest;
 import com.interface21.web.mock.MockHttpResponse;
 import com.interface21.web.mock.MockHttpSession;
@@ -72,7 +72,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("Invoked welcome method", mc.wasInvoked("welcome"));
-		assertTrue("view name is welcome", mv.getViewname().equals("welcome"));
+		assertTrue("view name is welcome", mv.getViewName().equals("welcome"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
 		mc = new TestMaController();
@@ -80,7 +80,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		response = new MockHttpResponse();
 		mv = mc.handleRequest(request, response);
 		assertTrue("Invoked test method", mc.wasInvoked("test"));
-		assertTrue("view name is subdir_test", mv.getViewname().equals("test"));
+		assertTrue("view name is subdir_test", mv.getViewName().equals("test"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 	}
 	
@@ -99,7 +99,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		HttpServletRequest request = new MockHttpRequest(null, "GET", "/test.html");
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mac.handleRequest(request, response);
-		assertTrue("view name is test", mv.getViewname().equals("test"));
+		assertTrue("view name is test", mv.getViewName().equals("test"));
 		assertTrue("Delegate was invoked", d.invoked);
 	}
 	
@@ -110,7 +110,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("Invoked inSession method", mc.wasInvoked("inSession"));
-		assertTrue("view name is welcome", mv.getViewname().equals("inSession"));
+		assertTrue("view name is welcome", mv.getViewName().equals("inSession"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
 		request = new MockHttpRequest(null, "GET", "/inSession.html");
@@ -133,7 +133,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("Invoked commandNoSession method", mc.wasInvoked("commandNoSession"));
-		assertTrue("view name is commandNoSession", mv.getViewname().equals("commandNoSession"));
+		assertTrue("view name is commandNoSession", mv.getViewName().equals("commandNoSession"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
 //		mc = new TestMaController();
@@ -141,7 +141,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 //		response = new MockHttpResponse();
 //		mv = mc.handleRequest(request, response);
 //		assertTrue("Invoked subdir_test method", mc.wasInvoked("subdir_test"));
-//		assertTrue("view name is subdir_test", mv.getViewname().equals("subdir_test"));
+//		assertTrue("view name is subdir_test", mv.getViewName().equals("subdir_test"));
 //		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 	}
 	
@@ -156,7 +156,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("Invoked commandInSession method", mc.wasInvoked("commandInSession"));
-		assertTrue("view name is commandInSession", mv.getViewname().equals("commandInSession"));
+		assertTrue("view name is commandInSession", mv.getViewName().equals("commandInSession"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
 		request = new MockHttpRequest(null, "GET", "/commandInSession.html");
@@ -187,7 +187,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		response = new MockHttpResponse();
 		contr = new TestSessionRequiredExceptionHandler();
 		ModelAndView mv = contr.handleRequest(request, response);
-		assertTrue("Name is ok", mv.getViewname().equals("handle(SRE)"));
+		assertTrue("Name is ok", mv.getViewName().equals("handle(SRE)"));
 	}
 	
 	private void testExceptionNoHandler(TestMaController mc, Throwable t) throws Exception {
@@ -228,7 +228,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 		testExceptionNoHandler(new ServletException());
 		
 		// subclass of servlet exception
-		testExceptionNoHandler(new WebRequestBindingException("foo"));
+		testExceptionNoHandler(new ServletRequestBindingException("foo"));
 		testExceptionNoHandler(new RuntimeException());
 		testExceptionNoHandler(new Error());
 	}
@@ -259,7 +259,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 	public void  testHandlerCaughtException() throws Exception {
 		TestMaController mc = new TestExceptionHandler();
 		ModelAndView mv = testHandlerCaughtException(mc, new Exception());
-		assertTrue("mv name is handle(Exception)", mv.getViewname().equals("handle(Exception)"));
+		assertTrue("mv name is handle(Exception)", mv.getViewName().equals("handle(Exception)"));
 		assertTrue("Invoked correct method", mc.wasInvoked("handle(Exception)"));
 		
 		// Check it doesn't affect unknown exceptions
@@ -269,11 +269,11 @@ public class MultiActionControllerTestSuite extends TestCase {
 		
 		mc = new TestServletExceptionHandler();
 		mv = testHandlerCaughtException(mc, new ServletException());
-		assertTrue(mv.getViewname().equals("handle(ServletException)"));
+		assertTrue(mv.getViewName().equals("handle(ServletException)"));
 		assertTrue("Invoke correct method", mc.wasInvoked("handle(ServletException)"));
 		
-		mv = testHandlerCaughtException(mc, new WebRequestBindingException("foo"));
-		assertTrue(mv.getViewname().equals("handle(ServletException)"));
+		mv = testHandlerCaughtException(mc, new ServletRequestBindingException("foo"));
+		assertTrue(mv.getViewName().equals("handle(ServletException)"));
 		assertTrue("Invoke correct method", mc.wasInvoked("handle(ServletException)"));
 		
 		// Check it doesn't affect unknown exceptions
@@ -286,10 +286,10 @@ public class MultiActionControllerTestSuite extends TestCase {
 		
 		mc = new TestRTEHandler();
 		mv = testHandlerCaughtException(mc, new RuntimeException());
-		assertTrue(mv.getViewname().equals("handle(RTE)"));
+		assertTrue(mv.getViewName().equals("handle(RTE)"));
 		assertTrue("Invoke correct method", mc.wasInvoked("handle(RTE)"));
 		mv = testHandlerCaughtException(mc, new FatalBeanException(null, null));
-		assertTrue(mv.getViewname().equals("handle(RTE)"));
+		assertTrue(mv.getViewName().equals("handle(RTE)"));
 		assertTrue("Invoke correct method", mc.wasInvoked("handle(RTE)"));
 		
 		testExceptionNoHandler(mc, new SQLException());
