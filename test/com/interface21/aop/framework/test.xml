@@ -2,18 +2,21 @@
 
 <beans>
 
-	
+	<!-- Simple target -->
 	<bean name="test" class="com.interface21.beans.TestBean">	
 		<property name="name">custom</property>
 		<property name="age">666</property>
 	</bean>
 	
+	<!-- 
+		Invoker interceptor. Not required: can be added by 
+		default
+	-->
 	<bean name="invokerInterceptor" class="com.interface21.aop.framework.InvokerInterceptor">	
 		<property name="target" beanRef="true">test</property>
 	</bean>
 	
 	<bean name="debugInterceptor" class="com.interface21.aop.interceptor.misc.DebugInterceptor">	
-		
 	</bean>
 	
 	<bean name="test1" 
@@ -22,6 +25,38 @@
 		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>		
 		
 		<property name="interceptorNames">debugInterceptor,invokerInterceptor</property>		
+		
+	</bean>
+	
+	<!--
+		Check that invoker is automatically added to wrap target.
+		Non pointcut bean name should be wrapped in invoker.
+	-->
+	<bean name="autoInvoker" 
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<!-- 
+			Aspect interfaces don't need to be included here.
+			They may, for example, be added by global interceptors.
+		 -->
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>		
+		
+		<!--
+			Note that "test" is a target. An InvokerInterceptor
+			will be added automatically.
+		-->
+		<property name="interceptorNames">*,test</property>		
+		
+	</bean>
+	
+	<bean name="prototype" 
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>		
+		
+		<property name="singleton">false</property>
+		
+		<property name="interceptorNames">invokerInterceptor</property>		
 		
 	</bean>
 	
@@ -50,6 +85,65 @@
 	>
 	</bean>
 	
+	<!--
+		Invalid test for global pointcuts.
+		Must have target because there are no interceptors.
+	-->
+	<bean name="noInterceptorNames" 
+			singleton="false"
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>			
+		
+	</bean>
+	
+	<!-- Same effect as noInterceptor names: also invalid -->
+	<bean name="emptyInterceptorNames" 
+			singleton="false"
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>			
+		<property name="interceptorNames"> </property>
+	</bean>
+	
+	<!--
+		Invalid test for global pointcuts.
+		Must have target after *.
+	-->
+	<bean name="globalsWithoutTarget" 
+			singleton="false"
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>			
+		<property name="interceptorNames">*</property>
+	</bean>
+	
+	
+	<bean name="validGlobals" 
+			singleton="true"
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.context.ApplicationListener</property>			
+		<property name="interceptorNames">debugInterceptor,*,target2</property>
+	</bean>
+	
+	<!--
+		Global debug interceptor
+	-->
+	<bean name="g_debug"
+		class="com.interface21.aop.interceptor.misc.DebugInterceptor">
+	</bean>
+	
+	<!--
+		Will add aspect interface to all beans exposing globals
+	-->
+	<bean name="g_aspectInterface"
+		class="com.interface21.aop.framework.ProxyFactoryBeanTests$GlobalAspectInterfaceInterceptor">
+	</bean>
+	
+	<bean name="target2"
+		class="com.interface21.context.support.ConsoleListener">
+	</bean>
 	
 	<!--
 	<bean name="noInterceptorPrototype" 

@@ -17,18 +17,23 @@ import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
 import com.interface21.aop.interceptor.misc.DebugInterceptor;
+import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.ITestBean;
+import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.XmlBeanFactory;
+import com.interface21.context.ApplicationListener;
 import com.interface21.core.TimeStamped;
 
 import junit.framework.TestCase;
 
 /**
- * 
+ * Test cases for AOP FactoryBean, using XML bean factory.
+ * Note that this FactoryBean will work in any bean factory
+ * implementation.
  * @author Rod Johnson
  * @since 13-Mar-2003
- * @version $Revision$
+ * @version $Id$
  */
 public class ProxyFactoryBeanTests extends TestCase {
 	
@@ -66,27 +71,22 @@ public class ProxyFactoryBeanTests extends TestCase {
 	
 	
 	public void testPrototypeInstancesAreNotEqual() {
-		ITestBean test2 = (ITestBean) factory.getBean("test2");
-		ITestBean test2_1 = (ITestBean) factory.getBean("test2");
+		ITestBean test2 = (ITestBean) factory.getBean("prototype");
+		ITestBean test2_1 = (ITestBean) factory.getBean("prototype");
 		assertTrue("Prototype instances !=", test2 != test2_1);
 		assertTrue("Prototype instances equal", test2.equals(test2_1));
 	}
 	
 	/**
-	 * Not a singleton:
-	 * this might break factory init
-	 * SCREWS WHOLE FACTORY: this is probably OK
+	 * Test invoker is automatically added to manipulate target
 	 */
-//	public void testInvalidPrototype() {
-//		try {
-//			ITestBean test2 = (ITestBean) factory.getBean("noInterceptorPrototype");
-//			fail("Shouldn't have returned invalid prototype");
-//		}
-//		catch (AopConfigException ex) {
-//			// Ok
-//		}
-//		
-//	}
+	public void testAutoInvoker() {
+		String name = "Hieronymous";
+		TestBean target = (TestBean) factory.getBean("test");
+		target.setName(name);
+		ITestBean autoInvoker = (ITestBean) factory.getBean("autoInvoker");
+		assertTrue(autoInvoker.getName().equals(name));
+	}
 
 	public void testCanGetFactoryReferenceAndManipulate() {
 		ProxyFactoryBean config = (ProxyFactoryBean) factory.getBean("&test1");
@@ -192,6 +192,67 @@ public class ProxyFactoryBeanTests extends TestCase {
 		assertTrue(PointcutForVoid.methodNames.get(1).equals("setName"));
 	}
 	
+	public void testNoInterceptorNames() {
+		try {
+			ITestBean tb = (ITestBean) factory.getBean("noInterceptorNames");
+			fail("Should require interceptor names");
+		}
+		catch (FatalBeanException ex) {
+			// Ok
+		}
+	}
+	
+	public void testEmptyInterceptorNames() {
+		try {
+			ITestBean tb = (ITestBean) factory.getBean("emptyInterceptorNames");
+			fail("Interceptor names cannot be empty");
+		}
+		catch (FatalBeanException ex) {
+			// Ok
+		}
+	}
+	
+	/**
+	 * Globals must be followed by a target
+	 *
+	 */
+	public void testGlobalsWithoutTarget() {
+		try {
+			ITestBean tb = (ITestBean) factory.getBean("globalsWithoutTarget");
+			fail("Should require target name");
+		}
+		catch (FatalBeanException ex) {
+			// Ok
+		}
+	}
+	
+	/**
+	 * Checks that globals get invoked,
+	 * and that they can add aspect interfaces unavailable
+	 * to other beans. These interfaces don't need
+	 * to be included in proxiedInterface [].
+	 */
+	public void testGlobalsCanAddAspectInterfaces() {
+		AddedGlobalInterface agi = (AddedGlobalInterface) factory.getBean("autoInvoker");
+		assertTrue(agi.globalsAdded() == -1);
+		
+		ProxyFactoryBean pfb = (ProxyFactoryBean) factory.getBean("&validGlobals");
+		// 2 globals + 2 explicit
+		assertTrue(pfb.getMethodPointcuts().size() == 4);
+		
+		ApplicationListener l = (ApplicationListener) factory.getBean("validGlobals");
+		agi = (AddedGlobalInterface) l;
+		assertTrue(agi.globalsAdded() == -1);
+		
+		try {
+			agi = (AddedGlobalInterface) factory.getBean("test1");
+			fail("Aspect interface should't be implemeneted without globals");
+		}
+		catch (ClassCastException ex) {
+		}
+	}
+	
+	//public void testGlobalsCannotBeProxies
 	
 	/**
 	 * Fires only on void methods. Saves list of methods intercepted.
@@ -219,6 +280,31 @@ public class ProxyFactoryBeanTests extends TestCase {
 			return m.getReturnType() == Void.TYPE;
 		}
 
+	}
+	
+	/**
+	 * Aspect interface
+	 */
+	public interface AddedGlobalInterface {
+		int globalsAdded();
+	}
+	
+	/**
+	 * Use as a global interceptor. Checks that 
+	 * global interceptors can add aspect interfaces.
+	 * NB: Add only via global interceptors in XML file.
+	 */
+	public static class GlobalAspectInterfaceInterceptor implements AspectInterfaceInterceptor {
+		public Class[] getAspectInterfaces() {
+			return new Class[] { AddedGlobalInterface.class};
+		}
+		public Object invoke(Invocation invocation) throws Throwable {
+			//System.out.println("GlobalAspectInterfaceInterceptor.invoke");
+			MethodInvocation mi = (MethodInvocation) invocation;
+			if (mi.getMethod().getDeclaringClass().equals(AddedGlobalInterface.class))
+				return new Integer(-1);
+			return invocation.invokeNext();
+		}
 	}
 	
 }
