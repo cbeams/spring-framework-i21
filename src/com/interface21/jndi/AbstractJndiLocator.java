@@ -1,12 +1,6 @@
-/**
- * Generic framework code included with
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002).
- * This code is free to use and modify. However, please
- * acknowledge the source and include the above URL in each
- * class using or derived from this code.
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
 
 package com.interface21.jndi;
@@ -30,6 +24,7 @@ import com.interface21.beans.factory.InitializingBean;
  * <p><b>Assumptions: </b>The resource obtained from JNDI can be cached.
  *
  * @author Rod Johnson
+ * @version $Id$
  */
 public abstract class AbstractJndiLocator implements InitializingBean {
 
@@ -124,7 +119,7 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 
 	private Object lookup(String jndiName) throws NamingException {
 		Object o = this.jndiTemplate.lookup(jndiName);
-		logger.debug("Looked up objet with jndiName '" + jndiName + "' OK: [" + o + "]");
+		logger.debug("Successfully looked up object with jndiName '" + jndiName + "': value=[" + o + "]");
 		return o;
 	}
 
