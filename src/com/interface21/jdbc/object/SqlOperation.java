@@ -78,8 +78,14 @@ public abstract class SqlOperation extends RdbmsOperation {
 	protected final void compileInternal() {
 		this.jdbcTemplate = new JdbcTemplate(getDataSource());
 		// Validate parameter count
-		//int bindVarCount = StringUtils.countOccurrencesOf(getSql(), "?");
-		int bindVarCount = StringUtils.countParameterPlaceholders(getSql(), '?', '\'');
+		int bindVarCount = 0;
+		try {
+		    bindVarCount = StringUtils.countParameterPlaceholders(getSql(), '?', '\'');
+		}
+		catch(IllegalArgumentException e) {
+		    // Transform jdbc-agnostic error to data-access error
+		    throw new InvalidDataAccessApiUsageException(e.getMessage());
+		}
 		if (bindVarCount != getDeclaredParameters().size())
 			throw new InvalidDataAccessApiUsageException("SQL '" + getSql() + "' requires " + bindVarCount + 
 				" bind variables, but " + getDeclaredParameters().size() + " variables were declared for this object");
