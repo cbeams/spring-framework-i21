@@ -55,6 +55,8 @@ You are so just defining a "secondDaoCountry" bean and its "dataSource" bean.
 2) in war/WEB-INF/countries-servlet.xml: uncomment the property "secondDaoCountry"
 near the end of the file.
 3) Obviously, you will stick with the default 'J2EE' Jdbc definition.
+4) In jboss-service.xml, for avoiding "MessageCache" error logs, set
+	<attribute name="RecursiveSearch">True</attribute>
 
 Now that all is set, rebuild the war file with the ant command and deploy the 
 new generated war file.
