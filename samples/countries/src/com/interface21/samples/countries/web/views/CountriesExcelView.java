@@ -141,7 +141,7 @@ public class CountriesExcelView extends AbstractExcelView {
 			// row += 3;
 
 			// We create a second shhet for the data
-			sheet = wb.createSheet("Countries"); 
+			sheet = wb.createSheet(getMessage("countries", loc)); 
 			sheet.setColumnWidth((short)1, (short)(30 * 256));
 			row = 0;
 
