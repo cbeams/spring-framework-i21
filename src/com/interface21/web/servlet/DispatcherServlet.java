@@ -259,7 +259,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	private void initDefaultHandlerAdapter() throws ServletException {
 		try {
-			logger.info("Controller servlet '" + getServletName() + "': Initializing default HandlerAdapter");
+			logger.info("Dispatcher servlet '" + getServletName() + "': Initializing default HandlerAdapter");
 			HandlerAdapter ha = new SimpleControllerHandlerAdapter();
 			ha.setApplicationContext(getWebApplicationContext());
 			this.handlerAdapters.add(ha);
