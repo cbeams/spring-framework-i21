@@ -9,7 +9,8 @@ import javax.servlet.ServletException;
 
 /**
  * Performs the actual initialization work.
- * Called by both ContextLoaderServlet and ContextLoaderListener.
+ * Called by both ContextLoaderServlet and ContextLoaderListener,
+ * and implictly by FrameworkServlet in case of no preloaded context.
  *
  * Regards a "contextClass" parameter at the servlet context resp. web.xml root level,
  * falling back to the default context class (XmlWebApplicationContext) if not found.
@@ -19,8 +20,8 @@ import javax.servlet.ServletException;
  */
 public class ContextLoader {
 
-	/** Config param to this servlet for the WebApplicationContext
-	 * implementation class to use
+	/**
+	 * Config param to this servlet for the WebApplicationContext implementation class to use
 	 */
 	public static final String CONTEXT_CLASS_PARAM = "contextClass";
 
