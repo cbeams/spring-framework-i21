@@ -196,16 +196,17 @@ public class ValidationTestSuite extends TestCase {
 				errors.rejectValue("age", "AGE_NOT_ODD", null, "your age isn't odd");
 			}
 			if (tb.getName() == null || !tb.getName().equals("Rod")) {
-				errors.rejectValue("name", "NOT_ROD", null, "are you sure you're not Rod?");
+				errors.rejectValue("name", "NOT_ROD", "are you sure you're not Rod?");
 			}
 			if (tb.getTouchy() == null || !tb.getTouchy().equals(tb.getName())) {
-				errors.reject("NAME_TOUCHY_MISMATCH", null, "name and touchy do not match");
+				errors.reject("NAME_TOUCHY_MISMATCH", "name and touchy do not match");
 			}
 			if (tb.getAge() == 0) {
 				errors.reject("GENERAL_ERROR", new String[] {"arg"}, "msg");
 			}
 		}
 	}
+	
 
 	private static class SpouseValidator implements Validator {
 

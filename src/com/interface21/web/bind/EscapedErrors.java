@@ -42,8 +42,16 @@ public class EscapedErrors implements Errors {
 		return source.getObjectName();
 	}
 
+	public void reject(String errorCode, String defaultMessage) {
+		source.reject(errorCode, defaultMessage);
+	}
+
 	public void reject(String errorCode, Object[] errorArgs, String defaultMessage) {
 		source.reject(errorCode, errorArgs, defaultMessage);
+	}
+
+	public void rejectValue(String field, String errorCode, String defaultMessage) {
+		source.rejectValue(field, errorCode, defaultMessage);
 	}
 
 	public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) {

@@ -88,8 +88,16 @@ public class BindException extends Exception implements Errors {
 		return objectName;
 	}
 
+	public void reject(String errorCode, String defaultMessage) {
+		reject(errorCode, null, defaultMessage);
+	}
+
 	public void reject(String errorCode, Object[] errorArgs, String defaultMessage) {
 		this.errors.add(new ObjectError(this.objectName, errorCode, errorArgs, defaultMessage));
+	}
+
+	public void rejectValue(String field, String errorCode, String defaultMessage) {
+		rejectValue(field, errorCode, null, defaultMessage);
 	}
 
 	public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) {
