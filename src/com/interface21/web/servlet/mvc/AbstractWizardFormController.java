@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.interface21.validation.BindException;
 import com.interface21.validation.Errors;
 import com.interface21.web.servlet.ModelAndView;
+import com.interface21.web.util.WebUtils;
 
 /**
  * Form controller for typical wizard-style workflows.
@@ -28,9 +29,11 @@ import com.interface21.web.servlet.ModelAndView;
  * </ul>
  *
  * <p>Finish and cancel actions can be triggered by request parameters, named
- * PARAM_FINISH and PARAM_CANCEL (ignoring parameter values to allow for HTML
- * buttons). The target page for page changes can be specified by PARAM_TARGET,
- * appending the page number to the parameter name (e.g. "_target1").
+ * PARAM_FINISH ("_finish") and PARAM_CANCEL ("_cancel"), ignoring parameter
+ * values to allow for HTML buttons. The target page for page changes can be
+ * specified by PARAM_TARGET, appending the page number to the parameter name
+ * (e.g. "_target1"). The action parameters are recognized when triggered by
+ * image buttons too (via "_finish.x", "_abort.x", or "_target1.x").
  *
  * <p>The page can only be changed if it validates correctly, except if a
  * "dirty back" or "dirty forward" is allowed. At finish, all pages get
@@ -260,13 +263,13 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 		request.getSession().removeAttribute(getPageSessionAttributeName());
 
 		// cancel?
-		if (request.getParameter(PARAM_CANCEL) != null) {
+		if (WebUtils.hasSubmitParameter(request, PARAM_CANCEL)) {
 			logger.debug("Cancelling wizard (form bean: " + getBeanName() + ")");
 			return processCancel(request, response, command, errors);
 		}
 
 		// finish?
-		if (request.getParameter(PARAM_FINISH) != null) {
+		if (WebUtils.hasSubmitParameter(request, PARAM_FINISH)) {
 			logger.debug("Finishing wizard (form bean: " + getBeanName() + ")");
 			return validatePagesAndFinish(request, response, command, errors);
 		}
@@ -279,6 +282,9 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 		while (paramNames.hasMoreElements()) {
 			String paramName = (String) paramNames.nextElement();
 			if (paramName.startsWith(PARAM_TARGET)) {
+				if (paramName.endsWith(WebUtils.SUBMIT_IMAGE_SUFFIX)) {
+					paramName = paramName.substring(0, paramName.length() - WebUtils.SUBMIT_IMAGE_SUFFIX.length());
+				}
 				int target = Integer.parseInt(paramName.substring(PARAM_TARGET.length()));
 				if (!errors.hasErrors() || (this.allowDirtyBack && target < page) ||
 				    (this.allowDirtyForward && target > page)) {
