@@ -10,8 +10,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import junit.framework.TestCase;
+
 import org.aopalliance.AspectException;
-import org.aopalliance.AttributeRegistry;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 import org.easymock.EasyMock;
@@ -287,6 +287,47 @@ public class AopProxyTests extends TestCase {
 			// ok
 		}
 	}
+	
+	
+
+	/**
+	 * Test stateful interceptor
+	 * @throws Throwable
+	 */
+	public void testMixin() throws Throwable {
+		TestBean tb = new TestBean();
+		ProxyFactory pc = new ProxyFactory(new Class[] { Lockable.class, ITestBean.class });
+		pc.addInterceptor(new LockMixin());
+		pc.addInterceptor(new InvokerInterceptor(tb));
+		
+		int newAge = 65;
+		ITestBean itb = (ITestBean) pc.getProxy();
+		itb.setAge(newAge);
+		assertTrue(itb.getAge() == newAge);
+
+		Lockable lockable = (Lockable) itb;
+		assertFalse(lockable.locked());
+		lockable.lock();
+		
+		assertTrue(itb.getAge() == newAge);
+		try {
+			itb.setAge(1);
+			fail("Setters should fail when locked");
+		} 
+		catch (LockedException ex) {
+			// ok
+		}
+		assertTrue(itb.getAge() == newAge);
+		
+		// Unlock
+		assertTrue(lockable.locked());
+		lockable.unlock();
+		itb.setAge(1);
+		assertTrue(itb.getAge() == 1);
+	}
+	
+	
+	
 
 
 	private static class TrapInvocationInterceptor implements MethodInterceptor {

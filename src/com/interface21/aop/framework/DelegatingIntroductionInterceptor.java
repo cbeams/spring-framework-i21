@@ -13,7 +13,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * All subclasses need to do is extend this and
+ * Convenient implementation of the IntroductionInterceptor interface.
+ * <br/>Subclasses merely need to extend this class and
  * implement the interfaces to be introduced themselves.
  * In this case the delegate is the subclass instance itself.
  * Alternatively a separate delegate may implement the interface,
@@ -92,12 +93,16 @@ public class DelegatingIntroductionInterceptor implements IntroductionIntercepto
 	}
 
 	/**
+	 * Subclasses may need to override this if they want to 
+	 * perform custom behaviour in around advice. However, subclasses should invoke
+	 * this method, which handles introduced interfaces and forwarding
+	 * to the target.
 	 * @see com.interface21.aop.Interceptor#invoke(Invocation)
 	 */
-	public final Object invoke(MethodInvocation invocation) throws Throwable {
+	public Object invoke(MethodInvocation invocation) throws Throwable {
 		
 		// We want this for getArguments() method
-		// This class is not portable outside Spring AOP framework
+		// TODO this class is not portable outside Spring AOP framework
 		MethodInvocationImpl mi = (MethodInvocationImpl) invocation;
 		
 		if (this.publishedInterfaces.contains(mi.getMethod().getDeclaringClass())) {
