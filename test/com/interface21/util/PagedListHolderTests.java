@@ -21,10 +21,6 @@ import com.interface21.beans.BeanWrapper;
  */
 public class PagedListHolderTests extends TestCase {
 
-	public PagedListHolderTests(String msg) {
-		super(msg);
-	}
-
 	public void testPagedListHolder() {
 		TestBean tb1 = new TestBean();
 		tb1.setName("eva");
@@ -106,6 +102,16 @@ public class PagedListHolderTests extends TestCase {
 		holder.setPage(1);
 		assertTrue("Correct page list size", holder.getPageList().size() == 1);
 		assertTrue("Correct page list contents", holder.getPageList().get(0) == tb2);
+
+		((MutableSortDefinition) holder.getSort()).setProperty("age");
+		holder.resort();
+		assertTrue("Correct page list contents", holder.getPageList().get(0) == tb1);
+		assertTrue("Correct page list contents", holder.getPageList().get(1) == tb3);
+
+		((MutableSortDefinition) holder.getSort()).setIgnoreCase(true);
+		holder.resort();
+		assertTrue("Correct page list contents", holder.getPageList().get(0) == tb1);
+		assertTrue("Correct page list contents", holder.getPageList().get(1) == tb3);
 	}
 
 	public void testRefreshablePagedListHolder() {
