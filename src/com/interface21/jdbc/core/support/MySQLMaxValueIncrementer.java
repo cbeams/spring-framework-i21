@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  * Example
  * <code>
  * create table tab (id int unsigned not null primary key, text varchar(100));
- * create table tab_sequence (seq int unsigned not null primary key);
+ * create table tab_sequence (seq int unsigned not null auto_increment primary key);
  * insert into tab_sequence values(0);
  * </code>
  * </p>
