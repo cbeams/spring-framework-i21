@@ -485,7 +485,7 @@ public class JdbcTemplate {
 	    for (index = 0; index < retvals.length; index++) {
 		retvals[index] = new InsertRetval();
 		PreparedStatement ps = pscs[index].createPreparedStatement(con);
-		binder.Bind(ps, retvals[index].key = keygen.nextValue(keyClass));
+		binder.bind(ps, retvals[index].key = keygen.nextValue(keyClass));
 		retvals[index].rowsAffected = ps.executeUpdate();
 		if (logger.isInfoEnabled())
 		    logger.info("JDBCTemplate: update affected " + retvals[index] + " rows");
