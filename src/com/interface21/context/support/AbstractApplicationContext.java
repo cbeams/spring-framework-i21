@@ -178,8 +178,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		if ((this.messageSource instanceof NestingMessageSource) && this.parent != null) {
 			( (NestingMessageSource) messageSource).setParent(this.parent);
 		}
-		refreshListeners();				
+
+		refreshListeners();
 		configureAllManagedObjects();
+
+		publishEvent(new ContextRefreshedEvent(this));
 	}	// refresh
 	
 	
