@@ -9,7 +9,7 @@
 
 package com.interface21.jdbc.datasource;
 
-import java.lang.reflect.Method;
+import java.beans.PropertyEditorManager;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -38,7 +38,12 @@ public abstract class DataSourceUtils {
 	/**
 	 * Per-thread mappings: DataSource -> ConnectionHolder
 	 */
-	private static ThreadObjectManager threadObjectManager = new ThreadObjectManager();
+	private static final ThreadObjectManager threadObjectManager = new ThreadObjectManager();
+
+	static {
+		// register editor to be able to set a JNDI name to a DataSource property
+		PropertyEditorManager.registerEditor(DataSource.class, JndiDataSourceEditor.class);
+	}
 
 	/**
 	 * Return the thread object manager for data sources, keeping a

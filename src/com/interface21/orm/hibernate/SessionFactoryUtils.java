@@ -2,6 +2,7 @@ package com.interface21.orm.hibernate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.beans.PropertyEditorManager;
 
 import javax.naming.NamingException;
 
@@ -30,12 +31,17 @@ import com.interface21.util.ThreadObjectManager;
  */
 public abstract class SessionFactoryUtils {
 
-	private static Logger logger = Logger.getLogger(SessionFactoryUtils.class);
+	private static final Logger logger = Logger.getLogger(SessionFactoryUtils.class);
+
+	static {
+		// register editor to be able to set a JNDI name to a SessionFactory property
+		PropertyEditorManager.registerEditor(SessionFactory.class, JndiSessionFactoryEditor.class);
+	}
 
 	/**
 	 * Per-thread mappings: SessionFactory -> SessionHolder
 	 */
-	private static ThreadObjectManager threadObjectManager = new ThreadObjectManager();
+	private static final ThreadObjectManager threadObjectManager = new ThreadObjectManager();
 
 	/**
 	 * Return the thread object manager for Hibernate session, keeping a
