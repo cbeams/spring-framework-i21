@@ -363,7 +363,12 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * @return last component of the path (the property on the target bean)
 	 */
 	private String getFinalPath(String nestedPath) {
-		return nestedPath.substring(nestedPath.lastIndexOf(NESTED_PROPERTY_SEPARATOR) + 1);
+		String finalPath = nestedPath.substring(nestedPath.lastIndexOf(NESTED_PROPERTY_SEPARATOR) + 1);;
+		if (logger.isDebugEnabled()) {
+			logger.debug("Final path in nested property value '" + nestedPath + "' is '"
+					+ finalPath + "'");
+		}
+		return finalPath;
 	}
 
 	/**
@@ -583,8 +588,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 	public Object getPropertyValue(String propertyName) throws BeansException {
 		if (isNestedProperty(propertyName)) {
 			BeanWrapper nestedBw = getBeanWrapperForNestedProperty(propertyName);
-			logger.debug("Final path in nested property value '" + propertyName + "' is '"
-					+ getFinalPath(propertyName) + "'");
 			return nestedBw.getPropertyValue(getFinalPath(propertyName));
 		}
 
@@ -641,11 +644,15 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * @throws BeansException if property descriptors cannot be obtained
 	 */
 	public PropertyDescriptor[] getProperties() throws BeansException {
-		return cachedIntrospectionResults.getBeanInfo().getPropertyDescriptors();
+		return this.cachedIntrospectionResults.getBeanInfo().getPropertyDescriptors();
 	}
 
 	public PropertyDescriptor getPropertyDescriptor(String propertyName) throws BeansException {
-		return cachedIntrospectionResults.getPropertyDescriptor(propertyName);
+		if (isNestedProperty(propertyName)) {
+			BeanWrapper nestedBw = getBeanWrapperForNestedProperty(propertyName);
+			return nestedBw.getPropertyDescriptor(getFinalPath(propertyName));
+		}
+		return this.cachedIntrospectionResults.getPropertyDescriptor(propertyName);
 	}
 
 	public boolean isReadableProperty(String propertyName) {
