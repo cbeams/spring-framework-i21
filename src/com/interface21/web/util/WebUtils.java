@@ -7,6 +7,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -15,12 +16,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author Juergen Hoeller
  */
 public abstract class WebUtils {
-
-	/** HTTP header value */
-	public static final String HEADER_IFMODSINCE = "If-Modified-Since";
-
-	/** HTTP header value */
-	public static final String HEADER_LASTMOD = "Last-Modified";
 
 	/**
 	 * Web app root key parameter at the servlet context level
@@ -32,6 +27,15 @@ public abstract class WebUtils {
 	 * Default web app root key: "webapp.root".
 	 */
 	public static final String DEFAULT_WEB_APP_ROOT_KEY = "webapp.root";
+
+	/** HTTP header value */
+	public static final String HEADER_IFMODSINCE = "If-Modified-Since";
+
+	/** HTTP header value */
+	public static final String HEADER_LASTMOD = "Last-Modified";
+
+	/** Name suffix in case of image buttons */
+	public static final String SUBMIT_IMAGE_SUFFIX = ".x";
 
 	/**
 	 * Set a system property to the web application root directory.
@@ -59,6 +63,38 @@ public abstract class WebUtils {
 			String root = servletContext.getRealPath("/");
 			System.setProperty(key, root);
 			servletContext.log("Set web app root system property: " + key + " = " + root);
+		}
+	}
+
+	/**
+	 * Check the given request for a session attribute of the given name.
+	 * Returns null if there is no session or if the session has no such attribute.
+	 * Does not create a new session if none has existed before!
+	 * @param request current HTTP request
+	 * @param name the name of the session attribute
+	 * @return the value of the session attribute, or null if not found
+	 */
+	public static Object getSessionAttribute(HttpServletRequest request, String name) {
+		HttpSession session = request.getSession(false);
+		return (session != null ? session.getAttribute(name) : null);
+	}
+
+	/**
+	 * Set the session attribute with the given name to the given value.
+	 * Removes the session attribute if value is null, if a session existed at all.
+	 * Does not create a new session on remove if none has existed before!
+	 * @param request current HTTP request
+	 * @param name the name of the session attribute
+	 */
+	public static void setSessionAttribute(HttpServletRequest request, String name, Object value) {
+		if (value != null) {
+			request.getSession().setAttribute(name, value);
+		}
+		else {
+			HttpSession session = request.getSession(false);
+			if (session != null) {
+				session.removeAttribute(name);
+			}
 		}
 	}
 
@@ -169,6 +205,18 @@ public abstract class WebUtils {
 			}
 		}
 		return props;
+	}
+
+	/**
+	 * Check if a specific input type="submit" parameter was sent in the request,
+	 * either via a button (directly with name) or via an image (name + ".x").
+	 * @param request current HTTP request
+	 * @param name name of the parameter
+	 * @return if the parameter was sent
+	 * @see #SUBMIT_IMAGE_SUFFIX
+	 */
+	public static boolean hasSubmitParameter(ServletRequest request, String name) {
+		return (request.getParameter(name) != null || request.getParameter(name + SUBMIT_IMAGE_SUFFIX) != null);
 	}
 
 }
