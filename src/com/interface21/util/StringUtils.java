@@ -60,9 +60,9 @@ public abstract class StringUtils {
      * Examples : if the delimiter is the single quote, and the character to count the 
      * occurrences of is the question mark, then
      * <p>
-     * <code>'The big ? bad wolf'</code> gives a count of one
-     * <code>'The big ?? bad wolf'</code> gives a count of zero
-     * <code>'The big  ba''ad ? wolf'</code> gives a count of one
+     * <code>The big ? 'bad wolf'</code> gives a count of one
+     * <code>The big ?? bad wolf</code> gives a count of zero
+     * <code>The big  'ba''ad' ? wolf</code> gives a count of one
      * <p>
      * The grammar of the string passed in should obey the rules
      * string = (marker | stringPart)*
