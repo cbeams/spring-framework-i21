@@ -14,23 +14,25 @@ package com.interface21.web.servlet.mvc;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import com.interface21.validation.ValidationUtils;
 import com.interface21.validation.Validator;
 import com.interface21.web.bind.ServletRequestDataBinder;
 
 /**
- * Controller implementation that creates a Command object
- * on receipt of requests and attempts to populate the command's
- * JavaBean properties with request attributes.
- * Once created, commands can be validated using a Validator
- * associated with this class.
- * Type mismatches populating a command are treated as validation
- * errors, but caught by the framework, not application code.
+ * Controller implementation that creates a Command object on receipt
+ * of requests and attempts to populate the command's JavaBean properties
+ * with request attributes.
  *
- * <p>Note: This class is the base class for both FormController and
- * AbstractCommandController (which in turn is the base class for
+ * <p>Once created, commands can be validated using a Validator associated
+ * with this class. Type mismatches populating a command are treated as
+ * validation errors, but caught by the framework, not application code.
+ *
+ * <p>Note: This class is the base class for both AbstractFormController
+ * and AbstractCommandController (which in turn is the base class for
  * custom controller implementations).
  *
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  */
 public abstract class BaseCommandController extends AbstractController {
 
@@ -41,8 +43,11 @@ public abstract class BaseCommandController extends AbstractController {
 	private Class commandClass;
 
 	private Validator validator;
-	
+
+	private boolean validateOnBinding = true;
+
 	public BaseCommandController() {
+		super();
 	}
 
 	public final void setBeanName(String beanName) {
@@ -88,12 +93,17 @@ public abstract class BaseCommandController extends AbstractController {
 	}
 
 	/**
-	 * Return the validator that gets applied when binding.
-	 * Can be overridden to return null to allow for custom validator calls.
-	 * @return the validator for the binding process
+	 * Set if the validator should get applied when binding.
 	 */
-	protected Validator getValidatorForBinding() {
-		return validator;
+	public final void setValidateOnBinding(boolean validateOnBinding) {
+		this.validateOnBinding = validateOnBinding;
+	}
+
+	/**
+	 * Return if the validator should get applied when binding.
+	 */
+	protected final boolean isValidateOnBinding() {
+		return validateOnBinding;
 	}
 
 	/**
@@ -113,7 +123,7 @@ public abstract class BaseCommandController extends AbstractController {
 	 * @param command command object to check
 	 * @return if the command object is valid for this controller
 	 */
-	protected boolean checkCommand(Object command) {
+	protected final boolean checkCommand(Object command) {
 		return (this.commandClass == null || this.commandClass.isInstance(command));
 	}
 
@@ -158,16 +168,8 @@ public abstract class BaseCommandController extends AbstractController {
 	protected final ServletRequestDataBinder bindAndValidate(HttpServletRequest request, Object command) throws ServletException {
 		ServletRequestDataBinder binder = createBinder(request, command);
 		binder.bind(request);
-		Validator validator = getValidatorForBinding();
-		if (validator != null) {
-			logger.debug("Invoking validator [" + validator + "]");
-			if (!validator.supports(command.getClass()))
-				throw new IllegalArgumentException("Validator " + validator.getClass() + " does not support " + command.getClass());
-			validator.validate(command, binder);
-			if (binder.hasErrors())
-				logger.debug("Validator found " + binder.getErrorCount() + " errors");
-			else
-				logger.debug("Validator found no errors");
+		if (isValidateOnBinding()) {
+			ValidationUtils.invokeValidator(getValidator(), command, binder);
 		}
 		onBindAndValidate(request, command, binder);
 		return binder;

@@ -28,7 +28,8 @@ import java.util.Properties;
  * <br>If the path doesn't begin with a /, one is prepended.
  * <br>Mappings are set via the "mappings" property.
  * @see com.interface21.web.servlet.ControllerServlet
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  */
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	

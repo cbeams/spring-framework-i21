@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 
 import com.interface21.context.ApplicationContextException;
-import com.interface21.web.context.support.WebApplicationObjectSupport;
+import com.interface21.context.support.ApplicationObjectSupport;
 
 /**
  * JavaBean to configure Velocity, by setting the location of the Velocity properties
@@ -32,7 +32,7 @@ import com.interface21.web.context.support.WebApplicationObjectSupport;
  * initialization methods, and is not meant to be referenced by application components.
  * @author Rod Johnson
  */
-public class VelocityConfigurer extends WebApplicationObjectSupport {
+public class VelocityConfigurer extends ApplicationObjectSupport {
 
 	protected final Logger logger = Logger.getLogger(getClass());
 
@@ -61,7 +61,7 @@ public class VelocityConfigurer extends WebApplicationObjectSupport {
 		try {
 			Properties p = new Properties();
 			logger.info("Loading Velocity properties from [" + this.location + "]");
-			p.load(getWebApplicationContext().getResourceAsStream(this.location));
+			p.load(getApplicationContext().getResourceAsStream(this.location));
 			Velocity.init(p);
 		}
 		catch (ServletException e) {

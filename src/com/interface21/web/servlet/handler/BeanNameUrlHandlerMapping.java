@@ -9,7 +9,8 @@ import com.interface21.util.StringUtils;
  * or a custom handler mapping should be used by preference.
  * <br/>The mapping is from URL to bean name. Thus an incoming URL
  * /foo would map to a handler named /foo.
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @see SimpleUrlHandlerMapping
  */
 public class BeanNameUrlHandlerMapping extends AbstractUrlHandlerMapping {

@@ -13,64 +13,31 @@ package com.interface21.web.servlet.view;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 
-import org.apache.log4j.Logger;
-
-import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextAware;
 import com.interface21.context.ApplicationContextException;
+import com.interface21.context.support.ApplicationObjectSupport;
 import com.interface21.web.servlet.View;
 import com.interface21.web.servlet.ViewResolver;
 
 /**
- * Convenient superclass for view resolvers.
- * Caches Views once resolved. This means that
- * view resolution won't be a performance problem, no matter how costly
- * initial view retrieval is. View retrieval is deferred to subclasses.
- * @author  Rod Johnson
+ * Convenient superclass for view resolvers. Caches views once resolved.
+ * This means that view resolution won't be a performance problem,
+ * no matter how costly initial view retrieval is.
+ * View retrieval is deferred to subclasses.
+ * @author Rod Johnson
  */
-public abstract class AbstractCachingViewResolver implements ViewResolver {
+public abstract class AbstractCachingViewResolver extends ApplicationObjectSupport implements ViewResolver {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
 	/** View name --> View instance */
-	private HashMap viewHash = new HashMap();
-
-	/** Logging category for this object */
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-
-	/** ApplicationContext for this ViewResolver */
-	private ApplicationContext applicationContext;
+	private Map viewHash = new HashMap();
 
 	/** Whether we should cache views, once resolved */
 	private boolean cache = true;
 
-	//---------------------------------------------------------------------
-	// Implementation of ApplicationContextAware
-	//---------------------------------------------------------------------
-	/** Set the ApplicationContext object used by this object
-	 * @param applicationContext ApplicationContext object used by this object
-	 * @throws ApplicationContextException if initialization attempted by this object
-	 * after it has access to the WebApplicatinContext fails
-	 */
-	public final void setApplicationContext(ApplicationContext applicationContext)
-		throws ApplicationContextException {
-		this.applicationContext = applicationContext;
-	}
-
-	/**
-	 * @see ApplicationContextAware#getApplicationContext()
-	 */
-	public final ApplicationContext getApplicationContext() {
-		return this.applicationContext;
-	}
-
-	//---------------------------------------------------------------------
-	// Bean properties
-	//---------------------------------------------------------------------
 	/**
 	 * Disable caching. Do this only for debugging and development. Default is
 	 * for caching to be enabled. 
@@ -84,18 +51,12 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 	}
 
 	/**
-	 * @return whether caching is enabled
+	 * Return whether caching is enabled.
 	 */
 	public boolean getCache() {
 		return this.cache;
 	}
 
-	//---------------------------------------------------------------------
-	// Implementation of ViewResolver
-	//---------------------------------------------------------------------
-	/**
-	 * @see ViewResolver#resolveViewname(String, Locale)
-	 */
 	public final View resolveViewname(String viewname, Locale locale) throws ServletException {
 		View v = null;
 		if (!cache) {
@@ -103,20 +64,17 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 			v = loadAndConfigureView(viewname, locale);
 		}
 		else {
-			// We're caching
-			// Don't really need synchronization
+			// We're caching - don't really need synchronization
 			v = (View) viewHash.get(getCacheKey(viewname, locale));
 			if (v == null) {
 				// Ask the subclass to load the View
 				v = loadAndConfigureView(viewname, locale);
 			}
 		}
-
 		return v;
-	}	// resolveViewname
+	}
 
-
-	/** 
+	/**
 	 * Configure the given View. Only invoked once per View.
 	 * Configuration means giving the View its name, and 
 	 * setting the ApplicationContext on the View if necessary
@@ -135,7 +93,7 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 		// if it needs it
 		if (v instanceof ApplicationContextAware) {
 			try {
-				((ApplicationContextAware) v).setApplicationContext(this.applicationContext);
+				((ApplicationContextAware) v).setApplicationContext(getApplicationContext());
 			}
 			catch (ApplicationContextException ex) {
 				throw new ServletException("Error initializing View [" + v + "]: " + ex.getMessage(), ex);
@@ -147,7 +105,7 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 		}
 
 		return v;
-	} // loadAndConfigureView
+	}
 
 	/**
 	 * Returns the cache key for the given viewname and the given locale.
@@ -157,7 +115,8 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 		return viewname + "_" + locale;
 	}
 
-	/** Subclasses must implement this method. There need be no concern for efficiency,
+	/**
+	 * Subclasses must implement this method. There need be no concern for efficiency,
 	 * as this class will cache views.
 	 * @param viewName name of the view to retrieve
 	 * @param locale Locale to retrieve the view for. Not all subclasses may support
@@ -166,4 +125,5 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 	 * @return the View if it can be resolved; otherwise null.
 	 */
 	protected abstract View loadView(String viewName, Locale locale) throws ServletException;
+
 }

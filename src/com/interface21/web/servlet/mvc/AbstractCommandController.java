@@ -25,22 +25,35 @@ import com.interface21.web.servlet.ModelAndView;
  * command bean from the request. For command validation, a validator
  * (property inherited from BaseCommandController) can be used.
  *
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  */
 public abstract class AbstractCommandController extends BaseCommandController {
 
+	/**
+	 * Create a new AbstractCommandController.
+	 */
+	public AbstractCommandController() {
+	}
+
+	/**
+	 * Create a new AbstractCommandController.
+	 * @param commandClass class of the command bean
+	 */
+	public AbstractCommandController(Class commandClass) {
+		setCommandClass(commandClass);
+	}
+
+	/**
+	 * Create a new AbstractCommandController.
+	 * @param commandClass class of the command bean
+	 * @param beanName name of the command bean
+	 */
 	public AbstractCommandController(Class commandClass, String beanName) {
 		setCommandClass(commandClass);
 		setBeanName(beanName);
 	}
 	
-	public AbstractCommandController(Class commandClass) {
-		setCommandClass(commandClass);
-	}
-
-	public AbstractCommandController() {
-	}
-
 	protected final ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		Object command = userObject(request);
@@ -49,9 +62,8 @@ public abstract class AbstractCommandController extends BaseCommandController {
 	}
 
 	/**
-	 * Template method for request handling, providing a populated and
-	 * validated instance of the command class, and an Errors object
-	 * containing binding and validation errors.
+	 * Template method for request handling, providing a populated and validated instance
+	 * of the command class, and an Errors object containing binding and validation errors.
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param command the populated command object

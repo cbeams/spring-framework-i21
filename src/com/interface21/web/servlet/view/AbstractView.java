@@ -23,7 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.interface21.web.context.support.WebApplicationObjectSupport;
+import com.interface21.context.support.ApplicationObjectSupport;
 import com.interface21.web.servlet.View;
 import com.interface21.web.servlet.support.RequestContext;
 
@@ -44,7 +44,7 @@ import com.interface21.web.servlet.support.RequestContext;
  * <br/>Also provides a logging category.
  * @author  Rod Johnson
  */
-public abstract class AbstractView extends WebApplicationObjectSupport implements View {
+public abstract class AbstractView extends ApplicationObjectSupport implements View {
 
 	//---------------------------------------------------------------------
 	// Instance data

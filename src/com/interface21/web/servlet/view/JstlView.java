@@ -29,7 +29,7 @@ public class JstlView extends InternalResourceView {
 
 		// add JSTL locale and LocalizationContext request attributes
 		Locale jstlLocale = RequestContextUtils.getLocale(request);
-		ResourceBundle bundle = new MessageSourceResourceBundle(getWebApplicationContext(), jstlLocale);
+		ResourceBundle bundle = new MessageSourceResourceBundle(getApplicationContext(), jstlLocale);
 		LocalizationContext jstlContext = new LocalizationContext(bundle, jstlLocale);
 
 		// for JSTL implementations that stick to the config names (e.g. Resin's)
