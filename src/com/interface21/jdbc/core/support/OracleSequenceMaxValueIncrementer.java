@@ -45,7 +45,7 @@ public class OracleSequenceMaxValueIncrementer
 	 * Default constructor
 	 **/
 	public OracleSequenceMaxValueIncrementer() {
-	this.nextMaxValueProvider = new NextMaxValueProvider();
+		this.nextMaxValueProvider = new NextMaxValueProvider();
 	}
 
 	/**
@@ -54,9 +54,9 @@ public class OracleSequenceMaxValueIncrementer
 	 * @param seqName the sequence name to use for fetching key values
 	 */
 	public OracleSequenceMaxValueIncrementer(DataSource ds, String seqName) {
-	this.nextMaxValueProvider = new NextMaxValueProvider();
-	this.ds = ds;
-	this.sequenceName = seqName;
+		this.nextMaxValueProvider = new NextMaxValueProvider();
+		this.ds = ds;
+		this.sequenceName = seqName;
 	}
 
 	/**
@@ -67,38 +67,38 @@ public class OracleSequenceMaxValueIncrementer
 	 * @param padding the length to which the string return value should be padded with zeroes
 	 */
 	public OracleSequenceMaxValueIncrementer(DataSource ds, String seqName, boolean prefixWithZero, int padding) {
-	this.nextMaxValueProvider = new NextMaxValueProvider();
-	this.ds = ds;
-	this.sequenceName = seqName;
-	this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
+		this.nextMaxValueProvider = new NextMaxValueProvider();
+		this.ds = ds;
+		this.sequenceName = seqName;
+		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
 	}
 
 	/**
 	 * @see com.interface21.jdbc.core.support.AbstractDataFieldMaxValueIncrementer#incrementIntValue()
 	 */
 	protected int incrementIntValue() {
-	return nextMaxValueProvider.getNextIntValue();
+		return nextMaxValueProvider.getNextIntValue();
 	}
 
 	/**
 	 * @see com.interface21.jdbc.core.support.AbstractDataFieldMaxValueIncrementer#incrementLongValue()
 	 */
 	protected long incrementLongValue() {
-	return nextMaxValueProvider.getNextLongValue();
+		return nextMaxValueProvider.getNextLongValue();
 	}
 
 	/**
 	 * @see com.interface21.jdbc.core.support.AbstractDataFieldMaxValueIncrementer#incrementDoubleValue()
 	 */
 	protected double incrementDoubleValue() {
-	return nextMaxValueProvider.getNextDoubleValue();
+		return nextMaxValueProvider.getNextDoubleValue();
 	}
 
 	/**
 	 * @see com.interface21.jdbc.core.support.AbstractDataFieldMaxValueIncrementer#incrementStringValue()
 	 */
 	protected String incrementStringValue() {
-	return nextMaxValueProvider.getNextStringValue();
+		return nextMaxValueProvider.getNextStringValue();
 	}
 
 	// Private class that does the actual
@@ -106,7 +106,8 @@ public class OracleSequenceMaxValueIncrementer
 	private class NextMaxValueProvider extends AbstractNextMaxValueProvider {
 
 		/** The Sql String preparing to obtain keys from database */
-		private static final String PREPARE_SQL = "SELECT INCREMENT_BY FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = ?";
+		private static final String PREPARE_INCR_SQL = "SELECT INCREMENT_BY FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = ?";
+		private static final String PREPARE_INIT_SQL = "SELECT INITIAL_VALUE FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = ?";
 
 		/** The next id to serve */
 		private long nextId = 0;
@@ -114,42 +115,37 @@ public class OracleSequenceMaxValueIncrementer
 		/** The max id to serve */
 		private long maxId = 0;
 
+		/** The initial value of the sequence */
+		private long initialVal = 1;
+
 		protected long getNextKey(int type) {
 			if (dirty) { initPrepare(); }
 			if(maxId == nextId) {
 				SqlFunction sqlf = new SqlFunction(ds, "SELECT " + sequenceName + ".NEXTVAL FROM DUAL", type);
 				sqlf.compile();
-				// Even if it's an int, it can be casted to a long
-				// old code: maxId =((Long)sqlf.runGeneric()).longValue();
-				// Convert to long
-				switch(JdbcUtils.translateType(type)) {
-				case Types.BIGINT:
-					maxId = ((Long)sqlf.runGeneric()).longValue();
-					break;
-				case Types.INTEGER:
-					maxId = ((Integer)sqlf.runGeneric()).intValue();
-					break;
-				case Types.NUMERIC:
-					maxId = (long)((Double)sqlf.runGeneric()).doubleValue();
-					break;
-				case Types.VARCHAR:
-					try {
-					maxId = Long.parseLong((String)sqlf.runGeneric());
-					} catch (NumberFormatException ex) {
-					throw new InternalErrorException("Key value could not be converted to long");
-					}
-					break;
+				maxId = getLongValue(sqlf, type);
+				if (maxId == initialVal) {
+					nextId = maxId - 1;
+				} else {
+					nextId = maxId - incrementBy;
 				}
-				nextId = maxId - incrementBy;
 			}
 			nextId++;
 			return nextId;
 		}
 	
 		private void initPrepare() {
-			SqlFunction sqlf = new SqlFunction(ds, PREPARE_SQL,	new int[] {Types.VARCHAR} );
+			/* Set the incrementBy value */
+			SqlFunction sqlf = new SqlFunction(ds, PREPARE_INCR_SQL, new int[] {Types.VARCHAR} );
 			sqlf.compile();
 			incrementBy = sqlf.run(new Object[] {sequenceName});
+			/* Set the initialVal value */
+/*			TODO Uncomment this code and test
+			sqlf = new SqlFunction(ds, PREPARE_INIT_SQL, new int[] {Types.VARCHAR}, Types.BIGINT );
+			sqlf.compile();
+			initialVal = sqlf.run(new Object[] {sequenceName});
+*/
+			/* Correct definitions are set */
 			dirty = false; 			
 		}
 	

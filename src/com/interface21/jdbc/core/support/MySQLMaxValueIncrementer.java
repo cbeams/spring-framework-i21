@@ -191,27 +191,7 @@ public class MySQLMaxValueIncrementer
 				sqlup.update();
 				SqlFunction sqlf = new SqlFunction(ds, "select last_insert_id()",type);
 				sqlf.compile();
-				// Even if it's an int, it can be casted to a long
-				// old code: maxId =((Long)sqlf.runGeneric()).longValue();
-				// Convert to long
-				switch(JdbcUtils.translateType(type)) {
-				case Types.BIGINT:
-					maxId = ((Long)sqlf.runGeneric()).longValue();
-					break;
-				case Types.INTEGER:
-					maxId = ((Integer)sqlf.runGeneric()).intValue();
-					break;
-				case Types.NUMERIC:
-					maxId = (long)((Double)sqlf.runGeneric()).doubleValue();
-					break;
-				case Types.VARCHAR:
-					try {
-					maxId = Long.parseLong((String)sqlf.runGeneric());
-					} catch (NumberFormatException ex) {
-					throw new InternalErrorException("Key value could not be converted to long");
-					}
-					break;
-				}
+				maxId = getLongValue(sqlf, type);
 				nextId = maxId - incrementBy;
 			}
 			nextId++;
