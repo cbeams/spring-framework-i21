@@ -1,0 +1,84 @@
+<html>
+<body>
+
+<h2>Container Resources vs Local Resources</h2>
+(for transactional data access with the Spring Framework)
+
+<p><i>Juergen Hoeller<br>
+August 2003</i>
+
+
+<p><h3>1. Introduction: Container Dependencies</h3>
+
+<p>The classic J2EE way of handling resources is to delegate their management to the J2EE container, i.e. the application server. JDBC DataSources for all hosted applications get defined there, accessible by applications via JNDI. Multiple applications can share a single connection pool if they access the same database. The main advantage of this strategy is the central place for configuration, be it a server-specific config file or some administration console. An administrator can fine-tune the pool settings for all applications there, and monitor them at runtime.
+
+<p>While such container resources are often appropriate, they may not suit every scenario. Especially in development environments where there is only one application per server, it can be preferable to keep the resource definitions close to the application configuration. This can also apply to simple production deployments without databases getting shared between applications. Furthermore, if resources are defined locally within the application, moving from one J2EE server to another is much easier, e.g. in the case of web apps.
+
+<p>Beyond resource access itself, applications also depend on the J2EE container for distributed transactions via JTA. The container makes a JTA UserTransaction available via JNDI, so that applications can drive the container's transaction management subsystem. Of course, many apps decide to achieve this via EJB Stateless Session Beans, using declarative Container-Managed Transactions to drive JTA. If CMT on local SLSBs is the only EJB feature that such an app leverages, this introduces a dependency on an EJB container just for declarative transaction demarcation. Accepting all the EJB deployment hassle for this alone is a bad tradeoff.
+
+<p>An important benefit of Spring's transaction support is that it isn't bound to a J2EE container at all. Configured to any other strategy than JTA, it will work in a standalone or test environment too. Especially for the typical case of single-database transactions, this is a very lightweight and powerful alternative to programmatic JTA or declarative transactions on SLSBs. Spring-driven transactions can work with a locally defined JDBC DataSource nicely - if accessing a single database. One just has to fall back to Spring's JTA transaction strategy when actually facing distributed transaction requirements.
+
+<p><h3>1. JDBC DataSource</h3>
+
+<p>Spring's resource management allows for simple switching between a JNDI DataSource and a local one, without having to change a single line of application code. An application bean will simply receive a different bean reference on its property of type DataSource, as specified in the Spring application context definition. To make a JNDI DataSource available as bean, a JndiObjectFactoryBean definition for the respective JNDI location is sufficient - it can be passed to application beans as DataSource reference. This way, application classes do not depend on a DataSource being bound to a specific JNDI location, respectively not even on JNDI at all.
+
+<p>There are various out-of-the-box choices for local DataSources. All of them are suitable for bean usage, thus each can simply be defined as bean in a Spring application context. They can be considered drop-in replacements for a JndiObjectFactoryBean.
+
+<ul>
+<li><i>Spring's SingleConnectionDataSource</i>:<br>
+non-pooling, always returning the same connection (for test environments or desktop apps only)
+
+<li><i>Spring's DriverManagerDataSource</i>:<br>
+non-pooling, always returning a new connection (if connection creation overhead isn't relevant)
+
+<li><i>Jakarta's <a href="http://jakarta.apache.org/commons/dbcp" target="_">Commons DBCP</a> BasicDataSource</i>:<br>
+pooling, offering typical connection pool features (also used for Tomcat 4.1's container DataSources)
+</ul>
+
+<p>Note that Spring's own DataSources mirror Commons DBCP's property names, so switching between those implementations is just a matter of changing the class name. Commons DBCP offers a lot of additional settings that Spring's DataSources do not support, of course.
+
+<p>Whether a DataSource definition has to be kept in the container or can be defined locally within the application too, is mainly a matter of the transaction strategy being used. There is no choice when using Spring's JtaTransactionManager: Only transactional container DataSources that are registered with JNDI will take part in JTA transactions. Spring's DataSourceTransactionManager can work with either a JNDI or a local DataSource. The same applies to HibernateTransactionManager, if configured to share a Hibernate transaction with a specified JDBC DataSource.
+
+<p>So the application developer or deployer can choose where to define the JDBC DataSource via configuration, without any impact on application classes. This can even be specific per deployment, e.g. a local DataSource in development and test environments but a container DataSource in production. Remember that the latter is only strictly necessary when using JTA, so one might resort to container DataSources for specific deployments only - where distributed transactions are actually required. See the "webapp-typical" skeleton in the Spring distribution for sample configurations.
+
+
+<p><h3>2. Hibernate SessionFactory</h3>
+
+<p>Switching between a JNDI SessionFactory and a local one, i.e. from JndiObjectFactoryBean to LocalSessionFactoryBean, is as easy as with a JDBC DataSource. As a SessionFactory in basically a wrapper on top of a JDBC DataSource, without own pooling but with O/R mappings specific to the application, it almost always makes sense to define it locally. A manually registered JNDI SessionFactory does not provide any benefits compared to a Spring-defined local one. The situation is different when registered via Hibernate's JCA connector: There is the added value of transparently taking part in JTA transactions, especially within EJBs.
+
+<p>JTA does not just involve container dependencies in terms of JTA itself and of JNDI DataSources. For JTA-driven Hibernate transactions not initiated by Spring, e.g. from EJB CMT, you have to use the Hibernate JCA connector for proper JVM-level caching. Alternatively, you can apply extra Hibernate transaction code with Hibernate's JTATransaction strategy and a container-specific TransactionManagedLookup being configured, to make Hibernate take part in a proper transaction completion callback.
+
+<p>A JCA connector needs container-specific deployment steps, and obviously JCA support in the first place. This is far more hassle than deploying a simple web app with local resource definitions and Spring-driven transactions. And you often need the Enterprise Edition of your container, as e.g. WebLogic Express does not provide JCA. So deploying Hibernate as connector isn't necessarily easier than configuring a specific TransactionManagerLookup.
+
+<p>Spring-driven transactions can work with a locally defined Hibernate SessionFactory nicely, just like with a local JDBC DataSource - if accessing a single database, of course. You can fall back to Spring's JTA transaction strategy when actually facing distributed transaction requirements, still using a local SessionFactory, requiring no code changes at all. Correct transactional JVM-level caching is never an issue, as long as a Spring transaction manager drives the transactions, be it HibernateTransactionManager or JtaTransactionManager. Both strategies allow to share a transaction with plain JDBC access code.
+
+<p>A Spring app with a local SessionFactory and local transactions spanning one single database will work in any J2EE web container (without JTA, JCA, or EJB) - like Tomcat, Resin, or even plain Jetty. Additionally, such a middle tier can be reused in desktop applications or test suites easily. Like with JDBC DataSources, the choice can be specific per deployment, e.g. using JTA if there's an actual need to take part in distributed transactions. Note that the JDBC DataSource that a Hibernate SessionFactory uses can be determined by Spring, no matter if a JNDI or local one, to enable configuration in one place and easy sharing with JDBC code.
+
+<p>All things considered: If you do not use EJB, stick with local SessionFactory setup and Spring's HibernateTransactionManager or JtaTransactionManager. You will get all benefits including proper transactional JVM-level caching and distributed transactions, without any container deployment hassle. The JCA connector only adds value for use within EJBs. See the "webapp-hibernate" skeleton in the Spring distribution for sample configurations.
+
+
+<p><h3>3. JDO PersistenceManagerFactory</h3>
+
+<p>A JDO PersistenceManagerFactory can also be kept in JNDI or locally, via JndiObjectFactoryBean respectively LocalPersistenceManagerFactoryBean. In contrast to a Hibernate SessionFactory, it can be either a wrapper on top of a JDBC DataSource (with an O/R-based JDO implementation) or a completely independent resource (e.g. representing an object database). In the former case, it almost always makes sense to define it locally, like with Hibernate. In the latter case, it can make sense to use the JCA connector of the respective JDO implementation instead, to enable central configuration and sharing in the server.
+
+<p>JTA transactions are a special issue with JDO. A local JDO PersistenceManager does not allow applying and flushing of changes without explicit JDO transaction demarcation. One needs to use a JCA connector to make the PersistenceManager aware of JTA. In contrast to Hibernate, it does not make a difference if EJB CMT or a Spring transaction manager initiates the JTA transactions. So unfortunately, a JCA connector is required not only for use within EJBs but for any taking part in JTA transactions.
+
+<p>The same JCA drawbacks apply as with Hibernate. You do not only need a JCA-capable J2EE server but typically also the Enterprise Edition of your JDO implementation. The difference to Hibernate is that there is no other way if you want to take part in JTA transactions, neither without nor with Spring. The container-specific JCA deployment hassle is unavoidable in that case.
+
+<p>Spring-driven JDO transactions via JdoTransactionManager can provide the benefits of high-level transaction management with a local PersistenceManagerFactory. There is no way to move to JTA seamlessly with a local factory though: One needs to move to a JCA connector with a JNDI-bound factory for this. Furthermore, it isn't possible to share a transaction with plain JDBC access code without JTA, as JDO doesn't expose the underlying JDBC connection. The underlying DataSource that the PersistenceManagerFactory uses cannot be determined by Spring either.
+
+<p>A Spring app with a local PersistenceManagerFactory and local transactions spanning one single database will work in any J2EE web container, and its middle tier can be reused in desktop applications or test suites easily, like with Hibernate. Per-deployment transaction settings for the factory are harder though, as they cannot be driven by Spring and potentially involve switching to a JCA connector. But as long as you do not use JTA or EJB, a local PersistenceManagerFactory remains a good choice.
+
+
+<h3><p>Links</h3>
+
+<a href="http://www.springframework.org" target="_">Spring Framework website</a><br>
+
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/jdbc/datasource" target="_">JDBC DataSource support (CVS)</a><br>
+
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/orm/hibernate" target="_">Hibernate support (CVS)</a><br>
+
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/orm/jdo" target="_">JDO support (CVS)</a><br>
+
+</body>
+</html>
