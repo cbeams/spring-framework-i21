@@ -12,7 +12,6 @@ import com.interface21.web.servlet.support.RequestContextUtils;
  * Interceptor that allows for changing the current theme on every request,
  * via a configurable request parameter.
  * @author Juergen Hoeller
- * @author Jean-Pierre Pawlak
  * @since 20.06.2003
  * @see com.interface21.web.servlet.ThemeResolver
  */
@@ -36,8 +35,6 @@ public class ThemeChangeInterceptor implements HandlerInterceptor {
 		String newTheme = request.getParameter(this.paramName);
 		if (newTheme != null) {
 			themeResolver.setThemeName(request, response, newTheme);
-		} else {
-			themeResolver.makeThemeNameAvailable(request, response);
 		}
 		// proceed in any case
 		return true;

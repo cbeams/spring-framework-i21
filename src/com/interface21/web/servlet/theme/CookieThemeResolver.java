@@ -20,6 +20,15 @@ import com.interface21.web.util.WebUtils;
  */
 public class CookieThemeResolver extends AbstractThemeResolver {
 
+	/**
+	 * Name of the request attribute that holds the theme name. Only used
+	 * for overriding a cookie value if the theme has been changed in the
+	 * course of the current request! Use RequestContext.getTheme() to
+	 * retrieve the current theme in controllers or views.
+	 * @see com.interface21.web.servlet.support.RequestContext#getTheme
+	 */
+	public static final String THEME_REQUEST_ATTRIBUTE_NAME = CookieThemeResolver.class.getName() + ".THEME";
+
 	public static final String DEFAULT_COOKIE_NAME = CookieThemeResolver.class.getName() + ".THEME";
 
 	public static final int DEFAULT_COOKIE_MAX_AGE = Integer.MAX_VALUE;
@@ -29,7 +38,7 @@ public class CookieThemeResolver extends AbstractThemeResolver {
 	private int cookieMaxAge = DEFAULT_COOKIE_MAX_AGE;
 	
 	/**
-	 * Use the given name for theme cookies.
+	 * Use the given name for theme cookies, containing the theme name.
 	 */
 	public void setCookieName(String cookieName) {
 		this.cookieName = cookieName;

@@ -19,6 +19,12 @@ import com.interface21.web.util.WebUtils;
  */
 public class SessionThemeResolver extends AbstractThemeResolver {
 
+	/**
+	 * Name of the session attribute that holds the theme name. Only used
+	 * internally by this implementation. Use RequestContext.getTheme()
+	 * to retrieve the current theme in controllers or views.
+	 * @see com.interface21.web.servlet.support.RequestContext#getTheme
+	 */
 	public static final String THEME_SESSION_ATTRIBUTE_NAME = SessionThemeResolver.class.getName() + ".THEME";
 
 	public String resolveThemeName(HttpServletRequest request) {
@@ -29,7 +35,6 @@ public class SessionThemeResolver extends AbstractThemeResolver {
 
 	public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
 		WebUtils.setSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME, themeName);
-		request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, themeName);
 	}
 
 }
