@@ -38,7 +38,8 @@ public class ProxyFactoryTests extends TestCase {
 	public void testNullTarget() {
 
 		try {
-			new ProxyFactory(null);
+			// Use the constructor taking Object
+			new ProxyFactory((Object) null);
 			fail("Should't allow proxy with null target");
 		} catch (AopConfigException ex) {
 		}
