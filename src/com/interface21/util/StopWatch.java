@@ -1,4 +1,9 @@
-
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
+ 
 package com.interface21.util;
 
 import java.util.LinkedList;
@@ -7,13 +12,16 @@ import java.util.List;
 /**
  * Simple stop watch, allowing for timing of a number of 
  * tasks, exposing total running time and running time for each
- * named task.
+ * named task. Conceals use of System.currentTimeMillis(),
+ * improving the readability of application code and reducing the
+ * likelihood of calculation errors.
  * <br>Note that this object is not designed to be threadsafe, and does not
  * use synchronization or threading. Therefore it is safe to invoke it from EJBs.
  * <br>This class is normally used to verify performance during proof-of-concepts
  * and in development, rather than as part of production applications.
  * @author  Rod Johnson
  * @since May 2, 2001
+ * @version $Id$
  */
 public class StopWatch {
     
@@ -21,7 +29,7 @@ public class StopWatch {
     // Instance data
     //---------------------------------------------------------------------
     /** Start time of the current task */
-    private long    st;
+    private long    startTime;
     
     /** Total running time */
     private long    runningTime;
@@ -31,9 +39,14 @@ public class StopWatch {
     
     /** Name of the current task */
     private String currentTask;
+    
+    /** Is the stopwatch currently running? */
+    private boolean running;
 	
-	/** Identifier of this stopwatch.
-	 * Handy when we have output from multiple stop watches and need to distinguish between them.
+	/** 
+	 * Identifier of this stopwatch.
+	 * Handy when we have output from multiple stop watches 
+	 * and need to distinguish between them in log or console output.
 	 */
 	private String id = "";
     
@@ -67,9 +80,12 @@ public class StopWatch {
      * methods are called without invoking this method.
      * @param task name of the task to start
      */
-    public void start(String task) {
-        st = System.currentTimeMillis();
+    public void start(String task) throws IllegalStateException {
+    	if (this.running)
+    		throw new IllegalStateException("Can't start StopWatch: it's already running");
+        startTime = System.currentTimeMillis();
         this.currentTask = task;
+        this.running = true;
     }
     
     /** 
@@ -77,10 +93,13 @@ public class StopWatch {
      * methods are called without invoking at least one pair start()/stop()
      * methods.
      */
-    public void stop() {
-        long lastTime = System.currentTimeMillis() - st;
+    public void stop() throws IllegalStateException {
+		if (!this.running)
+			throw new IllegalStateException("Can't stop StopWatch: it's not running");
+        long lastTime = System.currentTimeMillis() - startTime;
         runningTime += lastTime;
         taskList.add(new TaskInfo(currentTask, lastTime));
+        this.running = false;
         currentTask = "No task running";
     }
     
@@ -96,9 +115,9 @@ public class StopWatch {
      * Return the time taken by the last operation
      * @return the time taken by the last operation
      */
-    public long getLastInterval() {
+    public long getLastInterval() throws IllegalStateException {
     	if (taskList.size() == 0)
-    		throw new RuntimeException("No tests run: can't get last interval");
+    		throw new IllegalStateException("No tests run: can't get last interval");
     	TaskInfo ti = (TaskInfo) taskList.get(taskList.size() - 1);
     	return ti.getTime();
     }
@@ -125,6 +144,13 @@ public class StopWatch {
      */
     public TaskInfo[] getTaskInfo() {
         return (TaskInfo[]) taskList.toArray(new TaskInfo[0]);
+    }
+    
+    /**
+     * @return whether the stopwatch is currently running
+     */
+    public boolean isRunning() {
+    	return this.running;
     }
     
     /** 
@@ -170,9 +196,9 @@ public class StopWatch {
     // Inner classes
     //---------------------------------------------------------------------
     /** 
-     * Inner class to hold data about one task 
+     * Inner class to hold data about one task executed within the stopwatch
      */
-    public class TaskInfo {
+    public static class TaskInfo {
         
         private String task;
         private long time;
