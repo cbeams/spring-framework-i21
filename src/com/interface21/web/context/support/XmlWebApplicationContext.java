@@ -20,8 +20,6 @@ import javax.servlet.ServletException;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.support.AbstractXmlApplicationContext;
 import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.util.WebUtils;
-
 
 /**
  * WebApplicationContext implementation that takes configuration from an XML document.
@@ -99,21 +97,29 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	}	// setServletContext
 	
 	public final ServletContext getServletContext() {
-		return servletContext;
+		return this.servletContext;
 	}
 
 	/**
 	 * @return the namespace of this context, or null if root
 	 */
 	public String getNamespace() {
-		return namespace;
+		return this.namespace;
 	}
 
 	/**
-	 * @return the URL where our configuration is held
+	 * @return the URL or path of the configuration
 	 */
 	protected String getConfigLocation() {
-		return configLocation;
+		return this.configLocation;
+	}
+
+	/**
+	 * This implementation supports relative file paths beneath the root
+	 * of the web application.
+	 */
+	protected InputStream getResourceByRelativePath(String path) throws IOException {
+		return getServletContext().getResourceAsStream(path);
 	}
 
 	/**
@@ -124,15 +130,6 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	 */
 	public String getResourceBasePath() {
 		return getServletContext().getRealPath("/");
-	}
-
-	/**
-	 * This implementation supports fully qualified URLs, absolute file paths,
-	 * and relative file paths beneath the root of the web application.
-	 * @see com.interface21.context.ApplicationContext#getResourceAsStream
-	 */
-	public InputStream getResourceAsStream(String location) throws IOException {
-		return WebUtils.getResourceInputStream(location, getServletContext());
 	}
 
 	/**
@@ -156,4 +153,4 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 		return getResourceAsStream(this.configLocation);
 	}
 
-}	// class XmlWebApplicationContext
+}
