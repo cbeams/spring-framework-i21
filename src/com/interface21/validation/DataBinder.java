@@ -11,7 +11,7 @@ import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.PropertyVetoExceptionsException;
 
-
+import com.interface21.util.ObjectArrayUtils;
 /**
  * To servlet requests what BeanWrapper is to beans
  * Slightly unusual, as it _is_ an exception
@@ -20,21 +20,21 @@ import com.interface21.beans.PropertyVetoExceptionsException;
  * @version
  */
 public class DataBinder extends BindException {
-	
+
 	public static final String MISSING_FIELD_ERRORCODE_SUFFIX = "Required";
-	
+
 	/**
 	* Create a logging category
 	*/
 	protected static final Logger logger = Logger.getLogger(DataBinder.class.getName());
-	
-	
+
+
 	public DataBinder(Object target, String objName) {
 		super(target, objName);
 	}
-	
 
-	
+
+
 	/**
 	 * Adds to last bean wrapper
 	 */
@@ -42,14 +42,14 @@ public class DataBinder extends BindException {
 		getBeanWrapper().setEventPropagationEnabled(true);
 		getBeanWrapper().addVetoableChangeListener(vtl);
 	}
-	
+
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {
 		getBeanWrapper().setEventPropagationEnabled(true);
 		getBeanWrapper().addPropertyChangeListener(pcl);
 	}
-	
+
 	// MULTIPLE ERRORS on same field?!?
-	
+
 	/**
 	 * Binds to current
 	 */
@@ -60,17 +60,17 @@ public class DataBinder extends BindException {
 				PropertyValue pv = pvs.getPropertyValue(requiredFields[i]);
 				if (pv == null || "".equals(pv.getValue())) {
 					logger.debug("Required field '" + requiredFields[i] + "' is missing or empty");
-					addFieldError(new FieldError(getObjectName(),requiredFields[i], "", requiredFields[i] + MISSING_FIELD_ERRORCODE_SUFFIX, "Field '" + requiredFields[i] + "' is required"));
+					addFieldError(new FieldError(getObjectName(),requiredFields[i], "", requiredFields[i] + MISSING_FIELD_ERRORCODE_SUFFIX, ObjectArrayUtils.toArray(requiredFields[i]), "Field '" + requiredFields[i] + "' is required"));
 				}
 			}
 		}
 		bind(pvs);
 	}
-	
-	
+
+
 	// WHAT ABOUT FILTER METHOD?
-	
-	/** 
+
+	/**
 	 * Create a new command object. Invoked on each incoming request, before
 	 * either the handleCommand() or handleInvalidRequest() method is invoked (depending on the
 	 * result of the binding operation). The incoming request is passed to this method
@@ -84,10 +84,10 @@ public class DataBinder extends BindException {
 	 * @throws ServletException if
 	 */
 	public void bind(PropertyValues pvs) {
-		try {			
+		try {
 			// Set 0 or more vetoable change listeners
 			//addVetoableChangeListeners(bw);
-			
+
 			// Bind request parameters onto params
 			// We ignore unknown properties
 			getBeanWrapper().setPropertyValues(pvs, true, null);
@@ -99,8 +99,8 @@ public class DataBinder extends BindException {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Close this DataBinder, which may result in throwing
 	 * a BindException if it encountered any errors
@@ -112,5 +112,5 @@ public class DataBinder extends BindException {
 		}
 		return getModel();
 	}
-	
+
 }

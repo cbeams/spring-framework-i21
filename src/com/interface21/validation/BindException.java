@@ -19,9 +19,9 @@ public class BindException extends Exception implements Errors {
 	private List errors = new LinkedList();
 
 	private BeanWrapper beanWrapper;
-	
+
 	private String objectName;
-	
+
 	private String nestedPath = "";
 
 	//---------------------------------------------------------------------
@@ -54,19 +54,23 @@ public class BindException extends Exception implements Errors {
 	public Object getTarget() {
 		return beanWrapper.getWrappedInstance();
 	}
-	
+
 	public String getObjectName() {
 		return objectName;
 	}
-	
-	public void reject(String code, String message) {
-		errors.add(new ObjectError(this.objectName, code, message));
+
+        public void reject(String resolvedMessage) {
+                errors.add(new ObjectError(this.objectName, resolvedMessage));
+        }
+
+	public void reject(String errorCode, String defaultMessage) {
+		errors.add(new ObjectError(this.objectName, errorCode, (Object[])null, defaultMessage));
 	}
 
-	public void rejectValue(String field, String code, String message) throws InvalidBinderUsageException {
+	public void rejectValue(String field, String errorCode, String defaultMessage) throws InvalidBinderUsageException {
 		field = fixedField(field);
 		Object newVal = getBeanWrapper().getPropertyValue(field);
-		FieldError fe = new FieldError(this.objectName, field, newVal, code, message);
+		FieldError fe = new FieldError(this.objectName, field, newVal, errorCode, defaultMessage);
 		errors.add(fe);
 	}
 
@@ -157,7 +161,7 @@ public class BindException extends Exception implements Errors {
 		this.nestedPath = nestedPath;
 		//System.out.println("NESTEDPATH set to '" + this.nestedPath + "'");
 	}
-	
+
 	/*
 	 * Return model!?
 	 */
@@ -182,5 +186,5 @@ public class BindException extends Exception implements Errors {
 		}
 		return sb.toString();
 	}
-	
+
 }

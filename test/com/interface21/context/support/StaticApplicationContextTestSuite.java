@@ -2,6 +2,7 @@ package com.interface21.context.support;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -13,27 +14,27 @@ import com.interface21.context.ApplicationContext;
 import com.interface21.context.ACATest;
 import com.interface21.context.BeanThatListens;
 
-/** 
+/**
  * Classname doesn't match XXXXTestSuite pattern, so as to avoid
  * being invoked by Ant JUnit run, as it's abstract
- * @author Rod Johnson 
+ * @author Rod Johnson
  * @version $Revision$
  */
 public class StaticApplicationContextTestSuite extends AbstractApplicationContextTests {
-	
-	
+
+
 	protected StaticApplicationContext sac;
-	
+
 	/** Creates new SeatingPlanTest */
 	public StaticApplicationContextTestSuite(String name) {
 		super(name);
 	}
-	
+
 	/** Run for each test */
 	protected ApplicationContext createContext() throws Exception {
 		StaticApplicationContext parent = new StaticApplicationContext();
 		parent.addListener(parentListener) ;
-		Map m = new HashMap(); 
+		Map m = new HashMap();
 		m.put("name", "Roderick");
 		parent.registerPrototype("rod", com.interface21.beans.TestBean.class, new MutablePropertyValues(m));
 		m.put("name", "Albert");
@@ -41,7 +42,7 @@ public class StaticApplicationContextTestSuite extends AbstractApplicationContex
 		parent.rebuild();
 
 		StaticMessageSource parentMessageSource = (StaticMessageSource) parent.getBean("messageSource");
-		parentMessageSource.addMessage("code1", "message1");
+		parentMessageSource.addMessage("code1", Locale.getDefault(), "message1");
 
 		this.sac = new StaticApplicationContext(parent);
 		sac.addListener(listener);
@@ -52,10 +53,10 @@ public class StaticApplicationContextTestSuite extends AbstractApplicationContex
 		sac.rebuild();
 
 		StaticMessageSource sacMessageSource = (StaticMessageSource) sac.getBean("messageSource");
-		sacMessageSource.addMessage("code2", "message2");
+		sacMessageSource.addMessage("code2", Locale.getDefault(), "message2");
 
 		return sac;
-	} 
+	}
 
 	/** Overridden */
 	public void testCount() throws Exception {
@@ -70,9 +71,9 @@ public class StaticApplicationContextTestSuite extends AbstractApplicationContex
 		//	junit.swingui.TestRunner.main(new String[] {PrototypeFactoryTests.class.getName() } );
 	}
 
-	public static Test suite() { 
+	public static Test suite() {
 		return new TestSuite(StaticApplicationContextTestSuite.class);
 	}
 
-	
+
 }

@@ -22,9 +22,9 @@ public class MessageSourceResourceBundle extends ResourceBundle {
 		this.locale = locale;
 	}
 
-	protected Object handleGetObject(String key) {
+	protected Object handleGetObject(String code) {
 		try {
-			return source.getMessage(key, locale);
+			return source.getMessage(code, locale, null);
 		} catch (NoSuchMessageException e) {
 			return null;
 		}

@@ -8,6 +8,7 @@ import com.interface21.validation.Errors;
 import com.interface21.validation.FieldError;
 import com.interface21.validation.ObjectError;
 import com.interface21.web.util.HtmlUtils;
+import com.interface21.context.MessageSourceResolvable;
 
 /**
  * Errors wrapper that adds automatic HTML escaping to the wrapped instance.
@@ -98,9 +99,9 @@ public class EscapedErrors implements Errors {
 			if (value instanceof String) {
 				value = HtmlUtils.htmlEscape((String) fieldError.getRejectedValue());
 			}
-			return new FieldError(fieldError.getObjectName(), fieldError.getField(), value, fieldError.getErrorCode(), HtmlUtils.htmlEscape(fieldError.getMessage()));
+			return new FieldError(fieldError.getObjectName(), fieldError.getField(), value, fieldError.getErrorCode(), HtmlUtils.htmlEscape(fieldError.getDefaultMessage()));
 		}
-		return new ObjectError(source.getObjectName(), source.getErrorCode(), source.getMessage());
+		return new ObjectError(source.getObjectName(), (MessageSourceResolvable)source);
 	}
 
 	private List escapeObjectErrors(List source) {

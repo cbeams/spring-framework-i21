@@ -64,7 +64,7 @@ public class RequestContext {
 	}
 
 	/**
-	 * Default HTML escaping? 
+	 * Default HTML escaping?
 	 */
 	public boolean isDefaultHtmlEscape() {
 		return defaultHtmlEscape;
@@ -77,7 +77,7 @@ public class RequestContext {
 	 * @return the message
 	 */
 	public String getMessage(String code, boolean htmlEscape) throws NoSuchMessageException {
-		String msg = webApplicationContext.getMessage(code, locale);
+		String msg = webApplicationContext.getMessage(code, locale, null);
 		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
 	}
 

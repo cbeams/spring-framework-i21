@@ -10,32 +10,33 @@ import com.interface21.beans.factory.support.DefaultRootBeanDefinition;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
+import java.util.Locale;
 
 /**
  * ApplicationContext to allow concrete registration
- * of Java objects in code, rather than from external configuration sources. 
+ * of Java objects in code, rather than from external configuration sources.
  * Especially useful for testing.
  * @author Rod Johnson
  * @version $RevisionId$
  */
 public class StaticApplicationContext extends AbstractApplicationContext {
- 
+
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
 	ListableBeanFactoryImpl defaultBeanFactory;
 
-	/** Namespace --> name */	
-	private HashMap beanFactoryHash = new HashMap(); 
+	/** Namespace --> name */
+	private HashMap beanFactoryHash = new HashMap();
 
 
 	//---------------------------------------------------------------------
 	// Constructor
-	//---------------------------------------------------------------------	
+	//---------------------------------------------------------------------
 	public StaticApplicationContext() throws BeansException, ApplicationContextException {
 		this(null);
 	}
-	
+
 	public StaticApplicationContext(ApplicationContext parent) throws BeansException, ApplicationContextException {
 		super(parent);
 
@@ -43,13 +44,13 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 		defaultBeanFactory = new ListableBeanFactoryImpl(parent);
 
 		// Register the message source bean
-		defaultBeanFactory.registerBeanDefinition(MESSAGE_SOURCE_BEAN_NAME, 
+		defaultBeanFactory.registerBeanDefinition(MESSAGE_SOURCE_BEAN_NAME,
 			new DefaultRootBeanDefinition(StaticMessageSource.class, null, true));
-			
-		//refresh();			
+
+		//refresh();
 	}
-	
-	
+
+
 	/**
 	 * Must invoke when finished
 	 */
@@ -85,8 +86,8 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	protected ListableBeanFactory getBeanFactory() {
 		return defaultBeanFactory;
 	}
-	
-	
+
+
 	//---------------------------------------------------------------------
 	// Public methods
 	//---------------------------------------------------------------------
@@ -94,19 +95,24 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	 * Register a bean with the default bean factory
 	 */
 	public void registerSingleton(String name, Class clazz, PropertyValues pvs) throws BeansException {
-		defaultBeanFactory.registerBeanDefinition(name, 
+		defaultBeanFactory.registerBeanDefinition(name,
 			new DefaultRootBeanDefinition(clazz, pvs, true));
 	}
-	
+
 	public void registerPrototype(String name, Class clazz, PropertyValues pvs) throws BeansException {
-		defaultBeanFactory.registerBeanDefinition(name, 
+		defaultBeanFactory.registerBeanDefinition(name,
 			new DefaultRootBeanDefinition(clazz, pvs, false));
 	}
-	
-	
-	public String addMessage(String code, String message) {
+
+        /**
+         * Associate the given message with the given code.
+         * @param code lookup code
+         * @param locale locale message should be found within
+         * @param message message associated with this lookup code
+         */
+        public void addMessage(String code, Locale locale, String defaultMessage) {
 		//messageSource.addMessage(code,message)
-		throw new UnsupportedOperationException("Addmessage not yet implemeneted");
+		throw new UnsupportedOperationException("Add message not yet implemeneted");
 	}
 
 

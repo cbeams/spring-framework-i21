@@ -70,7 +70,7 @@ public abstract class RequestContextUtils {
 	 * @return the message
 	 */
 	public static String getMessage(ServletRequest request, String code, boolean htmlEscape) throws ServletException, NoSuchMessageException {
-		String msg = getWebApplicationContext(request).getMessage(code, getLocale(request));
+		String msg = getWebApplicationContext(request).getMessage(code, getLocale(request), null);
 		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
 	}
 
