@@ -270,7 +270,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		dsControl.setReturnValue(con);
 		dsControl.activate();
 		
-		SingleConnectionDataSource scf = new SingleConnectionDataSource(ds.getConnection());
+		SingleConnectionDataSource scf = new SingleConnectionDataSource(ds.getConnection(), false);
 		JdbcTemplate template2 = new JdbcTemplate(scf);
 		RowCountCallbackHandler rcch = new RowCountCallbackHandler();
 		template2.query(sql, rcch);
