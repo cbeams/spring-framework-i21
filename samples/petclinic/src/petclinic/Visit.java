@@ -14,11 +14,8 @@ import java.util.Date;
  */
 public class Visit extends Entity {
     
-    /** Holds value of property petId. */
-    private int petId;
-    
-    /** Holds value of property visitDate. */
-    private Date visitDate;
+    /** Holds value of property date. */
+    private Date date;
     
     /** Holds value of property description. */
     private String description;
@@ -26,37 +23,23 @@ public class Visit extends Entity {
     /** Holds value of property pet. */
     private Pet pet;
     
-    /** Creates a new instance of Visit */
+    /** Creates a new instance of Visit for the current date */
     public Visit() {
-        this.visitDate = new Date();
+        this.date = new Date();
     }
     
-    /** Getter for property petId.
-     * @return Value of property petId.
+    /** Getter for property date.
+     * @return Value of property date.
      */
-    public int getPetId() {
-        return this.petId;
+    public Date getDate() {
+        return this.date;
     }
     
-    /** Setter for property petId.
-     * @param petId New value of property petId.
+    /** Setter for property date.
+     * @param date New value of property date.
      */
-    public void setPetId(int petId) {
-        this.petId = petId;
-    }
-    
-    /** Getter for property visitDate.
-     * @return Value of property visitDate.
-     */
-    public Date getVisitDate() {
-        return this.visitDate;
-    }
-    
-    /** Setter for property visitDate.
-     * @param date New value of property visitDate.
-     */
-    public void setVisitDate(Date visitDate) {
-        this.visitDate = visitDate;
+    public void setDate(Date date) {
+        this.date = date;
     }
     
     /** Getter for property description.
@@ -86,5 +69,15 @@ public class Visit extends Entity {
     public void setPet(Pet pet) {
         this.pet = pet;
     }
+    
+	/** Method to copy properties from another <code>Visit</code>.
+	 * 	@param visit Properties source
+	 */
+	public void copyPropertiesFrom(Visit visit) {
+		super.copyPropertiesFrom(visit);
+		setDate(visit.getDate()); 
+		setDescription(visit.getDescription()); 
+		setPet(visit.getPet()); 
+	}
     
 }

@@ -17,10 +17,6 @@ public class Entity {
     /** Holds value of property id. */
     private int id;
     
-    /** Creates a new instance of Entity */
-    public Entity() {
-    }
-    
     /** Getter for property id.
      * @return Value of property id.
      */
@@ -34,5 +30,12 @@ public class Entity {
     public void setId(int id) {
         this.id = id;
     }
+    
+	/** Method to copy properties from another <code>Entity</code>.
+	 * 	@param entity Properties source
+	 */
+	public void copyPropertiesFrom(Entity entity) {
+		setId(entity.getId()); 
+	}
     
 }

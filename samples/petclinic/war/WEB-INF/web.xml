@@ -6,7 +6,7 @@
   
 <web-app>
 
-	<display-name>petclinic</display-name>
+	<display-name>Petclinic1</display-name>
 	<description>Petclinic sample application - version 1</description>
 
 	<!--
@@ -66,11 +66,11 @@
 	  - Note that this web app has a shared root application context, serving as parent
 	  - of all DispatcherServlet contexts.
 	  -->
-  <servlet>
-    <servlet-name>petclinic</servlet-name>
-    <servlet-class>com.interface21.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
+  	<servlet>
+    	<servlet-name>petclinic</servlet-name>
+    	<servlet-class>com.interface21.web.servlet.DispatcherServlet</servlet-class>
+    	<load-on-startup>1</load-on-startup>
+  	</servlet>
   
 	<!--
 	  - Maps the petclinic dispatcher to *.htm. All handler mappings in
@@ -78,39 +78,35 @@
 	  - If a mapping isn't a /* subpath, the handler mappings are considered
 	  - relative to the web app root.
 	  -
-	  - A single dispatcher could get mapped to multiple paths, like any servlet.
+	  - NOTE: A single dispatcher can be mapped to multiple paths, like any servlet.
 	  -->
-  <servlet-mapping>
-    <servlet-name>petclinic</servlet-name>
-    <url-pattern>*.htm</url-pattern>
-  </servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>petclinic</servlet-name>
+    	<url-pattern>*.htm</url-pattern>
+  	</servlet-mapping>
 
-  <session-config>
-    <session-timeout>10</session-timeout>
-  </session-config>
+  	<session-config>
+    	<session-timeout>10</session-timeout>
+  	</session-config>
 
-	<!--
-	  - Redirects to "welcome.htm" for dispatcher handling 
-	  -->
-  <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
-  </welcome-file-list>
+  	<welcome-file-list>
+		<!-- Redirects to "welcome.htm" for dispatcher handling -->
+    	<welcome-file>index.jsp</welcome-file>
+  	</welcome-file-list>
 
-	<!--
-	  - Displays a stack trace 
-	  -->
-  <error-page>
-    <exception-type>java.lang.Exception</exception-type>
-    <location>/WEB-INF/jsp/uncaughtException.jsp</location>
-  </error-page>
+  	<error-page>
+    	<exception-type>java.lang.Exception</exception-type>
+		<!-- Displays a stack trace -->
+    	<location>/WEB-INF/jsp/uncaughtException.jsp</location>
+  	</error-page>
 
 	<!--
 	  - Defines the Spring tag library.
 	  - JSPs can import it like this: <%@ taglib uri="/i21" prefix="i21" %>
 	  -->
-  <taglib>
+  	<taglib>
 		<taglib-uri>/i21</taglib-uri>
 		<taglib-location>/WEB-INF/i21.tld</taglib-location>
-  </taglib>
+  	</taglib>
   
 </web-app>

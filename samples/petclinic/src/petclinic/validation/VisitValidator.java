@@ -11,7 +11,7 @@ import com.interface21.validation.Errors;
 import com.interface21.validation.Validator;
 
 /**
- *  <code>Validator</code> for <code>Visit</code> Forms.
+ *  JavaBean <code>Validator</code> for <code>Visit</code> Forms.
  *
  *  @author  Ken Krebs
  */
@@ -25,7 +25,7 @@ public class VisitValidator implements Validator {
         Visit visit = (Visit) obj;
         String description = visit.getDescription();
         if(description == null || "".equals(description)) {
-            errors.rejectValue("description", "error.required", null, "required");
+            errors.rejectValue("description", "required", null, "required");
         }
     }
     

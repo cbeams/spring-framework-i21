@@ -11,7 +11,7 @@ import com.interface21.validation.Errors;
 import com.interface21.validation.Validator;
 
 /**
- *  <code>Validator</code> for <code>FindOwnerForm</code>.
+ *  JavaBean <code>Validator</code> for <code>FindOwnerForm</code>.
  *
  *  @author  Ken Krebs
  */
@@ -22,10 +22,10 @@ public class FindOwnersValidator implements Validator {
     }
     
     public void validate(Object obj, Errors errors) {
-        Owner owner = (Owner) obj;
-        String lastName = owner.getLastName();
+		Owner owner = (Owner) obj;
+		String lastName = owner.getLastName();
         if(lastName == null || "".equals(lastName)) {
-            errors.rejectValue("lastName", "error.required", null, "required");
+            errors.rejectValue("lastName", "required", null, "required");
         }
     }
     

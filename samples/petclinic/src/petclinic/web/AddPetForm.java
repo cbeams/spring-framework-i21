@@ -19,18 +19,23 @@ import com.interface21.web.bind.RequestUtils;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- *  Form controller that is used to add a new <code>Pet</code> to the system.
+ *  JavaBean Form controller that is used to add a new <code>Pet</code> to the system.
  *
  * @author  Ken Krebs
  */
 public class AddPetForm extends AbstractClinicForm {
     
+	/** Method inserts a new <code>Pet</code>. */
     protected ModelAndView onSubmit(Object command) throws ServletException {
         Pet pet = (Pet) command;
+        
+		// delegate the insert to the Business layer
         getClinic().insert(pet);
+        
         return new ModelAndView(getSuccessView(), "ownerId", Integer.toString(pet.getOwner().getId()));
     }
     
+	/** Method creates a new <code>Pet</code> with the correct <code>Owner</code> info */
     protected Object formBackingObject(HttpServletRequest request) throws ServletException {
         Owner owner =  getClinic().findOwner(RequestUtils.getIntParameter(request, "ownerId", 0));
         if(owner == null)
@@ -40,10 +45,9 @@ public class AddPetForm extends AbstractClinicForm {
         return pet;
     }
     
-    /** Method disallows duplicate add form submission */
     protected ModelAndView handleInvalidSubmit(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        return disallowDuplicateSubmission(request, response);
+        return disallowDuplicateFormSubmission(request, response);
     }
     
 }

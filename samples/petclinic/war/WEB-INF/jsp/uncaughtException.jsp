@@ -24,15 +24,15 @@ try {
 		}
 	} 
 	else  {
-    out.println("No error information available");
+    	out.println("No error information available");
 	} 
 
 	// Display cookies
 	out.println("\nCookies:\n");
 	Cookie[] cookies = request.getCookies();
 	if (cookies != null) {
-    for (int i = 0; i < cookies.length; i++) {
-      out.println(cookies[i].getName() + "=[" + cookies[i].getValue() + "]");
+    	for (int i = 0; i < cookies.length; i++) {
+      		out.println(cookies[i].getName() + "=[" + cookies[i].getValue() + "]");
 		}
 	}
 	    

@@ -7,7 +7,6 @@ package petclinic;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
@@ -28,10 +27,6 @@ public class Pet extends NamedEntity {
     
     /** Holds value of property owner. */
     private Owner owner;
-    
-    /** Creates a new instance of Pet */
-    public Pet() {
-    }
     
     /** Getter for property birthDate.
      * @return Value of property birthDate.
@@ -95,6 +90,16 @@ public class Pet extends NamedEntity {
     public void addVisit(Visit visit) {
         this.visits.add(visit);
     }
-    
+
+	/** Method to copy properties from another <code>Pet</code>.
+	 * 	@param pet Properties source
+	 */
+	public void copyPropertiesFrom(Pet pet) {
+		super.copyPropertiesFrom(pet);
+		setBirthDate(pet.getBirthDate()); 
+		setTypeId(pet.getTypeId()); 
+		setVisits(pet.getVisits()); 
+		setOwner(pet.getOwner()); 
+	}
     
 }

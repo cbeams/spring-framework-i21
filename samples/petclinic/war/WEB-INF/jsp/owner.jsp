@@ -58,7 +58,7 @@
         <TH> Date</TH><TH>Description</TH>
         <c:forEach var="visit" items="${pet.visits}">
           <TR>
-            <TD><fmt:formatDate value="${visit.visitDate}" pattern="yyyy-MM-dd"/></TD>
+            <TD><fmt:formatDate value="${visit.date}" pattern="yyyy-MM-dd"/></TD>
             <TD><c:out value="${visit.description}"/></TD>
           </TR>
         </c:forEach>

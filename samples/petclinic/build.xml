@@ -116,7 +116,10 @@
 
 		<mkdir dir="${docs.dir}"/>
 
-		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}" packagenames="*" private="true">
+		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}" packagenames="*" private="true"
+			 author="true" version="true" use="true" windowtitle="Petclinic">
+			<doctitle><![CDATA[<h1>Petclinic</h1>]]></doctitle>
+			<bottom><![CDATA[<i>Ken Krebs and Spring contributors 2003.</i>]]></bottom>
 			<classpath refid="master-classpath"/>
 		</javadoc>
 
@@ -187,7 +190,8 @@
 
 		<junit printsummary="true" fork="yes">
 			<formatter type="xml"/>
-			<test name="petclinic.ClinicImplTest" todir="${testreports.dir}"/>
+			<test name="petclinic.OwnerTest" todir="${testreports.dir}"/>
+			<test name="petclinic.jdbc.JdbcClinicTest" todir="${testreports.dir}"/>
 			<classpath path="${build.dir}"/>
 			<classpath path="${testbuild.dir}"/>
 			<classpath path="${testsrc.dir}"/>

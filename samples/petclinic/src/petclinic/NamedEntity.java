@@ -16,10 +16,6 @@ public class NamedEntity extends Entity {
     /** Holds value of property name. */
     private String name;
     
-    /** Creates a new instance of NamedEntity */
-    public NamedEntity() {
-    }
-    
     /** Getter for property name.
      * @return Value of property name.
      */
@@ -33,5 +29,13 @@ public class NamedEntity extends Entity {
     public void setName(String name) {
         this.name = name;
     }
+    
+	/** Method to copy properties from another <code>NamedEntity</code>.
+	 * 	@param entity Properties source
+	 */
+	public void copyPropertiesFrom(NamedEntity entity) {
+		super.copyPropertiesFrom(entity);
+		setName(entity.getName()); 
+	}
     
 }

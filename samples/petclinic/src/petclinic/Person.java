@@ -28,10 +28,6 @@ public class Person extends Entity {
     /** Holds value of property telephone. */
     private String telephone;
     
-    /** Creates a new instance of Person */
-    public Person() {
-    }
-    
     /** Getter for property firstName.
      * @return Value of property firstName.
      */
@@ -101,5 +97,17 @@ public class Person extends Entity {
     public void setTelephone(String telephone) {
         this.telephone = telephone;
     }
+    
+	/** Method to copy properties from another <code>Person</code>.
+	 * 	@param person Properties source
+	 */
+	public void copyPropertiesFrom(Person person) {
+		super.copyPropertiesFrom(person);
+		setFirstName(person.getFirstName()); 
+		setLastName(person.getLastName()); 
+		setAddress(person.getAddress()); 
+		setCity(person.getCity()); 
+		setTelephone(person.getTelephone()); 
+	}
     
 }

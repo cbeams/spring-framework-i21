@@ -23,6 +23,8 @@ import com.interface21.web.servlet.ModelAndView;
 import com.interface21.web.servlet.mvc.SimpleFormController;
 
 /**
+ *	JavaBean abstract base class for petclinic-aware Form Controllers.
+ *	Provides convenience methods for subclasses.
  *
  * @author  Ken Krebs
  */
@@ -50,27 +52,29 @@ abstract public class AbstractClinicForm extends SimpleFormController {
             throw new ApplicationContextException("Must set clinic bean property on " + getClass());
     }
     
+    /** Method provides <code>Pet</code> type info to all Forms */
     protected Map referenceData(HttpServletRequest request) throws ServletException {
         Map model = new HashMap();
         model.put("types", clinic.getTypes());
         return model;
     }
     
+    /**	Method sets up a custom property editor for the application's Date format */
     protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setLenient(false);
         binder.registerCustomEditor(java.util.Date.class, null, new CustomDateEditor(dateFormat, false));
     }
     
-    /** Method disallows duplicate form submission.
+    /** 
+     * 	Method disallows duplicate form submission.
      *  Typically used to prevent duplicate insertion of <code>Entity</code>s
      *  into the datastore. Shows a new form with an error message.
-     *  @see #handleInvalidSubmit(HttpServletRequest,HttpServletResponse)
      */
-    protected ModelAndView disallowDuplicateSubmission(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView disallowDuplicateFormSubmission(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         ServletRequestDataBinder errors = createBinder(request, formBackingObject(request));
-        errors.reject("error.duplicateForm", null, "duplicate form submission");
+        errors.reject("duplicateFormSubmission", null, "Duplicate form submission");
         return showForm(request, response, errors);
     }
     

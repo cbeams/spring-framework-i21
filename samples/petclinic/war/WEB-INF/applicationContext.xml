@@ -11,9 +11,9 @@
   - in test environments or standalone applications without any hassle.
   -->
   
-	<beans>		
+<beans>		
 
-	<!-- ========================= GENERAL DEFINITIONS ========================= -->
+<!-- ========================= GENERAL DEFINITIONS ========================= -->
 
 	<!--
 	  - The message source for this context, loaded from localized "messages_xx" files
@@ -28,21 +28,14 @@
 		<property name="basename"><value>messages</value></property>										
 	</bean>
 
-	<!-- ========================= Start of PERSISTENCE DEFINITIONS ========================= -->
+<!-- ========================= Start of PERSISTENCE DEFINITIONS ========================= -->
   
 	<!-- NOTE: In the PERSISTENCE DEFINITIONS section, choose exactly 1
-             "dataSource" bean and exactly 1 "incrementer" bean.
-             The database types of the 2 beans must be compatible. -->
+             "dataSource" bean and edit the class of the "clinic" bean. -->
 
 	<!-- NOTE: For each JNDI DataSource reference, the respective DriverManagerDataSource
 	           definition can be used as an alternative (e.g. to avoid container-specific
 						 JNDI setup for development environments). -->
-
-	<!-- HSQL Incrementing key generator prototype -->
-  <bean id="incrementer" singleton="false" class="com.interface21.jdbc.core.support.HsqlMaxValueIncrementer">
-    <property name="dataSource"><ref bean="dataSource"/></property>
-    <property name="columnName"><value>seq</value></property>
-  </bean>
 
 	<!--
 	  - DriverManagerDataSource is an alternative DataSource for non-J2EE environments.
@@ -56,12 +49,14 @@
 	  -->
 	  
 	<!-- HSQL DataSource for non-J2EE environments. -->
+	<!---->
 	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
 		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
 		<property name="username"><value>sa</value></property>
 		<property name="password"><value></value></property>
 	</bean>
+	<!---->
 
 	<!--
 	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
@@ -70,18 +65,10 @@
 	<!-- HSQL JNDI DataSource for J2EE environments. -->
 	<!--
 	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
-	  <property name="jndiName"><value>jdbc/petclinicHSQL</value></property>
+	  	<property name="jndiName"><value>jdbc/petclinicHSQL</value></property>
 	</bean>
 	-->
 	
-	<!-- MYSQL Incrementing key generator prototype -->
-	<!--
-  <bean id="incrementer" singleton="false" class="com.interface21.jdbc.core.support.MySQLMaxValueIncrementer" >
-    <property name="dataSource"><ref bean="dataSource"/></property>
-    <property name="columnName"><value>seq</value></property>
-  </bean>
-	-->
-
 	<!-- MYSQL DataSource for non-J2EE environments. -->
 	<!--
 	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
@@ -99,16 +86,11 @@
 	</bean>
 	-->
 
-	<!-- petclinic primary Data Access Object : JDBC implementation -->
-  <bean id="clinicDAO" class="petclinic.dao.ClinicJdbcDAO">
-    <property name="dataSource"><ref bean="dataSource"/></property>
-  </bean>
-    
 	<!-- petclinic primary Business Object : Default implementation -->
-	<bean id="clinic" class="petclinic.ClinicImpl">
-    <property name="dao"><ref bean="clinicDAO"/></property>
+	<bean id="clinic" class="petclinic.jdbc.HsqlClinic">
+    	<property name="dataSource"><ref bean="dataSource"/></property>
 	</bean>
 
-	<!-- ========================= End of PERSISTENCE DEFINITIONS ========================= -->
+<!-- ========================= End of PERSISTENCE DEFINITIONS ========================= -->
 	
 </beans>

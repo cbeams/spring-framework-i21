@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Root application context definition for a test app that uses JDBC.
+  - Does not depend on web infrastructure or any web-specific classes!
+  -->
+  
+<beans>		
+
+<!-- ========================= GENERAL DEFINITIONS ========================= -->
+
+	<!--
+	  - The message source for this context, loaded from localized "messages_xx" files
+	  - in the classpath, i.e. "messages.properties" or "messages_de.properties".
+	  - Can be used to support internationalization of test reports
+	  - "getMessage" calls to this context will use this source.
+	  - Child contexts can have their own message sources, inheriting all messages from this
+	  - source, being able to define new messages and override ones defined in this source.
+	  -->
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">	
+		<property name="basename"><value>messages</value></property>										
+	</bean>
+
+<!-- ========================= Start of PERSISTENCE DEFINITIONS ========================= -->
+  
+	<!-- NOTE: In the PERSISTENCE DEFINITIONS section, choose exactly 1
+             "dataSource" bean and edit the class of the "clinic" bean. -->
+
+	<!-- HSQL DataSource. -->
+	<!---->
+  	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
+    	<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
+    	<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
+    	<property name="username"><value>sa</value></property>
+		<property name="password"><value></value></property>
+  	</bean>
+	<!---->
+   
+	<!-- MYSQL DataSource. -->
+	<!--
+  	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
+    	<property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
+    	<property name="url"><value>jdbc:mysql://localhost:3306/petclinic</value></property>
+    	<property name="username"><value>pc</value></property>
+    	<property name="password"><value>pc</value></property>
+  	</bean>
+	-->
+
+	<!-- petclinic primary Business Object : Default implementation -->
+	<bean id="clinic" class="petclinic.jdbc.HsqlClinic">
+    	<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
+	
+<!-- ======= END of PERSISTENCE DEFINITIONS =============================-->
+
+</beans>
+

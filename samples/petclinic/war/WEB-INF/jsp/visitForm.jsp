@@ -4,9 +4,10 @@
 <H2><c:if test="${command.id == 0}">New </c:if>Visit:</H2>
 <i21:bind path="command">
   <FONT color="red">
-    <B><c:out value="${status.errorMessage}"/></B>
+    <B><c:out value="${status.errorMessage}"/></B><BR>
   </FONT>
 </i21:bind>
+<P>
 <B>Pet:</B>
 <TABLE border="true">
   <TH>Name</TH><TH>Birth Date</TH><TH>Type</TH><TH>Owner</TH>
@@ -20,11 +21,11 @@
 <P>
 <FORM method="POST">
   <B>Date:</B>
-  <i21:bind path="command.visitDate">
+  <i21:bind path="command.date">
     <FONT color="red">
       <B><c:out value="${status.errorMessage}"/></B>
     </FONT>
-    <BR><INPUT type="text" maxlength="10" size="10" name="visitDate" value="<c:out value="${status.value}"/>" />
+    <BR><INPUT type="text" maxlength="10" size="10" name="date" value="<c:out value="${status.value}"/>" />
   </i21:bind>
   <BR>(yyyy-mm-dd)
   <P>
@@ -46,7 +47,7 @@
   <TH>Date</TH><TH>Description</TH>
   <c:forEach var="visit" items="${command.pet.visits}">
     <TR>
-      <TD><fmt:formatDate value="${visit.visitDate}" pattern="yyyy-MM-dd"/></TD>
+      <TD><fmt:formatDate value="${visit.date}" pattern="yyyy-MM-dd"/></TD>
       <TD><c:out value="${visit.description}"/></TD>
     </TR>
   </c:forEach>

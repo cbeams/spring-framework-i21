@@ -17,10 +17,6 @@ public class Vet extends Person {
     /** Holds value of property specialties. */
     private List specialties;
     
-    /** Creates a new instance of Vet */
-    public Vet() {
-    }
-    
     /** Getter for property specialties.
      * @return Value of property specialties.
      */
@@ -35,4 +31,12 @@ public class Vet extends Person {
         this.specialties = specialties;
     }
     
+	/** Method to copy properties from another <code>Vet</code>.
+	 * 	@param vet Properties source
+	 */
+	public void copyPropertiesFrom(Vet vet) {
+		super.copyPropertiesFrom(vet);
+		setSpecialties(vet.getSpecialties()); 
+	}
+      
 }
