@@ -87,7 +87,7 @@
 	</target>
 
 
-	<target name="beans" depends="build,initdist" description="Create the beans JAR file (all other JARs depend on this)">
+	<target name="beans" depends="build,initdist" description="Create the bean container JAR file (for just using the Spring core)">
 
 		<delete file="${dist.dir}/${spring-beans.jar}"/>
 
@@ -102,96 +102,21 @@
 	</target>
 
 
-	<target name="aop" depends="build,initdist" description="Create the AOP JAR file (depends on beans)">
-
-		<delete file="${dist.dir}/${spring-aop.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-aop.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/aop/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="jndi" depends="build,initdist" description="Create the JNDI JAR file (depends on beans)">
-
-		<delete file="${dist.dir}/${spring-jndi.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-jndi.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/jndi/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="jdbc" depends="build,initdist" description="Create the JDBC distribution JAR file (depends on beans, aop, jndi)">
+	<target name="jdbc" depends="build,initdist" description="Create the JDBC distribution JAR file (for using Spring as library)">
 
 		<delete file="${dist.dir}/${spring-jdbc.jar}"/>
 
 		<jar jarfile="${dist.dir}/${spring-jdbc.jar}">
 			<fileset dir="${build.dir}">
+				<include name="com/interface21/aop/**"/>
+				<include name="com/interface21/beans/**"/>
+				<include name="com/interface21/core/**"/>
 				<include name="com/interface21/dao/**"/>
 				<include name="com/interface21/jdbc/**"/>
-				<include name="com/interface21/transaction/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="orm" depends="build,initdist" description="Create the ORM distribution JAR file (depends on beans, aop, jdbc)">
-
-		<delete file="${dist.dir}/${spring-orm.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-orm.jar}">
-			<fileset dir="${build.dir}">
+				<include name="com/interface21/jndi/**"/>
 				<include name="com/interface21/orm/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="context" depends="build,initdist" description="Create the context distribution JAR file (depends on beans)">
-
-		<delete file="${dist.dir}/${spring-context.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-context.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/context/**"/>
-				<include name="com/interface21/ui/**"/>
-				<include name="com/interface21/validation/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="remoting" depends="build,initdist" description="Create the remoting distribution JAR file (depends on beans, aop, partly web)">
-
-		<delete file="${dist.dir}/${spring-remoting.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-remoting.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/ejb/**"/>
-				<include name="com/interface21/remoting/**"/>
-			</fileset>
-		</jar>
-
-	</target>
-
-
-	<target name="web" depends="build,initdist" description="Create the web distribution JAR file (depends on beans, context)">
-
-		<delete file="${dist.dir}/${spring-web.jar}"/>
-
-		<jar jarfile="${dist.dir}/${spring-web.jar}">
-			<fileset dir="${build.dir}">
-				<include name="com/interface21/web/**"/>
+				<include name="com/interface21/transaction/**"/>
+				<include name="com/interface21/util/*"/>
 			</fileset>
 		</jar>
 
@@ -227,7 +152,7 @@
 	<!--
 		Note: Contained classes overlap, e.g. spring-full contains everything.
 	-->
-	<target name="alljars" depends="beans,aop,jndi,jdbc,orm,context,remoting,web,full,srczip" description="Create all JAR files"/>
+	<target name="alljars" depends="beans,jdbc,full,srczip" description="Create all JAR files"/>
 
 
 	<target name="javadoc" description="Generate framework Javadocs.">
