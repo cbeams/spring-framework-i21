@@ -6,8 +6,9 @@
   
 <web-app>
 
-	<display-name>countries</display-name>
-	<description>Countries SPRING demo application</description>
+	<display-name>Countries</display-name>
+
+	<description>Countries sample application</description>
 
 	<!--
 	  - Key of the system property that should specify the root directory of this
@@ -37,8 +38,9 @@
 	  -
 	  - Exports a "web app root key", i.e. a system property that specifies the root
 	  - directory of this web app, for usage in log file paths.
+	  - This web app specifies "countries.root" (see log4j.properties file).
 	  -->
-	<!-- Uncomment if you use Tomcat -->
+	<!-- Uncomment if you use any other server than JBoss -->
 	<!--
 	<listener>
 		<listener-class>com.interface21.web.util.Log4jConfigListener</listener-class>
