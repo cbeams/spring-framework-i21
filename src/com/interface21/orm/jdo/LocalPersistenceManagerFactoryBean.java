@@ -2,8 +2,6 @@ package com.interface21.orm.jdo;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
 
 import javax.jdo.JDOException;
@@ -36,16 +34,29 @@ import com.interface21.dao.DataAccessResourceFailureException;
  */
 public class LocalPersistenceManagerFactoryBean implements FactoryBean, InitializingBean {
 
-	private String location;
+	private String configLocation;
+
+	private Properties jdoProperties;
 
 	private PersistenceManagerFactory persistenceManagerFactory;
 
 	/**
-	 * Set the location of the JDO properties config file, as URL or classpath
-	 * resource location.
+	 * Set the location of the JDO properties config file as classpath
+	 * resource, e.g. "/kodo.properties".
+	 * <p>Note: Can be omitted when all necessary properties are
+	 * specified locally via this bean.
 	 */
-	public void setLocation(String location) {
-		this.location = location;
+	public void setConfigLocation(String configLocation) {
+		this.configLocation = configLocation;
+	}
+
+	/**
+	 * Set JDO properties, like "javax.jdo.PersistenceManagerFactoryClass".
+	 * <p>Can be used to override values in a JDO properties config file,
+	 * or to specify all necessary properties locally.
+	 */
+	public void setJdoProperties(Properties jdoProperties) {
+		this.jdoProperties = jdoProperties;
 	}
 
 	/**
@@ -55,26 +66,24 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 	 * @throws JDOException in case of JDO initialization errors
 	 */
 	public void afterPropertiesSet() throws IllegalArgumentException, IOException, JDOException {
-		if (this.location == null) {
-			throw new IllegalArgumentException("location must be set");
+		if (this.configLocation == null && this.jdoProperties == null) {
+			throw new IllegalArgumentException("Either configLocation (e.g. '/kodo.properties') or jdoProperties must be set");
 		}
 		Properties prop = new Properties();
-		try {
-			URL url = new URL(this.location);
-			prop.load(url.openStream());
-		}
-		catch (MalformedURLException ex) {
-			// no URL -> try classpath resource
-			String resourceLocation = this.location;
+		if (this.configLocation != null) {
+			String resourceLocation = this.configLocation;
 			if (!resourceLocation.startsWith("/")) {
 				// always use root, as relative loading doesn't make sense
 				resourceLocation = "/" + resourceLocation;
-				InputStream in = getClass().getResourceAsStream(resourceLocation);
-				if (in == null) {
-					throw new DataAccessResourceFailureException("Cannot open config location: " + resourceLocation, null);
-				}
-				prop.load(in);
 			}
+			InputStream in = getClass().getResourceAsStream(resourceLocation);
+			if (in == null) {
+				throw new DataAccessResourceFailureException("Cannot open config location: " + resourceLocation, null);
+			}
+			prop.load(in);
+		}
+		if (this.jdoProperties != null) {
+			prop.putAll(this.jdoProperties);
 		}
 		this.persistenceManagerFactory = JDOHelper.getPersistenceManagerFactory(prop);
 	}

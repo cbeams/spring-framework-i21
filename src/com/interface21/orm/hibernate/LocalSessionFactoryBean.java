@@ -1,7 +1,5 @@
 package com.interface21.orm.hibernate;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -60,9 +58,9 @@ import com.interface21.beans.factory.InitializingBean;
  */
 public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 
-	private String location;
+	private String configLocation;
 
-	private Properties properties;
+	private Properties hibernateProperties;
 
 	private String[] mappingResources;
 
@@ -71,23 +69,23 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	private SessionFactory sessionFactory;
 
 	/**
-	 * Set the location of the Hibernate XML config file, as URL or classpath
-	 * resource location. A typical value is "/hibernate.cfg.xml", in the case
-	 * of web applications normally to be found in WEB-INF/classes.
-	 * <p>Note: Can be omitted when specifying all necessary properties and
-	 * mapping resources locally in this bean.
+	 * Set the location of the Hibernate XML config file as classpath resource.
+	 * A typical value is "/hibernate.cfg.xml", in the case of web applications
+	 * normally to be found in WEB-INF/classes.
+	 * <p>Note: Can be omitted when all necessary properties and mapping
+	 * resources are specified locally via this bean.
 	 */
-	public void setLocation(String location) {
-		this.location = location;
+	public void setConfigLocation(String configLocation) {
+		this.configLocation = configLocation;
 	}
 
 	/**
 	 * Set Hibernate properties, like "hibernate.dialect".
-	 * <p>Can be used to complete values from a Hibernate XML config file,
+	 * <p>Can be used to override values in a Hibernate XML config file,
 	 * or to specify all necessary properties locally.
 	 */
-	public void setProperties(Properties properties) {
-		this.properties = properties;
+	public void setHibernateProperties(Properties hibernateProperties) {
+		this.hibernateProperties = hibernateProperties;
 	}
 
 	/**
@@ -117,28 +115,21 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 */
 	public void afterPropertiesSet() throws IllegalArgumentException, HibernateException {
 		Configuration config = new Configuration();
-		if (this.location == null && this.mappingResources == null) {
-			throw new IllegalArgumentException("Either location (e.g. 'hibernate.cfg.xml') or mappingResources must be set");
+		if (this.configLocation == null && this.mappingResources == null) {
+			throw new IllegalArgumentException("Either configLocation (e.g. '/hibernate.cfg.xml') or mappingResources must be set");
 		}
-		if (this.location != null) {
-			try {
-				// try URL
-				URL url = new URL(this.location);
-				config.configure(url);
-			} catch (MalformedURLException ex) {
-				// no URL -> try classpath resource
-				String resourceLocation = this.location;
-				if (!resourceLocation.startsWith("/")) {
-					// always use root, as loading relative to some
-					// Hibernate class' package doesn't make sense
-					resourceLocation = "/" + resourceLocation;
-				}
-				config.configure(resourceLocation);
+		if (this.configLocation != null) {
+			String resourceLocation = this.configLocation;
+			if (!resourceLocation.startsWith("/")) {
+				// always use root, as loading relative to some
+				// Hibernate class' package doesn't make sense
+				resourceLocation = "/" + resourceLocation;
 			}
+			config.configure(resourceLocation);
 		}
-		if (this.properties != null) {
+		if (this.hibernateProperties != null) {
 			// add given Hibernate properties
-			config.addProperties(this.properties);
+			config.addProperties(this.hibernateProperties);
 		}
 		if (this.mappingResources != null) {
 			// register given Hibernate mapping definitions, contained in resource files
