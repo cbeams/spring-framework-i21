@@ -341,68 +341,6 @@ public class JdbcTemplate {
 		return sql.indexOf("?") != -1;
 	}
 
-
-	/**
-	 * Helper class for inserts with auto-generated keys.
-	 * Contains the new key value and the number of affected rows
-	 **/
-	public static class InsertRetval {
-
-		/**
-		 * Default constructor
-		 **/
-		public InsertRetval() {
-		}
-
-		/**
-		 * Constructor
-		 * @param rowsAffected the number of rows inserted (will be 0 or 1)
-		 * @param key the newly generated primary key used for this insert
-		 **/
-		public InsertRetval(int rowsAffected, Object key) {
-			this.rowsAffected = rowsAffected;
-			this.key = key;
-		}
-
-		/**
-		 * Retrieve the number of affected rows (will be 0 or 1)
-		 * @return the number of affected rows
-		 */
-		public int getRowsAffected() {
-			return rowsAffected;
-		}
-
-		/**
-		 * Set the number of affected rows
-		 * @param rowsAffected the number of affected rows, should be 0 or 1
-		 * @exception IllegalArgumentException if rowsAffected is not 0 or 1
-		 **/
-		public void setRowsAffected(int rowsAffected) {
-			if (rowsAffected != 0 && rowsAffected != 1)
-				throw new IllegalArgumentException("Insert can only affect zero or one rows");
-			this.rowsAffected = rowsAffected;
-		}
-
-		/**
-		 * Retrieve the newly generated key
-		 * @return the key
-		 **/
-		public Object getKey() {
-			return key;
-		}
-
-		/**
-		 * Set the newly generated key
-		 * @param key the key
-		 **/
-		public void setKey(Object key) {
-			this.key = key;
-		}
-
-		private int rowsAffected;
-		private Object key;
-	}
-
 	/**
 	 * Issue a single SQL update.
 	 * @param sql static SQL to execute
@@ -416,22 +354,6 @@ public class JdbcTemplate {
 	}
 
 	/**
-	 * Issue a single SQL insert using a key generator
-	 * @param sql static SQL to execute
-	 * @param binder the callback interface for binding the generated key value into the prepared statement
-	 * @param keygen the key generator instance to use
-	 * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue}
-	 * @return the number of rows affected
-	 * @throws IllegalArgumentException if the key class is of an unsupported type
-	 * @throws DataAccessException if there is any problem.
-	 */
-	public InsertRetval update(final String sql, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) throws DataAccessException {
-		if (logger.isInfoEnabled())
-			logger.info("Running SQL update '" + sql + "'");
-		return update(PreparedStatementCreatorFactory.newPreparedStatementCreator(sql), binder, keygen, keyClass);
-	}
-
-	/**
 	 * Issue an update using a PreparedStatementCreator to provide SQL and any required
 	 * parameters
 	 * @param psc helper: callback object that provides SQL and any necessary parameters
@@ -440,21 +362,6 @@ public class JdbcTemplate {
 	 */
 	public int update(PreparedStatementCreator psc) throws DataAccessException {
 		return update(new PreparedStatementCreator[]{psc})[0];
-	}
-
-	/**
-	 * Issue an insert using a PreparedStatementCreator to provide SQL, any required
-	 * parameters and a key generator
-	 * @param psc helper: callback object that provides SQL and any necessary parameters
-	 * @param binder the callback interface for binding the generated key value into the prepared statement
-	 * @param keygen the key generator instance to use
-	 * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue}
-	 * @return the number of rows affected
-	 * @throws IllegalArgumentException if the key class is of an unsupported type
-	 * @throws DataAccessException if there is any problem issuing the update
-	 */
-	public InsertRetval update(PreparedStatementCreator psc, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) throws DataAccessException {
-		return update(new PreparedStatementCreator[]{psc}, binder, keygen, keyClass)[0];
 	}
 
 	/**
@@ -495,46 +402,6 @@ public class JdbcTemplate {
 
 
 	/**
-	 * Issue multiple inserts using multiple PreparedStatementCreators to provide SQL, any required
-	 * parameters and a key generator
-	 * @param pscs array of helpers: callback object that provides SQL and any necessary parameters
-	 * @param binder the callback interface for binding the generated key value into the prepared statement
-	 * @param keygen the key generator instance to use
-	 * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue}
-	 * @return an array of the number of rows affected by each statement
-	 * @throws IllegalArgumentException if the key class is of an unsupported type
-	 * @throws DataAccessException if there is any problem issuing the update
-	 */
-	public InsertRetval[] update(PreparedStatementCreator[] pscs, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass) throws DataAccessException {
-		Connection con = null;
-		int index = 0;
-		try {
-			con = DataSourceUtils.getConnection(this.dataSource);
-			InsertRetval[] retvals = new InsertRetval[pscs.length];
-			for (index = 0; index < retvals.length; index++) {
-				retvals[index] = new InsertRetval();
-				PreparedStatement ps = pscs[index].createPreparedStatement(con);
-				binder.bind(ps, retvals[index].key = keygen.nextValue(keyClass));
-				retvals[index].rowsAffected = ps.executeUpdate();
-				if (logger.isInfoEnabled())
-					logger.info("JDBCTemplate: update affected " + retvals[index] + " rows");
-				ps.close();
-			}
-
-			// Don't worry about warnings, as we're more likely to get exception on updates
-			// (for example on data truncation)
-			return retvals;
-		}
-		catch (SQLException ex) {
-			throw this.exceptionTranslater.translate("processing update " +
-			                                         (index + 1) + " of " + pscs.length + "; update was [" + pscs[index] + "]", null, ex);
-		}
-		finally {
-			DataSourceUtils.closeConnectionIfNecessary(con, this.dataSource);
-		}
-	}
-
-	/**
 	 * Issue an update using a PreparedStatementSetter to set bind parameters,
 	 * with given SQL. Simpler than using a PreparedStatementCreator
 	 * as this method will create the PreparedStatement: the
@@ -562,41 +429,6 @@ public class JdbcTemplate {
 				return sql;
 			}
 		});
-	}
-
-
-	/**
-	 * Issue an insert using a PreparedStatementSetter to set bind parameters,
-	 * with given SQL. Simpler than using a PreparedStatementCreator
-	 * as this method will create the PreparedStatement: the
-	 * PreparedStatementSetter has only to set parameters.
-	 * @param sql SQL, containing bind parameters
-	 * @param pss helper that sets bind parameters. If this is null
-	 * we run an update with static SQL
-	 * @param binder the callback interface for binding the generated key value into the prepared statement
-	 * @param keygen the key generator instance to use
-	 * @param keyClass the class of the key to return {@link DataFieldMaxValueIncrementer#nextValue  nextValue}
-	 * @return the number of rows affected and the newly generated key
-	 * @throws DataAccessException if there is any problem issuing the update
-	 * @throws IllegalArgumentException if the key class is of an unsupported type
-	 */
-	public InsertRetval update(final String sql, final PreparedStatementSetter pss, KeyBinder binder, DataFieldMaxValueIncrementer keygen, Class keyClass)
-	    throws DataAccessException {
-		if (pss == null) {
-			return update(sql, binder, keygen, keyClass);
-		}
-
-		return update(new PreparedStatementCreator() {
-			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
-				PreparedStatement ps = conn.prepareStatement(sql);
-				pss.setValues(ps);
-				return ps;
-			}
-
-			public String getSql() {
-				return sql;
-			}
-		}, binder, keygen, keyClass);
 	}
 
 	/**
