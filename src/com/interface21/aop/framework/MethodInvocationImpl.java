@@ -1,4 +1,8 @@
-
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
 package com.interface21.aop.framework;
 
 import java.lang.reflect.Method;
@@ -6,7 +10,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.aopalliance.AspectException;
 import org.aopalliance.AttributeRegistry;
@@ -17,9 +20,9 @@ import org.aopalliance.MethodInvocation;
 
 
 /**
- * Represents an invocation.
- * (c) Rod Johnson, 2003
+ * Spring implementation of AOP Alliance MethodInvocation interface 
  * @author Rod Johnson
+ * @version $Id$
  */
 public class MethodInvocationImpl implements MethodInvocation {
 	
@@ -43,8 +46,11 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/** Interceptors invoked in this list */
 	public final List interceptors;
 	
-	/** Any resources attached to this invocation*/
-	private Map resources = new HashMap();
+	/** 
+	 * Any resources attached to this invocation.
+	 * Lazily initialized for efficiency.
+	 */
+	private HashMap resources;
 	
 	private final AttributeRegistry attributeRegistry;
 	
@@ -127,6 +133,11 @@ public class MethodInvocationImpl implements MethodInvocation {
 
 
 	public Object setResource(String key, Object resource) {
+		// Invocations are single-threaded, so we can lazily
+		// instantiate the resource map if we have to
+		if (this.resources == null) {
+			this.resources = new HashMap();
+		}
 		Object oldValue = this.resources.get(key);
 		this.resources.put(key, resource);
 		return oldValue;
@@ -136,7 +147,8 @@ public class MethodInvocationImpl implements MethodInvocation {
 	 * @return the resource or null
 	 */
 	public Object getResource(String key) {
-		return this.resources.get(key);
+		// Resource map may be null if it hasn't been instantiated
+		return (this.resources == null) ? null : this.resources.get(key);
 	}
 	
 	/**
