@@ -11,7 +11,7 @@ import com.interface21.dao.DataAccessResourceFailureException;
  * FactoryBean that creates local Hibernate SessionFactory instances.
  * Behaves like a SessionFactory instance when used as bean reference,
  * e.g. for HibernateTemplate's sessionFactory property. Note that
- * switching to JndiSessionFactoryBean is just a matter of configuration!
+ * switching to JndiObjectFactoryBean is just a matter of configuration!
  *
  * <p>The typical usage will be to register this as singleton factory
  * (for a certain underlying data source) in an application context,
@@ -23,9 +23,9 @@ import com.interface21.dao.DataAccessResourceFailureException;
  *
  * @author Juergen Hoeller
  * @since 05.05.2003
- * @see JndiSessionFactoryBean
  * @see HibernateTemplate
  * @see HibernateTransactionManager
+ * @see com.interface21.jndi.JndiObjectFactoryBean
  */
 public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 
@@ -47,12 +47,7 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 * @throws DataAccessResourceFailureException in case of initialization errors
 	 */
 	public void afterPropertiesSet() throws DataAccessResourceFailureException {
-		if (this.location != null) {
-			this.sessionFactory = SessionFactoryUtils.createSessionFactory(this.location);
-		}
-		else {
-			this.sessionFactory = SessionFactoryUtils.createSessionFactory();
-		}
+		this.sessionFactory = SessionFactoryUtils.createSessionFactory(this.location);
 	}
 
 	/**

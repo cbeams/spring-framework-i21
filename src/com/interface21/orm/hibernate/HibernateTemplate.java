@@ -35,8 +35,8 @@ import com.interface21.dao.OptimisticLockingFailureException;
  * with business objects, query objects, and com.interface21.dao exceptions.
  *
  * <p>Can be used within a service implementation via direct instantiation
- * with a session factory reference, or get prepared in an application context
- * and given to services as bean reference. Note: The session factory should
+ * with a SessionFactory reference, or get prepared in an application context
+ * and given to services as bean reference. Note: The SessionFactory should
  * always be configured as bean in the application context, in the first case
  * given to the service directly, in the second case to the prepared template.
  *
@@ -47,6 +47,13 @@ import com.interface21.dao.OptimisticLockingFailureException;
  * a code dependency. For example, switching to JTA is just a matter of
  * Spring and Hibernate configuration, without touching applicaiton code.
  *
+ * <p>Registering Hibernate with JNDI is only advisable when using
+ * Hibernate's JCA Connector, i.e. when the application server cares for
+ * initialization and JTA notification. Else, portability is rather limited:
+ * Manual JNDI binding isn't properly supported by all application servers
+ * (e.g. Tomcat), and manual JTA integration involves a container-specific
+ * JTA TransactionManager lookup.
+ *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
  *
@@ -54,6 +61,9 @@ import com.interface21.dao.OptimisticLockingFailureException;
  * @since 02.05.2003
  * @see HibernateCallback
  * @see HibernateTransactionManager
+ * @see LocalSessionFactoryBean
+ * @see com.interface21.jndi.JndiObjectFactoryBean
+ * @see com.interface21.jndi.JndiObjectEditor
  */
 public class HibernateTemplate {
 

@@ -1,10 +1,8 @@
 package com.interface21.orm.hibernate;
 
+import java.beans.PropertyEditorManager;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.beans.PropertyEditorManager;
-
-import javax.naming.NamingException;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.JDBCException;
@@ -14,7 +12,7 @@ import net.sf.hibernate.cfg.Configuration;
 import org.apache.log4j.Logger;
 
 import com.interface21.dao.DataAccessResourceFailureException;
-import com.interface21.jndi.JndiTemplate;
+import com.interface21.jndi.JndiObjectEditor;
 import com.interface21.util.ThreadObjectManager;
 
 /**
@@ -35,7 +33,7 @@ public abstract class SessionFactoryUtils {
 
 	static {
 		// register editor to be able to set a JNDI name to a SessionFactory property
-		PropertyEditorManager.registerEditor(SessionFactory.class, JndiSessionFactoryEditor.class);
+		PropertyEditorManager.registerEditor(SessionFactory.class, JndiObjectEditor.class);
 	}
 
 	/**
@@ -55,51 +53,9 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Look up the specified SessionFactory in JNDI, using a default JndiTemplate.
- 	 * @param name name of the SessionFactory
-	 * @return the SessionFactory
-	 * @throws DataAccessResourceFailureException if the SessionFactory wasn't found
-	 */
-	public static SessionFactory getSessionFactoryFromJndi(String name)
-	    throws DataAccessResourceFailureException {
-		return getSessionFactoryFromJndi(name, new JndiTemplate());
-	}
-
-	/**
-	 * Look up the specified SessionFactory in JNDI, using the given JndiTemplate.
- 	 * @param name name of the SessionFactory
-	 * @param jndiTemplate template instance to use for lookup, or null for default
-	 * @return the SessionFactory
-	 * @throws DataAccessResourceFailureException if the SessionFactory wasn't found
-	 */
-	protected static SessionFactory getSessionFactoryFromJndi(String name, JndiTemplate jndiTemplate)
-	    throws DataAccessResourceFailureException {
-		if (jndiTemplate == null) {
-			jndiTemplate = new JndiTemplate();
-		}
-		try {
-			return (SessionFactory) jndiTemplate.lookup(name);
-		}
-		catch (NamingException ex) {
-			throw new DataAccessResourceFailureException("Could not initialize Hibernate SessionFactory from JNDI", ex);
-		}
-
-	}
-	/**
-	 * Create a Hibernate SessionFactory using the default config file.
-	 * @return the new SessionFactory instance
-	 * @throws DataAccessResourceFailureException if the SessionFactory could not be created
-	 */
-	public static SessionFactory createSessionFactory()
-	    throws DataAccessResourceFailureException {
-		return createSessionFactory(null);
-	}
-
-
-	/**
 	 * Create a Hibernate SessionFactory with the given config file.
-	 * @param configLocation location of the config file (can be a URl or a
-	 * classpath resource), or null if default
+	 * @param configLocation location of the config file (can be a URL
+	 * or a classpath resource), or null if default
 	 * @return the new SessionFactory instance
 	 * @throws DataAccessResourceFailureException if the SessionFactory could not be created
 	 */
