@@ -10,16 +10,13 @@ import junit.framework.TestCase;
 
 import com.interface21.beans.propertyeditors.CustomBooleanEditor;
 import com.interface21.beans.propertyeditors.CustomNumberEditor;
+import com.interface21.beans.propertyeditors.StringTrimmerEditor;
 
 /**
- * @author jho
+ * @author Juergen Hoeller
  * @since 10.06.2003
  */
 public class CustomEditorTestSuite extends TestCase {
-
-	public CustomEditorTestSuite(String msg) {
-		super(msg);
-	}
 
 	public void testComplexObject() {
 		TestBean t = new TestBean();
@@ -363,7 +360,26 @@ public class CustomEditorTestSuite extends TestCase {
 			return;
 		}
 		fail("Should have thrown BeansException");
+	}
 
+	public void testStringTrimmerEditor() {
+		StringTrimmerEditor editor = new StringTrimmerEditor(false);
+		editor.setAsText("test");
+		assertEquals("test", editor.getValue());
+		editor.setAsText(" test ");
+		assertEquals("test", editor.getValue());
+		editor.setAsText("");
+		assertEquals("", editor.getValue());
+	}
+
+	public void testStringTrimmerEditorWithEmptyAsNull() {
+		StringTrimmerEditor editor = new StringTrimmerEditor(true);
+		editor.setAsText("test");
+		assertEquals("test", editor.getValue());
+		editor.setAsText(" test ");
+		assertEquals("test", editor.getValue());
+		editor.setAsText("");
+		assertEquals(null, editor.getValue());
 	}
 
 
