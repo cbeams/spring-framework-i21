@@ -5,16 +5,19 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 
 import com.interface21.jdbc.mock.SpringMockPreparedStatement;
-import com.mockobjects.sql.*;
+import com.interface21.jdbc.mock.SpringMockStatement;
+import com.mockobjects.sql.CommonMockMultiRowResultSet;
+import com.mockobjects.sql.MockConnection;
+import com.mockobjects.sql.MockMultiRowResultSet;
 
 /**
- * 
+ * Factory for mock objects used in JDBC testing.
+ * Addresses some limitations of standard mock objects from
+ * mockobjects.com, such as lack of support for warnings.
  * @author Rod Johnson
  * @since 08-Jan-03
  */
 public abstract class MockConnectionFactory {
-	
-	
 
 	/**
 	* Constructor for SimpleMockConnection with Statement
@@ -22,14 +25,25 @@ public abstract class MockConnectionFactory {
 	public static MockConnection statement(
 		String sql,
 		Object[][] data,
-		boolean mustClose) {
+		boolean mustClose,
+		SQLException sex,
+		SQLWarning warnings) {
 
 		MockConnection mc = new MockConnection();
 		mc.setExpectedCloseCalls(mustClose ? 2 : 0);
 
-		// What about PS?
-		MockStatement s = new MockStatement();
+		SpringMockStatement s = new SpringMockStatement();
 		s.setExpectedQueryString(sql);
+		
+		if (sex != null) {
+			s.setupThrowExceptionOnExecute(sex);
+		}
+		else {
+
+			if (warnings != null)
+				s.setupReportWarningOnExecute(warnings);
+		}
+		
 		mc.setupStatement(s);
 		CommonMockMultiRowResultSet rs = new MockMultiRowResultSet() {
 		};
