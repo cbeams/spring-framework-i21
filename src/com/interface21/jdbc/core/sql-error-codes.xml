@@ -1,34 +1,35 @@
 <!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 	
 <beans>
-  <bean id="DB2"
-    class="com.interface21.jdbc.core.SQLErrorCodes">
+
+	<!--
+		-	We need to use name attributes to create aliases, as some of
+		-	the names we want are not legal as an XML id attribute.
+		-->
+
+  <bean id="DB2" class="com.interface21.jdbc.core.SQLErrorCodes">
     <property name="badSqlGrammarCodes"><value>-204,-206,-301,-408</value></property>
     <property name="dataIntegrityViolationCodes"><value>-803</value></property>
   </bean>
-  
-  <!--
-  		We need to use a name attribute to create an alias automatically, as the name we
-  		want isn't legal as an XML id attribute
-  	-->
-  <bean id="HSQL" name="HSQL Database Engine"
-    class="com.interface21.jdbc.core.SQLErrorCodes">
+
+  <bean id="HSQL" name="HSQL Database Engine" class="com.interface21.jdbc.core.SQLErrorCodes">
     <property name="badSqlGrammarCodes"><value>-22,-28</value></property>
     <property name="dataIntegrityViolationCodes"><value>-9</value></property>
   </bean>
-  <bean id="MS-SQL" name="Microsoft SQL Server"
-    class="com.interface21.jdbc.core.SQLErrorCodes">
+
+  <bean id="MS-SQL" name="Microsoft SQL Server" class="com.interface21.jdbc.core.SQLErrorCodes">
     <property name="badSqlGrammarCodes"><value>207,208</value></property>
     <property name="dataIntegrityViolationCodes"><value>2627,8114,8115</value></property>
   </bean>
-  <bean id="MySQL"
-    class="com.interface21.jdbc.core.SQLErrorCodes">
+
+  <bean id="MySQL" class="com.interface21.jdbc.core.SQLErrorCodes">
     <property name="badSqlGrammarCodes"><value>1054,1064,1146</value></property>
     <property name="dataIntegrityViolationCodes"><value>1062</value></property>
   </bean>
-  <bean id="Oracle"
-    class="com.interface21.jdbc.core.SQLErrorCodes">
+
+  <bean id="Oracle" class="com.interface21.jdbc.core.SQLErrorCodes">
     <property name="badSqlGrammarCodes"><value>904,936,942</value></property>
     <property name="dataIntegrityViolationCodes"><value>1,1400,1722</value></property>
   </bean>
+
 </beans>

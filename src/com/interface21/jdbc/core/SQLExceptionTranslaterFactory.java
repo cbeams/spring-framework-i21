@@ -106,17 +106,23 @@ public class SQLExceptionTranslaterFactory {
 	 * evaluating DatabaseProductName from DatabaseMetaData.
 	 */
 	public SQLExceptionTranslater getDefaultTranslater(DataSource ds) {
-		String dbName = null;
-		Connection con = null;
-		DatabaseMetaData dbmd = null;
+		logger.info("Initializing default SQL exception translater");
+		Connection con = DataSourceUtils.getConnection(ds);
 		try {
-			con = DataSourceUtils.getConnection(ds);
-			if (con != null) 
-				dbmd = con.getMetaData();
-			if (dbmd != null)
-				dbName = dbmd.getDatabaseProductName();
-			if (dbName != null && dbName.startsWith("DB2/"))
-				dbName = "DB2";
+			DatabaseMetaData dbmd = con.getMetaData();
+			if (dbmd != null) {
+				String dbName = dbmd.getDatabaseProductName();
+				// special check for DB2
+				if (dbName != null && dbName.startsWith("DB2/"))
+					dbName = "DB2";
+				if (dbName != null) {
+					SQLErrorCodes sec = (SQLErrorCodes) rdbmsErrorCodes.get(dbName);
+					if (sec != null)
+						return new SQLErrorCodeSQLExceptionTranslater(sec);
+				}
+			}
+			// could not find the database among the defined ones
+			return new SQLStateSQLExceptionTranslater();
 		}
 		catch (SQLException se) {
 			// this is bad - we probably lost the connection
@@ -125,16 +131,6 @@ public class SQLExceptionTranslaterFactory {
 		finally {
 			DataSourceUtils.closeConnectionIfNecessary(con, ds);
 		}
-		SQLErrorCodes sec = null;
-		if (dbName != null)
-			sec = (SQLErrorCodes) rdbmsErrorCodes.get(dbName);
-		
-		// could not find the database among the defined ones
-		if (sec == null) 
-			return new SQLStateSQLExceptionTranslater();
-			
-		SQLErrorCodeSQLExceptionTranslater set = new SQLErrorCodeSQLExceptionTranslater(sec);
-		return set;
 	}
 
 	/**

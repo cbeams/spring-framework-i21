@@ -176,7 +176,7 @@ public class JdbcTemplate implements InitializingBean {
 
 	/**
 	 * Return the exception translater for this instance.
-	 * Create a default one for the specified DataSource if none set.
+	 * Creates a default one for the specified DataSource if none set.
 	 */
 	protected synchronized SQLExceptionTranslater getExceptionTranslater() {
 		if (this.exceptionTranslater == null) {
@@ -185,10 +185,15 @@ public class JdbcTemplate implements InitializingBean {
 		return this.exceptionTranslater;
 	}
 
+	/**
+	 * Eagerly initialize the exception translater,
+	 * creating a default one for the specified DataSource if none set.
+	 */
 	public void afterPropertiesSet() {
 		if (this.dataSource == null) {
 			throw new IllegalArgumentException("dataSource is required");
 		}
+		getExceptionTranslater();
 	}
 
 
