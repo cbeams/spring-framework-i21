@@ -42,19 +42,19 @@ public class StringUtilsTestSuite extends TestCase {
 		assertTrue("test last", StringUtils.countOccurrencesOf(s, "r")==2);
 	}
 
-	public void countOccurrencesOfInDelimiters() {
+	public void countParameterPlaceholders() {
 		
-		assertTrue("null string", StringUtils.countParameterPlaceholders(null, '\0', '\0') == 0);
-		assertTrue("null marker", StringUtils.countParameterPlaceholders("woof",'\0', '\'') == 0);
-		assertTrue("null delimiter", StringUtils.countParameterPlaceholders("woof", '?', '\0') == 0);
+		assertTrue("null string returns 0", StringUtils.countParameterPlaceholders(null, '\0', '\0') == 0);
+		assertTrue("null marker returns 0", StringUtils.countParameterPlaceholders("woof",'\0', '\'') == 0);
+		assertTrue("null delimiter returns 0", StringUtils.countParameterPlaceholders("woof", '?', '\0') == 0);
 		try {
 		    StringUtils.countParameterPlaceholders("The big bad wolf ate 'RedCap", '?', '\'');
-		    fail("Should raise an IllegalArgumentException : string not properly delimited");
+		    fail("Should have raised an IllegalArgumentException : string not properly delimited");
 	
 		} catch (IllegalArgumentException success) {}
 		try {
 		    StringUtils.countParameterPlaceholders("'The big bad wolf ate 'Red''Cap", '?', '\'');
-		    fail("Should raise an IllegalArgumentException : string not properly delimited");
+		    fail("Should have raised an IllegalArgumentException : string not properly delimited");
 	
 		} catch (IllegalArgumentException success) {}
 		String s = "The big ? bad wolf ate ?? RedCap ?";
