@@ -5,8 +5,6 @@
  
 package com.interface21.ejb.access;
 
-import javax.ejb.EJBObject;
-
 import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.aop.interceptor.client.ejb.SimpleRemoteSlsbInvokerInterceptor;
 import com.interface21.beans.BeansException;
@@ -47,7 +45,10 @@ public class SimpleRemoteStatelessSessionProxyFactoryBean extends SimpleRemoteSl
 	
 		
 	/**
-	 * @return the business interface of the EJB
+	 * @return the business interface of the EJB. Note that this
+	 * will normally be the superinterface of the EJB remote component interface.
+	 * Using a business methods interface is a best practice
+	 * when implementing EJBs.
 	 */
 	public Class getBusinessInterface() {
 		return businessInterface;
@@ -73,7 +74,7 @@ public class SimpleRemoteStatelessSessionProxyFactoryBean extends SimpleRemoteSl
 		
 		ProxyFactory pf = new ProxyFactory(new Class[] { this.businessInterface });
 		pf.addInterceptor(this);
-		this.proxy = (EJBObject) pf.getProxy();
+		this.proxy = pf.getProxy();
 	}
 
 	/**
