@@ -6,6 +6,7 @@
 	<bean id="rod" class="com.interface21.beans.TestBean">
 		<property name="name"><value>Rod</value></property>
 		<property name="age"><value>31</value></property>
+		<property name="spouse"><ref external="father"/></property>
 	</bean>
 
 	<bean id="roderick" parent="rod">
@@ -30,7 +31,6 @@
 		<property name="age"><value>34x</value></property>
 		<property name="spouse"><ref bean="rod"/></property>
 	</bean>
-
 
 	<!--
 		Tests of lifecycle callbacks
