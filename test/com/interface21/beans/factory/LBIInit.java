@@ -48,15 +48,12 @@ public class LBIInit {
 		m.put("typeMismatch.age", "34x");
 		m.put("typeMismatch.spouse(ref)", "rod");
 		
-		m.put("singletonFactory.name", "singletonFactory");
 		m.put("singletonFactory.class", "com.interface21.beans.factory.DummyFactory");
 		m.put("singletonFactory.singleton", "true");
 		
-		m.put("prototypeFactory.name", "prototypeFactory");
 		m.put("prototypeFactory.class", "com.interface21.beans.factory.DummyFactory");
 		m.put("prototypeFactory.singleton", "false");
 		
-		m.put("factoryPassThrough.name", "prototypeFactory");
 		m.put("factoryPassThrough.class", "com.interface21.beans.factory.DummyFactory");
 		m.put("factoryPassThrough.singleton", "true");
 		MutablePropertyValues pvs = new MutablePropertyValues();
