@@ -13,14 +13,13 @@ import java.beans.PropertyEditorManager;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
 import com.interface21.aop.framework.ProxyFactory;
-import com.interface21.jndi.JndiTemplate;
+import com.interface21.jndi.JndiObjectEditor;
 import com.interface21.util.ThreadObjectManager;
  
 /**
@@ -42,7 +41,7 @@ public abstract class DataSourceUtils {
 
 	static {
 		// register editor to be able to set a JNDI name to a DataSource property
-		PropertyEditorManager.registerEditor(DataSource.class, JndiDataSourceEditor.class);
+		PropertyEditorManager.registerEditor(DataSource.class, JndiObjectEditor.class);
 	}
 
 	/**
@@ -56,47 +55,6 @@ public abstract class DataSourceUtils {
 		return threadObjectManager;
 	}
 
-	/**
-	 * Look up the specified DataSource in JNDI, using a default JndiTemplate.
-	 * @param name name of the DataSource
-	 * (supports "test", "jdbc/test", and "java:comp/env/jdbc/test" syntaxes)
-	 * @return the DataSource
-	 * @throws CannotGetJdbcConnectionException if the data source cannot be located
-	 */
-	public static DataSource getDataSourceFromJndi(String name) throws CannotGetJdbcConnectionException {
-		return getDataSourceFromJndi(name, new JndiTemplate());
-	}
-
-	/**
-	 * Look up the specified DataSource in JNDI, using the given JndiTemplate.
-	 * @param name name of the DataSource
-	 * (supports "test", "jdbc/test", and "java:comp/env/jdbc/test" syntaxes)
-	 * @param jndiTemplate template instance to use for lookup, or null for default
-	 * @return the DataSource
-	 * @throws CannotGetJdbcConnectionException if the data source cannot be located
-	 */
-	protected static DataSource getDataSourceFromJndi(String name, JndiTemplate jndiTemplate) throws CannotGetJdbcConnectionException {
-		if (jndiTemplate == null) {
-			jndiTemplate = new JndiTemplate();
-		}
-
-		// check prefixes in name
-		String jndiName = null;
-		if (name.startsWith("java:comp/env/"))
-			jndiName = name;
-		else if (name.startsWith("jdbc/"))
-			jndiName = "java:comp/env/" + name;
-		else
-			jndiName = "java:comp/env/jdbc/" + name;
-
-		try {
-			// Perform JNDI lookup to obtain resource manager connection factory
-			return (DataSource) jndiTemplate.lookup(jndiName);
-		}
-		catch (NamingException ex) {
-			throw new CannotGetJdbcConnectionException("Naming exception looking up JNDI data source [" + jndiName + "]", ex);
-		}
-	}
 	/**
 	 * Get a connection from the given J2EE DataSource. Changes any SQL exception into
 	 * the Spring hierarchy of unchecked generic data access exceptions, simplifying

@@ -34,19 +34,28 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * ResultSets and catching JDBC exceptions and translating them to
  * the generic, more informative, exception hierarchy defined in
  * the com.interface21.dao package.
- * <br>Code using this class need only implement callback interfaces,
+ *
+ * <p>Code using this class need only implement callback interfaces,
  * giving them a clearly defined contract. The PreparedStatementCreator callback
  * interface creates a prepared statement given a Connection provided by this class,
  * providing SQL and any necessary parameters. The RowCallbackHandler interface
  * extracts values from each row of a ResultSet.
  *
+ * <p>Can be used within a service implementation via direct instantiation
+ * with a DataSource reference, or get prepared in an application context
+ * and given to services as bean reference. Note: The DataSource should
+ * always be configured as bean in the application context, in the first case
+ * given to the service directly, in the second case to the prepared template.
+ *
  * <p>The motivation and design of this class is discussed
  * in detail in
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
  * by Rod Johnson (Wrox, 2002).
- * <br>All SQL issued by this class is logged.
- * <br>Because this class is parameterizable by the callback interfaces and the
+ *
+ * <p>Because this class is parameterizable by the callback interfaces and the
  * SQLExceptionTranslater interface, it isn't necessary to subclass it.
+ * All SQL issued by this class is logged.
+ *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Yann Caroff
@@ -55,6 +64,8 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * @see com.interface21.dao
  * @version $Id$
  * @since May 3, 2001
+ * @see com.interface21.jndi.JndiObjectFactoryBean
+ * @see com.interface21.jndi.JndiObjectEditor
  */
 public class JdbcTemplate {
 
