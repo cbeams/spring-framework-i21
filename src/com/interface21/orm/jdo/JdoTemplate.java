@@ -58,6 +58,8 @@ public class JdoTemplate implements InitializingBean {
 
 	private PersistenceManagerFactory persistenceManagerFactory;
 
+	private boolean allowCreate = true;
+
 	/**
 	 * Create a new JdoTemplate instance.
 	 */
@@ -89,6 +91,25 @@ public class JdoTemplate implements InitializingBean {
 		return persistenceManagerFactory;
 	}
 
+	/**
+	 * Set if a new PersistenceManager should be created if no thread-bound found.
+	 * <p>JdoTemplate is aware of a respective PersistenceManager bound to the
+	 * current thread, for example when using JdoTransactionManager.
+	 * If allowCreate is true, a new PersistenceManager will be created if none
+	 * found. If false, an IllegalStateException will get thrown in this case.
+	 * @see PersistenceManagerFactoryUtils#getPersistenceManager
+	 */
+	public void setAllowCreate(boolean allowCreate) {
+		this.allowCreate = allowCreate;
+	}
+
+	/**
+	 * Return if a new Session should be created if no thread-bound found.
+	 */
+	public boolean isAllowCreate() {
+		return allowCreate;
+	}
+
 	public void afterPropertiesSet() {
 		if (this.persistenceManagerFactory == null) {
 			throw new IllegalArgumentException("persistenceManagerFactory is required");
@@ -96,24 +117,22 @@ public class JdoTemplate implements InitializingBean {
 	}
 
 	/**
-	 * Executes the action specified by the given action object within a
+	 * Execute the action specified by the given action object within a
 	 * PersistenceManager. Application exceptions thrown by the action object
-	 * get propagated to the caller, JDO exceptions are transformed into
-	 * appropriate DAO ones. Allows for returning a result object,
-	 * i.e. a business object or a collection of business objects.
+	 * get propagated to the caller (can only be unchecked). JDO exceptions
+	 * are transformed into appropriate DAO ones. Allows for returning a
+	 * result object, i.e. a domain object or a collection of domain objects.
 	 * <p>Note: Callback code is not supposed to handle transactions itself!
 	 * Use an appropriate transaction manager like JdoTransactionManager.
 	 * @param action action object that specifies the JDO action
 	 * @return a result object returned by the action, or null
 	 * @throws DataAccessException in case of JDO errors
-	 * @throws RuntimeException in case of application exceptions thrown by
-	 * the action object
 	 * @see JdoTransactionManager
 	 * @see com.interface21.dao
 	 * @see com.interface21.transaction
 	 */
-	public Object execute(JdoCallback action) throws DataAccessException, RuntimeException {
-		PersistenceManager pm = PersistenceManagerFactoryUtils.getPersistenceManager(this.persistenceManagerFactory, true);
+	public Object execute(JdoCallback action) throws DataAccessException {
+		PersistenceManager pm = PersistenceManagerFactoryUtils.getPersistenceManager(this.persistenceManagerFactory, this.allowCreate);
 		try {
 			return action.doInJdo(pm);
 		}
@@ -130,3 +149,4 @@ public class JdoTemplate implements InitializingBean {
 	}
 
 }
+

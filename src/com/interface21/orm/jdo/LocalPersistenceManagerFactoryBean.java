@@ -12,6 +12,7 @@ import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.DataAccessResourceFailureException;
+import com.interface21.util.ClassLoaderUtils;
 
 /**
  * FactoryBean that creates a local JDO PersistenceManager instance.
@@ -25,9 +26,8 @@ import com.interface21.dao.DataAccessResourceFailureException;
  * and give bean references to application services that need it.
  *
  * <p>Configuration settings can either be read from a properties file,
- * specified as "configLocation", or completely via this class.
- * Properties specified as "jdoProperties" here will override any
- * settings in a file.
+ * specified as "configLocation", or completely via this class. Properties
+ * specified as "jdoProperties" here will override any settings in a file.
  *
  * <p>This PersistenceManager handling strategy is most appropriate for
  * applications that solely use JDO for data access. In this case,
@@ -54,7 +54,7 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 	 * <p>Note: Can be omitted when all necessary properties are
 	 * specified locally via this bean.
 	 */
-	public void setConfigLocation(String configLocation) {
+	public final void setConfigLocation(String configLocation) {
 		this.configLocation = configLocation;
 	}
 
@@ -63,7 +63,7 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 	 * <p>Can be used to override values in a JDO properties config file,
 	 * or to specify all necessary properties locally.
 	 */
-	public void setJdoProperties(Properties jdoProperties) {
+	public final void setJdoProperties(Properties jdoProperties) {
 		this.jdoProperties = jdoProperties;
 	}
 
@@ -73,19 +73,21 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 	 * @throws IOException if the properties could not be loaded from the given location
 	 * @throws JDOException in case of JDO initialization errors
 	 */
-	public void afterPropertiesSet() throws IllegalArgumentException, IOException, JDOException {
+	public final void afterPropertiesSet() throws IllegalArgumentException, IOException, JDOException {
 		if (this.configLocation == null && this.jdoProperties == null) {
 			throw new IllegalArgumentException("Either configLocation (e.g. '/kodo.properties') or jdoProperties must be set");
 		}
+
 		Properties prop = new Properties();
 
 		if (this.configLocation != null) {
+			// load JDO properties from given location
 			String resourceLocation = this.configLocation;
 			if (!resourceLocation.startsWith("/")) {
 				// always use root, as relative loading doesn't make sense
 				resourceLocation = "/" + resourceLocation;
 			}
-			InputStream in = getClass().getResourceAsStream(resourceLocation);
+			InputStream in = ClassLoaderUtils.getResourceAsStream(getClass(), resourceLocation);
 			if (in == null) {
 				throw new DataAccessResourceFailureException("Cannot open config location: " + resourceLocation, null);
 			}
@@ -93,24 +95,41 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 		}
 
 		if (this.jdoProperties != null) {
+			// add given JDO properties
 			prop.putAll(this.jdoProperties);
 		}
-		
-		this.persistenceManagerFactory = JDOHelper.getPersistenceManagerFactory(prop);
+
+		// build factory instance
+		this.persistenceManagerFactory = newPersistenceManagerFactory(prop);
+	}
+
+	/**
+	 * Subclasses can override this to perform custom initialization of the
+	 * PersistenceManagerFactory instance, creating it via the given Properties
+	 * that got prepared by this LocalPersistenceManagerFactoryBean
+	 * <p>The default implementation invokes JDOHelper's getPersistenceManagerFactory.
+	 * A custom implementation could prepare the instance in a specific way,
+	 * or use a custom PersistenceManagerFactory implementation.
+	 * @param prop Properties prepared by this LocalPersistenceManagerFactoryBean
+	 * @return the PersistenceManagerFactory instance
+	 * @see javax.jdo.JDOHelper#getPersistenceManagerFactory
+	 */
+	protected PersistenceManagerFactory newPersistenceManagerFactory(Properties prop) {
+		return JDOHelper.getPersistenceManagerFactory(prop);
 	}
 
 	/**
 	 * Return the singleton PersistenceManagerFactory.
 	 */
-	public Object getObject() {
+	public final Object getObject() {
 		return this.persistenceManagerFactory;
 	}
 
-	public boolean isSingleton() {
+	public final boolean isSingleton() {
 		return true;
 	}
 
-	public PropertyValues getPropertyValues() {
+	public final PropertyValues getPropertyValues() {
 		return null;
 	}
 

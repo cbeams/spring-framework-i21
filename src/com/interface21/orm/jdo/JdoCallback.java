@@ -38,18 +38,16 @@ public interface JdoCallback {
 	 * the callback gets called, at least if you want to write to the database.
 	 *
 	 * <p>Allows for returning a result object created within the callback,
-	 * i.e. a business object or a collection of business objects.
-	 * A thrown RuntimeException is treated as application exception, it gets
-	 * propagated to the caller of the template.
+	 * i.e. a domain object or a collection of domain objects.
+	 * A thrown RuntimeException is treated as application exception,
+	 * it gets propagated to the caller of the template.
 	 *
 	 * @param pm active PersistenceManager
 	 * @return a result object, or null if none
 	 * @throws javax.jdo.JDOException in case of JDO errors
-	 * @throws RuntimeException in case of an application exception,
-	 * propagating the exception to the caller
 	 * @see JdoTemplate#execute
 	 * @see JdoTransactionManager
 	 */
-	Object doInJdo(PersistenceManager pm) throws JDOException, RuntimeException;
+	Object doInJdo(PersistenceManager pm) throws JDOException;
 
 }
