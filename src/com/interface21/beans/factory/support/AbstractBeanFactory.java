@@ -9,7 +9,9 @@
 
 package com.interface21.beans.factory.support;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -318,28 +320,52 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
 		MutablePropertyValues deepCopy = new MutablePropertyValues(pvs);
 		PropertyValue[] pvals = deepCopy.getPropertyValues();
-
+		
+		Object val = null;
+		
 		// Now we must check each PropertyValue to see whether it
 		// requires a runtime reference to another bean to be resolved.
 		// If it does, we'll attempt to instantiate the bean and set the reference.
+		
 		for (int i = 0; i < pvals.length; i++) {
 			if (pvals[i].getValue() != null && (pvals[i].getValue() instanceof RuntimeBeanReference)) {
 				RuntimeBeanReference ref = (RuntimeBeanReference) pvals[i].getValue();
-				try {
-					// Try to resolve bean reference
-					logger.debug("Resolving reference from bean [" + name + "] to bean [" + ref.getBeanName() + "]");
-					Object bean = getBeanInternal(ref.getBeanName(), newlyCreatedBeans);
-					// Create a new PropertyValue object holding the bean reference
-					PropertyValue pv = new PropertyValue(pvals[i].getName(), bean);
-					// Update mutable copy
-					deepCopy.setPropertyValueAt(pv, i);
-				}
-				catch (BeansException ex) {
-					throw new FatalBeanException("Can't resolve reference to bean [" + ref.getBeanName() + "] while setting properties on bean [" + name + "]", ex);
-				}
+				val = resolveReference(pvals[i].getName(), ref, newlyCreatedBeans);
+				
 			}	// if this was a runtime reference to another bean
-		}
-
+			else if (pvals[i].getValue() != null && (pvals[i].getValue() instanceof ManagedList)) {
+				// Convert from managed list. This is a special container that
+				// may contain runtime bean references.
+				// May need to resolve references
+				ManagedList l = (ManagedList) pvals[i].getValue();
+				for (int j = 0; j < l.size(); j++) {
+					if (l.get(j) instanceof RuntimeBeanReference) {
+						l.set(j, resolveReference(pvals[i].getName(), (RuntimeBeanReference) l.get(j), newlyCreatedBeans));
+					}
+				}
+				val = l;
+			}
+			else {
+				// It's an ordinary property. Just copy it.
+				val = pvals[i].getValue();
+			}
+			
+			// Convert to a collection if necessary if it's a single value.
+			// A collection type may be passed a single value without error.
+			if (val != null &&
+					Collection.class.isAssignableFrom(bw.getPropertyDescriptor(pvals[i].getName()).getPropertyType()) &&
+					!(Collection.class.isAssignableFrom(val.getClass()))) {
+				LinkedList ll = new LinkedList();
+				ll.add(val);
+				val = ll;
+			}
+	
+			PropertyValue pv = new PropertyValue(pvals[i].getName(), val);
+			// Update mutable copy
+			deepCopy.setPropertyValueAt(pv, i);
+		}	// for each property value
+		
+		
 		// Set our (possibly massaged) deepCopy
 		try {
 			bw.setPropertyValues(deepCopy);
@@ -347,6 +373,19 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		catch (FatalBeanException ex) {
 			// Improve the message by showing the context
 			throw new FatalBeanException("Error setting property on bean [" + name + "]", ex);
+		}
+	}
+	
+	private Object resolveReference(String name, RuntimeBeanReference ref, Map newlyCreatedBeans) {
+		try {
+			// Try to resolve bean reference
+			logger.debug("Resolving reference from bean [" + name + "] to bean [" + ref.getBeanName() + "]");
+			Object bean = getBeanInternal(ref.getBeanName(), newlyCreatedBeans);
+			// Create a new PropertyValue object holding the bean reference
+			return bean;
+		}
+		catch (BeansException ex) {
+			throw new FatalBeanException("Can't resolve reference to bean [" + ref.getBeanName() + "] while setting properties on bean [" + name + "]", ex);
 		}
 	}
 

@@ -4,7 +4,9 @@
 
 package com.interface21.beans;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 
 
 /**
@@ -25,6 +27,8 @@ public class TestBean implements ITestBean, IOther {
 	
 	private String touchy;
 
+	private Collection friends = new LinkedList();
+	
 	private Date date = new Date();
 
 	public String getTouchy() {
@@ -133,6 +137,21 @@ public class TestBean implements ITestBean, IOther {
 	 */
 	public void absquatulate() {
 		//System.out.println("IOther.absquatulate");
+	}
+
+	/**
+	 * @return Collection
+	 */
+	public Collection getFriends() {
+		return friends;
+	}
+
+	/**
+	 * Sets the friends.
+	 * @param friends The friends to set
+	 */
+	public void setFriends(Collection friends) {
+		this.friends = friends;
 	}
 
 }	// class Test

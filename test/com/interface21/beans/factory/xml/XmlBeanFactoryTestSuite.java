@@ -7,18 +7,17 @@ package com.interface21.beans.factory.xml;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-
 import com.interface21.beans.ITestBean;
-import com.interface21.beans.TestBean;
 import com.interface21.beans.MutablePropertyValues;
-import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
-import com.interface21.beans.factory.support.*;
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
+import com.interface21.beans.factory.support.RootBeanDefinition;
+import com.interface21.beans.factory.support.XmlBeanFactory;
 
 /**
  *
@@ -94,14 +93,65 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue("Correct circular reference", david.getSpouse() == jenny);
 		assertTrue("Correct circular reference", ego.getSpouse() == ego);
 	}
-
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(suite());
-		//	junit.swingui.TestRunner.main(new String[] {PrototypeFactoryTests.class.getName() } );
+	
+	public void testRefSubelement() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		//assertTrue("5 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 5);
+		TestBean jen = (TestBean) xbf.getBean("jenny");
+		TestBean dave = (TestBean) xbf.getBean("david");
+		assertTrue(jen.getSpouse() == dave);
 	}
-
-	public static Test suite() { 
-		return new TestSuite(XmlBeanFactoryTestSuite.class);
+	
+	public void testPropertyWithLiteralValueSubelement() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		TestBean verbose = (TestBean) xbf.getBean("verbose");
+		assertTrue(verbose.getName().equals("verbose"));
+	}
+	
+	public void testRefSubelementsBuildCollection() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		//assertTrue("5 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 5);
+		TestBean jen = (TestBean) xbf.getBean("jenny");
+		TestBean dave = (TestBean) xbf.getBean("david");
+		TestBean rod = (TestBean) xbf.getBean("rod");
+		
+		// Must be a list to support ordering
+		// Our bean doesn't modify the collection:
+		// of course it could be a different copy in a real object
+		List friends = (List) rod.getFriends();
+		assertTrue(friends.size() == 2);
+		
+		assertTrue("First friend must be jen, not " + friends.get(0),
+			friends.get(0).equals(jen));
+		assertTrue(friends.get(1).equals(dave));
+		// Should be ordered
+	}
+	
+	public void testRefSubelementsBuildCollectionFromSingleElement() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		//assertTrue("5 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 5);
+		TestBean loner = (TestBean) xbf.getBean("loner");
+		TestBean dave = (TestBean) xbf.getBean("david");
+		assertTrue(loner.getFriends().size() == 1);
+		assertTrue(loner.getFriends().contains(dave));
+	}
+	
+	public void testBuildCollectionFromMixtureOfReferencesAndValues() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		//assertTrue("5 beans in reftypes, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 5);
+		MixedCollectionBean jumble = (MixedCollectionBean) xbf.getBean("jumble");
+		TestBean dave = (TestBean) xbf.getBean("david");
+		assertTrue("Expected 3 elements, not " + jumble.getJumble().size(),
+				jumble.getJumble().size() == 3);
+		List l = (List) jumble.getJumble();
+		assertTrue(l.get(0).equals(xbf.getBean("david")));
+		assertTrue(l.get(1).equals("literal"));
+		assertTrue(l.get(2).equals(xbf.getBean("jenny")));
 	}
 
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
+-->
+
+<beans>
+	
+	
+	<bean name="jenny" class="com.interface21.beans.TestBean">	
+		<property name="name">Jenny</property>
+		<property name="age">30</property>
+		<property name="spouse">
+		<!-- Could use id and href -->
+			<ref name="david"/>
+		</property>
+	</bean>
+	
+	<bean name="david" class="com.interface21.beans.TestBean">	
+		<property name="name">David</property>
+		<property name="age">27</property>
+	</bean>
+	
+	<bean name="rod" class="com.interface21.beans.TestBean">	
+		<property name="name">Rod</property>
+		<property name="age">32</property>
+		<property name="friends">
+			<ref name="jenny"/>
+			<ref name="david"/>			
+		</property>
+	</bean>
+	
+	<!--
+		Try setting a collection property to a single value
+	-->
+	<bean name="loner" class="com.interface21.beans.TestBean">	
+		<property name="name">loner</property>
+		<property name="age">26</property>
+		<property name="friends">
+			<ref name="david"/>			
+		</property>
+	</bean>
+	
+	<bean name="jumble" class="com.interface21.beans.factory.xml.MixedCollectionBean">	
+		<property name="jumble">
+				<ref name="david"/>	
+				<value>literal</value>
+				<ref name="jenny" />
+		</property>
+	</bean>
+	
+	<bean name="verbose" class="com.interface21.beans.TestBean">	
+		<property name="name"><value>verbose</value></property>
+	</bean>
+
+</beans>		
+	
+	
