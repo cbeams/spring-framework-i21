@@ -1,8 +1,6 @@
 package com.interface21.orm.jdo;
 
 import javax.jdo.JDOException;
-import javax.jdo.JDOFatalUserException;
-import javax.jdo.JDOUserException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
@@ -31,6 +29,12 @@ import com.interface21.dao.DataAccessException;
  * Note: The PersistenceManagerFactory should always be configured as bean in
  * the application context, in the first case given to the service directly,
  * in the second case to the prepared template.
+ *
+ * <p>This class can be considered a programmatic alternative to
+ * JdoInterceptor. The major advantage is its straightforwardness, the
+ * major disadvantage that no checked application exceptions can get thrown
+ * from within data access code. Respective checks and the actual throwing of
+ * such exceptions can often be deferred to after callback execution, though.
  *
  * <p>Note that even if JdoTransactionManager is used for transaction
  * demarcation in higher-level services, all those services above the data
@@ -113,14 +117,8 @@ public class JdoTemplate implements InitializingBean {
 		try {
 			return action.doInJdo(pm);
 		}
-		catch (JDOUserException ex) {
-			throw new JdoUsageException("Invalid JDO usage", ex);
-		}
-		catch (JDOFatalUserException ex) {
-			throw new JdoUsageException("Invalid JDO usage", ex);
-		}
 		catch (JDOException ex) {
-			throw new JdoSystemException("Exception in JDO access code", ex);
+			throw PersistenceManagerFactoryUtils.convertJdoAccessException(ex);
 		}
 		catch (RuntimeException ex) {
 			// callback code threw application exception

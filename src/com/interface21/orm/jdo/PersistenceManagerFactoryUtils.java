@@ -7,7 +7,9 @@ import java.net.URL;
 import java.util.Properties;
 
 import javax.jdo.JDOException;
+import javax.jdo.JDOFatalUserException;
 import javax.jdo.JDOHelper;
+import javax.jdo.JDOUserException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
@@ -15,15 +17,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.CleanupFailureDataAccessException;
+import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.util.ThreadObjectManager;
 
 /**
  * Helper class featuring methods for JDO PersistenceManager handling,
  * allowing for reuse of PersistenceManager instances within transactions.
- * Used by JdoTemplate and JdoTransactionManager.
+ * Used by JdoTemplate, JdoInterceptor, and JdoTransactionManager.
+ *
  * @author Juergen Hoeller
  * @since 03.06.2003
+ * @see JdoTemplate
+ * @see JdoInterceptor
+ * @see JdoTransactionManager
  */
 public abstract class PersistenceManagerFactoryUtils {
 
@@ -123,6 +130,20 @@ public abstract class PersistenceManagerFactoryUtils {
 		catch (JDOException ex) {
 			throw new DataAccessResourceFailureException("Cannot get JDO PersistenceManager", ex);
 		}
+	}
+
+	/**
+	 * Convert the given JDOException to an appropriate exception from
+	 * the com.interface21.dao hierarchy.
+	 * @param ex JDOException that occured
+	 * @return the corresponding DataAccessException instance
+	 */
+	public static DataAccessException convertJdoAccessException(JDOException ex) {
+		if (ex instanceof JDOUserException || ex instanceof JDOFatalUserException) {
+			return new JdoUsageException("Invalid JDO usage", ex);
+		}
+		// fallback
+		return new JdoSystemException("Exception in JDO access code", ex);
 	}
 
 	/**

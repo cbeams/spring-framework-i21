@@ -15,16 +15,47 @@ import com.interface21.dao.CleanupFailureDataAccessException;
  * If there already was a pre-bound PersistenceManager (e.g. from JdoTransactionManager,
  * or from a surrounding JDO-intercepted method), the interceptor simply takes part in it.
  *
- * <p>Target code must retrieve a JDO PersistenceManager via PersistenceManagerFactoryUtils'
- * getPersistenceManager method, to be able to detect a thread-bound PersistenceManager.
- * It is preferable to use getPersistenceManager with allowCreate=false, as the code
- * relies on the interceptor to provide proper PersistenceManager handling.
+ * <p>Application code must retrieve a JDO PersistenceManager via
+ * PersistenceManagerFactoryUtils' getPersistenceManager method, to be able to detect
+ * a thread-bound PersistenceManager. It is preferable to use getPersistenceManager
+ * with allowCreate=false, as the code relies on the interceptor to provide proper
+ * PersistenceManager handling. Typically the code will look as follows:
  *
- * <p>This class can be considered a declarative alternative to JdoTemplate.
- * Note that this interceptor does not convert JDOExceptions into ones that are compatible
- * to the com.interface21.dao exception hierarchy. Thus, the application must care about
- * handling JDOExceptions instead of DataAccessExceptions, breaking the DAO abstraction.
- * Consider using JdoTemplate to avoid this.
+ * <p><code>
+ * public void doJdoAction() {<br>
+ * &nbsp;&nbsp;PersistenceManager pm = PersistenceManagerFactoryUtils.getPersistenceManager(this.pmf, false);<br>
+ * &nbsp;&nbsp;try {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+ * &nbsp;&nbsp;}<br>
+ * &nbsp;&nbsp;catch (JDOException ex) {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;throw PersistenceManagerFactoryUtils.convertJdoAccessException(ex);<br>
+ * &nbsp;&nbsp;}<br>
+ * }
+ * </code>
+ *
+ * <p>Note that the application must care about handling JDOExceptions itself,
+ * preferably via delegating to PersistenceManagerFactoryUtils' convertJdoAccessException
+ * that converts them to ones that are compatible with the com.interface21.dao exception
+ * hierarchy (jlike JdoTemplate does). As JDOExceptions are unchecked, they can simply
+ * get thrown too, sacrificing generic DAO abstraction in terms of exceptions though.
+ *
+ * <p>This interceptor could convert unchecked JDOExceptions to unchecked dao ones
+ * on-the-fly. The intercepted method wouldn't have to throw any special checked
+ * exceptions to be able to achieve this. Nevertheless, such a mechanism would
+ * effectively break the contract of the intercepted method (runtime exceptions
+ * can be considered part of the contract too), therefore it isn't supported.
+ *
+ * <p>This class can be considered a declarative alternative to JdoTemplate's
+ * callback approach. The advantages are:
+ * <ul>
+ * <li>no anonymous classes necessary for callback implementations;
+ * <li>the possibility to throw any application exceptions from within data access code.
+ * </ul>
+ * The drawbacks are:
+ * <ul>
+ * <li>the dependency on interceptor configuration;
+ * <li>the delegating try/catch blocks.
+ * </ul>
  *
  * @author Juergen Hoeller
  * @since 13.06.2003
@@ -59,7 +90,7 @@ public class JdoInterceptor implements MethodInterceptor {
 					PersistenceManagerFactoryUtils.closePersistenceManagerIfNecessary(pmHolder.getPersistenceManager(), this.persistenceManagerFactory);
 				}
 				catch (CleanupFailureDataAccessException ex) {
-					// just log it, to keep a invocation-related exception
+					// just log it, to keep an invocation-related exception
 					logger.error("Cannot close JDO PersistenceManager after method interception", ex);
 				}
 			}
