@@ -48,7 +48,7 @@
 	  - a JNDI-bound SessionFactory, but this only makes sense when using Hibernate's
 	  - JCA Connector (not recommended for most types of applications).
 	  -->
-	<bean id="sessionFactory" class="com.interface21.orm.hibernate.LocalSessionFactoryBean"/>
+	<bean id="mySessionFactory" class="com.interface21.orm.hibernate.LocalSessionFactoryBean"/>
 
 	<!--
 	  - Optional: DataSource definition that matches the one that Hibernate uses,
@@ -59,7 +59,7 @@
 	  - By default, "java:comp/env/" will be prepended if not already specified.
 	  -->
 	<!--
-	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+	<bean id="myDataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
 	  <property name="jndiName"><value>jdbc/myds</value></property>
 	</bean>
 	-->
@@ -70,7 +70,7 @@
 	  - No special treatment by the context, just a bean instance available as reference
 	  - for business objects that want to handle transactions, e.g. via TransactionTemplate.
 	  -->
-	<bean id="transactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
+	<bean id="myTransactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
 
 	<!--
 	  - Alternative transaction manager for usage in business or data access objects.
@@ -82,9 +82,9 @@
 	  - transactions for, to be able to share transactions with plain JDBC access code.
 	  -->
 	<!--
-	<bean id="transactionManager" class="com.interface21.orm.hibernate.HibernateTransactionManager">
-		<property name="sessionFactory"><ref bean="sessionFactory"/></property>
-		<property name="dataSource"><ref bean="dataSource"/></property>
+	<bean id="myTransactionManager" class="com.interface21.orm.hibernate.HibernateTransactionManager">
+		<property name="sessionFactory"><ref bean="mySessionFactory"/></property>
+		<property name="dataSource"><ref bean="myDataSource"/></property>
 	</bean>
 	-->
 
@@ -104,7 +104,7 @@
 	  - "setSessionFactory" bean property setter, probably with HibernateTemplate.
     -->
 	<bean id="exampleDataAccessObject" class="example.ExampleDataAccessObject">
-		<property name="sessionFactory"><ref bean="sessionFactory"/></property>
+		<property name="sessionFactory"><ref bean="mySessionFactory"/></property>
 	  <property name="exampleParam"><value>someValue</value></property>
 	</bean>
 
@@ -121,7 +121,7 @@
 	  - Note: Does not need to be aware that it works with a Hibernate data access object!
 	  -->
 	<bean id="exampleBusinessObject" class="example.ExampleBusinessObject">
-		<property name="transactionManager"><ref bean="transactionManager"/></property>
+		<property name="transactionManager"><ref bean="myTransactionManager"/></property>
 		<property name="dataAccessObject"><ref bean="exampleDataAccessObject"/></property>
 	  <property name="exampleParam"><value>someOtherValue</value></property>
 	</bean>

@@ -35,7 +35,7 @@
 	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
 	  - By default, "java:comp/env/" will be prepended if not already specified.
 	  -->
-	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+	<bean id="myDataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
 	  <property name="jndiName"><value>jdbc/myds</value></property>
 	</bean>
 
@@ -50,7 +50,7 @@
 	  - defining a org.apache.commons.dbcp.BasicDataSource here, with same parameters.
 	  -->
 	<!--
-	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
+	<bean id="myDataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
 		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
 		<property name="username"><value>sa</value></property>
@@ -64,7 +64,7 @@
 	  - No special treatment by the context, just a bean instance available as reference
 	  - for business objects that want to handle transactions, e.g. via TransactionTemplate.
 	  -->
-	<bean id="transactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
+	<bean id="myTransactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
 
 	<!--
 	  - Alternative transaction manager for usage in business or data access objects.
@@ -74,8 +74,8 @@
 	  - Needs a DataSource reference that it should handle transactions for.
 	  -->
 	<!--
-	<bean id="transactionManager" class="com.interface21.transaction.datasource.DataSourceTransactionManager">
-		<property name="dataSource"><ref bean="dataSource"/></property>
+	<bean id="myTransactionManager" class="com.interface21.transaction.datasource.DataSourceTransactionManager">
+		<property name="dataSource"><ref bean="myDataSource"/></property>
 	</bean>
 	-->
 
@@ -97,7 +97,7 @@
 	  - can be a standard JavaBean that does not have to be aware of the Spring context!
     -->
 	<bean id="exampleDataAccessObject" class="example.ExampleDataAccessObject">
-		<property name="dataSource"><ref bean="dataSource"/></property>
+		<property name="dataSource"><ref bean="myDataSource"/></property>
 	  <property name="exampleParam"><value>someValue</value></property>
 	</bean>
 
@@ -115,7 +115,7 @@
 	  - Note: Does not need to be aware that it works with a JDBC data access object!
 	  -->
 	<bean id="exampleBusinessObjectTarget" class="example.ExampleBusinessObject">
-		<property name="transactionManager"><ref bean="transactionManager"/></property>
+		<property name="transactionManager"><ref bean="myTransactionManager"/></property>
 		<property name="dataAccessObject"><ref bean="exampleDataAccessObject"/></property>
 	  <property name="exampleParam"><value>someOtherValue</value></property>
 	</bean>
@@ -126,7 +126,7 @@
 	  - to actually get applied.
 	  -->
 	<bean id="exampleTransactionInterceptor" class="com.interface21.transaction.interceptor.TransactionInterceptor">
-		<property name="transactionManager"><ref bean="transactionManager"/></property>
+		<property name="transactionManager"><ref bean="myTransactionManager"/></property>
 		<property name="transactionAttributeSource">
 			<value>
 				example.ExampleBusinessObject.exampleMethod=PROPAGATION_REQUIRED
