@@ -20,20 +20,20 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * (note : if you use this class, your MySQL key column should NOT be auto-increment, as the sequence table
  * does the job)
  * <br>The sequence is kept in a table; there should be one sequence table per table that needs an auto-generated key.  
- * The table type of the sequence table should be MyISAM so the sequences are allocated without regerd to any
+ * The table type of the sequence table should be MyISAM so the sequences are allocated without regard to any
  * transactions that might be in progress.
  * <p>
- * Example
+ * Example:<br/>
  * <code>
- * create table tab (id int unsigned not null primary key, text varchar(100));
- * create table tab_sequence (value int not null) type=MYISAM;
- * insert into tab_sequence values(0);
+ * &nbsp;&nbsp;create table tab (id int unsigned not null primary key, text varchar(100));<br/>
+ * &nbsp;&nbsp;create table tab_sequence (value int not null) type=MYISAM;<br/>
+ * &nbsp;&nbsp;insert into tab_sequence values(0);<br/>
  * </code>
  * </p>
- * <p>If incrementBy is set, the intermediate values are served without querying the
- * database. If the server or you application is stopped or crashes or a transaction 
+ * <p>If cacheSize is set, the intermediate values are served without querying the
+ * database. If the server or your application is stopped or crashes or a transaction 
  * is rolled back, the unused values will never be served. The maximum hole size in 
- * numbering is consequently the value of incrementBy.
+ * numbering is consequently the value of cacheSize.
  * </p>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
  * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
@@ -56,7 +56,7 @@ public class MySQLMaxValueIncrementer
 	private String columnName;
 
 	/** The number of keys buffered in a bunch. */
-	private int incrementBy = 1;
+	private int cacheSize = 1;
 
 	/** Flag if dirty definition */
 	private boolean dirty = true;
@@ -88,13 +88,13 @@ public class MySQLMaxValueIncrementer
 	 * @param ds the datasource to use
 	 * @param tableName the name of the sequence table to use
 	 * @param columnName the name of the column in the sequence table to use
-	 * @param incrementBy the number of buffered keys
+	 * @param cacheSize the number of buffered keys
 	 **/
-	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName, int incrementBy) {
+	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName, int cacheSize) {
 		this.ds = ds;
 		this.tableName = tableName;
 		this.columnName = columnName;
-		this.incrementBy = incrementBy;
+		this.cacheSize = cacheSize;
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 	}
 
@@ -121,13 +121,13 @@ public class MySQLMaxValueIncrementer
 	 * @param columnName the name of the column in the sequence table to use
 	 * @param prefixWithZero in case of a String return value, should the string be prefixed with zeroes
 	 * @param padding the length to which the string return value should be padded with zeroes
-	 * @param incrementBy the number of buffered keys
+	 * @param cacheSize the number of buffered keys
 	 **/
-	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName, boolean prefixWithZero, int padding, int incrementBy) {
+	public MySQLMaxValueIncrementer(DataSource ds, String tableName, String columnName, boolean prefixWithZero, int padding, int cacheSize) {
 		this.ds = ds;
 		this.tableName = tableName;
 		this.columnName = columnName;
-		this.incrementBy = incrementBy;
+		this.cacheSize = cacheSize;
 		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
 	}
@@ -203,7 +203,7 @@ public class MySQLMaxValueIncrementer
 					}
 					else
 						throw new InternalErrorException("last_insert_id() failed after executing an update");
-					nextId = maxId - incrementBy;
+					nextId = maxId - cacheSize;
 					nextId++;
 					if (logger.isInfoEnabled())
 						logger.info("nextId is : " + nextId);
@@ -243,7 +243,7 @@ public class MySQLMaxValueIncrementer
 			buf.append(" = last_insert_id(");
 			buf.append(columnName);
 			buf.append(" + ");
-			buf.append(incrementBy);
+			buf.append(cacheSize);
 			buf.append(")");
 			insertSql = buf.toString();
 			if (logger.isInfoEnabled())
@@ -296,11 +296,11 @@ public class MySQLMaxValueIncrementer
 	}
 
 	/**
-	 * Sets the incrementBy.
-	 * @param incrementBy The number of buffered keys
+	 * Sets the cacheSize.
+	 * @param cacheSize The number of buffered keys
 	 */
-	public void setIncrementBy(int incrementBy) {
-		this.incrementBy = incrementBy;
+	public void setCacheSize(int cacheSize) {
+		this.cacheSize = cacheSize;
 		dirty = true;
 	}
 
