@@ -4,15 +4,17 @@ package com.interface21.context;
  * Interface for objects that are suitable for message resolution,
  * e.g. validation errors.
  * @author Tony Falabella
- * @see MessageSource
+ * @see MessageSource#getMessage
  */
 public interface MessageSourceResolvable {
 
 	/**
-	 * Return the code to be used to resolve this message.
+	 * Return the codes to be used to resolve this message,
+	 * in the order they should get tried. The last code will
+	 * therefore be the default one.
 	 * @return a String code associated with this message
 	 */
-	public String getCode();
+	public String[] getCodes();
 
 	/**
 	 * Return the array of args to be used to resolve this message.

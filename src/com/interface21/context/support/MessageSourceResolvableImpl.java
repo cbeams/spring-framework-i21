@@ -3,138 +3,73 @@ package com.interface21.context.support;
 import java.io.Serializable;
 
 import com.interface21.context.MessageSourceResolvable;
+import com.interface21.util.StringUtils;
 
 /**
- * Easy way to store all the necessary values an object needs
- * to resolve messages from things like a <code>Context</code>.
+ * Easy way to store all the necessary values needed
+ * to resolve messages from a MessageSource.
  *
  * @author Tony Falabella
  * @version $Id$
  */
 public class MessageSourceResolvableImpl implements MessageSourceResolvable, Serializable {
 
-  //~ Instance variables -----------------------------------------------------
+  private final String[] codes;
 
-  private String code = null;
-  private Object[] args = null;
-	private String defaultMessage = null;
+  private final Object[] args;
 
-  //~ Constructors -----------------------------------------------------------
+	private final String defaultMessage;
 
   /**
-   * USERS SHOULD NOT CALL THIS METHOD.  It is here so that
-   * subclasses may create additional overloads of the constructorm.
+   * Create a new instance, using multiple codes and a
+   * default message.
+   * @see MessageSourceResolvable#getCodes
    */
-  public MessageSourceResolvableImpl() {
-    super();
-  }
-
-  /**
-   * Creates a new MessageSourceResolvableImpl object.
-   *
-   * @param code DOCUMENT ME!
-   * @param args DOCUMENT ME!
-   * @param defaultMessage DOCUMENT ME!
-   */
-  public MessageSourceResolvableImpl(String code, Object[] args, String defaultMessage) {
-    this.code = code;
+	public MessageSourceResolvableImpl(String[] codes, Object[] args, String defaultMessage) {
+    this.codes = codes;
     this.args = args;
     this.defaultMessage = defaultMessage;
   }
 
-  /**
-   * Creates a new MessageSourceResolvableImpl object.
-   *
-   * @param code
-   * @param args
-   */
-  public MessageSourceResolvableImpl(String code, Object[] args) {
-    this(code, args, null);
-  }
-
-  /**
-   * Creates a new MessageSourceResolvableImpl object.
-   *
-   * @param code DOCUMENT ME!
-   */
-  public MessageSourceResolvableImpl(String code) {
-    this(code, null, null);
-  }
-
-  /**
-   * Creates a new MessageSourceResolvableImpl object.
-   *
-   * @param code DOCUMENT ME!
-   * @param defaultMessage DOCUMENT ME!
-   */
-  public MessageSourceResolvableImpl(String code, String defaultMessage) {
-    this(code, null, defaultMessage);
-  }
-
-  /**
-   * Creates a new MessageSourceResolvableImpl object.
-   *
-   * @param resolvable DOCUMENT ME!
-   */
-  public MessageSourceResolvableImpl(MessageSourceResolvable resolvable) {
-    this(resolvable.getCode(), resolvable.getArgs(), resolvable.getDefaultMessage());
-  }
-
-  /**
-   * DOCUMENT ME!
-   *
-   * @param code DOCUMENT ME!
-   */
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  public String getCode() {
-    return code;
+	/**
+	 * Create a new instance, using multiple codes.
+	 * @see MessageSourceResolvable#getCodes
+	 */
+  public MessageSourceResolvableImpl(String[] codes, Object[] args) {
+    this(codes, args, null);
   }
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param args DOCUMENT ME!
+	 * Copy constructor: Create a new instance from another resolvable.
 	 */
-	public void setArgs(Object[] args) {
-	  this.args = args;
+  public MessageSourceResolvableImpl(MessageSourceResolvable resolvable) {
+    this(resolvable.getCodes(), resolvable.getArgs(), resolvable.getDefaultMessage());
+  }
+
+  public String[] getCodes() {
+    return codes;
+  }
+
+	/**
+	 * Return the default code of this resolvable,
+	 * i.e. the last one in the codes array.
+	 */
+	public String getCode() {
+		return (codes != null && codes.length > 0) ? codes[codes.length-1] : null;
 	}
 
 	public Object[] getArgs() {
 	  return args;
 	}
 
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param defaultMessage DOCUMENT ME!
-	 */
-	public void setDefaultMessage(String defaultMessage) {
-	  this.defaultMessage = defaultMessage;
-	}
-
-	/**
-	 * Return the defaultMessage that was used to resolve this message.
-	 * If message was not able to be resolved as message like the following
-	 * will be returned:
-	 *    "Unable to resolve the message for code=[xx], locale=[yy]"
-	 * @return The defaultMessage that was used to resolve this message.
-	 */
 	public String getDefaultMessage() {
 	  return defaultMessage;
 	}
 
-  /**
-   * DOCUMENT ME!
-   *
-   * @return DOCUMENT ME!
-   */
-  protected String getDefaultToString() {
+  protected String resolvableToString() {
     StringBuffer msgBuff = new StringBuffer();
 
-    msgBuff.append("code=[" + getCode() + "]; args=[");
+    msgBuff.append("codes=[" + StringUtils.arrayToDelimitedString(getCodes(), ",") + "]; args=[");
 
     if (args == null) {
       msgBuff.append("null");
@@ -154,6 +89,7 @@ public class MessageSourceResolvableImpl implements MessageSourceResolvable, Ser
   }
 
 	public String toString() {
-		return getDefaultToString();
+		return resolvableToString();
 	}
+
 }

@@ -393,7 +393,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * @throws NoSuchMessageException not found in any locale
 	 */
 	public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
-		return messageSource.getMessage(resolvable.getCode(), resolvable.getArgs(), resolvable.getDefaultMessage(), locale);
+		return messageSource.getMessage(resolvable, locale);
 	}
 
 	//---------------------------------------------------------------------

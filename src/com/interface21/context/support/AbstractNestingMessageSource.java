@@ -7,6 +7,7 @@ import com.interface21.context.NestingMessageSource;
 import com.interface21.context.NoSuchMessageException;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.text.MessageFormat;
 
 import org.apache.log4j.Logger;
@@ -43,7 +44,7 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 * The set of previously created MessageFormat objects, keyed by the
 	 * key computed in <code>messageKey()</code>.
 	 */
-	private HashMap formats = new HashMap();
+	private Map formats = new HashMap();
 
 	//---------------------------------------------------------------------
 	// Constructors
@@ -63,6 +64,27 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 
 
 	/**
+	 * Try to resolve the message.Return default message if no message
+	 * was found
+	 * @param code code to lookup up, such as 'calculator.noRateSet'
+	 * @param locale Locale in which to do lookup
+	 * @param args Array of arguments that will be filled in for params within
+	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
+	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a>
+	 * @param defaultMessage String to return if the lookup fails
+	 * @return a resolved message if the lookup is successful;
+	 * otherwise return the default message passed as a parameter
+	 */
+	public final String getMessage(String code, Object args[], String defaultMessage, Locale locale) {
+		try {
+			return getMessage(code, args, locale);
+		} catch (NoSuchMessageException ex) {
+			return defaultMessage;
+		}
+	}
+
+
+	/**
 	 * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
 	 * arg that was passed in (except for the <code>locale</code> attribute)</b>,
 	 * try to resolve the message from the <code>MessageSource</code> contained within the <code>Context</code>.<p>
@@ -77,8 +99,17 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 * @throws NoSuchMessageException not found in any locale
 	 */
 	public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
-		return getMessage(resolvable.getCode(), resolvable.getArgs(), resolvable.getDefaultMessage(), locale);
+		String[] codes = resolvable.getCodes();
+		for (int i = 0; i < codes.length; i++) {
+			try {
+				return getMessage(codes[i], resolvable.getArgs(), locale);
+			} catch (NoSuchMessageException ex) {
+				// swallow it, we'll retry the other codes
+			}
+		}
+		return resolvable.getDefaultMessage();
 	}
+
 
 	/**
 	 * Try to resolve the message. Treat as an error if the message can't
@@ -91,8 +122,7 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 * @return message
 	 * @throws NoSuchMessageException not found in any locale
 	 */
-	public final String getMessage(String code, Object args[], Locale locale) throws
-	    NoSuchMessageException {
+	public final String getMessage(String code, Object args[], Locale locale) throws NoSuchMessageException {
 		try {
 			String mesg = resolve(code, locale);
 
@@ -135,27 +165,6 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 * are encouraged to support internationalization.
 	 */
 	protected abstract String resolve(String code, Locale locale) throws Exception;
-
-
-	/**
-	 * Try to resolve the message.Return default message if no message
-	 * was found
-	 * @param code code to lookup up, such as 'calculator.noRateSet'
-	 * @param locale Locale in which to do lookup
-	 * @param args Array of arguments that will be filled in for params within
-	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
-	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a>
-	 * @param defaultMessage String to return if the lookup fails
-	 * @return a resolved message if the lookup is successful;
-	 * otherwise return the default message passed as a parameter
-	 */
-	public final String getMessage(String code, Object args[], String defaultMessage, Locale locale) {
-		try {
-			return getMessage(code, args, locale);
-		} catch (NoSuchMessageException ex) {
-			return defaultMessage;
-		}
-	}
 
 
 	protected Locale getDefaultLocale() {
