@@ -472,6 +472,8 @@ public class JdbcTemplate {
 			int[] retvals = new int[pscs.length];
 			for (index = 0; index < retvals.length; index++) {
 				PreparedStatement ps = pscs[index].createPreparedStatement(con);
+				if(logger.isInfoEnabled())
+					logger.info("Executing SQL update using PreparedStatement: [" + pscs[index] + "]");
 				retvals[index] = ps.executeUpdate();
 				if (logger.isInfoEnabled())
 					logger.info("JDBCTemplate: update affected " + retvals[index] + " rows");
