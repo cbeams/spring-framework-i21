@@ -8,19 +8,20 @@ import java.util.Date;
 /**
  * PropertyEditor for Date, supporting a custom DateFormat.
  *
- * <p>This is not meant to be used as system PropertyEditor
- * but rather as locale-specific date editor within custom
- * controller code, to parse user-entered date strings into
- * Date properties of beans, and render them in the UI form.
+ * <p>This is not meant to be used as system PropertyEditor but rather as
+ * locale-specific date editor within custom controller code, to parse
+ * user-entered date strings into Date properties of beans, and render
+ * them in the UI form.
  *
- * <p>In web MVC code, this editor will typically be
- * registered with binder.registerCustomEditor calls in an
- * implementation of BaseCommandController's initBinder method.
+ * <p>In web MVC code, this editor will typically be registered with
+ * binder.registerCustomEditor calls in an implementation of
+ * BaseCommandController's initBinder method.
  *
  * @author Juergen Hoeller
  * @since 28.04.2003
  * @see com.interface21.validation.DataBinder#registerCustomEditor
  * @see com.interface21.web.servlet.mvc.BaseCommandController#initBinder
+ * @see com.interface21.web.bind.BindInitializer#initBinder
  */
 public class CustomDateEditor extends PropertyEditorSupport {
 
