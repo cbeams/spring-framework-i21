@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.interface21.beans.BeansException;
 import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
+import com.interface21.beans.factory.support.BeanFactoryUtils;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextAware;
 import com.interface21.context.ApplicationContextException;
@@ -287,23 +289,16 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * Add beans that implement listener as listeners.
-	 * Doesn't affect other listeners, that can be added without being beans.
+	 * Doesn't affect other listeners, which can be added without being beans.
 	 */
 	private void refreshListeners() throws ApplicationContextException {
 		logger.info("Refreshing listeners");
-		String[] listenerNames = getBeanDefinitionNames(ApplicationListener.class);
-		logger.debug("Found " + listenerNames.length + " listeners in bean factory: names=[" +
-		             StringUtils.arrayToDelimitedString(listenerNames, ",") + "]");
-		for (int i = 0; i < listenerNames.length; i++) {
-			String beanName = listenerNames[i];
-			try {
-				Object bean = getBeanFactory().getBean(beanName);
-				ApplicationListener l = (ApplicationListener) bean;
-				addListener(l);
-				logger.info("Bean listener added: [" + l + "]");
-			} catch (BeansException ex) {
-				throw new ApplicationContextException("Couldn't load config listener with name '" + beanName + "'", ex);
-			}
+		List listeners = BeanFactoryUtils.beansOfType(ApplicationListener.class, this);
+		logger.debug("Found " + listeners.size() + " listeners in bean factory");
+		for (int i = 0; i < listeners.size(); i++) {
+			ApplicationListener l = (ApplicationListener) listeners.get(i);
+			addListener(l);
+			logger.info("Bean listener added: [" + l + "]");
 		}
 	}
 
