@@ -61,8 +61,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * transaction synchronization support. The default can very between
 	 * transaction manager implementations, this class specifies false.
 	 * <p>Note that transaction synchronization isn't supported for
-	 * multiple concurrent transactions. Only one transaction manager
-	 * is allowed to activate it at any time.
+	 * multiple concurrent transactions by different transaction managers.
+	 * Only one transaction manager is allowed to activate it at any time.
 	 * @see TransactionSynchronizationManager
 	 */
 	public final void setTransactionSynchronization(boolean transactionSynchronization) {

@@ -24,22 +24,28 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
 /**
  * PlatformTransactionManager implementation for JTA.
  *
- * <p>Set allowNonTransactionalExecution to be able to fall back to
- * non-transactional execution if JTA isn't available in the container.
- * Transaction synchronization is active by default, as it is typically
- * used for transactional cache handling with JTA (e.g. with Hibernate).
- *
  * <p>This transaction manager is appropriate for handling distributed transactions,
  * i.e. transactions that span multiple resources, and for managing transactions
- * on a J2EE Connector (e.g. a persistence toolkit registered as Connector).
+ * on a J2EE Connector (e.g. a persistence toolkit registered as JCA Connector).
  * For a single JDBC DataSource, DataSourceTransactionManager is perfectly sufficient,
  * and for accessing a single resource with Hibernate (including transactional cache),
  * HibernateTransactionManager is appropriate.
  *
+ * <p>Transaction synchronization is active by default, as it will typically be
+ * leveraged for transactional cache handling e.g. with Hibernate. Note that such
+ * synchronization will only work when JtaTransactionManager actually drives the JTA
+ * transactions. If taking part in existing transactions, e.g. in an EJB environment,
+ * synchronization needs to be turned off to avoid dangling resource holders that
+ * wait for afterTransactionCompletion callbacks.
+ *
+ * <p>Set "allowNonTransactionalExecution" to be able to fall back to
+ * non-transactional execution if JTA isn't available in the container.
+ * This can be handy for demo-ing applications e.g. on Tomcat.
+ *
  * <p>Note: This implementation does not handle isolation levels. This needs
  * to be done by server-specific subclasses, overriding applyIsolationLevel.
- * DataSourceTransactionManager and HibernateTransactionManager do support
- * custom isolation levels, though.
+ * Note that DataSourceTransactionManager and HibernateTransactionManager do
+ * support custom isolation levels.
  *
  * @author Juergen Hoeller
  * @since 24.03.2003
@@ -58,7 +64,13 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 	private String userTransactionName;
 
 	/**
-	 * Create a new JtaTransactionManager instance.
+	 * Create a new JtaTransactionManager instance,
+	 * with transaction synchronization activated by default.
+	 * <p>Turn off transaction synchronization when using this manager
+	 * with existing transactions like in an EJB environment. Keep it
+	 * active when this manager actually drives the JTA transactions,
+	 * to enable e.g. proper Hibernate cache synchronization callbacks.
+	 * @see #setTransactionSynchronization
 	 */
 	public JtaTransactionManager() {
 		setTransactionSynchronization(true);
