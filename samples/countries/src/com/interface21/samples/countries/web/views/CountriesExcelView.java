@@ -65,10 +65,6 @@ public class CountriesExcelView extends AbstractExcelView {
 				return;
 			}
 
-			// We create a date style
-			HSSFCellStyle dateStyle = wb.createCellStyle(  );
-			dateStyle.setDataFormat( HSSFDataFormat.getBuiltinFormat( "m/d/yy" ) );
-
 			// We create a font for headers
 			HSSFFont f = wb.createFont();
 			// set font 1 to 12 point type
@@ -81,12 +77,24 @@ public class CountriesExcelView extends AbstractExcelView {
 			// We create a style for headers
 			HSSFCellStyle cs = wb.createCellStyle();
 			cs.setFont(f);
-			cs.setAlignment(HSSFCellStyle.THICK_HORZ_BANDS);
 			cs.setAlignment(HSSFCellStyle.ALIGN_CENTER);
 
+			// The same for properties data
+			HSSFFont fp = wb.createFont();
+			fp.setColor( (short)0xc );
+			HSSFCellStyle csp = wb.createCellStyle();
+			csp.setFont(fp);
+			csp.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+
+			// We create a date style
+			HSSFCellStyle dateStyle = wb.createCellStyle();
+			dateStyle.setFont(fp);
+			dateStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+			dateStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+
 			// We set the colum width of the two first columns
-			sheet.setColumnWidth((short)0, (short)(30 * 256));
-			sheet.setColumnWidth((short)1, (short)(30 * 256));
+			sheet.setColumnWidth((short)0, (short)(20 * 256));
+			sheet.setColumnWidth((short)1, (short)(20 * 256));
 
 			// We prepare some data
 			SortDefinition  sort = pgHolder.getSort();
@@ -104,33 +112,38 @@ public class CountriesExcelView extends AbstractExcelView {
 
 			getCell(sheet, row, 0 ).setCellValue(getMessage("nbRecords", loc));
 			getCell(sheet, row, 1 ).setCellValue(pgHolder.getNrOfElements());
+			getCell(sheet, row, 1 ).setCellStyle(csp);
 			row++;
 			
 			getCell(sheet, row, 0 ).setCellValue(getMessage("sort.name", loc));
 			getCell(sheet, row, 1 ).setCellValue(getMessage(sort.getProperty(), loc));
+			getCell(sheet, row, 1 ).setCellStyle(csp);
 			row++;
 			
 			getCell(sheet, row, 0 ).setCellValue(getMessage("sort.asc", loc));
 			getCell(sheet, row, 1 ).setCellValue(getMessage(Boolean.toString(sort.isAscending()), loc));
+			getCell(sheet, row, 1 ).setCellStyle(csp);
 			row++;
 			
 			getCell(sheet, row, 0 ).setCellValue(getMessage("sort.igncase", loc));
 			getCell(sheet, row, 1 ).setCellValue(getMessage(Boolean.toString(sort.isIgnoreCase()), loc));
+			getCell(sheet, row, 1 ).setCellStyle(csp);
 			row++;
 			
 			getCell(sheet, row, 0 ).setCellValue(getMessage("filter.name", loc));
 			getCell(sheet, row, 1 ).setCellValue(filterName);
+			getCell(sheet, row, 1 ).setCellStyle(csp);
 			row++;
 
 			getCell(sheet, row, 0 ).setCellValue(getMessage("filter.code", loc));
 			getCell(sheet, row, 1 ).setCellValue(filterCode);
+			getCell(sheet, row, 1 ).setCellStyle(csp);
 			// row += 3;
 
 			// We create a second shhet for the data
 			sheet = wb.createSheet("Countries"); 
-			row = 0;
-			sheet.setColumnWidth((short)0, (short)(30 * 256));
 			sheet.setColumnWidth((short)1, (short)(30 * 256));
+			row = 0;
 
 			// We put now the headers of the list on the sheet
 			cell = getCell(sheet, row, 0 );

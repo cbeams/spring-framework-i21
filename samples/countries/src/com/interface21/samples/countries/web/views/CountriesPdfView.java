@@ -44,8 +44,9 @@ public class CountriesPdfView extends AbstractPdfView {
 
 	//~ Static fields/initializers ---------------------------------------------
 
-	private static final Font    HEADLINE_FONT = new Font( Font.HELVETICA, 16, Font.BOLD, Color.blue );
+	private static final Font    HEADLINE_FONT = new Font( Font.HELVETICA, 18, Font.BOLD, Color.blue );
 	private static final Font    HEADING_FONT = new Font( Font.HELVETICA, 12, Font.ITALIC, Color.black );
+	private static final Font    HEADING_DATA_FONT = new Font( Font.HELVETICA, 12, Font.ITALIC, Color.blue );
 	private static final Font    DATA_HEAD_FONT = new Font( Font.HELVETICA, 10, Font.ITALIC, Color.black );
 	private static final Font    TEXT_FONT = new Font( Font.TIMES_NEW_ROMAN, 8, Font.NORMAL, Color.black );
 	private static final Font    BOLD_FONT = new Font( Font.TIMES_NEW_ROMAN, 8, Font.BOLD, Color.black );
@@ -82,7 +83,9 @@ public class CountriesPdfView extends AbstractPdfView {
 		
 		String title = getMessage("app.name", loc);
 		pdfDoc.add( new Paragraph(title, HEADLINE_FONT));
-		pdfDoc.add( new Paragraph());
+		pdfDoc.add( new Paragraph(" "));
+		pdfDoc.add( new Paragraph(" "));
+		pdfDoc.add( new Paragraph(" "));
 	
 		// We create a table for used criteria and extracting information
 		PdfPTable table = new PdfPTable(2);
@@ -110,37 +113,37 @@ public class CountriesPdfView extends AbstractPdfView {
 		// We put the used criteria and extracting information	
 		cell = new PdfPCell(new Phrase(getMessage( "date.extraction", loc), HEADING_FONT));
 		table.addCell(cell);
-		cell = new PdfPCell(new Phrase(conv.fromDate(pgHolder.getRefreshDate()), HEADING_FONT));
+		cell = new PdfPCell(new Phrase(conv.fromDate(pgHolder.getRefreshDate()), HEADING_DATA_FONT));
 		table.addCell(cell);
 
 		cell = new PdfPCell(new Phrase(getMessage( "nbRecords", loc), HEADING_FONT));
 		table.addCell(cell);
-		cell = new PdfPCell(new Phrase(String.valueOf(pgHolder.getNrOfElements()), HEADING_FONT));
+		cell = new PdfPCell(new Phrase(String.valueOf(pgHolder.getNrOfElements()), HEADING_DATA_FONT));
 		table.addCell(cell);
 
 		cell = new PdfPCell(new Phrase(getMessage( "sort.name", loc), HEADING_FONT));
 		table.addCell(cell);
-		cell = new PdfPCell(new Phrase(sort.getProperty(), HEADING_FONT));
+		cell = new PdfPCell(new Phrase(sort.getProperty(), HEADING_DATA_FONT));
 		table.addCell(cell);
 
 		cell = new PdfPCell(new Phrase(getMessage( "sort.asc", loc), HEADING_FONT));
 		table.addCell(cell);
-		cell = new PdfPCell(new Phrase(getMessage(Boolean.toString(sort.isAscending()), loc), HEADING_FONT));
+		cell = new PdfPCell(new Phrase(getMessage(Boolean.toString(sort.isAscending()), loc), HEADING_DATA_FONT));
 		table.addCell(cell);
 
 		cell = new PdfPCell(new Phrase(getMessage( "sort.igncase", loc), HEADING_FONT));
 		table.addCell(cell);
-		cell = new PdfPCell(new Phrase(getMessage(Boolean.toString(sort.isIgnoreCase()), loc), HEADING_FONT));
+		cell = new PdfPCell(new Phrase(getMessage(Boolean.toString(sort.isIgnoreCase()), loc), HEADING_DATA_FONT));
 		table.addCell(cell);
 
 		cell = new PdfPCell(new Phrase(getMessage( "filter.name", loc), HEADING_FONT));
 		table.addCell(cell);
-		cell = new PdfPCell(new Phrase(null == filterName ? "" : filterName, HEADING_FONT));
+		cell = new PdfPCell(new Phrase(null == filterName ? "" : filterName, HEADING_DATA_FONT));
 		table.addCell(cell);
 
 		cell = new PdfPCell(new Phrase(getMessage( "filter.code", loc), HEADING_FONT));
 		table.addCell(cell);
-		cell = new PdfPCell(new Phrase(null == filterCode ? "" : filterCode, HEADING_FONT));
+		cell = new PdfPCell(new Phrase(null == filterCode ? "" : filterCode, HEADING_DATA_FONT));
 		table.addCell(cell);
 
 		pdfDoc.add(table);
@@ -150,9 +153,10 @@ public class CountriesPdfView extends AbstractPdfView {
 		table = new PdfPTable(2);
 		int headerwidths[] = {20, 80};
 		table.setWidths(headerwidths);
-		table.setWidthPercentage(100);
+		table.setWidthPercentage(60);
 		table.getDefaultCell().setBorderWidth(2);
 		table.getDefaultCell().setBorderColor(Color.black);
+		table.getDefaultCell().setGrayFill(0.75f);
 		table.getDefaultCell().setPadding(3);
 		table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
 		table.getDefaultCell().setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -179,7 +183,9 @@ public class CountriesPdfView extends AbstractPdfView {
 				even = true;
 			}
 			ICountry country = (ICountry)it.next();
+			table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
 			table.addCell(new Phrase(country.getCode(), BOLD_FONT));
+			table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
 			table.addCell(new Phrase(country.getName(), TEXT_FONT));
 		}
 		pdfDoc.add(table);
