@@ -1,14 +1,13 @@
 package com.interface21.web.bind;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 
 import com.interface21.validation.Errors;
 import com.interface21.validation.FieldError;
 import com.interface21.validation.ObjectError;
 import com.interface21.web.util.HtmlUtils;
-import com.interface21.context.MessageSourceResolvable;
 
 /**
  * Errors wrapper that adds automatic HTML escaping to the wrapped instance.
@@ -30,12 +29,12 @@ public class EscapedErrors implements Errors {
 		return source.getObjectName();
 	}
 
-	public void reject(String code, String message) {
-		source.reject(code, message);
+	public void reject(String errorCode, Object[] errorArgs, String defaultMessage) {
+		source.reject(errorCode, errorArgs, defaultMessage);
 	}
 
-	public void rejectValue(String field, String code, String message) {
-		source.rejectValue(field, code, message);
+	public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) {
+		source.rejectValue(field, errorCode, errorArgs, defaultMessage);
 	}
 
 	public boolean hasErrors() {
@@ -99,14 +98,14 @@ public class EscapedErrors implements Errors {
 			if (value instanceof String) {
 				value = HtmlUtils.htmlEscape((String) fieldError.getRejectedValue());
 			}
-			return new FieldError(fieldError.getObjectName(), fieldError.getField(), value, fieldError.getErrorCode(), HtmlUtils.htmlEscape(fieldError.getDefaultMessage()));
+			return new FieldError(fieldError.getObjectName(), fieldError.getField(), value, fieldError.getCode(), HtmlUtils.htmlEscape(fieldError.getDefaultMessage()));
 		}
-		return new ObjectError(source.getObjectName(), (MessageSourceResolvable)source);
+		return new ObjectError(source.getObjectName(), source.getCode(), HtmlUtils.htmlEscape(source.getDefaultMessage()));
 	}
 
 	private List escapeObjectErrors(List source) {
 		List escaped = new ArrayList();
-		for (Iterator it = escaped.iterator(); it.hasNext();) {
+		for (Iterator it = source.iterator(); it.hasNext();) {
 			ObjectError objectError = (ObjectError)it.next();
 			escaped.add(escapeObjectError(objectError));
 		}
