@@ -3,6 +3,9 @@ package com.interface21.aop.framework;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.AspectException;
@@ -38,7 +41,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	private final Object proxy;
 	
 	/** Interceptors invoked in this list */
-	public final MethodInterceptor[] interceptors;
+	public final List interceptors;
 	
 	/** Any resources attached to this invocation*/
 	private Map resources = new HashMap();
@@ -58,22 +61,32 @@ public class MethodInvocationImpl implements MethodInvocation {
 	 * @param target may be null
 	 * @param m
 	 * @param arguments
+	 * @param pointcuts list of MethodPointCut
 	 * @param attList
 	 * TODO take interceptor chain as well?
 	 */
 	public MethodInvocationImpl(Object proxy, Object target, 
 					Class targetInterface, Method m, Object[] arguments,
-					MethodInterceptor[] interceptors,
+					List pointcuts,
 					AttributeRegistry attributeRegistry) {
-		if (interceptors == null || interceptors.length == 0) 
-			throw new AopConfigException("Must provide interceptors");				
+		if (pointcuts == null || pointcuts.size() == 0) 
+			throw new AopConfigException("Must provide pointcuts");				
 						
 		this.proxy = proxy;
 		this.targetInterface = targetInterface;
 		this.target = target;
 		this.method = m;
 		this.arguments = arguments;
-		this.interceptors = interceptors;
+		
+		// TODO make more efficient. Could just hold indices in an int array
+		this.interceptors = new LinkedList();
+		for (Iterator iter = pointcuts.iterator(); iter.hasNext();) {
+			MethodPointcut pc = (MethodPointcut) iter.next();
+			if (pc.applies(m, arguments, attributeRegistry)) {
+				this.interceptors.add(pc.getInterceptor());
+			}
+		}
+		
 		this.attributeRegistry = attributeRegistry;
 	}
 	
@@ -168,14 +181,16 @@ public class MethodInvocationImpl implements MethodInvocation {
 	public Interceptor getInterceptor(int index) {
 		if (index > getNumberOfInterceptors() - 1)
 			throw new AspectException("Index " + index + " out of bounds: only " + getNumberOfInterceptors() + " interceptors");
-		return this.interceptors[index];
+		return (Interceptor) this.interceptors.get(index);
 	}
+	
+	
 
 	/**
 	 * @see org.aopalliance.MethodInvocation#getNumberOfInterceptors()
 	 */
 	public int getNumberOfInterceptors() {
-		return this.interceptors.length;
+		return this.interceptors.size();
 	}
 
 	/**
@@ -189,13 +204,13 @@ public class MethodInvocationImpl implements MethodInvocation {
 	 * @see org.aopalliance.Invocation#invokeNext()
 	 */
 	public Object invokeNext() throws Throwable {
-		if (this.currentInterceptor >= this.interceptors.length - 1)
+		if (this.currentInterceptor >= this.interceptors.size() - 1)
 			throw new AspectException("All interceptors have already been invoked");
 		
 		// We begin with -1 and increment early
 		
 		// TODO think about removing cast
-		MethodInterceptor interceptor = (MethodInterceptor) this.interceptors[++this.currentInterceptor];
+		MethodInterceptor interceptor = (MethodInterceptor) this.interceptors.get(++this.currentInterceptor);
 		return interceptor.invoke(this);
 	}
 

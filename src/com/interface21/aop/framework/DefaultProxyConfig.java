@@ -1,6 +1,12 @@
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
 package com.interface21.aop.framework;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.aopalliance.AttributeRegistry;
@@ -18,8 +24,7 @@ import com.interface21.beans.factory.InitializingBean;
 * and then take another property to be the concrete
 * class we'll construct and proxy to.
 * 
-* any other way to get bean factory!? but must all be available
-* TODO programmatic also like old AopProxy
+* TODO should we be able to add interceptors/pointcuts positionally, or just at end?
 */
 public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 
@@ -29,7 +34,8 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	protected final Logger logger = Logger.getLogger(getClass().getName());
 	
 
-	private MethodInterceptor[] interceptors = new MethodInterceptor[0];
+	/** List of MethodPointcut */
+	private List pointcuts = new LinkedList();
 	
 	/** Interfaces to be implemented by the proxy */
 	private Class[] interfaces = new Class[0];
@@ -77,7 +83,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * @see com.interface21.aop.ProxyConfig#addInterceptor(org.aopalliance.Interceptor)
 	 */
 	public final void addInterceptor(Interceptor interceptor) {
-		int pos = (this.interceptors != null) ? this.interceptors.length : 0;
+		int pos = (this.pointcuts != null) ? this.pointcuts.size() : 0;
 		addInterceptor(pos, interceptor);
 	}
 	
@@ -101,43 +107,41 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * @see com.interface21.aop.ProxyConfig#addInterceptor(int, org.aopalliance.Interceptor)
 	 */
 	public final void addInterceptor(int pos, Interceptor interceptor) {
-		
 		if (!(interceptor instanceof MethodInterceptor))
 			throw new AopConfigException(getClass().getName() + " only handles MethodInterceptors");
-		
-		List l = arrayToList(this.interceptors);
-		l.add(pos, interceptor);
-		
-		 // If we added it to the end of the list, we may need to update target
-		 computeTargetAndCheckValidity(l);
+		addMethodPointcut(pos, new AlwaysInvoked((MethodInterceptor) interceptor));
+	}
 
-		// We may need to add interfaces
+	public void addAspectInterfacesIfNecessary(Interceptor interceptor) {
 		 if (interceptor instanceof AspectInterfaceInterceptor) {
+		 	System.out.println("Added new aspect interface");
 			 AspectInterfaceInterceptor aii = (AspectInterfaceInterceptor) interceptor;
 			 for (int i = 0; i < aii.getAspectInterfaces().length; i++) {
 				 addInterface(aii.getAspectInterfaces()[i]);
 			 }
 		 }
-			 		
-		// Convert back to array
-		this.interceptors = (MethodInterceptor[]) l.toArray(new MethodInterceptor[l.size()]);
 	}	// addInterceptor
+	
+	
 	
 	/**
 	 * Work out target from list of interceptors
 	 * @param interceptorList list of interceptors
 	 * @throws AopConfigException if the chain is invalid
 	 */
-	private void computeTargetAndCheckValidity(List interceptorList) throws AopConfigException {
+	private void computeTargetAndCheckValidity() throws AopConfigException {
 		this.target = null;
-		for (int i = 0; i < interceptorList.size(); i++) {
-			if (interceptorList.get(i) instanceof ProxyInterceptor) {
-				if (i < interceptorList.size() -1) {
-					throw new AopConfigException("Can only have ProxyInterceptor at end of list");
+		
+		for (int i = 0; i < this.pointcuts.size(); i++) {
+			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			if (pc.getInterceptor() instanceof ProxyInterceptor) {
+				if (i < pointcuts.size() -1) {
+					//System.out.println("HaCK: commented out");
+					throw new AopConfigException("Can only have ProxyInterceptor at end of list: had " + i + " and " + pointcuts.size());
 				}
 				else {
 					// Interceptor is at end of list
-					this.target = ((ProxyInterceptor) interceptorList.get(i)).getTarget();
+					this.target = ((ProxyInterceptor) pc.getInterceptor()).getTarget();
 					logger.info("Detected target when adding ProxyInterceptor to end of interceptor array");
 				}
 			}
@@ -145,19 +149,28 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	}	// computeTargetAndCheckValidity
 	
 	public final boolean removeInterceptor(Interceptor interceptor) {
-		List l = arrayToList(this.interceptors);
-		boolean removed = l.remove(interceptor);
+		
+		boolean removed = false;
+		
+		for (int i = 0; i < this.pointcuts.size() && !removed; i++) {
+			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			if (pc.getInterceptor() == interceptor) {
+				this.pointcuts.remove(i);
+				removed = true;
+			}
+		}
+	
 		if (removed) {
-			this.interceptors = (MethodInterceptor[]) l.toArray(new MethodInterceptor[l.size()]);
-			//	We may need to add interfaces
+			//	We may need to remove interfaces if it was an AspectInterceptor
 			 if (interceptor instanceof AspectInterfaceInterceptor) {
 				 AspectInterfaceInterceptor aii = (AspectInterfaceInterceptor) interceptor;
 				 for (int i = 0; i < aii.getAspectInterfaces().length; i++) {
 					 removeInterface(aii.getAspectInterfaces()[i]);
 				 }
 			 }
+			computeTargetAndCheckValidity();
 		}
-		computeTargetAndCheckValidity(l);
+		
 		return removed;
 	}
 	
@@ -182,12 +195,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		return removed;
 	}
 
-	/**
-	 * @see com.interface21.aop.ProxyConfig#getInterceptors()
-	 */
-	public final Interceptor[] getInterceptors() {
-		return this.interceptors;
-	}
+
 
 	/**
 	 * @see com.interface21.aop.ProxyConfig#getProxiedInterfaces()
@@ -236,4 +244,34 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		return this.target;
 	}
 
+	public void addMethodPointcut(int pos, MethodPointcut pc) {
+		this.pointcuts.add(pos, pc);
+		// If we added it to the end of the list, we may need to update target
+		try {
+			computeTargetAndCheckValidity();
+
+			addAspectInterfacesIfNecessary(pc.getInterceptor());
+		}
+		catch (AopConfigException ex) {
+			// rollback the change. bit of a hack
+			this.pointcuts.remove(pc);
+			throw ex;
+		}
+	} 
+	
+	/**
+	 * @see com.interface21.aop.framework.ProxyConfig#addMethodPointcut(com.interface21.aop.framework.MethodPointcut)
+	 */
+	public void addMethodPointcut(MethodPointcut pc) {
+		int pos = (this.pointcuts != null) ? this.pointcuts.size() : 0;
+		addMethodPointcut(pos, pc);
+	}
+
+	/**
+	 * @see com.interface21.aop.framework.ProxyConfig#getInterceptors()
+	 */
+	public List getMethodPointcuts() {
+		// unmodifiable!?
+		return this.pointcuts;
+	}
 }

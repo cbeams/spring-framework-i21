@@ -78,7 +78,13 @@ public class ProxyFactoryTests extends TestCase {
 
 		long t = 555555L;
 		TimestampAspectInterceptor ti = new TimestampAspectInterceptor(t);
+		
+		System.out.println(StringUtils.arrayToDelimitedString(factory.getProxiedInterfaces(), "/"));
+		
 		factory.addInterceptor(0, ti);
+		
+		System.out.println(StringUtils.arrayToDelimitedString(factory.getProxiedInterfaces(), "/"));
+		
 
 		TimeStamped ts = (TimeStamped) factory.getProxy();
 		assertTrue(ts.getTimeStamp() == t);
@@ -95,8 +101,8 @@ public class ProxyFactoryTests extends TestCase {
 	public void testCantAddInterceptorsAfterProxyInterceptor() {
 		TestBean raw = new TestBean();
 		ProxyFactory factory = new ProxyFactory(raw);
-		assertTrue(factory.getInterceptors().length == 1);
-		assertTrue(factory.getInterceptors()[0] instanceof InvokerInterceptor);
+		assertTrue(factory.getMethodPointcuts().size() == 1);
+		//assertTrue(factory.getMethodPointcuts().get(0) instanceof InvokerInterceptor);
 		try {
 			factory.addInterceptor(new DebugInterceptor());
 			fail("Shouldn't be able to add an interface after a proxy interceptor");

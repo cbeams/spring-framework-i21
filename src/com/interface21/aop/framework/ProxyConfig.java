@@ -5,11 +5,15 @@
  
 package com.interface21.aop.framework;
 
+import java.util.List;
+
 import org.aopalliance.AttributeRegistry;
 import org.aopalliance.Interceptor;
 
 /**
- * 
+ * Interface to be implemented by classes that hold the configuration
+ * of a factory of AOP proxies. This configuration includes
+ * the interceptors and pointcuts, and the proxied interfaces.
  * @author Rod Johnson
  * @since 13-Mar-2003
  * @version $Revision$
@@ -20,7 +24,11 @@ public interface ProxyConfig {
 	
 	AttributeRegistry getAttributeRegistry();
 	
-	Interceptor[] getInterceptors();
+	/**
+	 * List of interceptor and pointcut
+	 */
+	List getMethodPointcuts();
+	
 	
 	Class[] getProxiedInterfaces();
 	
@@ -31,12 +39,19 @@ public interface ProxyConfig {
 	 */
 	void addInterceptor(Interceptor interceptor);
 	
+	
 	/**
 	 * 
 	 * @param pos index from 0 (head).
 	 * @param interceptor
 	 */
 	void addInterceptor(int pos, Interceptor interceptor);
+	
+	/**
+	 * Add a pointcut
+	 * @param pc
+	 */
+	void addMethodPointcut(MethodPointcut pc);
 	
 	/**
 	 * Remove the interceptor
@@ -53,8 +68,5 @@ public interface ProxyConfig {
 	 * @return Object
 	 */
 	Object getTarget();
-	
-	// from factory?
-	// getPointcuts();
 
 }

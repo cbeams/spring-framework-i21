@@ -1,12 +1,6 @@
 /*
- * Generic framework code included with 
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
- * This code is free to use and modify. However, please
- * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
  
 package com.interface21.aop.framework;
@@ -16,12 +10,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import org.aopalliance.MethodInterceptor;
 import org.apache.log4j.Logger;
 
 /**
- * 
- * <br/>Dynamic proxies implemented using this class can be threadsafe if the
+ * InvocationHandler implementation for the Spring AOP
+ * framework, based on Java 1.3+ dynamic proxies.
+ * Objects of this type should be obtained through
+ * proxy factories, configured by a ProxyConfig implementation.
+ * This class is internal to the Spring framework and need not
+ * be used directly by client code.
+ * <br/>Proxies created using this class can be threadsafe if the
  * underlying (target) class is threadsafe.
  * @author Rod Johnson
  * @version $Revision$
@@ -72,14 +70,15 @@ public class AopProxy implements InvocationHandler {
 	// Instance data
 	//---------------------------------------------------------------------
 	/**
-	* Create a logging category that is available
-	* to subclasses. 
+	* Logging category. 
 	*/
 	protected final Logger logger = Logger.getLogger(getClass().getName());
 
+	/**
+	 * Config used to configure this proxy.
+	 */
 	private ProxyConfig config;
 	
-
 
 	//---------------------------------------------------------------------
 	// Constructor
@@ -93,15 +92,10 @@ public class AopProxy implements InvocationHandler {
 	public AopProxy(ProxyConfig config) throws AopConfigException {
 		if (config == null)
 			throw new AopConfigException("Cannot create AopProxy with null ProxyConfig");
-		if (config.getInterceptors() == null || config.getInterceptors().length == 0)
+		if (config.getMethodPointcuts() == null || config.getMethodPointcuts().size() == 0)
 			throw new AopConfigException("Cannot create AopProxy with null interceptors");
 		this.config = config;
 	}
-	
-	// EXPOSE AS SUPER METHOD!?
-	//public ProxyConfig getConfig() {
-	//	return this.config;
-	//}
 	
 
 	//---------------------------------------------------------------------
@@ -114,11 +108,12 @@ public class AopProxy implements InvocationHandler {
 	 */
 	public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 	
+		// Create a new invocation object
 		// TODO refactor into InvocationFactory?
 		MethodInvocationImpl invocation = new MethodInvocationImpl(proxy, config.getTarget(), 
 									method.getDeclaringClass(), //?
 									method, args,
-									(MethodInterceptor[]) this.config.getInterceptors(), // could customize here
+									this.config.getMethodPointcuts(), // could customize here
 									this.config.getAttributeRegistry());
 		
 		if (this.config.getExposeInvocation()) {
@@ -128,7 +123,6 @@ public class AopProxy implements InvocationHandler {
 		
 		try {
 			if (EQUALS_METHOD.equals(invocation.getMethod())) {
-				
 				// What if equals throws exception!?
 				logger.debug("Intercepting equals() method in proxy");
 				return invocation.getMethod().invoke(this, invocation.getArguments());
@@ -191,7 +185,7 @@ public class AopProxy implements InvocationHandler {
 			return false;
 		
 		// List equality is cool
-		if (!aopr2.config.getInterceptors().equals(this.config.getInterceptors()))
+		if (!aopr2.config.getMethodPointcuts().equals(this.config.getMethodPointcuts()))
 			return false;
 			
 		return true;

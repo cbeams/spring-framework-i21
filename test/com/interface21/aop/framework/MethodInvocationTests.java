@@ -6,6 +6,8 @@
 package com.interface21.aop.framework;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.aopalliance.AspectException;
 import org.aopalliance.AttributeRegistry;
@@ -62,7 +64,7 @@ new Attrib4jAttributeRegistry());
 		Object proxy = new Object();
 		try {
 				MethodInvocationImpl invocation = new MethodInvocationImpl(proxy, null, m.getDeclaringClass(), //?
-		m, null, new MethodInterceptor[0], // list
+		m, null, new LinkedList(), // list
 	r);
 			fail("Shouldn't be able to create methodInvocationImpl with no interceptors");
 		} catch (AopConfigException ex) {
@@ -74,12 +76,12 @@ new Attrib4jAttributeRegistry());
 		Method m = Object.class.getMethod("hashCode", null);
 		Object proxy = new Object();
 		final Object returnValue = new Object();
-		MethodInterceptor[] is = new MethodInterceptor[1];
-		is[0] = new MethodInterceptor() {
+		List is = new LinkedList();
+		is.add(new AlwaysInvoked(new MethodInterceptor() {
 			public Object invoke(Invocation invocation) throws Throwable {
 				return returnValue;
 			}
-		};
+		}));
 			MethodInvocationImpl invocation = new MethodInvocationImpl(proxy, null, m.getDeclaringClass(), //?
 		m, null, is, // list
 	r);
@@ -92,12 +94,13 @@ new Attrib4jAttributeRegistry());
 		Method m = Object.class.getMethod("hashCode", null);
 		Object proxy = new Object();
 		final Object returnValue = new Object();
-		MethodInterceptor[] is = new MethodInterceptor[1];
-		is[0] = new MethodInterceptor() {
+		List is = new LinkedList();
+		MethodInterceptor interceptor = new MethodInterceptor() {
 			public Object invoke(Invocation invocation) throws Throwable {
 				return returnValue;
 			}
 		};
+		is.add(new AlwaysInvoked(interceptor));
 
 			MethodInvocationImpl invocation = new MethodInvocationImpl(proxy, null, m.getDeclaringClass(), //?
 		m, null, is, // list
@@ -105,7 +108,7 @@ new Attrib4jAttributeRegistry());
 		assertTrue(invocation.getArgumentCount() == 0);
 		assertTrue(invocation.getAttributeRegistry() == r);
 		//assertTrue(invocation.getCurrentInterceptorIndex() == 0);
-		assertTrue(invocation.getInterceptor(0) == is[0]);
+		assertTrue(invocation.getInterceptor(0) == interceptor);
 		Object rv = invocation.invokeNext();
 		assertTrue("correct response", rv == returnValue);
 
@@ -135,12 +138,12 @@ new Attrib4jAttributeRegistry());
 		Method m = Object.class.getMethod("hashCode", null);
 		Object proxy = new Object();
 		final Object returnValue = new Object();
-		MethodInterceptor[] is = new MethodInterceptor[1];
-		is[0] = new MethodInterceptor() {
+		List is = new LinkedList();
+		is.add(new AlwaysInvoked(new MethodInterceptor() {
 			public Object invoke(Invocation invocation) throws Throwable {
 				return returnValue;
 			}
-		};
+		}));
 
 			MethodInvocationImpl invocation = new MethodInvocationImpl(proxy, null, m.getDeclaringClass(), //?
 		m, null, is, // list
@@ -169,8 +172,8 @@ new Attrib4jAttributeRegistry());
 			}
 		};
 		final Object returnValue = new Object();
-		MethodInterceptor[] is = new MethodInterceptor[1];
-		is[0] = new InvokerInterceptor(target);
+		List is = new LinkedList();
+		is.add(new AlwaysInvoked(new InvokerInterceptor(target)));
 
 		Method m = Object.class.getMethod("hashCode", null);
 		Object proxy = new Object();

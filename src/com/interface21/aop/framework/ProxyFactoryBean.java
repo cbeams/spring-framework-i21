@@ -13,14 +13,11 @@ import com.interface21.beans.factory.Lifecycle;
 import com.interface21.util.StringUtils;
 
 /** 
-* Superclass for dynamic proxies.
-* Example:
-* we set the bean class name which will be exposed,
-* and then take another property to be the concrete
-* class we'll construct and proxy to.
-* 
-* any other way to get bean factory!? but must all be available
-* TODO programmatic also like old AopProxy
+* FactoryBean implementation for use to source
+* AOP proxies from a Spring BeanFactory. 
+* @author Rod Johnson
+* TODO get pointcuts from bean factory, enabling anything declared
+* to run.
 */
 public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean, Lifecycle {
 
@@ -28,8 +25,6 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	private AttributeRegistry attributeRegistry;
 
 	private Logger logger = Logger.getLogger(getClass().getName());
-	
-	//private Attributes attributes = new Attributes();
 	
 	private boolean singleton = true;
 	
@@ -83,12 +78,20 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		for (int i = 0; i < this.interceptorNames.length; i++) {
 			logger.debug("Configuring interceptor '" + this.interceptorNames[i] + "'");
 			
-			Interceptor next = (Interceptor) beanFactory.getBean(this.interceptorNames[i]);
+			Object next = beanFactory.getBean(this.interceptorNames[i]);
 			
 			//	if (!(currentInterceptor instanceof ChainInterceptor))
 			//		throw new AopException("Illegal interceptor chain: cannot add interceptors after [" + currentInterceptor + "]");
 			
-			addInterceptor(next);
+			if (next instanceof MethodPointcut) {
+				addMethodPointcut((MethodPointcut) next);
+			}
+			else if (next instanceof Interceptor) {
+				addInterceptor((Interceptor) next);
+			}
+			else {
+				throw new AopConfigException("Illegal type: bean '" + this.interceptorNames[i] + "' must be of type MethodPointcut or Interceptor");
+			}
 		}
 		
 		// Create singleton instance if necessary

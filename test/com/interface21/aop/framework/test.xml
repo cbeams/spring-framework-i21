@@ -36,6 +36,20 @@
 		
 	</bean>
 	
+	<bean name="pointcuts" 
+			class="com.interface21.aop.framework.ProxyFactoryBean"
+	>	
+		<property name="proxyInterfaces">com.interface21.beans.ITestBean</property>		
+		
+		<property name="interceptorNames">pointcutForVoid,invokerInterceptor</property>		
+		
+	</bean>
+	
+	<bean name="pointcutForVoid"
+		class="com.interface21.aop.framework.ProxyFactoryBeanTests$PointcutForVoid"
+	>
+	</bean>
+	
 	
 	<!--
 	<bean name="noInterceptorPrototype" 
