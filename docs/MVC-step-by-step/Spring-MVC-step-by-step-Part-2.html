@@ -1,0 +1,615 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.0.2  (Win32)">
+	<META NAME="CREATED" CONTENT="20030630;21474000">
+	<META NAME="CHANGEDBY" CONTENT="Thomas Risberg">
+	<META NAME="CHANGED" CONTENT="20030726;17232130">
+	<STYLE>
+	<!--
+		@page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+		TD P { margin-bottom: 0.21cm }
+		P { margin-bottom: 0.21cm }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US">
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT SIZE=4><B>Developing
+a Spring Framework MVC applicaton step-by-step</B></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm">Part 2 &ndash; Developing
+and Configuring the Application</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><B>Thomas Risberg</B>
+<BR>July, 2003</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">This is Part 2 of a step-by-step
+account of how to develop a web application from scratch using the
+Spring Framework. In Part 1 (Steps 1 &ndash; 12) we configured the
+environment and set up a basic application that we will build upon.</P>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">This is what we
+have to start with.</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0cm">An intoduction page <B>index.jsp</B>.</P>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: medium">A
+	DispatcherServlet with a corresponding <B>springapp-servlet.xml</B>
+	configuration file.</P>
+	<LI><P STYLE="margin-bottom: 0cm">A controller
+	<B>springappController.java</B>.</P>
+	<LI><P STYLE="margin-bottom: 0cm">A view <B>hello.jsp</B>.</P>
+</OL>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">We will now
+improve on these parts to build a more useful application.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 13 &ndash; Improve index.jsp</B></P>
+<P STYLE="margin-bottom: 0cm">We will make use of JSP Standard Tag
+Library (JSTL) so I will start by copying the JSTL files we need to
+our WEB-INF/lib directory. Copy jstl.jar and standard.jar from the
+spring-framework-0.9/lib/jstl directory to the
+springapp/war/WEB-INF/lib directory. I am also creating a &ldquo;header&rdquo;
+file that will be incuded in every JSP page that I'm going to write.
+This will make development easier and I will be sure that I have the
+same definitions in all JSPs.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/jsp/include.jsp</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;%@ page session=&quot;false&quot;%&gt;
+
+&lt;%@ taglib prefix=&quot;c&quot; uri=&quot;http://java.sun.com/jstl/core&quot; %&gt;
+&lt;%@ taglib prefix=&quot;fmt&quot; uri=&quot;http://java.sun.com/jstl/fmt&quot; %&gt;        </PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Now we can change index.jsp to use this
+inlude and since we are using JSTL we can use the &lt;c:redirect&gt;
+tag for redirecting to our Controller. This ties the index.jsp into
+our application framework.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/index.jsp</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;%@ include file=&quot;/WEB-INF/jsp/include.jsp&quot; %&gt;
+
+&lt;%-- Redirected because we can't set the welcome page to a virtual URL. --%&gt;
+&lt;c:redirect url=&quot;/hello.htm&quot;/&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 14 &ndash; Improve the view and
+the controller</B></P>
+<P>I am going to move the view hello.jsp to the WEB-INF/jsp
+directory. This will ensure that only the controller has access to
+the views - it is not possible to get to these pages by entering them
+directly as a URL in the browser. The same include that was added to
+index.jsp gets added to hello.jsp. I also add the current date and
+time as output that I will retrieve from the model, passed to the
+view, using the JSTL &lt;c:out&gt; tag. 
+</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/jsp/hello.jsp</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;%@ include file=&quot;/WEB-INF/jsp/include.jsp&quot; %&gt;
+
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Hello :: Spring Application&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Hello - Spring Application&lt;/h1&gt;
+&lt;p&gt;Greetings, it is now &lt;c:out value=&quot;${now}&quot;/&gt;
+&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">For SpringappController.java there are
+a few changes we need to make. Change the view to
+WEB-INF/jsp/hello.jsp since we moved the file to this new location.
+Also add a string contining the current data and time as the model. 
+</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/SpringappController.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>import com.interface21.web.servlet.mvc.Controller;
+import com.interface21.web.servlet.ModelAndView;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class SpringappController implements Controller {
+
+    /** Logger for this class and subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
+
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+
+<FONT COLOR="#800000">        String now = (new java.util.Date()).toString(); </FONT>
+<FONT COLOR="#800000">        logger.info(&quot;returning hello view with &quot; + now);</FONT>
+
+<FONT COLOR="#800000">        return new ModelAndView(&quot;WEB-INF/jsp/hello.jsp&quot;, &quot;now&quot;, now);</FONT>
+    }
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Now we are ready to try this after we
+build and deploy this new code. We enter
+<A HREF="http://localhost:8080/springapp">http://localhost:8080/springapp</A>
+in a browser and that should pull upp index.jsp, which should
+redirect to hello.htm, which in turn gets us to the controller that
+sends the data and time to the view.</P>
+<P STYLE="margin-bottom: 0cm"><IMG SRC="Spring-MVC-step-by-step-Part-2_html_1969edd8.png" NAME="Graphic1" ALIGN=LEFT WIDTH=780 HEIGHT=540 BORDER=0><BR CLEAR=LEFT><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 15 &ndash; Decouple the view
+and the controller</B></P>
+<P STYLE="margin-bottom: 0cm">Right now the controller specifies the
+full path of the view, which creates an unnessecary dependency
+between the controller and the view. Ideally we would like to map to
+the view using a logical name, allowing us to switch the view without
+having to change the controller. You can set this mapping in a
+properties file if you like using a ResourceBundleViewResolver and a
+SimpleUrlHandlerMapping class. If your mapping needs are simple it is
+easier to just set a prefix and a suffix on the
+InternalResourceViewResolver. The latter approach is the one that I
+will implement now, so I modify the springapp-servlet.xml and include
+this viewResolver entry. I have elected to use a JstlView which will
+enable us to use JSTL in combination with message resource bundles
+and it will also support internationalization.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/springapp-servlet.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+
+&lt;!--
+  - Application context definition for &quot;springapp&quot; DispatcherServlet.
+  --&gt;
+
+&lt;beans&gt;
+    &lt;bean id=&quot;springappController&quot; class=&quot;SpringappController&quot;/&gt;
+
+    &lt;bean id=&quot;urlMapping&quot; class=&quot;com.interface21.web.servlet.handler.SimpleUrlHandlerMapping&quot;&gt; 
+        &lt;property name=&quot;mappings&quot;&gt;
+            &lt;props&gt;
+                &lt;prop key=&quot;/hello.htm&quot;&gt;springappController&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+<FONT COLOR="#800000">    &lt;bean id=&quot;viewResolver&quot; class=&quot;com.interface21.web.servlet.view.InternalResourceViewResolver&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;viewClass&quot;&gt;&lt;value&gt;com.interface21.web.servlet.view.JstlView&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;prefix&quot;&gt;&lt;value&gt;/WEB-INF/jsp/&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;suffix&quot;&gt;&lt;value&gt;.jsp&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+&lt;/beans&gt;        </PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">So now I can remove the prefix and
+suffix from the view name in the contoller. 
+</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/SpringappController.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>import com.interface21.web.servlet.mvc.Controller;
+import com.interface21.web.servlet.ModelAndView;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class SpringappController implements Controller {
+
+    /** Logger for this class and subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
+
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+
+        String now = (new java.util.Date()).toString(); 
+        logger.info(&quot;returning hello view with &quot; + now);
+
+        <FONT COLOR="#800000">return new ModelAndView(&quot;hello&quot;, &quot;now&quot;, now);</FONT>
+    }
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Compile and deploy and the application
+should still work.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 16 &ndash; Add some classes for
+business logic</B></P>
+<P STYLE="margin-bottom: 0cm">So far our application is not very
+useful. I would like to add a little bit of business logic in form of
+a Product class and a class that will manage all the products. I name
+this management class ProductManager. In order to separate the web
+dependent logic from the business logic I will create two separate
+packages for the Java source &ndash; web and bus. If this was an
+application for a real company I would name the packages something
+like com.mycompany.web and com.mycompany.bus, but since this is just
+a demo application I will keep the package names real short. The
+Product class is implemented as a JavaBean &ndash; ith has the
+default constructor (automatically provided if we don't specify any
+constructors) and getters and setters for the two instance variables
+description and price. I also make it Serializable, not necessary for
+our application, but could come in handy later on if we have to pass
+this class between different application layers.</P>
+<TABLE WIDTH=876 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=866>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/bus/Product.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package bus;
+
+import java.io.Serializable;
+
+public class Product implements Serializable {
+
+    private String description;
+    private Double price;
+
+    public void setDescription(String s) {
+        description = s;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setPrice(Double d) {
+        price = d;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">The ProductManager holds a List of
+Products, and again this this class is implemented as a JavaBean.</P>
+<TABLE WIDTH=876 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=866>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/bus/ProductManager.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package bus;
+
+import java.io.Serializable;
+import java.util.List;
+
+public class ProductManager implements Serializable {
+
+    private List products;
+
+    public void setProducts(List p) {
+        products = p;
+    }
+
+    public List getProducts() {
+        return products;
+    }
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Next, I modify the SpringappController
+to hold a reference to this ProductManager class. As you can see, it
+is now in a separate package called web &ndash; remember to move the
+source to this new location. I also add code to have the controller
+pass some product information to the view. The getModelAndView now
+returns a Map with both the date and time and the product manager
+reference.</P>
+<TABLE WIDTH=876 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=866>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/SpringappController.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package web;
+
+import com.interface21.web.servlet.mvc.Controller;
+import com.interface21.web.servlet.ModelAndView;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+<FONT COLOR="#800000">import java.util.Map;</FONT>
+<FONT COLOR="#800000">import java.util.HashMap;</FONT>
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+<FONT COLOR="#800000">import bus.Product;</FONT>
+<FONT COLOR="#800000">import bus.ProductManager;</FONT>
+
+public class SpringappController implements Controller {
+
+    /** Logger for this class and subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
+
+<FONT COLOR="#800000">    private ProductManager prodMan;</FONT>
+
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+
+        String now = (new java.util.Date()).toString(); 
+        logger.info(&quot;returning hello view with &quot; + now);
+
+<FONT COLOR="#800000">        Map myModel = new HashMap();</FONT>
+<FONT COLOR="#800000">        myModel.put(&quot;now&quot;, now);</FONT>
+<FONT COLOR="#800000">        myModel.put(&quot;products&quot;, getProductManager().getProducts());</FONT>
+
+<FONT COLOR="#800000">        return new ModelAndView(&quot;hello&quot;, &quot;model&quot;, myModel);</FONT>
+    }
+
+<FONT COLOR="#800000">    public void setProductManager(ProductManager pm) {</FONT>
+<FONT COLOR="#800000">        prodMan = pm;</FONT>
+<FONT COLOR="#800000">    }</FONT>
+
+<FONT COLOR="#800000">    public ProductManager getProductManager() {</FONT>
+<FONT COLOR="#800000">        return prodMan;</FONT>
+<FONT COLOR="#800000">    }</FONT>
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 17 &ndash; Modify the view to
+display business data and add support for message bundle</B></P>
+<P STYLE="margin-bottom: 0cm">Using the JSTL &lt;c:forEach&gt; tag, I
+add a section that displays product information. I have also replaced
+the title, heading and greeting text with a JSTL &lt;fmt:message&gt;
+tag that pulls the text to display from a provided 'message' source &ndash;
+I will show this source in a later step. 
+</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/jsp/hello.jsp</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;%@ include file=&quot;/WEB-INF/jsp/include.jsp&quot; %&gt;
+
+&lt;html&gt;
+&lt;head&gt;<FONT COLOR="#800000">&lt;title&gt;&lt;fmt:message key=&quot;title&quot;/&gt;&lt;/title&gt;</FONT>&lt;/head&gt;
+&lt;body&gt;
+<FONT COLOR="#800000">&lt;h1&gt;&lt;fmt:message key=&quot;heading&quot;/&gt;&lt;/h1&gt;</FONT>
+&lt;p&gt;<FONT COLOR="#800000">&lt;fmt:message key=&quot;greeting&quot;/&gt;</FONT> &lt;c:out value=&quot;${model.now}&quot;/&gt;
+&lt;/p&gt;
+<FONT COLOR="#800000">&lt;h3&gt;Products&lt;/h3&gt;</FONT>
+<FONT COLOR="#800000">&lt;c:forEach items=&quot;${model.products}&quot; var=&quot;prod&quot;&gt;</FONT>
+<FONT COLOR="#800000">  &lt;c:out value=&quot;${prod.description}&quot;/&gt; &lt;i&gt;$&lt;c:out value=&quot;${prod.price}&quot;/&gt;&lt;/i&gt;&lt;br&gt;&lt;br&gt;</FONT>
+<FONT COLOR="#800000">&lt;/c:forEach&gt;</FONT>
+&lt;/body&gt;
+&lt;/html&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 18 &ndash; Add some test data
+to automatically populate some business objects</B></P>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">I am not going to
+add any code to load the business objects from a database just yet.
+Instead, we can &ldquo;wire up&rdquo; a couple of instances using
+Spring's bean and application context support. I will simply put the
+data I need as a couple of bean entries in springapp-servlet.xml. I
+will also add the messageSource entry that will pull in the messages
+resource bundle ('messages.properties') that I will create in the
+next step.</P>
+<TABLE WIDTH=939 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=929>
+	<TR>
+		<TD WIDTH=929 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/springapp-servlet.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=929 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+
+&lt;!--
+  - Application context definition for &quot;springapp&quot; DispatcherServlet.
+  --&gt;
+
+
+&lt;beans&gt;
+    &lt;bean id=&quot;springappController&quot; class=&quot;web.SpringappController&quot;<FONT COLOR="#800000">&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;productManager&quot;&gt;</FONT>
+<FONT COLOR="#800000">            &lt;ref external=&quot;prodMan&quot;/&gt;</FONT>
+<FONT COLOR="#800000">        &lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+
+<FONT COLOR="#800000">    &lt;bean id=&quot;prodMan&quot; class=&quot;bus.ProductManager&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;products&quot;&gt;</FONT>
+<FONT COLOR="#800000">            &lt;list&gt;</FONT>
+<FONT COLOR="#800000">                &lt;ref external=&quot;product1&quot;/&gt;</FONT>
+<FONT COLOR="#800000">                &lt;ref external=&quot;product2&quot;/&gt;</FONT>
+<FONT COLOR="#800000">                &lt;ref external=&quot;product3&quot;/&gt;</FONT>
+<FONT COLOR="#800000">            &lt;/list&gt;</FONT>
+<FONT COLOR="#800000">        &lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+
+<FONT COLOR="#800000">    &lt;bean id=&quot;product1&quot; class=&quot;bus.Product&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;description&quot;&gt;&lt;value&gt;Lamp&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;price&quot;&gt;&lt;value&gt;5.75&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+<FONT COLOR="#800000">        </FONT>
+<FONT COLOR="#800000">    &lt;bean id=&quot;product2&quot; class=&quot;bus.Product&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;description&quot;&gt;&lt;value&gt;Table&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;price&quot;&gt;&lt;value&gt;75.25&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+
+<FONT COLOR="#800000">    &lt;bean id=&quot;product3&quot; class=&quot;bus.Product&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;description&quot;&gt;&lt;value&gt;Chair&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;price&quot;&gt;&lt;value&gt;22.79&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+
+<FONT COLOR="#800000">    &lt;bean id=&quot;messageSource&quot; class=&quot;com.interface21.context.support.ResourceBundleMessageSource&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;basename&quot;&gt;&lt;value&gt;messages&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+
+    &lt;bean id=&quot;urlMapping&quot; class=&quot;com.interface21.web.servlet.handler.SimpleUrlHandlerMapping&quot;&gt; 
+        &lt;property name=&quot;mappings&quot;&gt;
+            &lt;props&gt;
+                &lt;prop key=&quot;/hello.htm&quot;&gt;springappController&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;viewResolver&quot; class=&quot;com.interface21.web.servlet.view.InternalResourceViewResolver&quot;&gt;
+        &lt;property name=&quot;viewClass&quot;&gt;&lt;value&gt;com.interface21.web.servlet.view.JstlView&lt;/value&gt;&lt;/property&gt;
+        &lt;property name=&quot;prefix&quot;&gt;&lt;value&gt;/WEB-INF/jsp/&lt;/value&gt;&lt;/property&gt;
+        &lt;property name=&quot;suffix&quot;&gt;&lt;value&gt;.jsp&lt;/value&gt;&lt;/property&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;        </PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 19 &ndash; Add the message
+bundle and a 'clean' target to build.xml</B></P>
+<P STYLE="margin-bottom: 0cm">I create a 'messages.properties' file
+in the war/WEB-INF/classes directory. This properties budle so far
+has three entries matching the keys specified in the &lt;fmt:message&gt;
+tags that we added to the hello.jsp.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/classes/messages.properties</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>title=SpringApp
+heading=Hello :: SpringApp
+greeting=Greetings, it is now</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Since we moved some source files
+around, it makes sense to add a 'clean' and an 'undeploy' target to
+the build scripts. I add the following entries to the build.xml file.</P>
+<TABLE WIDTH=807 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=797>
+	<TR>
+		<TD WIDTH=797 VALIGN=TOP BGCOLOR="#ffffff">
+			<PRE><FONT COLOR="#800000">    &lt;target name=&quot;clean&quot; description=&quot;Clean output directories&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;delete&gt;</FONT>
+<FONT COLOR="#800000">            &lt;fileset dir=&quot;${build.dir}&quot;&gt;</FONT>
+<FONT COLOR="#800000">                &lt;include name=&quot;**/*.class&quot;/&gt;</FONT>
+<FONT COLOR="#800000">            &lt;/fileset&gt;</FONT>
+<FONT COLOR="#800000">        &lt;/delete&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/target&gt;</FONT>
+
+<FONT COLOR="#800000">    &lt;target name=&quot;undeploy&quot; description=&quot;Un-Deploy application&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;delete&gt;</FONT>
+<FONT COLOR="#800000">            &lt;fileset dir=&quot;${deploy.path}/${name}&quot;&gt;</FONT>
+<FONT COLOR="#800000">                &lt;include name=&quot;**/*.*&quot;/&gt;</FONT>
+<FONT COLOR="#800000">            &lt;/fileset&gt;</FONT>
+<FONT COLOR="#800000">        &lt;/delete&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/target&gt;</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Now stop the Tomcat server, run the
+clean, undeploy and deploy targets. This should remove all old class
+files, re-build the application and deploy it. Start up Tomcat again
+and you should see the following:</P>
+<P STYLE="margin-bottom: 0cm"><IMG SRC="Spring-MVC-step-by-step-Part-2_html_m3eb7013.png" NAME="Graphic2" ALIGN=LEFT WIDTH=742 HEIGHT=536 BORDER=0><BR CLEAR=LEFT><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><A HREF="Spring-MVC-step-by-step.html" TARGET="_self">Back</A>
+<A HREF="Spring-MVC-step-by-step-Part-3.html" TARGET="_self">Part 3 &ndash;
+Adding Unit Tests and a Form to the Application</A></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Copyright &copy; 2003, Thomas Risberg</P>
+</BODY>
+</HTML>

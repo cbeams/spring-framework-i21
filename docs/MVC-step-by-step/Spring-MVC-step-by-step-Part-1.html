@@ -1,0 +1,815 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.0.2  (Linux)">
+	<META NAME="CREATED" CONTENT="20030630;21474000">
+	<META NAME="CHANGED" CONTENT="20030727;12174300">
+	<STYLE>
+	<!--
+		@page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+		TD P { margin-bottom: 0.21cm }
+		P { margin-bottom: 0.21cm }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US">
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT SIZE=4><B>Developing
+a Spring Framework MVC applicaton step-by-step</B></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm">Part 1 – Basic
+Application and Environment Setup</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><B>Thomas Risberg</B>
+<BR>July, 2003</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">This is a step-by-step account of how
+to develop a web application from scratch using the Spring Framework.</P>
+<P STYLE="margin-bottom: 0cm">Prerequisits:</P>
+<UL>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Java SDK (<I>I am currently using
+		version 1.4.1</I>)</P>
+		<LI><P STYLE="margin-bottom: 0cm">Ant (<I>using version 1.5.3</I>)</P>
+		<LI><P STYLE="margin-bottom: 0cm">Apache Tomcat (<I>using version
+		4.1.24</I>)</P>
+	</UL>
+</UL>
+<P STYLE="margin-bottom: 0cm">You should also be reasonably
+comfortable using the above software.</P>
+<P STYLE="margin-bottom: 0cm">I am not going to cover a lot of
+background information or theory in this document -- there are plenty
+of books available that covers this in depth. Instead we will dive
+right into developing the application.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 1 – development directory</B></P>
+<P STYLE="margin-bottom: 0cm">We are going to need a place to keep
+all the source and other files we will be creating, so I create a
+directory that I name 'springapp'. You can place this directory in
+your home folder or in some other location. I create mine in a
+'workspace' directory that I already had in my home directory so the
+full path to my directory is '/home/trisberg/workspace/springapp'.
+Inside this directory I create a 'src' directory to hold all Java
+source files. Then I create another directory that I name 'war'. This
+directory will hold everything that should go into the WAR file, that
+we would use to deploy our application. All source files other than
+Java source, like JSPs and configuration files, belongs in this
+directory.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 2 – index.jsp</B></P>
+<P STYLE="margin-bottom: 0cm">I will start by creating a JSP page
+named 'index.jsp' in the war directory. This is the entry point for
+our application.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/index.jsp</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Example :: Spring Application&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Example - Spring Application&lt;/h1&gt;
+&lt;p&gt;This is my test.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;        </PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Just to have a complete web
+application, I create a web.xml in a WEB-INF directory that I create
+under the war directory.</P>
+<TABLE WIDTH=1004 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=994>
+	<TR>
+		<TD WIDTH=994 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/web.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=994 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'&gt;
+
+&lt;web-app&gt;
+
+&lt;/web-app&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 3 – deploying the application
+to Tomcat</B></P>
+<P STYLE="margin-bottom: 0cm">Next, I write an Ant buildscript that
+we are going to use throughout this document.  There are tasks for
+building and deploying the application.  There are also tasks for
+controlling the application under Tomcat.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/build.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;?xml version=&quot;1.0&quot;?&gt;
+
+&lt;project name=&quot;springapp&quot; basedir=&quot;.&quot; default=&quot;usage&quot;&gt;
+    &lt;property file=&quot;build.properties&quot;/&gt;
+
+    &lt;property name=&quot;src.dir&quot; value=&quot;src&quot;/&gt;
+    &lt;property name=&quot;web.dir&quot; value=&quot;war&quot;/&gt;
+    &lt;property name=&quot;build.dir&quot; value=&quot;${web.dir}/WEB-INF/classes&quot;/&gt;
+    &lt;property name=&quot;name&quot; value=&quot;springapp&quot;/&gt;
+
+    &lt;path id=&quot;master-classpath&quot;&gt;
+        &lt;fileset dir=&quot;${web.dir}/WEB-INF/lib&quot;&gt;
+            &lt;include name=&quot;*.jar&quot;/&gt;
+        &lt;/fileset&gt;
+        &lt;fileset dir=&quot;${tomcat.home}/common/lib&quot;&gt;
+            &lt;include name=&quot;servlet.jar&quot;/&gt;
+        &lt;/fileset&gt;
+    &lt;/path&gt;
+    
+    &lt;target name=&quot;usage&quot;&gt;
+        &lt;echo message=&quot;&quot;/&gt;
+        &lt;echo message=&quot;${name} build file&quot;/&gt;
+        &lt;echo message=&quot;-----------------------------------&quot;/&gt;
+        &lt;echo message=&quot;&quot;/&gt;
+        &lt;echo message=&quot;Available targets are:&quot;/&gt;
+        &lt;echo message=&quot;&quot;/&gt;
+        &lt;echo message=&quot;build     --&gt; Build the application&quot;/&gt;
+        &lt;echo message=&quot;deploy    --&gt; Deploy application as directory&quot;/&gt;
+        &lt;echo message=&quot;deploywar --&gt; Deploy application as a WAR file&quot;/&gt;
+        &lt;echo message=&quot;install   --&gt; Install application in Tomcat&quot;/&gt;
+        &lt;echo message=&quot;reload    --&gt; Reload application in Tomcat&quot;/&gt;
+        &lt;echo message=&quot;start     --&gt; Start Tomcat application&quot;/&gt;
+        &lt;echo message=&quot;stop      --&gt; Stop Tomcat application&quot;/&gt;
+        &lt;echo message=&quot;list      --&gt; List Tomcat applications&quot;/&gt;
+        &lt;echo message=&quot;&quot;/&gt;
+    &lt;/target&gt;
+
+    &lt;target name=&quot;build&quot; description=&quot;Compile main source tree java files&quot;&gt;
+        &lt;mkdir dir=&quot;${build.dir}&quot;/&gt;
+        &lt;javac destdir=&quot;${build.dir}&quot; target=&quot;1.3&quot; debug=&quot;true&quot;
+               deprecation=&quot;false&quot; optimize=&quot;false&quot; failonerror=&quot;true&quot;&gt;
+            &lt;src path=&quot;${src.dir}&quot;/&gt;
+            &lt;classpath refid=&quot;master-classpath&quot;/&gt;
+        &lt;/javac&gt;
+    &lt;/target&gt;
+
+    &lt;target name=&quot;deploy&quot; depends=&quot;build&quot; description=&quot;Deploy application&quot;&gt;
+        &lt;copy todir=&quot;${tomcat.home}/webapps/${name}&quot; preservelastmodified=&quot;true&quot;&gt;
+            &lt;fileset dir=&quot;${web.dir}&quot;&gt;
+                &lt;include name=&quot;**/*.*&quot;/&gt;
+            &lt;/fileset&gt;
+        &lt;/copy&gt;
+    &lt;/target&gt;
+
+    &lt;target name=&quot;deploywar&quot; depends=&quot;build&quot; description=&quot;Deploy application as a WAR file&quot;&gt;
+        &lt;war destfile=&quot;${name}.war&quot;
+             webxml=&quot;${web.dir}/WEB-INF/web.xml&quot;&gt;
+            &lt;fileset dir=&quot;${web.dir}&quot;&gt;
+                &lt;include name=&quot;**/*.*&quot;/&gt;
+            &lt;/fileset&gt;
+        &lt;/war&gt;
+        &lt;copy todir=&quot;${deploy.path}&quot; preservelastmodified=&quot;true&quot;&gt;
+            &lt;fileset dir=&quot;.&quot;&gt;
+                &lt;include name=&quot;*.war&quot;/&gt;
+            &lt;/fileset&gt;
+        &lt;/copy&gt;
+    &lt;/target&gt;
+
+&lt;!-- ============================================================== --&gt;
+&lt;!-- Tomcat tasks - remove these if you don't have Tomcat installed --&gt;
+&lt;!-- ============================================================== --&gt;
+
+    &lt;taskdef name=&quot;install&quot; classname=&quot;org.apache.catalina.ant.InstallTask&quot;&gt;
+        &lt;classpath&gt;
+            &lt;path location=&quot;${tomcat.home}/server/lib/catalina-ant.jar&quot;/&gt;
+        &lt;/classpath&gt;
+    &lt;/taskdef&gt;
+    &lt;taskdef name=&quot;reload&quot; classname=&quot;org.apache.catalina.ant.ReloadTask&quot;&gt;
+        &lt;classpath&gt;
+            &lt;path location=&quot;${tomcat.home}/server/lib/catalina-ant.jar&quot;/&gt;
+        &lt;/classpath&gt;
+    &lt;/taskdef&gt;
+    &lt;taskdef name=&quot;list&quot; classname=&quot;org.apache.catalina.ant.ListTask&quot;&gt;
+        &lt;classpath&gt;
+            &lt;path location=&quot;${tomcat.home}/server/lib/catalina-ant.jar&quot;/&gt;
+        &lt;/classpath&gt;
+    &lt;/taskdef&gt;
+    &lt;taskdef name=&quot;start&quot; classname=&quot;org.apache.catalina.ant.StartTask&quot;&gt;
+        &lt;classpath&gt;
+            &lt;path location=&quot;${tomcat.home}/server/lib/catalina-ant.jar&quot;/&gt;
+        &lt;/classpath&gt;
+    &lt;/taskdef&gt;
+    &lt;taskdef name=&quot;stop&quot; classname=&quot;org.apache.catalina.ant.StopTask&quot;&gt;
+        &lt;classpath&gt;
+            &lt;path location=&quot;${tomcat.home}/server/lib/catalina-ant.jar&quot;/&gt;
+        &lt;/classpath&gt;
+    &lt;/taskdef&gt;
+
+    &lt;target name=&quot;install&quot; description=&quot;Install application in Tomcat&quot;&gt;
+        &lt;install url=&quot;${tomcat.manager.url}&quot;
+                 username=&quot;${tomcat.manager.username}&quot;
+                 password=&quot;${tomcat.manager.password}&quot;
+                 path=&quot;/${name}&quot;
+                 war=&quot;${name}&quot;/&gt;
+    &lt;/target&gt;
+
+    &lt;target name=&quot;reload&quot; description=&quot;Reload application in Tomcat&quot;&gt;
+        &lt;reload url=&quot;${tomcat.manager.url}&quot;
+                 username=&quot;${tomcat.manager.username}&quot;
+                 password=&quot;${tomcat.manager.password}&quot;
+                 path=&quot;/${name}&quot;/&gt;
+    &lt;/target&gt;
+
+    &lt;target name=&quot;start&quot; description=&quot;Start Tomcat application&quot;&gt;
+        &lt;start url=&quot;${tomcat.manager.url}&quot;
+                 username=&quot;${tomcat.manager.username}&quot;
+                 password=&quot;${tomcat.manager.password}&quot;
+                 path=&quot;/${name}&quot;/&gt;
+    &lt;/target&gt;
+
+    &lt;target name=&quot;stop&quot; description=&quot;Stop Tomcat application&quot;&gt;
+        &lt;stop url=&quot;${tomcat.manager.url}&quot;
+                 username=&quot;${tomcat.manager.username}&quot;
+                 password=&quot;${tomcat.manager.password}&quot;
+                 path=&quot;/${name}&quot;/&gt;
+    &lt;/target&gt;
+
+    &lt;target name=&quot;list&quot; description=&quot;List Tomcat applications&quot;&gt;
+        &lt;list url=&quot;${tomcat.manager.url}&quot;
+                 username=&quot;${tomcat.manager.username}&quot;
+                 password=&quot;${tomcat.manager.password}&quot;/&gt;
+    &lt;/target&gt;
+
+&lt;!-- End Tomcat tasks --&gt;
+
+&lt;/project&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">This script now
+contains all the targets that we are going to need to make our
+development efforts easier. I am not going to cover this script in
+detail since most if not all of it is pretty much standard Ant and
+Tomcat stuff. You can just copy the above build file and put it at
+the root of your development directory tree. We also need a
+build.properties file that you should customize to match your server
+installation. This file belongs in the same directory as the
+build.xml file.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/build.properties</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE># Ant properties for building the springapp
+
+deploy.path=/home/trisberg/jakarta-tomcat-4.1.24/webapps
+#deploy.path=c:/Tomcat 4.1/webapps
+#deploy.path=c:/bea/user_projects/domains/mydomain/applications
+
+tomcat.home=/home/trisberg/jakarta-tomcat-4.1.24
+#tomcat.home= c:/Tomcat 4.1
+tomcat.manager.url=http://localhost:8080/manager
+tomcat.manager.username=admin
+tomcat.manager.password=tomcat</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><I>If you are on a system where you are
+not the owner of the Tomcat install, then the Tomcat owner must
+either grant you full access to the webapps directory or the owner
+must create a new directory named 'springapp' in the 'webapps'
+directory of the Tomcat installation, and also give you full rights
+to deploy to this newly created directory. On Linux I run the command
+<B><FONT SIZE=2><FONT FACE="Fixed, monospace">chmod a+rwx springapp</FONT></FONT></B>
+to give everybody full rights to this directory.</I></P>
+<P STYLE="margin-bottom: 0cm"><I>If you are using a different web
+application server, then you can remove the Tomcat specific tasks at
+the end of the build script. You will have to rely on yor server's
+hot deploy feature, or you will have to stop and start your
+application manually.</I></P>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">Now I run Ant to
+make sure that everything is working OK. You should have your current
+directory set to the 'springapp' directory.</P>
+<TABLE WIDTH=85% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#e6e6ff">
+			<PRE><FONT COLOR="#280099">[trisberg@localhost springapp]$ ant</FONT>
+<FONT COLOR="#280099">Buildfile: build.xml</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">usage:</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [echo] springapp build file</FONT>
+<FONT COLOR="#280099">     [echo] -----------------------------------</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [echo] Available targets are:</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [echo] build     --&gt; Build the application</FONT>
+<FONT COLOR="#280099">     [echo] deploy    --&gt; Deploy application as directory</FONT>
+<FONT COLOR="#280099">     [echo] deploywar --&gt; Deploy application as a WAR file</FONT>
+<FONT COLOR="#280099">     [echo] install   --&gt; Install application in Tomcat</FONT>
+<FONT COLOR="#280099">     [echo] reload    --&gt; Reload application in Tomcat</FONT>
+<FONT COLOR="#280099">     [echo] start     --&gt; Start Tomcat application</FONT>
+<FONT COLOR="#280099">     [echo] stop      --&gt; Stop Tomcat application</FONT>
+<FONT COLOR="#280099">     [echo] list      --&gt; List Tomcat applications</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">BUILD SUCCESSFUL</FONT>
+<FONT COLOR="#280099">Total time: 2 seconds</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">Last action here
+is to do the actual deployment. Just run Ant and specify 'deploy' or
+'deploywar' as the target.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<TABLE WIDTH=85% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#e6e6ff">
+			<PRE><FONT COLOR="#280099">[trisberg@localhost springapp]$ ant deploy</FONT>
+<FONT COLOR="#280099">Buildfile: build.xml</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">deploy:</FONT>
+<FONT COLOR="#280099">     [copy] Copying 1 file to /home/trisberg/jakarta-tomcat-4.1.24/webapps/springapp</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">BUILD SUCCESSFUL</FONT>
+<FONT COLOR="#280099">Total time: 2 seconds</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 4 – Test the application</B></P>
+<P STYLE="margin-bottom: 0cm">Let's just quickly start Tomcat and
+make sure that we can access the application. Use the 'list' task
+from our build file to see if Tomcat has picked up the new
+application.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<TABLE WIDTH=85% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#e6e6ff">
+			<PRE><FONT COLOR="#280099">[trisberg@localhost springapp]$ ant list</FONT>
+<FONT COLOR="#280099">Buildfile: build.xml</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">list:</FONT>
+<FONT COLOR="#280099">     [list] OK - Listed applications for virtual host localhost</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [list] /admin:running:0:../server/webapps/admin</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [list] /webdav:running:0:/home/trisberg/jakarta-tomcat-4.1.24/webapps/webdav</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     <B>[list] /springapp:running:0:/home/trisberg/jakarta-tomcat-4.1.24/webapps/springapp/</B></FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [list] /examples:running:0:examples</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [list] /tomcat-docs:running:0:/home/trisberg/jakarta-tomcat-4.1.24/webapps/tomcat-docs</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [list] /:running:0:/home/trisberg/jakarta-tomcat-4.1.24/webapps/ROOT</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">     [list] /manager:running:0:../server/webapps/manager</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">BUILD SUCCESSFUL</FONT>
+<FONT COLOR="#280099">Total time: 1 second</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">If it is not listed, use the 'install'
+task to get the application installed in Tomcat.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<TABLE WIDTH=85% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#e6e6ff">
+			<PRE><FONT COLOR="#280099">[trisberg@localhost springapp]$ ant install</FONT>
+<FONT COLOR="#280099">Buildfile: build.xml</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">install:</FONT>
+<FONT COLOR="#280099">  [install] OK - Installed application at context path /springapp</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">BUILD SUCCESSFUL</FONT>
+<FONT COLOR="#280099">Total time: 2 seconds</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Now open a browser and browse to
+<A HREF="http://localhost:8080/springapp/index.jsp">http://localhost:8080/springapp/index.jsp</A>.
+</P>
+<P STYLE="margin-bottom: 0cm"><IMG SRC="Spring-MVC-step-by-step_html_m5b7553b2.png" NAME="Graphic1" ALIGN=LEFT WIDTH=840 HEIGHT=528 BORDER=0><BR CLEAR=LEFT><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 5 – Download Spring
+distribution</B></P>
+<P STYLE="margin-bottom: 0cm">If you have not already downloaded the
+Spring Framework Release file, now is the time to do so. I am
+currently using 'spring-framework-0.9.zip' that can be downloaded
+from <A HREF="http://www.springframework.org/download.html">www.springframework.org/download.html</A><A HREF="spring-framework-0.9.zip"><SPAN STYLE="text-decoration: none">.</SPAN></A>
+I unzipped this file in my home directory. We are going to use
+several files from this download later on.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT SIZE=4><U><B>This completes the
+setup of the environment that is necessary, and now we can start
+actually developing our Spring Framework MVC application.</B></U></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 6 – Create WEB-INF and
+web.xml</B></P>
+<P STYLE="margin-bottom: 0cm">Go to the 'springapp/war/ WEB-INF'
+directory. Modify the minimal 'web.xml' file that we created earlier.
+Now we will modify it to suite our needs. We define a
+DispatcherServlet that is going to control where all our request are
+routed based on information we will enter at a later point. It also
+has a standard servlet-mapping entry that maps to the url patterns
+that we will be using. I have decided to let any url with an '.htm'
+extension be routed to the 'springapp' dispatcher.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/web.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'&gt;
+
+&lt;web-app&gt;
+
+<FONT COLOR="#800000">  &lt;servlet&gt;</FONT>
+<FONT COLOR="#800000">    &lt;servlet-name&gt;springapp&lt;/servlet-name&gt;</FONT>
+<FONT COLOR="#800000">    &lt;servlet-class&gt;com.interface21.web.servlet.DispatcherServlet&lt;/servlet-class&gt;</FONT>
+<FONT COLOR="#800000">    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;</FONT>
+<FONT COLOR="#800000">  &lt;/servlet&gt;</FONT>
+
+<FONT COLOR="#800000">  &lt;servlet-mapping&gt;</FONT>
+<FONT COLOR="#800000">    &lt;servlet-name&gt;springapp&lt;/servlet-name&gt;</FONT>
+<FONT COLOR="#800000">    &lt;url-pattern&gt;*.htm&lt;/url-pattern&gt;</FONT>
+<FONT COLOR="#800000">  &lt;/servlet-mapping&gt;</FONT>
+
+<FONT COLOR="#800000">  &lt;welcome-file-list&gt;</FONT>
+<FONT COLOR="#800000">    &lt;welcome-file&gt;</FONT>
+<FONT COLOR="#800000">      index.jsp</FONT>
+<FONT COLOR="#800000">    &lt;/welcome-file&gt;</FONT>
+<FONT COLOR="#800000">  &lt;/welcome-file-list&gt;</FONT>
+
+&lt;/web-app&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Next, create a file called
+'springapp-servlet.xml' in the springapp/war/WEB-INF directory (you
+can copy an example of this file from the Spring distributions
+sample/skeletons/webapp-minimal directory). This is the file where
+definitions used by the DispatcherServlet should be entered. It is
+named based on the servlet-name from web.xml with '-servlet'
+appended. This is a standard naming convention used in the Spring
+Framework. Now, add a bean entry named springappController and make
+the class SpringappController. This defines the controller that our
+application will be using. We also need to add a url mapping so the
+DispatcherServlet knows which controller shold be invoked for
+different url:s.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/springapp-servlet.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
+
+&lt;!--
+  - Application context definition for &quot;springapp&quot; DispatcherServlet.
+  --&gt;
+
+&lt;beans&gt;
+    &lt;bean id=&quot;springappController&quot; class=&quot;SpringappController&quot;/&gt;
+
+    &lt;bean id=&quot;urlMapping&quot; class=&quot;com.interface21.web.servlet.handler.SimpleUrlHandlerMapping&quot;&gt; 
+        &lt;property name=&quot;mappings&quot;&gt;
+            &lt;props&gt;
+                &lt;prop key=&quot;/hello.htm&quot;&gt;springappController&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 7 – Copy jars to WEB-INF/lib</B></P>
+<P STYLE="margin-bottom: 0cm">From the Spring distribution, copy
+spring-full-0.9.jar (/spring-framework-0.9/dist/spring-full-0.9.jar)
+to a war/WEB-INF/lib directory. Also copy log4j jars to the
+war/WEB-INF/lib directory (spring-framework-0.9/lib/log4j/*.jar).
+These jars will be deployed to the server and they are also used
+during the build process.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 8 – Create your Controller</B></P>
+<P STYLE="margin-bottom: 0cm">Create your Controller – I named mine
+SpringappController.java and placed it a new springapp/src directory.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/src/SpringappController.java</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>import com.interface21.web.servlet.mvc.Controller;
+import com.interface21.web.servlet.ModelAndView;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+public class SpringappController implements Controller {
+
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        return new ModelAndView(&quot;&quot;);
+    }
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">This is as basic a
+Controller as you can use. We will be expanding this later on, and we
+will also later on extend some provided abstract base
+implementations. The Controller “handles” the requst and returns
+a ModelAndView. We have not yet defined any Views, so right now there
+is nothing to do.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 9 – Build the Application</B></P>
+<P STYLE="margin-bottom: 0cm">Run the 'build' task of the build.xml.
+Hopefully the code compiles OK.</P>
+<TABLE WIDTH=85% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#e6e6ff">
+			<PRE><FONT COLOR="#280099">[trisberg@localhost springapp]$ ant build</FONT>
+<FONT COLOR="#280099">Buildfile: build.xml</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">build:</FONT>
+<FONT COLOR="#280099">    [javac] Compiling 1 source file to /home/trisberg/workspace/springapp/war/WEB-INF/classes</FONT>
+<FONT COLOR="#280099"> </FONT>
+<FONT COLOR="#280099">BUILD SUCCESSFUL</FONT>
+<FONT COLOR="#280099">Total time: 2 seconds</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 10 – Copy and modify
+log4j.properties</B></P>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">The Spring
+Framework uses log4j for logging so we have to create a configuration
+file for log4j. Copy the log4j.properties from the sample Petclinic
+application
+(spring-framework-0.9/samples/petclinic/war/WEB-INF/classes/log4j.properties)
+to the war/WEB-INF/classes directory (this directory should have been
+created in the previuos step). Now change the name and location of
+the logfile that will be written. I decided to have it written to the
+same directory as all other Tomcat logs.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/war/WEB-INF/classes/log4j.properties</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>log4j.rootCategory=INFO, stdout, logfile
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d %p [%c] - &lt;%m&gt;%n
+
+log4j.appender.logfile=org.apache.log4j.RollingFileAppender
+<B>log4j.appender.logfile.File=/home/trisberg/jakarta-tomcat-4.1.24/logs/springapp.log</B>
+log4j.appender.logfile.MaxFileSize=512KB
+# Keep three backup files
+log4j.appender.logfile.MaxBackupIndex=3
+log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+#Pattern to output : date priority [category] - &lt;message&gt;line_separator
+log4j.appender.logfile.layout.ConversionPattern=%d %p [%c] - &lt;%m&gt;%n</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 11 – Deploy Application</B></P>
+<P STYLE="margin-bottom: 0cm">Run the 'deploy' task and then the
+'stop' and 'start' tasks of the build.xml. This will force a reload
+of the application. We have to check the Tomcat logs for any
+deployment errors – there could be typos in the above xml files or
+there could be missing classes or jar files. This is an example of
+what it should look like.
+(/home/trisberg/jakarta-tomcat-4.1.24/logs/springapp.log)</P>
+<TABLE WIDTH=85% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#e6e6ff">
+			<PRE><FONT COLOR="#280099">2003-07-01 17:34:43,702 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Servlet with name 'springapp' entering init...&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,747 INFO [com.interface21.beans.CachedIntrospectionResults] - &lt;Getting BeanInfo for class class com.interface21.web.servlet.DispatcherServlet&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,800 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Framework servlet 'springapp' init&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,837 INFO [com.interface21.web.context.support.XmlWebApplicationContext] - &lt;Using config location '/WEB-INF/springapp-servlet.xml'&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,869 INFO [com.interface21.beans.factory.xml.XmlBeanFactory] - &lt;Loading XmlBeanFactory from InputStream [java.io.ByteArrayInputStream@20f443]&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,928 INFO [com.interface21.beans.factory.xml.XmlBeanFactory] - &lt;Cached shared instance of Singleton bean 'springappController'&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,929 INFO [com.interface21.beans.CachedIntrospectionResults] - &lt;Getting BeanInfo for class class SpringappController&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,947 INFO [com.interface21.web.context.support.XmlWebApplicationContext] - &lt;BeanFactory for application context is [class com.interface21.beans.factory.xml.XmlBeanFactory: defined beans [springappController]]&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,947 INFO [com.interface21.web.context.support.XmlWebApplicationContext] - &lt;1 beans defined in ApplicationContext: WebApplicationContext for namespace 'springapp-servlet'&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,948 INFO [com.interface21.web.context.support.XmlWebApplicationContext] - &lt;Configuring singleton beans in context&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,948 INFO [com.interface21.web.context.support.XmlWebApplicationContext] - &lt;Refreshing listeners&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,949 INFO [com.interface21.web.context.support.XmlWebApplicationContext] - &lt;No options bean (&quot;contextOptions&quot;) found: using default&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,951 WARN [com.interface21.web.context.support.XmlWebApplicationContext] - &lt;No MessageSource found for: WebApplicationContext for namespace 'springapp-servlet'&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,963 WARN [com.interface21.ui.context.support.UiApplicationContextUtils] - &lt;No ThemeSource found, default created&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,970 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Servlet with name 'springapp' loaded child context ApplicationContext: displayName=**WebApplicationContext for namespace 'springapp-servlet''**;</FONT>
+<FONT COLOR="#280099">   class=[com.interface21.web.context.support.XmlWebApplicationContext]; BeanFactory={class com.interface21.beans.factory.xml.XmlBeanFactory: defined beans [springappController]}; } </FONT>
+<FONT COLOR="#280099">   MessageSource={com.interface21.context.support.StaticMessageSource@1f0b7d3}; ContextOptions={com.interface21.context.ContextOptions: reloadable=true}; Startup date=Tue Jul 01 17:34:43 EDT 2003; ROOT of ApplicationContext </FONT>
+<FONT COLOR="#280099">   hierarchy; config path='/WEB-INF/springapp-servlet.xml'; &gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,970 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Bound servlet's context in global ServletContext with name 'com.interface21.web.servlet.FrameworkServlet.CONTEXT.springapp'&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,972 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Unable to load locale resolver with name 'localeResolver': using default [com.interface21.web.servlet.i18n.AcceptHeaderLocaleResolver@35bb0f]&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,976 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Unable to load theme resolver with name 'themeResolver': using default [com.interface21.web.servlet.theme.FixedThemeResolver@20fa83]&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,986 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;No HandlerMappings found in servlet 'springapp': using default&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:43,986 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Dispatcher servlet 'springapp': Initializing default HandlerAdapter&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:44,214 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;No HandlerAdapters found in servlet 'springapp': using default&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:44,214 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Unable to load view resolver: bean with name 'viewResolver': using default ViewResolver [null]&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:44,228 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Framework servlet 'springapp' init completed in 428 ms&gt;</FONT>
+<FONT COLOR="#280099">2003-07-01 17:34:44,228 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Servlet with name 'springapp' configured successfully&gt;</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 12 – Create a View</B></P>
+<P STYLE="margin-bottom: 0cm">Now it is time to create our first
+view. I will use a JSP page that I decided to name hello.jsp. I'll
+put it in the war directory to begin with.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/war/hello.jsp</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Example :: Spring Application&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Hello - Spring Application&lt;/h1&gt;
+&lt;p&gt;Greetings.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Nothing fancy here, but it will do for
+now. Next we have to modify the SpringappController to forward to
+this view.</P>
+<TABLE WIDTH=876 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=866>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/src/SpringappController.java</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>import com.interface21.web.servlet.mvc.Controller;
+import com.interface21.web.servlet.ModelAndView;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+<FONT COLOR="#800000">import org.apache.commons.logging.Log;</FONT>
+<FONT COLOR="#800000">import org.apache.commons.logging.LogFactory;</FONT>
+
+public class SpringappController implements Controller {
+
+<FONT COLOR="#800000">    /** Logger for this class and subclasses */</FONT>
+<FONT COLOR="#800000">    protected final Log logger = LogFactory.getLog(getClass());</FONT>
+
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+
+        <FONT COLOR="#800000">logger.info(&quot;SpringappController - returning hello view&quot;);</FONT>
+                
+        return new ModelAndView(&quot;<FONT COLOR="#800000">hello.jsp</FONT>&quot;);
+    }
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">While I was
+modifying this class, I also added a logger so we can verify that we
+actually got here. Changes are higlighted in <FONT COLOR="#800000">red</FONT>.
+The model that this class returns is actually resolved via a
+ViewResolver. Since we have not specified a specific one, we are
+going to get a default one that just forwards to a url matching the
+name of the view specified. We will modify this later on.</P>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">Now compile and
+deploy the application. After instructing Tomcat to stop and then
+start the application, everything should get reloaded.</P>
+<P STYLE="margin-bottom: 0cm">Let's try it in a browser – enter the
+url <A HREF="http://localhost:8080/springapp/hello.htm">http://localhost:8080/springapp/hello.htm</A>
+and we should see the following:</P>
+<P STYLE="margin-bottom: 0cm"><IMG SRC="Spring-MVC-step-by-step_html_m3871950e.png" NAME="Graphic2" ALIGN=LEFT WIDTH=742 HEIGHT=572 BORDER=0><BR CLEAR=LEFT><BR>
+</P>
+<P STYLE="margin-bottom: 0cm; font-weight: medium">We can also check
+the log – I'm only showing the last entries, but we can see that
+the controller did get invoked and that it forwarded to the hello
+view. (/home/trisberg/jakarta-tomcat-4.1.24/logs/springapp.log)</P>
+<TABLE WIDTH=1226 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=1216>
+	<TR>
+		<TD WIDTH=1216 VALIGN=TOP BGCOLOR="#e6e6ff">
+			<PRE><FONT COLOR="#280099">2003-07-02 23:44:29,991 INFO [com.interface21.web.servlet.DispatcherServlet] - &lt;Servlet with name 'springapp' configured successfully&gt;</FONT>
+<FONT COLOR="#280099">2003-07-02 23:46:47,488 INFO [SpringappController] - &lt;SpringappController - returning hello view&gt;</FONT>
+<FONT COLOR="#280099">2003-07-02 23:46:47,492 INFO [com.interface21.web.servlet.view.InternalResourceViewResolver] - &lt;Cached view 'hello.jsp_en_US'&gt;</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Summary</B></P>
+<P STYLE="margin-bottom: 0cm">Let's take quick look at the parts of
+our application that we have created so far.</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0cm">An intoduction page <B>index.jsp</B>
+	that does not do anything useful. It was just used to test our
+	setup. We will later change this to actually provide a link into our
+	application.</P>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: medium">A
+	DispatcherServlet with a corresponding <B>springapp-servlet.xml</B>
+	configuration file.</P>
+	<LI><P STYLE="margin-bottom: 0cm">A controller
+	<B>springappController.java</B> with limited functionality – it
+	just forwards a ModelAndView to the ViewResolver. Actualy, we only
+	have an empty model so far, but we will fix this later.</P>
+	<LI><P STYLE="margin-bottom: 0cm">A view <B>hello.jsp</B> that again
+	is extremely basic. But the whole setup works and we are now ready
+	to add more functionality.</P>
+</OL>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><A HREF="Spring-MVC-step-by-step.html" TARGET="_self">Back</A>
+<A HREF="Spring-MVC-step-by-step-Part-2.html" TARGET="_self">Part 2 –
+Developing and Configuring the Application</A></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Copyright &copy; 2003, Thomas Risberg</P>
+</BODY>
+</HTML>

@@ -1,0 +1,744 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.0.2  (Win32)">
+	<META NAME="CREATED" CONTENT="20030630;21474000">
+	<META NAME="CHANGEDBY" CONTENT="Thomas Risberg">
+	<META NAME="CHANGED" CONTENT="20030727;262601">
+	<STYLE>
+	<!--
+		@page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+		TD P { margin-bottom: 0.21cm }
+		P { margin-bottom: 0.21cm }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US">
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT SIZE=4><B>Developing
+a Spring Framework MVC applicaton step-by-step</B></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm">Part 3 &ndash; Adding Unit
+Tests and a Form to the Application</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><B>Thomas Risberg</B>
+<BR>July, 2003</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">This is Part 3 of a step-by-step
+account of how to develop a web application from scratch using the
+Spring Framework. In Part 1 (Steps 1 &ndash; 19) we configured the
+environment and set up a basic application that we will build upon.
+Part 2 (Steps 13-18) improved the application in several ways. We are
+now going to add some unit tests to the application.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 20 &ndash; Add unit test for
+the SpringappController</B></P>
+<P STYLE="margin-bottom: 0cm">Before we create any unit tests, we
+want to prepare Ant and our build script to be able to handle this.
+Ant has a built in JUnit target, but we need to add junit.jar to
+Ant's lib directory. I used the one that came with the Spring
+distribution spring-framework-0.9/lib/junit/junit.jar. Just copy this
+file to the lib directory in your Ant installation. I also added the
+following target to our build script. 
+</P>
+<TABLE WIDTH=807 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=797>
+	<TR>
+		<TD WIDTH=797 VALIGN=TOP BGCOLOR="#ffffff">
+			<PRE><FONT COLOR="#800000">    &lt;target name=&quot;junit&quot; depends=&quot;build&quot; description=&quot;Run JUnit Tests&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;junit printsummary=&quot;on&quot;</FONT>
+<FONT COLOR="#800000">               fork=&quot;false&quot;</FONT>
+<FONT COLOR="#800000">               haltonfailure=&quot;false&quot;</FONT>
+<FONT COLOR="#800000">               failureproperty=&quot;tests.failed&quot;</FONT>
+<FONT COLOR="#800000">               showoutput=&quot;true&quot;&gt;</FONT>
+<FONT COLOR="#800000">            &lt;classpath&gt;</FONT>
+<FONT COLOR="#800000">                &lt;path location=&quot;${build.dir}&quot;/&gt;</FONT>
+<FONT COLOR="#800000">                &lt;fileset dir=&quot;${web.dir}/WEB-INF/lib&quot;&gt;</FONT>
+<FONT COLOR="#800000">                    &lt;include name=&quot;*.jar&quot;/&gt;</FONT>
+<FONT COLOR="#800000">                &lt;/fileset&gt;</FONT>
+<FONT COLOR="#800000">                &lt;fileset dir=&quot;${tomcat.home}/common/lib&quot;&gt;</FONT>
+<FONT COLOR="#800000">                    &lt;include name=&quot;servlet.jar&quot;/&gt;</FONT>
+<FONT COLOR="#800000">                &lt;/fileset&gt;</FONT>
+<FONT COLOR="#800000">            &lt;/classpath&gt;</FONT>
+<FONT COLOR="#800000">            &lt;formatter type=&quot;brief&quot; usefile=&quot;false&quot;/&gt;</FONT>
+
+<FONT COLOR="#800000">            &lt;batchtest&gt;</FONT>
+<FONT COLOR="#800000">                &lt;fileset dir=&quot;${build.dir}&quot;&gt;</FONT>
+<FONT COLOR="#800000">                    &lt;include name=&quot;**/Test*.*&quot;/&gt;</FONT>
+<FONT COLOR="#800000">                &lt;/fileset&gt;</FONT>
+<FONT COLOR="#800000">            &lt;/batchtest&gt;</FONT>
+
+<FONT COLOR="#800000">        &lt;/junit&gt;</FONT>
+
+<FONT COLOR="#800000">        &lt;fail if=&quot;tests.failed&quot;&gt;</FONT>
+<FONT COLOR="#800000">        ***********************************************************</FONT>
+<FONT COLOR="#800000">        ***********************************************************</FONT>
+<FONT COLOR="#800000">        ****  One or more tests failed!  Check the output ...  ****</FONT>
+<FONT COLOR="#800000">        ***********************************************************</FONT>
+<FONT COLOR="#800000">        ***********************************************************</FONT>
+<FONT COLOR="#800000">        &lt;/fail&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/target&gt;</FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Now I add a new sub-directory in the
+src directory that I name tests. This directory will, as you might
+have guessed, contain all the unit tests. 
+</P>
+<P STYLE="margin-bottom: 0cm">After all this, we are ready to start
+writing the first unit test. The SpringappController depends on both
+the HttpServletRequest, HttpServletResponse and our application
+context. Since the controller does not use the request or the
+response, we can simply pass in null for these objects. If that was
+not the case, we could create some mock objects using EasyMock that
+we would pass in during our test. The application context can be
+loaded outside of a web server environment using a class that will
+load an application context. There are several available, and for the
+current task the FileSystemXmlApplicationContext works fine.</P>
+<TABLE WIDTH=908 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=898>
+	<TR>
+		<TD WIDTH=898 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/src/tests/TestSpringappController.java</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=898 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package tests;
+
+import java.util.Map;
+import java.util.List;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import junit.framework.TestCase;
+import com.interface21.context.ApplicationContext;
+import com.interface21.context.support.FileSystemXmlApplicationContext;
+import com.interface21.web.servlet.ModelAndView;
+import web.SpringappController;
+import bus.ProductManager;
+import bus.Product;
+
+public class TestSpringappController extends TestCase {
+
+    private ApplicationContext ac;
+
+    public void setUp() throws IOException {
+        ac = new FileSystemXmlApplicationContext(&quot;src/tests/WEB-INF/springapp-servlet.xml&quot;);
+    }
+
+    public void testHandleRequest() throws ServletException, IOException {
+        SpringappController sc = (SpringappController) ac.getBean(&quot;springappController&quot;);
+        ModelAndView mav = sc.handleRequest((HttpServletRequest) null, (HttpServletResponse) null);
+        Map m = mav.getModel();
+        List pl = (List) ((Map) m.get(&quot;model&quot;)).get(&quot;products&quot;);
+        Product p1 = (Product) pl.get(0);
+        assertEquals(&quot;Lamp&quot;, p1.getDescription());
+        Product p2 = (Product) pl.get(1);
+        assertEquals(&quot;Table&quot;, p2.getDescription());
+        Product p3 = (Product) pl.get(2);
+        assertEquals(&quot;Chair&quot;, p3.getDescription());
+    }
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">In the setUp method, we load the
+application context that I have copied into a WEB-INF directory in
+the src/tests directory. I create a copy just so this file will work
+during tests even if the real on is changed for some reason. It is
+always good to have a stable and isolated test environment. So, copy
+springapp/war/WEB-INF/springapp-servlet.xml to
+springapp/src/tests/WEB-INF directory. The only test is a call to
+handleRequest, and we check the products that are returned in the
+model. When you run this test, you should see a lot of log messages
+from the loading of the application context.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 21 &ndash; Add unit test and
+new functionality for ProductManager</B></P>
+<P STYLE="margin-bottom: 0cm">Next I add a test case for the
+ProductManager, and I also add a test for a new method to increase
+the prices that I am planning on adding to the ProductManager.</P>
+<TABLE WIDTH=908 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=898>
+	<TR>
+		<TD WIDTH=898 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/src/tests/TestProductManager
+			.java</FONT></FONT></B> 
+			</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=898 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package tests;
+
+import java.util.List;
+import java.util.ArrayList;
+import junit.framework.TestCase;
+import bus.ProductManager;
+import bus.Product;
+
+public class TestProductManager extends TestCase {
+
+    private ProductManager pm;
+
+    public void setUp() {
+        pm = new ProductManager();
+        Product p = new Product();
+        p.setDescription(&quot;Chair&quot;);
+        p.setPrice(new Double(&quot;20.50&quot;));
+        ArrayList al = new ArrayList();
+        al.add(p);
+        p = new Product();
+        p.setDescription(&quot;Table&quot;);
+        p.setPrice(new Double(&quot;150.10&quot;));
+        al.add(p);
+        pm.setProducts(al);
+    }
+
+    public void testGetProducs() {
+        List l = pm.getProducts();
+        Product p1 = (Product) l.get(0);
+        assertEquals(&quot;Chair&quot;, p1.getDescription());
+        Product p2 = (Product) l.get(1);
+        assertEquals(&quot;Table&quot;, p2.getDescription());
+    }
+
+    public void testIncreasePrice() {
+        pm.increasePrice(10);
+        List l = pm.getProducts();
+        Product p = (Product) l.get(0);
+        assertEquals(new Double(&quot;22.55&quot;), p.getPrice());
+        p = (Product) l.get(1);
+        assertEquals(new Double(&quot;165.11&quot;), p.getPrice());
+    }
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">For this test, there is no need to
+create an application context. I just create a couple of products in
+the setUp method and add them to the product manager. I add tests for
+both getProducts and increasePrice. The increasePrice method is a
+cross the board increase based on the percentage passed in to the
+method. I modify the ProductManager class to implement this new
+method.</P>
+<TABLE WIDTH=907 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=897>
+	<TR>
+		<TD WIDTH=897 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/bus/ProductManager.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=897 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package bus;
+
+import java.io.Serializable;
+<FONT COLOR="#800000">import java.util.ListIterator;</FONT>
+import java.util.List;
+
+public class ProductManager implements Serializable {
+
+    private List products;
+
+    public void setProducts(List p) {
+        products = p;
+    }
+
+    public List getProducts() {
+        return products;
+    }
+
+<FONT COLOR="#800000">    public void increasePrice(int pct) {</FONT>
+<FONT COLOR="#800000">        ListIterator li = products.listIterator();</FONT>
+<FONT COLOR="#800000">        while (li.hasNext()) {</FONT>
+<FONT COLOR="#800000">            Product p = (Product) li.next();</FONT>
+<FONT COLOR="#800000">            double newPrice = p.getPrice().doubleValue() * (100 + pct)/100;</FONT>
+<FONT COLOR="#800000">            p.setPrice(new Double(newPrice));</FONT>
+<FONT COLOR="#800000">        }</FONT>
+<FONT COLOR="#800000">        </FONT>
+<FONT COLOR="#800000">    }</FONT>
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Next I build and run the tests. As you
+can see, this test is just like any regular test &ndash; the business
+classes don't depend on any of the servlet classes so these classes
+are very easy to test. 
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Step 22 &ndash; Adding a form</B></P>
+<P STYLE="margin-bottom: 0cm">To provide an interface in the web
+application, I add a form thet will allow the user to enter a
+percentage value. This form uses a tag library named &ldquo;i21&rdquo;
+that is provided with the Spring Framework. We have to copy this file
+from the Spring distribution
+spring-framework-0.9/samples/petclinic/war/WEB-INF/i21.tld to the
+springapp/war/WEB-INF directory. Now we must also add a &lt;taglib&gt;
+entry to web.xml.</P>
+<TABLE WIDTH=1004 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=994>
+	<TR>
+		<TD WIDTH=994 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/web.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=994 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'&gt;
+
+&lt;web-app&gt;
+
+<FONT COLOR="#000000">  &lt;servlet&gt;</FONT>
+<FONT COLOR="#000000">    &lt;servlet-name&gt;springapp&lt;/servlet-name&gt;</FONT>
+<FONT COLOR="#000000">    &lt;servlet-class&gt;com.interface21.web.servlet.DispatcherServlet&lt;/servlet-class&gt;</FONT>
+<FONT COLOR="#000000">    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;</FONT>
+<FONT COLOR="#000000">  &lt;/servlet&gt;</FONT>
+
+<FONT COLOR="#000000">  &lt;servlet-mapping&gt;</FONT>
+<FONT COLOR="#000000">    &lt;servlet-name&gt;springapp&lt;/servlet-name&gt;</FONT>
+<FONT COLOR="#000000">    &lt;url-pattern&gt;*.htm&lt;/url-pattern&gt;</FONT>
+<FONT COLOR="#000000">  &lt;/servlet-mapping&gt;</FONT>
+
+<FONT COLOR="#000000">  &lt;welcome-file-list&gt;</FONT>
+<FONT COLOR="#000000">    &lt;welcome-file&gt;</FONT>
+<FONT COLOR="#000000">      index.jsp</FONT>
+<FONT COLOR="#000000">    &lt;/welcome-file&gt;</FONT>
+<FONT COLOR="#000000">  &lt;/welcome-file-list&gt;</FONT>
+
+<FONT COLOR="#800000">  &lt;taglib&gt;</FONT>
+<FONT COLOR="#800000">    &lt;taglib-uri&gt;/i21&lt;/taglib-uri&gt;</FONT>
+<FONT COLOR="#800000">    &lt;taglib-location&gt;/WEB-INF/i21.tld&lt;/taglib-location&gt;</FONT>
+<FONT COLOR="#800000">  &lt;/taglib&gt;</FONT>
+
+&lt;/web-app&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">We also have to declare this taglib in
+a page directive in the jsp file. We declare a form the normal way
+with a &lt;form&gt; tag and an &lt;input&gt; text field and a submit
+button. 
+</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/jsp/priceincrease.jsp</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;%@ include file=&quot;/WEB-INF/jsp/include.jsp&quot; %&gt;
+&lt;%@ taglib prefix=&quot;i21&quot; uri=&quot;/i21&quot; %&gt;
+
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;&lt;fmt:message key=&quot;title&quot;/&gt;&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;&lt;fmt:message key=&quot;priceincrease.heading&quot;/&gt;&lt;/h1&gt;
+&lt;form method=&quot;post&quot;&gt;
+  &lt;table width=&quot;95%&quot; bgcolor=&quot;f8f8ff&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;5&quot;&gt;
+    &lt;tr&gt;
+      &lt;td alignment=&quot;right&quot; width=&quot;20%&quot;&gt;Increase (%):&lt;/td&gt;
+      &lt;i21:bind path=&quot;priceIncrease.percentage&quot;&gt;
+        &lt;td width=&quot;20%&quot;&gt;
+          &lt;input type=&quot;text&quot; name=&quot;percentage&quot; value=&quot;&lt;c:out value=&quot;${status.value}&quot;/&gt;&quot;&gt;
+        &lt;/td&gt;
+        &lt;td width=&quot;60%&quot;&gt;
+          &lt;font color=&quot;red&quot;&gt;&lt;c:out value=&quot;${status.errorMessage}&quot;/&gt;&lt;/font&gt;
+        &lt;/td&gt;
+      &lt;/i21:bind&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+  &lt;br&gt;
+  &lt;i21:hasBindErrors name=&quot;priceIncrease&quot;&gt;
+    &lt;b&gt;Please fix all errors!&lt;/b&gt;
+  &lt;/i21:hasBindErrors&gt;
+  &lt;br&gt;&lt;br&gt;
+  &lt;input type=&quot;submit&quot; alignment=&quot;center&quot; value=&quot;Execute&quot;&gt;
+&lt;/form&gt;
+&lt;a href=&quot;&lt;c:url value=&quot;hello.htm&quot;/&gt;&quot;&gt;Home&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">The &lt;i21:bind&gt; tag is used to
+bind an &lt;input&gt; form element to a command object
+PriceIncrease.java, that is used together with the form. This command
+object is later passed in to the validator and if it passes
+validation it is passed on to the controller. The
+${status.errorMessage} and ${status.value} are special variables
+declared by the framework that can be used to display error messages
+and the current value of the field.</P>
+<TABLE WIDTH=875 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=865>
+	<TR>
+		<TD WIDTH=865 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/bus/PriceIncrease.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=865 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package bus;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class PriceIncrease {
+
+    /** Logger for this class and subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
+
+    private int percentage;
+
+    public void setPercentage(int i) {
+        percentage = i;
+        logger.info(&quot;Percentage set to &quot; + i);
+    }
+
+    public int getPercentage() {
+        return percentage;
+    }
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">This is a very simple JavaBean class,
+and in our case there is a single property with a getter and setter.
+The validator class gets controll after the user presses submit. The
+values entered in the form will be set on the command object by the
+framework. The method validate is called and the command object and
+an object to hold any errors are passed in.</P>
+<TABLE WIDTH=875 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=865>
+	<TR>
+		<TD WIDTH=865 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/bus/PriceIncreaseValidator.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=865 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package bus;
+
+import java.io.Serializable;
+import com.interface21.validation.Validator;
+import com.interface21.validation.Errors;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class PriceIncreaseValidator implements Validator {
+    private int DEFAULT_MIN_PERCENTAGE = 0;
+    private int DEFAULT_MAX_PERCENTAGE = 50;
+    private int minPercentage = DEFAULT_MIN_PERCENTAGE;
+    private int maxPercentage = DEFAULT_MAX_PERCENTAGE;
+
+    /** Logger for this class and subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
+
+    public boolean supports(Class clazz) {
+        return clazz.equals(PriceIncrease.class);
+    }
+
+    public void validate(Object obj, Errors errors) {
+        PriceIncrease pi = (PriceIncrease) obj;
+        logger.info(&quot;Validating with &quot; + pi + &quot;: &quot; + pi.getPercentage());
+        if (pi == null) {
+            errors.rejectValue(&quot;percentage&quot;, &quot;error.not-specified&quot;, null, &quot;Value required.&quot;);
+        }
+        else {
+            if (pi.getPercentage() &gt; maxPercentage) {
+                errors.rejectValue(&quot;percentage&quot;, &quot;error.too-high&quot;, 
+                    new Object[] {new Integer(maxPercentage)}, &quot;Value too high.&quot;);
+            }
+            if (pi.getPercentage() &lt;= minPercentage) {
+                errors.rejectValue(&quot;percentage&quot;, &quot;error.too-low&quot;, 
+                    new Object[] {new Integer(minPercentage)}, &quot;Value too low.&quot;);
+            }
+        }
+    }
+
+    public void setMinPercentage(int i) {
+        minPercentage = i;
+    }
+
+    public int getMinPercentage() {
+        return minPercentage;
+    }
+
+    public void setMaxPercentage(int i) {
+        maxPercentage = i;
+    }
+
+    public int getMaxPercentage() {
+        return maxPercentage;
+    }
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P>Now we need to add an entry in the springapp-servlet.xml file to
+define the new form and controller. We define properties for command
+object and validator as well as the view that is used for the form
+and a view where output will go after successful form processing.</P>
+<TABLE WIDTH=900 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=890>
+	<TR>
+		<TD WIDTH=890 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/springapp-servlet.xml</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=890 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; 
+ &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
+
+&lt;!--
+  - Application context definition for &quot;springapp&quot; DispatcherServlet.
+  --&gt;
+
+&lt;beans&gt;
+
+<FONT COLOR="#800000">    &lt;!--  Controller for the initial &quot;Hello&quot; page --&gt;</FONT>
+    &lt;bean id=&quot;springappController&quot; class=&quot;web.SpringappController&quot;&gt;
+        &lt;property name=&quot;productManager&quot;&gt;
+            &lt;ref external=&quot;prodMan&quot;/&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+<FONT COLOR="#800000">    &lt;!--  Validator and Form Controller for the &quot;Price Increase&quot; page --&gt;</FONT>
+<FONT COLOR="#800000">    &lt;bean id=&quot;priceIncreaseValidator&quot; class=&quot;bus.PriceIncreaseValidator&quot;/&gt;</FONT>
+<FONT COLOR="#800000">    &lt;bean id=&quot;priceIncreaseForm&quot; class=&quot;web.PriceIncreaseFormController&quot;&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;sessionForm&quot;&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;beanName&quot;&gt;&lt;value&gt;priceIncrease&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;commandClass&quot;&gt;&lt;value&gt;bus.PriceIncrease&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;validator&quot;&gt;&lt;ref bean=&quot;priceIncreaseValidator&quot;/&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;formView&quot;&gt;&lt;value&gt;priceincrease&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;successView&quot;&gt;&lt;value&gt;hello&lt;/value&gt;&lt;/property&gt;</FONT>
+<FONT COLOR="#800000">        &lt;property name=&quot;productManager&quot;&gt;</FONT>
+<FONT COLOR="#800000">            &lt;ref external=&quot;prodMan&quot;/&gt;</FONT>
+<FONT COLOR="#800000">        &lt;/property&gt;</FONT>
+<FONT COLOR="#800000">    &lt;/bean&gt;</FONT>
+
+    &lt;bean id=&quot;prodMan&quot; class=&quot;bus.ProductManager&quot;&gt;
+        &lt;property name=&quot;products&quot;&gt;
+            &lt;list&gt;
+                &lt;ref external=&quot;product1&quot;/&gt;
+                &lt;ref external=&quot;product2&quot;/&gt;
+                &lt;ref external=&quot;product3&quot;/&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;product1&quot; class=&quot;bus.Product&quot;&gt;
+        &lt;property name=&quot;description&quot;&gt;&lt;value&gt;Lamp&lt;/value&gt;&lt;/property&gt;
+        &lt;property name=&quot;price&quot;&gt;&lt;value&gt;5.75&lt;/value&gt;&lt;/property&gt;
+    &lt;/bean&gt;
+        
+    &lt;bean id=&quot;product2&quot; class=&quot;bus.Product&quot;&gt;
+        &lt;property name=&quot;description&quot;&gt;&lt;value&gt;Table&lt;/value&gt;&lt;/property&gt;
+        &lt;property name=&quot;price&quot;&gt;&lt;value&gt;75.25&lt;/value&gt;&lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;product3&quot; class=&quot;bus.Product&quot;&gt;
+        &lt;property name=&quot;description&quot;&gt;&lt;value&gt;Chair&lt;/value&gt;&lt;/property&gt;
+        &lt;property name=&quot;price&quot;&gt;&lt;value&gt;22.79&lt;/value&gt;&lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;messageSource&quot; class=&quot;com.interface21.context.support.ResourceBundleMessageSource&quot;&gt;
+        &lt;property name=&quot;basename&quot;&gt;&lt;value&gt;messages&lt;/value&gt;&lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;urlMapping&quot; class=&quot;com.interface21.web.servlet.handler.SimpleUrlHandlerMapping&quot;&gt; 
+        &lt;property name=&quot;mappings&quot;&gt;
+            &lt;props&gt;
+                &lt;prop key=&quot;/hello.htm&quot;&gt;springappController&lt;/prop&gt;
+<FONT COLOR="#800000">                &lt;prop key=&quot;/priceincrease.htm&quot;&gt;priceIncreaseForm&lt;/prop&gt;</FONT>
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;viewResolver&quot; class=&quot;com.interface21.web.servlet.view.InternalResourceViewResolver&quot;&gt;
+        &lt;property name=&quot;viewClass&quot;&gt;
+           &lt;value&gt;com.interface21.web.servlet.view.JstlView&lt;/value&gt;
+        &lt;/property&gt;
+        &lt;property name=&quot;prefix&quot;&gt;&lt;value&gt;/WEB-INF/jsp/&lt;/value&gt;&lt;/property&gt;
+        &lt;property name=&quot;suffix&quot;&gt;&lt;value&gt;.jsp&lt;/value&gt;&lt;/property&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Next, let's take a look at the
+controller for this form. The onSubmit method gets control and does
+some logging before it calls the increasePrice method on the
+ProductManager object. It then returns a ModelAndView to the
+scuccessView.</P>
+<TABLE WIDTH=876 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=866>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/src/web/PriceIncreaseFormController.java</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=866 VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>package web;
+
+import com.interface21.web.servlet.mvc.SimpleFormController;
+import com.interface21.web.servlet.ModelAndView;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import bus.Product;
+import bus.ProductManager;
+import bus.PriceIncrease;
+
+public class PriceIncreaseFormController extends SimpleFormController {
+
+    /** Logger for this class and subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
+
+    private ProductManager prodMan;
+
+    public ModelAndView onSubmit(Object command) 
+            throws ServletException {
+
+        int increase = ((PriceIncrease) command).getPercentage();
+        logger.info(&quot;Increasing prices by &quot; + increase + &quot;%.&quot;);
+
+        prodMan.increasePrice(increase);
+
+        String now = (new java.util.Date()).toString(); 
+        logger.info(&quot;returning from PriceIncreaseForm view to &quot; + getSuccessView() + 
+                    &quot; with &quot; + now);
+
+        Map myModel = new HashMap();
+        myModel.put(&quot;now&quot;, now);
+        myModel.put(&quot;products&quot;, getProductManager().getProducts());
+        
+        return new ModelAndView(getSuccessView(), &quot;model&quot;, myModel);
+    }
+
+    protected Object formBackingObject(HttpServletRequest request) throws ServletException {
+
+        PriceIncrease priceIncrease = new PriceIncrease();
+        priceIncrease.setPercentage(20);
+        
+        return priceIncrease;
+
+    }
+
+    public void setProductManager(ProductManager pm) {
+        prodMan = pm;
+    }
+
+    public ProductManager getProductManager() {
+        return prodMan;
+    }
+
+}</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">We are also adding some messages to the
+messages.properties resource file.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><FONT FACE="Nimbus Mono L"><FONT SIZE=2><B>springapp/war/WEB-INF/classes/messages.properties</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>title=SpringApp
+heading=Hello :: SpringApp
+greeting=Greetings, it is now
+<FONT COLOR="#800000">priceincrease.heading=Price Increase :: SpringApp</FONT>
+<FONT COLOR="#800000">error.not-specified=Percentage not specified!!!</FONT>
+<FONT COLOR="#800000">error.too-low=You have to specify a percentage higher than {0}!</FONT>
+<FONT COLOR="#800000">error.too-high=Don't be greedy - you can't raise prices by more than {0}%!</FONT>
+<FONT COLOR="#800000">required=Entry required.</FONT>
+<FONT COLOR="#800000">typeMismatch=Invalid data.</FONT>
+<FONT COLOR="#800000">typeMismatch.percentage=That is not a number!!! </FONT></PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Finally, we have to provide a link to
+the priceincrease page from the hello.jsp.</P>
+<TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffcc99">
+			<P><B><FONT SIZE=2><FONT FACE="Nimbus Mono L">springapp/war/WEB-INF/jsp/hello.jsp</FONT></FONT></B>
+						</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+			<PRE>&lt;%@ include file=&quot;/WEB-INF/jsp/include.jsp&quot; %&gt;
+
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;&lt;fmt:message key=&quot;title&quot;/&gt;&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;&lt;fmt:message key=&quot;heading&quot;/&gt;&lt;/h1&gt;
+&lt;p&gt;&lt;fmt:message key=&quot;greeting&quot;/&gt; &lt;c:out value=&quot;${model.now}&quot;/&gt;
+&lt;/p&gt;
+&lt;h3&gt;Products&lt;/h3&gt;
+&lt;c:forEach items=&quot;${model.products}&quot; var=&quot;prod&quot;&gt;
+  &lt;c:out value=&quot;${prod.description}&quot;/&gt; &lt;i&gt;$&lt;c:out value=&quot;${prod.price}&quot;/&gt;&lt;/i&gt;&lt;br&gt;&lt;br&gt;
+&lt;/c:forEach&gt;
+<FONT COLOR="#800000">&lt;br&gt;</FONT>
+<FONT COLOR="#800000">&lt;a href=&quot;&lt;c:url value=&quot;priceincrease.htm&quot;/&gt;&quot;&gt;Increase Prices&lt;/a&gt;</FONT>
+<FONT COLOR="#800000">&lt;br&gt;</FONT>
+&lt;/body&gt;
+&lt;/html&gt;</PRE>
+		</TD>
+	</TR>
+</TABLE>
+<P STYLE="margin-bottom: 0cm">Compile and deploy all this and after
+reloading the application we can test it. This is what the form looks
+like with errors displayed.</P>
+<P STYLE="margin-bottom: 0cm"><A HREF="Spring-MVC-Step22.png"><IMG SRC="Spring-MVC-Step22.png" NAME="Graphic1" ALIGN=LEFT WIDTH=728 HEIGHT=506 BORDER=0><BR CLEAR=LEFT></A><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">You can try this application at
+<A HREF="http://www.springframework.org/webapps/springapp">http://www.springframework.org/webapps/springapp</A>.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><A HREF="Spring-MVC-step-by-step.html" TARGET="_self">Back</A>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Copyright &copy; 2003, Thomas Risberg</P>
+</BODY>
+</HTML>
