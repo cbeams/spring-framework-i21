@@ -8,6 +8,8 @@ package com.interface21.orm.jdo;
  * JdoTransactionManager returns. They nest the thread-bound
  * PersistenceManagerHolder internally.
  *
+ * <p>Note: This is an SPI class, not intended to be used by applications.
+ *
  * @author Juergen Hoeller
  * @since 13.06.2003
  */

@@ -5,8 +5,10 @@ package com.interface21.orm.hibernate;
  * Used as transaction object by HibernateTransactionManager.
  *
  * <p>Instances of this class are the transaction objects that
- * HibernateTransactionManager returns. They nest the thread-
- * bound SessionHolder internally.
+ * HibernateTransactionManager returns. They nest the thread-bound
+ * SessionHolder internally.
+ *
+ * <p>Note: This is an SPI class, not intended to be used by applications.
  *
  * @author Juergen Hoeller
  * @since 02.05.2003

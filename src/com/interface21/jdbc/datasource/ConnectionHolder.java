@@ -9,10 +9,12 @@ import java.sql.Connection;
  * <p>DataSourceTransactionManager binds instances of this class
  * to the thread, for a given DataSource.
  *
+ * <p>Note: This is an SPI class, not intended to be used by applications.
+ *
  * @author Juergen Hoeller
  * @since 06.05.2003
- * @see com.interface21.transaction.datasource.DataSourceTransactionManager
- * @see com.interface21.transaction.datasource.DataSourceTransactionObject
+ * @see DataSourceTransactionManager
+ * @see DataSourceTransactionObject
  * @see DataSourceUtils
  */
 public class ConnectionHolder {

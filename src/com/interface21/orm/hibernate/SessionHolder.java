@@ -10,6 +10,8 @@ import net.sf.hibernate.Transaction;
  * <p>HibernateTransactionManager binds instances of this class
  * to the thread, for a given SessionFactory.
  *
+ * <p>Note: This is an SPI class, not intended to be used by applications.
+ *
  * @author Juergen Hoeller
  * @since 06.05.2003
  * @see HibernateTransactionManager

@@ -55,24 +55,13 @@ public abstract class SessionFactoryUtils {
 	/**
 	 * Return the thread object manager for Hibernate sessions, keeping a
 	 * SessionFactory/SessionHolder map per thread for Hibernate transactions.
+	 * <p>Note: This is an SPI method, not intended to be used by applications.
 	 * @return the thread object manager
 	 * @see #getSession
 	 * @see HibernateTransactionManager
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
-	}
-
-	/**
-	 * Return if the given Session is bound to the current thread,
-	 * for the given SessionFactory.
-	 * @param session Session that should be checked
-	 * @param sessionFactory SessionFactory that the Session was created with
-	 * @return if the Session is bound for the SessionFactory
-	 */
-	public static boolean isSessionBoundToThread(Session session, SessionFactory sessionFactory) {
-		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
-		return (sessionHolder != null && session == sessionHolder.getSession());
 	}
 
 	/**
@@ -197,6 +186,18 @@ public abstract class SessionFactoryUtils {
 		else {
 			doCloseSession(session);
 		}
+	}
+
+	/**
+	 * Return if the given Session is bound to the current thread,
+	 * for the given SessionFactory.
+	 * @param session Session that should be checked
+	 * @param sessionFactory SessionFactory that the Session was created with
+	 * @return if the Session is bound for the SessionFactory
+	 */
+	protected static boolean isSessionBoundToThread(Session session, SessionFactory sessionFactory) {
+		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
+		return (sessionHolder != null && session == sessionHolder.getSession());
 	}
 
 	/**

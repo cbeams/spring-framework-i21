@@ -46,7 +46,7 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * @see #setAllowNonTransactionalExecution
  * @see #setTransactionSynchronization
  * @see #applyIsolationLevel
- * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+ * @see com.interface21.jdbc.datasource.DataSourceTransactionManager
  * @see com.interface21.orm.hibernate.HibernateTransactionManager
  */
 public class JtaTransactionManager extends AbstractPlatformTransactionManager {

@@ -11,13 +11,13 @@ import org.apache.commons.logging.LogFactory;
  * current thread. Supports one thread value per key without overwriting, i.e.
  * a value needs to be removed before a new one can be set for the same key.
  *
- * <p>Used by DataSourceTransactionManager to keep a JDBC transaction per
+ * <p>Used e.g. by DataSourceTransactionManager to keep a JDBC transaction per
  * DataSource and thread. Does not need to be used by application developers.
  *
  * @author Juergen Hoeller
  * @since 02.05.2003
  * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
- * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+ * @see com.interface21.jdbc.datasource.DataSourceTransactionManager
  */
 public class ThreadObjectManager {
 

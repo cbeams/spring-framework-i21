@@ -65,7 +65,7 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * @see SessionFactoryUtils#closeSessionIfNecessary
  * @see HibernateTemplate#execute
  * @see #setDataSource
- * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+ * @see com.interface21.jdbc.datasource.DataSourceTransactionManager
  * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
  */
 public class HibernateTransactionManager extends AbstractPlatformTransactionManager implements InitializingBean {

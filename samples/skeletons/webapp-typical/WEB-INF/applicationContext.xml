@@ -74,7 +74,7 @@
 	  - Needs a DataSource reference that it should handle transactions for.
 	  -->
 	<!--
-	<bean id="myTransactionManager" class="com.interface21.transaction.datasource.DataSourceTransactionManager">
+	<bean id="myTransactionManager" class="com.interface21.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource"><ref bean="myDataSource"/></property>
 	</bean>
 	-->

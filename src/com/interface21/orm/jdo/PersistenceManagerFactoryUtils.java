@@ -45,24 +45,13 @@ public abstract class PersistenceManagerFactoryUtils {
 	 * Return the thread object manager for JDO PersistenceManagers keeping a
 	 * PersistenceManagerFactory/PersistenceManagerHolder map per thread for
 	 * JDO transactions.
+	 * <p>Note: This is an SPI method, not intended to be used by applications.
 	 * @return the thread object manager
 	 * @see #getPersistenceManager
 	 * @see JdoTransactionManager
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
-	}
-
-	/**
-	 * Return if the given PersistenceManager is bound to the current thread,
-	 * for the given PersistenceManagerFactory.
-	 * @param pm PersistenceManager that should be checked
-	 * @param pmf PersistenceManagerFactory that the PersistenceManager was created with
-	 * @return if the PersistenceManager is bound for the PersistenceManagerFactory
-	 */
-	public static boolean isPersistenceManagerBoundToThread(PersistenceManager pm, PersistenceManagerFactory pmf) {
-		PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) threadObjectManager.getThreadObject(pmf);
-		return (pmHolder != null && pm == pmHolder.getPersistenceManager());
 	}
 
 	/**
@@ -165,6 +154,18 @@ public abstract class PersistenceManagerFactoryUtils {
 		catch (JDOException ex) {
 			throw new CleanupFailureDataAccessException("Cannot close JDO PersistenceManager", ex);
 		}
+	}
+
+	/**
+	 * Return if the given PersistenceManager is bound to the current thread,
+	 * for the given PersistenceManagerFactory.
+	 * @param pm PersistenceManager that should be checked
+	 * @param pmf PersistenceManagerFactory that the PersistenceManager was created with
+	 * @return if the PersistenceManager is bound for the PersistenceManagerFactory
+	 */
+	protected static boolean isPersistenceManagerBoundToThread(PersistenceManager pm, PersistenceManagerFactory pmf) {
+		PersistenceManagerHolder pmHolder = (PersistenceManagerHolder) threadObjectManager.getThreadObject(pmf);
+		return (pmHolder != null && pm == pmHolder.getPersistenceManager());
 	}
 
 }

@@ -9,11 +9,10 @@
 
 package com.interface21.jdbc.datasource;
 
-import java.beans.PropertyEditorManager;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -40,7 +39,7 @@ import com.interface21.util.ThreadObjectManager;
  * @version $Id$
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+ * @see DataSourceTransactionManager
  * @see com.interface21.jndi.JndiObjectFactoryBean
  */
 public abstract class DataSourceUtils {
@@ -53,24 +52,13 @@ public abstract class DataSourceUtils {
 	/**
 	 * Return the thread object manager for data sources, keeping a
 	 * DataSource/ConnectionHolder map per thread for JDBC transactions.
+	 * <p>Note: This is an SPI method, not intended to be used by applications.
 	 * @return the thread object manager
 	 * @see #getConnection
-	 * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+	 * @see DataSourceTransactionManager
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
-	}
-
-	/**
-	 * Return if the given Connection is bound to the current thread,
-	 * for the given DataSource.
-	 * @param con JDBC Connection that should be checked
-	 * @param ds DataSource that the Connection was created with
-	 * @return if the Connection is bound for the DataSource
-	 */
-	public static boolean isConnectionBoundToThread(Connection con, DataSource ds) {
-		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);
-		return (holder != null && con == holder.getConnection());
 	}
 
 	/**
@@ -122,7 +110,7 @@ public abstract class DataSourceUtils {
 	 * @throws com.interface21.jdbc.datasource.CannotGetJdbcConnectionException if we fail to get a connection from the given DataSource
 	 * @return a JDBC connection from this DataSource
 	 * @see #getThreadObjectManager
-	 * @see com.interface21.transaction.datasource.DataSourceTransactionManager
+	 * @see DataSourceTransactionManager
 	 */
 	public static Connection getConnection(DataSource ds) throws CannotGetJdbcConnectionException {
 		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);
@@ -167,14 +155,26 @@ public abstract class DataSourceUtils {
 	}
 
 	/**
+	 * Return if the given Connection is bound to the current thread,
+	 * for the given DataSource.
+	 * @param con JDBC Connection that should be checked
+	 * @param ds DataSource that the Connection was created with
+	 * @return if the Connection is bound for the DataSource
+	 */
+	protected static boolean isConnectionBoundToThread(Connection con, DataSource ds) {
+		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);
+		return (holder != null && con == holder.getConnection());
+	}
+
+	/**
 	 * Wrap the given connection with a proxy that delegates every method call to it
 	 * but suppresses close calls. This is useful for allowing application code to
 	 * handle a special framework connection just like an ordinary DataSource connection.
 	 * @param source original connection
 	 * @return the wrapped connection
-	 * @see com.interface21.jdbc.datasource.SingleConnectionDataSource
+	 * @see SingleConnectionDataSource
 	 */
-	public static Connection getCloseSuppressingConnectionProxy(Connection source) {
+	protected static Connection getCloseSuppressingConnectionProxy(Connection source) {
 		return (Connection) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
 		                                           new Class[] {Connection.class},
 		                                           new CloseSuppressingInvocationHandler(source));
