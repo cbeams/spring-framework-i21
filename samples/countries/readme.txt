@@ -86,6 +86,18 @@ the simple switching between two DAOs implementing the same interface.
 For the rest, the focus is on the web part of the framework. Nevertheless, the
 current demo doesn't show the user input nor the validation process.
 
+Additional note
+---------------
+Depending on your setting preferences, you have two strategies introduced:
+
+- In Petclinic:
+You define both databases in web.xml, jboss-web.xml (app. server binding) and
+in the app. server itself.
+Switching between databases is done in Spring 'applicationContext.xml' file.
+
+- In Countries:
+On the application side, only one configuration is known. The switching is done 
+in the binding with the app. server (jboss-web.xml in the case of Jboss).
 
 
 

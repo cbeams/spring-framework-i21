@@ -16,7 +16,7 @@
     <resource-ref>
         <res-ref-name>jdbc/countries-ds</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
-        <jndi-name>java:/HSqlCountriesDS</jndi-name>
+        <jndi-name>java:/DefaultDS</jndi-name>
     </resource-ref>
 	
 
