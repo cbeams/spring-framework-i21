@@ -2,30 +2,30 @@
 
 <project name="petclinic" basedir="." default="usage">
 
-  <property name="name" value="petclinic1"/>
-  <property name="version" value="1.0"/>
+  <property name="name" value="petclinic"/>
 
 	<property name="war.dir" value="war"/>
   <property name="src.dir" value="src"/>
 	<property name="lib.dir" value="lib"/>
-  <property name="build.dir" value="build"/>
+  <property name="build.dir" value=".classes"/>
+	<property name="docs.dir" value="${war.dir}/docs"/>
+	<property name="weblib.dir" value="${war.dir}/WEB-INF/lib"/>
   <property name="dist.dir" value="dist"/>
   <property name="db.dir" value="db"/>
 
   <property name="test.dir" value="test"/>
   <property name="testsrc.dir" value="${test.dir}/src"/>
-  <property name="testbuild.dir" value="${test.dir}/build"/>
+  <property name="testbuild.dir" value="${test.dir}/.classes"/>
   <property name="testreports.dir" value="${test.dir}/reports"/>
   <property name="testhtml.dir" value="${testreports.dir}/html"/>
-
-  <property name="docs.dir" value="${war.dir}/docs"/>
-  <property name="prj.zip" value="${name}-${version}.zip"/>
 
 	<property name="spring.root" value="../.."/>
 
 	<property file="build.properties"/>
 
+
 	<path id="master-classpath">
+
 		<fileset dir="${lib.dir}">
 			<include name="*.jar"/>
 		</fileset>
@@ -38,62 +38,92 @@
 		<fileset dir="${spring.root}/dist">
 			<include name="spring-full*.jar"/>
 		</fileset>
+
 	</path>
 
+
   <target name="usage">
+
 		<echo message=""/>
-		<echo message="${name} ${version} build file"/>
+		<echo message="PetClinic build file"/>
 		<echo message="------------------------------------------------------"/>
 		<echo message=""/>
-		<echo message=" Available targets are :"/>
+		<echo message="Available targets are:"/>
 		<echo message=""/>
-		<echo message="clean    --> Cleans ALL output dirs"/>
-		<echo message="build    --> Compile main source tree java files into class files"/>
+		<echo message="clean    --> Clean output dirs"/>
+		<echo message="build    --> Compile main Java sources and copy libraries"/>
+	  <echo message="docs     --> Create complete Javadoc documentation"/>
+	  <echo message="warfile  --> Build the web application archive"/>
 		<echo message="setupDB  --> Initialize the database"/>
-		<echo message="webapp   --> Builds the web application archive"/>
-		<echo message="docs     --> Create complete Javadoc documentation"/>
 		<echo message="test     --> Run tests using initialized database"/>
-		<echo message="all      --> Clean,webapp,docs,test"/>
-		<echo message=" "/>
+		<echo message=""/>
+
   </target>
 
-	<target name="clean" description="Cleans ALL output dirs (build, dist, testbuild)">
+
+	<target name="clean" description="Clean output dirs (build, dist, testbuild, weblib)">
+
 		<delete dir="${build.dir}"/>
-		<delete dir="${dist.dir}"/>
+		<delete dir="${docs.dir}"/>
+		<delete dir="${weblib.dir}"/>
 		<delete dir="${testbuild.dir}"/>
+		<delete dir="${testreports.dir}"/>
+		<delete dir="${dist.dir}"/>
+
 	</target>
 
+
 	<target name="build" description="Compile main source tree java files into class files, generate jar files">
+
 		<mkdir dir="${build.dir}"/>
+
 		<javac destdir="${build.dir}"	debug="true" deprecation="false" optimize="false" failonerror="true">
 			<src path="${src.dir}"/>
 			<classpath refid="master-classpath"/>
 		</javac>
-    <jar jarfile="${war.dir}/WEB-INF/lib/petclinic.jar" compress="true" basedir="${build.dir}"/>
-		<copy todir="${war.dir}/WEB-INF/lib">
+
+		<mkdir dir="${weblib.dir}"/>
+
+		<jar jarfile="${weblib.dir}/petclinic.jar" compress="true" basedir="${build.dir}"/>
+
+		<copy todir="${weblib.dir}">
 			<fileset dir="${lib.dir}">
 				<include name="hsqldb.jar"/>
 				<include name="mysql*.jar"/>
 			</fileset>
-			<fileset dir="../../lib/log4j">
-				<include name="*.jar"/>
+			<fileset dir="${spring.root}/lib/jstl">
+				<include name="jstl.jar"/>
+				<include name="standard.jar"/>
 			</fileset>
-			<fileset dir="../../dist">
+			<fileset dir="${spring.root}/lib/log4j">
+				<include name="commons-logging.jar"/>
+				<include name="log4j.jar"/>
+			</fileset>
+			<fileset dir="${spring.root}/dist">
 				<include name="spring-full*.jar"/>
 			</fileset>
 		</copy>
+
 	</target>
 
+
   <target name="docs" depends="build" description="Create complete Javadoc documentation">
+
     <delete dir="${docs.dir}"/>
+
     <mkdir dir="${docs.dir}"/>
+
     <javadoc sourcepath="${src.dir}" destdir="${docs.dir}" packagenames="*" private="true">
 			<classpath refid="master-classpath"/>
     </javadoc>
+
   </target>
 
+
 	<target name="warfile" depends="build,docs" description="Build the web application archive">
+
 		<mkdir dir="${dist.dir}"/>
+
 		<war warfile="${dist.dir}/${name}.war" basedir="${war.dir}" webxml="${war.dir}/WEB-INF/web.xml">
 			<include name="*"/>
 			<include name="docs/**"/>
@@ -104,27 +134,39 @@
 			<include name="WEB-INF/jsp/**"/>
 			<exclude name="**/.nbattrs"/>
 		</war>
+
 	</target>
 
+
 	<target name="setupHSQL" description="Setup HSQL database properties" if="useHSQL">
+
 		<property name="db.driver" value="${hsql.driver}"/>
 		<property name="db.url" value="${hsql.url}"/>
 		<property name="db.user" value="${hsql.user}"/>
 		<property name="db.pw" value="${hsql.pw}"/>
+
 	</target>
 
+
   <target name="setupMYSQL" description="Setup MYSQL database properties" if="useMYSQL">
+
     <property name="db.driver" value="${mysql.driver}"/>
     <property name="db.url" value="${mysql.url}"/>
     <property name="db.user" value="${mysql.user}"/>
     <property name="db.pw" value="${mysql.pw}"/>
+
   </target>
+
 
   <target name="setupDB" depends="setupHSQL,setupMYSQL" description="Initialize the selected database">
+
     <ant dir="${db.dir}"/>
+
   </target>
 
+
   <target name="test" depends="build,setupDB" description="Run tests using initialized database">
+
     <delete dir="${testbuild.dir}"/>
     <mkdir dir="${testbuild.dir}"/>
     <delete dir="${testreports.dir}"/>
@@ -135,6 +177,7 @@
     <javac srcdir="${testsrc.dir}" destdir="${testbuild.dir}" deprecation="true">
 			<classpath path="${build.dir}"/>
 			<classpath refid="master-classpath"/>
+	    <classpath path="${spring.root}/lib/junit/junit.jar"/>
     </javac>
 
     <junit printsummary="true" fork="yes">
@@ -155,12 +198,15 @@
 
     <!-- restore the database -->
     <ant dir="${db.dir}" />
+
   </target>
 
+
 	<target name="prjzip" description="Create project ZIP file (containing all sources)">
+
 		<mkdir dir="${dist.dir}"/>
-		<delete file="${dist.dir}/${prj.zip}"/>
-		<zip destfile="${dist.dir}/${prj.zip}">
+
+		<zip destfile="${dist.dir}/petclinic.zip">
 			<fileset dir="${basedir}">
 				<include name="${db.dir}/**"/>
 				<include name="${src.dir}/**"/>
@@ -170,6 +216,7 @@
 				<exclude name="**/.nbattrs"/>
 			</fileset>
 		</zip>
+
 	</target>
 
 </project>
