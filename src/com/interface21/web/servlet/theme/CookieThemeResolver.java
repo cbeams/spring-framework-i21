@@ -54,7 +54,7 @@ public class CookieThemeResolver extends AbstractThemeResolver {
 	}
 
 	public String resolveThemeName(HttpServletRequest request) {
-		// check locale for preparsed resp. preset locale
+		// check theme for preparsed resp. preset theme
 		String theme = (String) request.getAttribute(THEME_REQUEST_ATTRIBUTE_NAME);
 		if (theme != null)
 			return theme;
