@@ -36,26 +36,40 @@ import com.interface21.beans.propertyeditors.PropertyValuesEditor;
 import com.interface21.beans.propertyeditors.StringArrayPropertyEditor;
 
 /**
- * Default implementation of the BeanWrapper interface
- * that should be sufficient for all normal uses. Caches
- * introspection results for efficiency.
- * <p>Note: this class never tries to load a class by name, as this can
- * pose class loading problems in J2EE applications with multiple deployment
- * modules. For example, loading a class by name
- * won't work in some application servers if the class is used in a WAR but was loaded
- * by the EJB class loader and the class to be loaded is in the WAR.
- * (This class would use the EJB classloader, which couldn't see
- * the required class.) We don't attempt to solve such problems by
- * obtaining the classloader at runtime, because this violates
- * the EJB programming restrictions.
+ * Default implementation of the BeanWrapper interface that should be sufficient
+ * for all normal uses. Caches introspection results for efficiency.
+ *
+ * <p>Note: this class never tries to load a class by name, as this can pose
+ * class loading problems in J2EE applications with multiple deployment modules.
+ * For example, loading a class by name won't work in some application servers
+ * if the class is used in a WAR but was loaded by the EJB class loader and the
+ * class to be loaded is in the WAR. (This class would use the EJB classloader,
+ * which couldn't see the required class.) We don't attempt to solve such problems
+ * by obtaining the classloader at runtime, because this violates the EJB
+ * programming restrictions.
+ *
+ * <p>Note: Regards property editors in com.interface21.beans.propertyeditors.
+ * Also explictly register the default ones to care for JREs that do not use
+ * the thread context class loader for editor search paths.
+ * Applications can either use a standard PropertyEditorManager to register a
+ * custom editor before using a BeanWrapperImpl instance, or call the instance's
+ * registerCustomEditor method to register an editor for the particular instance.
+ *
  * @author  Rod Johnson
  * @since 15 April 2001
  * @version $Revision$
+ * @see #registerCustomEditor
+ * @see java.beans.PropertyEditorManager
  */
 public class BeanWrapperImpl implements BeanWrapper {
 
 	/** Should JavaBeans event propagation be enabled by default? */
 	public static final boolean DEFAULT_EVENT_PROPAGATION_ENABLED = false;
+
+	/**
+	 * We'll create a lot of these objects, so we don't want a new logger every time.
+	 */
+	private static final Logger logger = Logger.getLogger(BeanWrapperImpl.class);
 
 	// Install default property editors
 	static {
@@ -75,11 +89,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
-
-	/**
-	 * We'll create a lot of these objects, so we don't want a new logger every time.
-	 */
-	private static Logger logger = Logger.getLogger(BeanWrapperImpl.class);
 
 	/** The wrapped object */
 	private Object object;
@@ -813,6 +822,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 			sb.append("exception encountered: " + ex);
 		}
 		return sb.toString();
-	}   // toString
+	}
 
-}	// class BeanWrapperImpl
+}
