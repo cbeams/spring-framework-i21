@@ -1,3 +1,8 @@
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
 package com.interface21.jdbc.datasource;
 
 import java.io.PrintWriter;
@@ -9,19 +14,17 @@ import org.apache.log4j.Logger;
 
 /**
  * Abstract base class for Spring's DataSource implementations,
- * caring for the "uninteresting" glue.
- *
+ * taking care of the "uninteresting" glue.
  * @author Juergen Hoeller
  * @since 07.05.2003
  * @see DriverManagerDataSource
+ * @version $Id$
  */
 public abstract class AbstractDataSource implements DataSource {
 
 	protected final Logger logger = Logger.getLogger(getClass());
 
-	private PrintWriter pw = new PrintWriter(System.out);
-
-	/*
+	/**
 	 * Returns 0: means use default system timeout.
 	 */
 	public int getLoginTimeout() throws SQLException {
@@ -32,12 +35,18 @@ public abstract class AbstractDataSource implements DataSource {
 		throw new UnsupportedOperationException("setLoginTimeout");
 	}
 
+	/**
+	 * LogWriter methods are unsupported.
+	 */
 	public PrintWriter getLogWriter() {
-		return pw;
+		throw new UnsupportedOperationException("getLogWriter");
 	}
 
+	/**
+	 * LogWriter methods are unsupported.
+	 */
 	public void setLogWriter(PrintWriter pw) throws SQLException {
-		this.pw = pw;
+		throw new UnsupportedOperationException("setLogWriter");
 	}
 
 }
