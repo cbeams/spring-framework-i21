@@ -11,8 +11,8 @@ import java.lang.reflect.Proxy;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.TestCase;
 import org.aopalliance.AttributeRegistry;
-import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
@@ -21,11 +21,10 @@ import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.support.XmlBeanFactory;
 import com.interface21.context.ApplicationListener;
 import com.interface21.core.TimeStamped;
-
-import junit.framework.TestCase;
 
 /**
  * Test cases for AOP FactoryBean, using XML bean factory.
@@ -207,7 +206,7 @@ public class ProxyFactoryBeanTests extends TestCase {
 			ITestBean tb = (ITestBean) factory.getBean("emptyInterceptorNames");
 			fail("Interceptor names cannot be empty");
 		}
-		catch (FatalBeanException ex) {
+		catch (NoSuchBeanDefinitionException ex) {
 			// Ok
 		}
 	}
