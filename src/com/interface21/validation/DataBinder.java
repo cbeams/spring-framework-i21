@@ -5,9 +5,6 @@ import java.beans.PropertyEditor;
 import java.beans.VetoableChangeListener;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.interface21.beans.ErrorCodedPropertyVetoException;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
@@ -17,13 +14,10 @@ import com.interface21.beans.PropertyVetoExceptionsException;
  * Binder that allows for binding property values to a target object.
  * Supports property change listeners and vetoable change listeners.
  * @author Rod Johnson
- * @version 1.0
  */
 public class DataBinder extends BindException {
 
 	public static final String MISSING_FIELD_ERROR_CODE = "required";
-
-	protected static final Log logger = LogFactory.getLog(DataBinder.class);
 
 	private String[] requiredFields;
 
@@ -92,11 +86,15 @@ public class DataBinder extends BindException {
 	}
 
 	/**
-	 * Render the field value with a custom editor, if applicable.
+	 * Render the field value with the appropriate custom editor,
+	 * if the type of the value matches the one of the field
+	 * (i.e. if not dealing with a reported type mismatch error).
 	 */
 	public Object getFieldValue(String field) {
 		Object value = super.getFieldValue(field);
-		if (value != null && !hasFieldErrors(field)) {
+		Class type = getBeanWrapper().getPropertyDescriptor(field).getPropertyType();
+		// just treat values of the actual type, ignoring type mismatch values
+		if (type.isInstance(value)) {
 			PropertyEditor customEditor = getBeanWrapper().findCustomEditor(null, field);
 			if (customEditor != null) {
 				customEditor.setValue(value);
@@ -114,20 +112,18 @@ public class DataBinder extends BindException {
 	 * @param pvs property values to bind
 	 */
 	public void bind(PropertyValues pvs) {
-		// Check for missing fields
-		if (requiredFields != null) {
-			for (int i = 0; i < requiredFields.length; i++) {
-				PropertyValue pv = pvs.getPropertyValue(requiredFields[i]);
+		// check for missing fields
+		if (this.requiredFields != null) {
+			for (int i = 0; i < this.requiredFields.length; i++) {
+				PropertyValue pv = pvs.getPropertyValue(this.requiredFields[i]);
 				if (pv == null || "".equals(pv.getValue())) {
-					logger.debug("Required field '" + requiredFields[i] + "' is missing or empty");
 					// create field error with code "required"
-					addFieldError(new FieldError(getObjectName(), requiredFields[i], "", MISSING_FIELD_ERROR_CODE, new Object[] {requiredFields[i]}, "Field '" + requiredFields[i] + "' is required"));
+					addFieldError(new FieldError(getObjectName(), this.requiredFields[i], "", MISSING_FIELD_ERROR_CODE, new Object[] {requiredFields[i]}, "Field '" + requiredFields[i] + "' is required"));
 				}
 			}
 		}
 		try {
-			// Bind request parameters onto params
-			// We ignore unknown properties
+			// bind request parameters onto params, ignoring unknown properties
 			getBeanWrapper().setPropertyValues(pvs, true, null);
 		}
 		catch (PropertyVetoExceptionsException ex) {
