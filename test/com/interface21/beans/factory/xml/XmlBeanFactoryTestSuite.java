@@ -184,6 +184,16 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(hasMap.getMap().get("fi").equals("fum"));
 	}
 	
+	public void testMapWithLiteralsAndReferences() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		HasMap hasMap = (HasMap) xbf.getBean("mixedMap");
+		assertTrue(hasMap.getMap().size() == 2);
+		assertTrue(hasMap.getMap().get("foo").equals("bar"));
+		TestBean jenny = (TestBean) xbf.getBean("jenny");
+		assertTrue(hasMap.getMap().get("jenny").equals(jenny));
+	}
+	
 	public void testNoSuchXmlFile() throws Exception {
 		String filename = "missing.xml";
 		InputStream is = getClass().getResourceAsStream(filename);
