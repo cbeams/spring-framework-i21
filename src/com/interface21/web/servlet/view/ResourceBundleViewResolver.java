@@ -8,7 +8,7 @@
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
- 
+
 package com.interface21.web.servlet.view;
 
 import java.util.HashMap;
@@ -81,19 +81,36 @@ public class ResourceBundleViewResolver extends AbstractCachingViewResolver {
 		try {
 			Object o = initFactory(locale).getBean(viewName);
 			if (!(o instanceof View)) {
-				throw new ServletException("Bean with name '" + viewName + "' in resource bundle with basename '" + this.basename + "' must be of type View");
+				throw new ServletException(
+					"Bean with name '"
+						+ viewName
+						+ "' in resource bundle with basename '"
+						+ this.basename
+						+ "' must be of type View");
 			}
-			return (View) o;
+			return (View)o;
 		}
 		catch (MissingResourceException ex) {
-			throw new ServletException("Cannot load resource bundle with basename '" + this.basename + "' trying to resolve view with name '" + viewName + "'", ex);
+			throw new ServletException(
+				"Cannot load resource bundle with basename '"
+					+ this.basename
+					+ "' trying to resolve view with name '"
+					+ viewName
+					+ "'",
+				ex);
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			// Let superclass handle this
 			return null;
 		}
 		catch (BeansException ex) {
-			throw new ServletException("Error initializing view bean with name '" + viewName + "' in resource bundle with basename '" + this.basename + "'", ex);
+			throw new ServletException(
+				"Error initializing view bean with name '"
+					+ viewName
+					+ "' in resource bundle with basename '"
+					+ this.basename
+					+ "'",
+				ex);
 		}
 	}
 
@@ -102,13 +119,12 @@ public class ResourceBundleViewResolver extends AbstractCachingViewResolver {
 	 * Synchronized because of access by parallel threads.
 	 */
 	protected synchronized BeanFactory initFactory(Locale locale) throws MissingResourceException, BeansException {
-		BeanFactory parsedBundle = isCache() ? (BeanFactory) this.cachedFactories.get(locale) : null;
+		BeanFactory parsedBundle = isCache() ? (BeanFactory)this.cachedFactories.get(locale) : null;
 		if (parsedBundle != null) {
 			return parsedBundle;
 		}
 
-		ResourceBundle bundle = ResourceBundle.getBundle(this.basename, locale,
-																										 Thread.currentThread().getContextClassLoader());
+		ResourceBundle bundle = ResourceBundle.getBundle(this.basename, locale, Thread.currentThread().getContextClassLoader());
 		ListableBeanFactoryImpl lbf = new ListableBeanFactoryImpl();
 		lbf.setDefaultParentBean(this.defaultParentView);
 		lbf.registerBeanDefinitions(bundle, null);
