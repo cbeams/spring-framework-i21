@@ -1,18 +1,18 @@
 package com.interface21.web.servlet.support;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 
-import com.interface21.context.NoSuchMessageException;
 import com.interface21.context.MessageSourceResolvable;
+import com.interface21.context.NoSuchMessageException;
 import com.interface21.validation.Errors;
+import com.interface21.web.bind.EscapedErrors;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.util.HtmlUtils;
-import com.interface21.web.bind.EscapedErrors;
 
 /**
  * Context holder for request-specific state, like current web application context,
@@ -83,7 +83,7 @@ public class RequestContext {
 	 * @return the message
 	 */
 	public String getMessage(String code, Object[] args, boolean htmlEscape) throws NoSuchMessageException {
-		String msg = webApplicationContext.getMessage(code, args, locale);
+		String msg = this.webApplicationContext.getMessage(code, args, locale);
 		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
 	}
 
@@ -94,7 +94,7 @@ public class RequestContext {
 	 * @return the message
 	 */
 	public String getMessage(String code, Object[] args) throws NoSuchMessageException {
-		return getMessage(code, args, defaultHtmlEscape);
+		return getMessage(code, args, this.defaultHtmlEscape);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class RequestContext {
 	 * @return the message
 	 */
 	public String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
-		String msg = webApplicationContext.getMessage(resolvable, locale);
+		String msg = this.webApplicationContext.getMessage(resolvable, this.locale);
 		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
 	}
 
@@ -115,7 +115,7 @@ public class RequestContext {
 	 * @return the message
 	 */
 	public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
-		return getMessage(resolvable, defaultHtmlEscape);
+		return getMessage(resolvable, this.defaultHtmlEscape);
 	}
 
 	/**
@@ -125,20 +125,26 @@ public class RequestContext {
 	 * @return the Errors instance
 	 */
 	public Errors getErrors(String name, boolean htmlEscape) {
-		if (errorsMap == null)
-			errorsMap = new HashMap();
-		Errors errors = (Errors)errorsMap.get(name);
+		if (this.errorsMap == null) {
+			this.errorsMap = new HashMap();
+		}
+		Errors errors = (Errors) this.errorsMap.get(name);
 		boolean put = false;
 		if (errors == null) {
-			errors = RequestContextUtils.getErrors(request, name);
+			errors = RequestContextUtils.getErrors(this.request, name);
 			put = true;
 		}
 		if (htmlEscape && !(errors instanceof EscapedErrors)) {
 			errors = new EscapedErrors(errors);
 			put = true;
 		}
-		if (put)
-			errorsMap.put(name, errors);
+		else if (!htmlEscape && errors instanceof EscapedErrors) {
+			errors = ((EscapedErrors) errors).getSource();
+			put = true;
+		}
+		if (put) {
+			this.errorsMap.put(name, errors);
+		}
 		return errors;
 	}
 
@@ -149,7 +155,7 @@ public class RequestContext {
 	 * @return the Errors instance
 	 */
 	public Errors getErrors(String name) {
-		return getErrors(name, defaultHtmlEscape);
+		return getErrors(name, this.defaultHtmlEscape);
 	}
 
 }

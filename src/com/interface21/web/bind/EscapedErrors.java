@@ -35,6 +35,10 @@ public class EscapedErrors implements Errors {
 		this.source = source;
 	}
 
+	public Errors getSource() {
+		return source;
+	}
+
 	public String getObjectName() {
 		return source.getObjectName();
 	}
