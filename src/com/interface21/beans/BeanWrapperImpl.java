@@ -74,19 +74,32 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 */
 	private static final Log logger = LogFactory.getLog(BeanWrapperImpl.class);
 
-	// Install default property editors
-	static {
-		PropertyEditorManager.registerEditor(String[].class, StringArrayPropertyEditor.class);
-		PropertyEditorManager.registerEditor(PropertyValues.class, PropertyValuesEditor.class);
-		PropertyEditorManager.registerEditor(Properties.class, PropertiesEditor.class);
-		PropertyEditorManager.registerEditor(Class.class, ClassEditor.class);
-		PropertyEditorManager.registerEditor(Locale.class, LocaleEditor.class);
+	private static final Map defaultEditors = new HashMap();
 
-		// Register all editors in our standard package
-		PropertyEditorManager.setEditorSearchPath(new String[] {
-			"sun.beans.editors",
-			"com.interface21.beans.propertyeditors"
-		});
+	static {
+		// install default property editors
+		try {
+			// this one can't apply the <ClassName>Editor naming pattern
+			PropertyEditorManager.registerEditor(String[].class, StringArrayPropertyEditor.class);
+			// register all editors in our standard package
+			PropertyEditorManager.setEditorSearchPath(new String[] {
+				"sun.beans.editors",
+				"com.interface21.beans.propertyeditors"
+			});
+		}
+		catch (SecurityException ex) {
+			// e.g. in applets -> log and proceed
+			logger.warn("Cannot register property editors with PropertyEditorManager", ex);
+		}
+
+		// register default editors in this class, for restricted environments
+		// where the above threw a SecurityException, and for JDKs that don't
+		// use the thread context class loader for property editor lookup
+		defaultEditors.put(String[].class, new StringArrayPropertyEditor());
+		defaultEditors.put(PropertyValues.class, new PropertyValuesEditor());
+		defaultEditors.put(Properties.class, new PropertiesEditor());
+		defaultEditors.put(Class.class, new ClassEditor());
+		defaultEditors.put(Locale.class, new LocaleEditor());
 	}
 
 
@@ -320,12 +333,18 @@ public class BeanWrapperImpl implements BeanWrapper {
 		// Only need to cast if value isn't null
 		if (newValue != null) {
 			// We may need to change the value of newValue
+			// custom editor for this type?
 			PropertyEditor pe = findCustomEditor(requiredType, propertyName);
 			if ((pe != null || !requiredType.isAssignableFrom(newValue.getClass())) && (newValue instanceof String)) {
 				if (logger.isDebugEnabled())
 					logger.debug("Convert: String to " + requiredType);
 				if (pe == null) {
-					pe = PropertyEditorManager.findEditor(requiredType);
+					// no custom editor -> check BeanWrapper's default editors
+					pe = (PropertyEditor) defaultEditors.get(requiredType);
+					if (pe == null) {
+						// no BeanWrapper default editor -> check standard editors
+						pe = PropertyEditorManager.findEditor(requiredType);
+					}
 				}
 				if (logger.isDebugEnabled())
 					logger.debug("Using property editor [" + pe + "]");
