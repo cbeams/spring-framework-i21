@@ -81,8 +81,8 @@ public class EscapedErrors implements Errors {
 		return (FieldError) escapeObjectError(source.getFieldError(field));
 	}
 
-	public Object getPropertyValueOrRejectedUpdate(String field) {
-		return source.getPropertyValueOrRejectedUpdate(field);
+	public Object getFieldValue(String field) {
+		return source.getFieldValue(field);
 	}
 
 	public void setNestedPath(String nestedPath) {
@@ -98,9 +98,9 @@ public class EscapedErrors implements Errors {
 			if (value instanceof String) {
 				value = HtmlUtils.htmlEscape((String) fieldError.getRejectedValue());
 			}
-			return new FieldError(fieldError.getObjectName(), fieldError.getField(), value, fieldError.getCode(), HtmlUtils.htmlEscape(fieldError.getDefaultMessage()));
+			return new FieldError(fieldError.getObjectName(), fieldError.getField(), value, fieldError.getCode(), fieldError.getArgs(), HtmlUtils.htmlEscape(fieldError.getDefaultMessage()));
 		}
-		return new ObjectError(source.getObjectName(), source.getCode(), HtmlUtils.htmlEscape(source.getDefaultMessage()));
+		return new ObjectError(source.getObjectName(), source.getCode(), source.getArgs(), HtmlUtils.htmlEscape(source.getDefaultMessage()));
 	}
 
 	private List escapeObjectErrors(List source) {
