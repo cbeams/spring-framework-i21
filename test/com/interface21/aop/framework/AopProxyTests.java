@@ -8,8 +8,6 @@ package com.interface21.aop.framework;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.LinkedList;
-import java.util.List;
 
 import junit.framework.TestCase;
 import org.aopalliance.AspectException;
@@ -26,17 +24,13 @@ import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;
 
 /**
- * 
  * @author Rod Johnson
+ * @author Juergen Hoeller
  * @since 13-Mar-2003
  * @version $Revision$
  */
 public class AopProxyTests extends TestCase {
 
-	/**
-	 * Constructor for AopProxyTests.
-	 * @param arg0
-	 */
 	public AopProxyTests(String arg0) {
 		super(arg0);
 	}
@@ -77,7 +71,7 @@ public class AopProxyTests extends TestCase {
 
 		// Really would like to permit null arg:can't get exact mi
 		mi.invoke(null);
-		//mi.invoke(new MethodInvocationImpl(aop, null, ITestBean.class, 
+		//mi.invoke(new MethodInvocationImpl(aop, null, ITestBean.class,
 		//	ITestBean.class.getMethod("getAge", null),
 		//	null, l, r));
 		//miControl.
@@ -99,8 +93,7 @@ public class AopProxyTests extends TestCase {
 		testContext(false);
 	}
 
-	/** 
-	 * 
+	/**
 	 * @param context if true, want context
 	 * @throws Throwable
 	 */
