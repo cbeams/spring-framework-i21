@@ -25,6 +25,7 @@ import com.interface21.beans.factory.BeanIsNotAFactoryException;
 import com.interface21.beans.factory.BeanNotOfRequiredTypeException;
 import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.InitializingBean;
+import com.interface21.beans.factory.Lifecycle;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 
 
@@ -112,7 +113,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 */
     private Object createBean(String name) throws BeansException {
         Object bean = getBeanWrapperForNewInstance(name).getWrappedInstance();     
-		invokeInitializerIfNecessary(bean);
+		callLifecycleMethodsIfNecessary(bean, name);
 		return bean;
     }	// createBean
 
@@ -337,25 +338,37 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
 
 	/** 
-	 * Give a bean a chance to react now all its properties are set
-	 * This means checking whether it's an instance of InitializingBean,
-	 * and invoking the necessary callback if it is
-	 * Invoked from public methods just before return.
+	 * Give a bean a chance to react now all its properties are set,
+	 * and a chance to know about its owning bean factory (this object).
+	 * This means checking whether the bean implements InitializingBean
+	 * and/or Lifecycle, and invoking the necessary callback(s) if it does.
 	 * @param bean new bean instance we may need to initialize
+	 * @param name the bean has in the factory. Used for debug output.
 	 */
-	private void invokeInitializerIfNecessary(Object bean) throws BeansException {
+	private void callLifecycleMethodsIfNecessary(Object bean, String name) throws BeansException {
 		// Do nothing unless the bean implements the InitializingBean interface
 		if (bean instanceof InitializingBean) {
-			logger.debug("configureBeanInstance calling afterPropertiesSet on bean [" + bean + "]");
+			logger.debug("configureBeanInstance calling afterPropertiesSet on bean with name '" + name + "'");
 			try {
 				((InitializingBean) bean).afterPropertiesSet();
 			}
 			catch (Exception ex) {
-				logger.error("afterPropertiesSet on InitializingBean [" + bean + "] threw an exception", ex);
-				throw new FatalBeanException("afterPropertiesSet on bean [" + bean + "] threw an exception", ex);
+				logger.error("afterPropertiesSet on InitializingBean with name '" + name + "' threw an exception", ex);
+				throw new FatalBeanException("afterPropertiesSet on with name '" + name + "' threw an exception", ex);
 			}
 		}
-	}	// invokeInitializerIfNecessary
+		
+		if (bean instanceof Lifecycle) {
+			logger.debug("configureBeanInstance calling setBeanFactory() on Lifecycle bean with name '" + name + "'");
+			try {
+				((Lifecycle) bean).setBeanFactory(this);
+			}
+			catch (Exception ex) {
+				logger.error("Lifecycle method on Lifecycle bean with name '" + name + "' threw an exception", ex);
+				throw new FatalBeanException("Lifecycle method on bean with name '" + name + "' threw an exception", ex);
+			}
+		}
+	}	// callLifecycleMethodsIfNecessary
 
 
 	/** 
