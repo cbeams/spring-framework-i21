@@ -1,5 +1,6 @@
 package com.interface21.jdbc.core;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 
@@ -150,6 +151,26 @@ public abstract class MockConnectionFactory {
 		mc.addExpectedPreparedStatement(ps);
 		ps.setupUpdateCount(updateCount);
 		ps.setExpectedCloseCalls(1);
+
+		return mc;
+	}
+	
+	/**
+	 * Create a new Connection that will return a given mock
+	 * prepared statement. This allows us to create the PreparedStatement
+	 * as a separate mock object and script it using EasyMock
+	 * @param sql
+	 * @param mockPs
+	 * @return MockConnection
+	 */
+	public static MockConnection update(
+		String sql,
+		PreparedStatement mockPs) {
+
+		MockConnection mc = new MockConnection();
+		mc.setExpectedCloseCalls(1);
+
+		mc.addExpectedPreparedStatement(mockPs);
 
 		return mc;
 	}

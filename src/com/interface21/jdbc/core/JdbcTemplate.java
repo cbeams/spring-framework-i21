@@ -265,7 +265,6 @@ public class JdbcTemplate {
 	 */
 	public int[] update(PreparedStatementCreator[] pscs) throws DataAccessException {
 		Connection con = null;
-		Statement s = null;
 		int index = 0;
 		try {
 			con = DataSourceUtils.getConnection(this.dataSource);
@@ -290,31 +289,42 @@ public class JdbcTemplate {
 			DataSourceUtils.closeConnectionIfNecessary(this.dataSource, con);
 		}
 	}	// update[]
-
 	
-	// Batch updates only work with static SQL, so we don't favour this approach
-	/*public int[] batchUpdate(String[] sql) throws SQLException {	 
+	
+	/**
+	 * Issue multiple updates using JDBC 2.0 batch updates and PreparedStatementSetters to 
+	 * set values on a PreparedStatement created by this method
+	 * @param SQL defining PreparedStatement that will be reused.
+	 * All statements in the batch will use the same SQL.
+	 * @param setters object to set parameters on the 
+	 * PreparedStatement created by this method
+	 * @return an array of the number of rows affected by each statement
+	 * @throws DataAccessException if there is any problem issuing the update
+	 */
+	public int[] batchUpdate(String sql, PreparedStatementSetter setter) throws DataAccessException {
 		Connection con = null;
 		try {
-			con = connectionFactory.getConnection();
-			Statement s = con.createStatement();
-			//int retval = ps.executeUpdate();
-			//** TEMP FIX RETURN VALS
-
-			for (int i = 0; i < sql.length; i++) {
-				s.addBatch(sql[i]);
-				logSql(sql + "(BATCH)");
+			con = DataSourceUtils.getConnection(this.dataSource);
+			PreparedStatement ps = con.prepareStatement(sql);
+			int batchSize = setter.getBatchSize();
+			for (int i = 0; i < batchSize; i++) {
+				setter.setValues(ps, i);
+				ps.addBatch();
 			}
-
-			int[] rowsUpdated = s.executeBatch();
-			s.close();
-			return rowsUpdated;
+			
+			int[] retvals = ps.executeBatch();
+			
+			ps.close();
+			return retvals;
+		}
+		catch (SQLException ex) {
+			throw this.exceptionTranslater.translate("processing batch update " +
+				" with size=" + setter.getBatchSize() + "; update was [" + sql + "]", sql, ex);
 		}
 		finally {
-			closeConnectionIfNecessary(con);
+			DataSourceUtils.closeConnectionIfNecessary(this.dataSource, con);
 		}
-	}
-	*/
+	}	// batchUpdate
 	
 	
 	/**

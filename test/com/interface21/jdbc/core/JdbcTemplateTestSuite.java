@@ -22,9 +22,9 @@ import com.interface21.dao.UncategorizedDataAccessException;
 import com.mockobjects.sql.MockConnection;
 
 /** 
- *
+ * Mock object based tests for JdbcTemplate
  * @author Rod Johnson
- * @version $RevisionId$
+ * @version $Id$
  */
 public class JdbcTemplateTestSuite extends TestCase {
 
@@ -457,6 +457,126 @@ public class JdbcTemplateTestSuite extends TestCase {
 		
 		dsControl.verify();
 	}
+	
+	/**
+	 * Check that a successful bulk update works
+	 * @throws Exception
+	 */
+	public void testBatchUpdate() throws Exception {
+		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = ?";
+	
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		DataSource ds = (DataSource) dsControl.getMock();
+		int rowsAffected = 2;
+		final int [] ids = new int[] { 100, 200 };
+		
+		MockControl psControl = EasyMock.controlFor(PreparedStatement.class);
+		PreparedStatement mockPs = (PreparedStatement) psControl.getMock();
+		mockPs.setInt(1, ids[0]);
+		psControl.setVoidCallable(1);
+		mockPs.addBatch();
+		psControl.setVoidCallable(1);
+		mockPs.setInt(1, ids[1]);
+		psControl.setVoidCallable(1);
+		mockPs.addBatch();
+		psControl.setVoidCallable(1);
+		mockPs.executeBatch();
+		psControl.setReturnValue(ids, 1);
+		mockPs.close();
+		psControl.setVoidCallable(1);
+		psControl.activate();
+		
+		MockConnection con = MockConnectionFactory.update(sql, mockPs);
+		con.setExpectedCloseCalls(1);
+	
+		ds.getConnection();
+		dsControl.setReturnValue(con);
+		dsControl.activate();
+		
+		PreparedStatementSetter setter = new PreparedStatementSetter() {
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				ps.setInt(1, ids[i]);	
+			}
+			public int getBatchSize() { 
+				return ids.length;
+			}
+		};
+	
+		JdbcTemplate template = new JdbcTemplate(ds);
+	
+		int[] actualRowsAffected = template.batchUpdate(sql, setter);
+		assertTrue("executed 2 updates", actualRowsAffected.length == 2);
+		
+		//assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
+	
+		dsControl.verify();
+		con.verify();
+		psControl.verify();
+	}
+	
+	
+	/**
+	 * Test case where a batch update fails
+	 * @throws Exception
+	 */
+	public void testBatchUpdateFails() throws Exception {
+			final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = ?";
+	
+			MockControl dsControl = EasyMock.controlFor(DataSource.class);
+			DataSource ds = (DataSource) dsControl.getMock();
+			int rowsAffected = 2;
+			final int [] ids = new int[] { 100, 200 };
+			
+			SQLException sex = new SQLException();
+		
+			MockControl psControl = EasyMock.controlFor(PreparedStatement.class);
+			PreparedStatement mockPs = (PreparedStatement) psControl.getMock();
+			mockPs.setInt(1, ids[0]);
+			psControl.setVoidCallable(1);
+			mockPs.addBatch();
+			psControl.setVoidCallable(1);
+			mockPs.setInt(1, ids[1]);
+			psControl.setVoidCallable(1);
+			mockPs.addBatch();
+			psControl.setVoidCallable(1);
+			mockPs.executeBatch();
+			psControl.setThrowable(sex);
+			
+			// Should we force the PreparedStatement to be closed as below?
+			//mockPs.close();
+			//psControl.setVoidCallable(1);
+			psControl.activate();
+		
+			MockConnection con = MockConnectionFactory.update(sql, mockPs);
+			con.setExpectedCloseCalls(1);
+	
+			ds.getConnection();
+			dsControl.setReturnValue(con);
+			dsControl.activate();
+		
+			PreparedStatementSetter setter = new PreparedStatementSetter() {
+				public void setValues(PreparedStatement ps, int i) throws SQLException {
+					ps.setInt(1, ids[i]);	
+				}
+				public int getBatchSize() { 
+					return ids.length;
+				}
+			};
+	
+			try {
+				JdbcTemplate template = new JdbcTemplate(ds);
+				template.batchUpdate(sql, setter);
+				fail("Should have failed because of SQLException in bulk update");
+			}
+			catch (DataAccessException ex) {
+				assertTrue("Root cause is SQLException", ex.getRootCause() == sex);
+				ex.printStackTrace();			
+			}
+	
+			dsControl.verify();
+			con.verify();
+			psControl.verify();
+		}
 
 
 	public void testCouldntConnect() throws Exception {
