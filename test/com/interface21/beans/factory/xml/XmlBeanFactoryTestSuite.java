@@ -14,6 +14,7 @@ import com.interface21.beans.ITestBean;
 import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
+import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
@@ -152,6 +153,44 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(l.get(0).equals(xbf.getBean("david")));
 		assertTrue(l.get(1).equals("literal"));
 		assertTrue(l.get(2).equals(xbf.getBean("jenny")));
+	}
+	
+	/**
+	 * Test that properties with name as well as id creating
+	 * an alias up front
+	 */
+	public void testAutoAliasing() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		TestBean tb = (TestBean) xbf.getBean("aliased");
+		TestBean alias = (TestBean) xbf.getBean("I have an alias");
+		assertTrue(tb == alias);
+	}
+	
+	public void testNoSuchXmlFile() throws Exception {
+		String filename = "missing.xml";
+		InputStream is = getClass().getResourceAsStream(filename);
+		try {
+			XmlBeanFactory xbf = new XmlBeanFactory(is);
+			fail("Shouldn't create factory from missing XML");
+		}
+		catch (BeanDefinitionStoreException ex) {
+			// Ok
+			// TODO Check that the error message includes filename
+		}
+	}
+	
+	public void testInvalidXmlFile() throws Exception {
+		String filename = "invalid.xml";
+		InputStream is = getClass().getResourceAsStream(filename);
+		try {
+			XmlBeanFactory xbf = new XmlBeanFactory(is);
+			fail("Shouldn't create factory from invalid XML");
+		}
+		catch (BeanDefinitionStoreException ex) {
+			// Ok
+			// TODO Check that the error message includes filename
+		}
 	}
 
 }

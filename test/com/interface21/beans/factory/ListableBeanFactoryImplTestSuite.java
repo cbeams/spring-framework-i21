@@ -4,9 +4,7 @@ package com.interface21.beans.factory;
 
 import java.util.Properties;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import com.interface21.beans.BeansException;
 import com.interface21.beans.ITestBean;
@@ -22,8 +20,6 @@ import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
  */
 public class ListableBeanFactoryImplTestSuite extends TestCase {
 
-	// COULD INHERIT FROM LBTests: instantiate new bean with the standard definitions
-	
 	public ListableBeanFactoryImplTestSuite(String name) {
 		super(name);
 	}
@@ -31,7 +27,6 @@ public class ListableBeanFactoryImplTestSuite extends TestCase {
 	public void testUnreferencedSingletonWasInstantiated() {
 		KnowsIfInstantiated.clearInstantiationRecord();
 		ListableBeanFactoryImpl lbf = new ListableBeanFactoryImpl();
-		
 		
 		lbf = new ListableBeanFactoryImpl();
 		Properties p = new Properties();
@@ -219,14 +214,31 @@ public class ListableBeanFactoryImplTestSuite extends TestCase {
 		assertTrue("Test bean age is 48", tb.getAge() == 48);
 	}
 	
+	public void testBeanReferenceWithNewSyntax() {
+		ListableBeanFactoryImpl lbf = new ListableBeanFactoryImpl();
+		lbf = new ListableBeanFactoryImpl();
+		Properties p = new Properties();
+		p.setProperty("r.class", TestBean.class.getName());
+		p.setProperty("r.name", "rod");
+		p.setProperty("k.class", TestBean.class.getName());
+		p.setProperty("k.name", "kerry");
+		p.setProperty("k.spouse", "*r");
+		lbf.registerBeanDefinitions(p, null);
+		TestBean k = (TestBean) lbf.getBean("k");
+		TestBean r = (TestBean) lbf.getBean("r");
+		assertTrue(k.getSpouse() == r);
+	} 
 	
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(suite());
-		//	junit.swingui.TestRunner.main(new String[] {PrototypeFactoryTests.class.getName() } );
-	}
-
-	public static Test suite() { 
-		return new TestSuite(ListableBeanFactoryImplTestSuite.class);
+	public void testCanEscapeBeanReferenceSyntax() {
+		String name = "*name";
+		ListableBeanFactoryImpl lbf = new ListableBeanFactoryImpl();
+		lbf = new ListableBeanFactoryImpl();
+		Properties p = new Properties();
+		p.setProperty("r.class", TestBean.class.getName());
+		p.setProperty("r.name", "*" + name);
+		lbf.registerBeanDefinitions(p, null);
+		TestBean r = (TestBean) lbf.getBean("r");
+		assertTrue(r.getName().equals(name));
 	}
 
 

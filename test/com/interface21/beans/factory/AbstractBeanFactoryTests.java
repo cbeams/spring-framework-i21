@@ -18,6 +18,7 @@ import com.interface21.beans.BeansException;
 import com.interface21.beans.ErrorCodedPropertyVetoException;
 import com.interface21.beans.PropertyVetoExceptionsException;
 import com.interface21.beans.TestBean;
+import com.interface21.beans.factory.support.AbstractBeanFactory;
 
 /**
  * Subclasses must implement setUp() to initialize bean factory
@@ -293,35 +294,35 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 			fail("Shouldn't permit factory get on normal bean");
 		}
 		catch (BeanIsNotAFactoryException ex) {
-			System.out.println(ex);
+			// Ok
 		}
 	}
-
-/*
-	public void testVeto() {
+	
+	// TODO: refactor in AbstractBeanFactory (tests for AbstractBeanFactory)
+	// and rename this class
+	public void testAliasing() {
+		if (!(getBeanFactory() instanceof AbstractBeanFactory))
+			return;
+		
+		String alias = "rods alias";
 		try {
-			Object o = beanFactory.getBeanInstance("listenerVeto");
-			fail("Shouldn't survive veto");
+			getBeanFactory().getBean(alias);
+			fail("Shouldn't permit factory get on normal bean");
 		}
-		catch (PropertyVetoExceptionsException ex) {
-			// Further tests
-			ex.getPropertyVetoExceptions()[0].printStackTrace();
-			ex.printStackTrace();
-
-			assertTrue("Has one error ", ex.getExceptionCount() == 1);
-			assertTrue("Error is for field age", ex.getPropertyVetoException("age") != null);
-
-			TestBean tb = (TestBean) ex.getBeanWrapper().getWrappedInstance();
-			assertTrue("Age still has default", tb.getAge() == 0);
-			assertTrue("We have rejected age in exception", ex.getPropertyVetoException("age").getPropertyChangeEvent().getNewValue().equals(new Integer(66)));
-			assertTrue("valid name stuck", tb.getName().equals("listenerVeto"));
+		catch (NoSuchBeanDefinitionException ex) {
+			// Ok
 		}
-		catch (ReflectionException ex) {
-			ex.printStackTrace();
-			fail("Shouldn't throw ReflectionXception on type mismatch");
-		}
+		
+		// Create alias
+		((AbstractBeanFactory) getBeanFactory()).alias("rod", alias);
+		Object rod = getBeanFactory().getBean("rod");
+		Object aliasRod = getBeanFactory().getBean(alias);
+		assertTrue(rod == aliasRod);
+		
+		// Check prototype support
+		// TODO
 	}
-	*/
+
 
 
 	public static class AgistListener implements VetoableChangeListener {

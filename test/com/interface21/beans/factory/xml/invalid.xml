@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans 
+	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
+
+<!--	
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN 0.8//EN" "http://www.jppawlak.info/spring/spring-beans_0_8.dtd">
+-->
+
+<beans>
+	
+	
+	<bean id="jenny" class="com.interface21.beans.TestBean">	
+		<property name="name"><value>Jenny</value></property>
+		<property name="age"><value>30</value></property>
+		<property name="spouse">
+		<!-- Could use id and href -->
+			<ref bean="david"/>
+		</property>
+	</bean>
+	
+	<bogus></bogus>
+
+</beans>		
+	
+	
