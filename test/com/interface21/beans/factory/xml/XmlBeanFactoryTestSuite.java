@@ -1,4 +1,8 @@
-
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
 package com.interface21.beans.factory.xml;
 
 import java.io.InputStream;
@@ -19,7 +23,7 @@ import com.interface21.beans.factory.support.*;
 /**
  *
  * @author Rod Johnson
- * @version $RevisionId$
+ * @version $Revision$
  */
 public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests { 
 
@@ -37,7 +41,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		Map m = new HashMap();
 		m.put("name", "Albert");
 		parent.registerBeanDefinition("father",
-			new DefaultRootBeanDefinition(com.interface21.beans.TestBean.class, new MutablePropertyValues(m), false));
+			new RootBeanDefinition(com.interface21.beans.TestBean.class, new MutablePropertyValues(m), false));
 
 		// Load from classpath, NOT a file path
 		InputStream is = getClass().getResourceAsStream("test.xml");
