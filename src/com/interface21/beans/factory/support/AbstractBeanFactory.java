@@ -1,10 +1,6 @@
-/**
- * Generic framework code included with
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002).
- * This code is free to use and modify.
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
 
 package com.interface21.beans.factory.support;
@@ -31,7 +27,6 @@ import com.interface21.beans.factory.InitializingBean;
 import com.interface21.beans.factory.Lifecycle;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 
-
 /**
  * Abstract superclass that makes implementing a BeanFactory very easy.
  * This class uses the <b>Template Method</b> design pattern.
@@ -40,9 +35,11 @@ import com.interface21.beans.factory.NoSuchBeanDefinitionException;
  * getBeanDefinition(name)
  * </code>
  * method.
+ * This class handles resolution of runtime bean references,
+ * FactoryBean dereferencing, and management of collection properties.
  * @author  Rod Johnson
  * @since 15 April 2001
- * @version $Revision$
+ * @version $Id$
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
@@ -321,50 +318,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		MutablePropertyValues deepCopy = new MutablePropertyValues(pvs);
 		PropertyValue[] pvals = deepCopy.getPropertyValues();
 		
-		Object val = null;
-		
-		// Now we must check each PropertyValue to see whether it
-		// requires a runtime reference to another bean to be resolved.
-		// If it does, we'll attempt to instantiate the bean and set the reference.
-		
 		for (int i = 0; i < pvals.length; i++) {
-			if (pvals[i].getValue() != null && (pvals[i].getValue() instanceof RuntimeBeanReference)) {
-				RuntimeBeanReference ref = (RuntimeBeanReference) pvals[i].getValue();
-				val = resolveReference(pvals[i].getName(), ref, newlyCreatedBeans);
-				
-			}	// if this was a runtime reference to another bean
-			else if (pvals[i].getValue() != null && (pvals[i].getValue() instanceof ManagedList)) {
-				// Convert from managed list. This is a special container that
-				// may contain runtime bean references.
-				// May need to resolve references
-				ManagedList l = (ManagedList) pvals[i].getValue();
-				for (int j = 0; j < l.size(); j++) {
-					if (l.get(j) instanceof RuntimeBeanReference) {
-						l.set(j, resolveReference(pvals[i].getName(), (RuntimeBeanReference) l.get(j), newlyCreatedBeans));
-					}
-				}
-				val = l;
-			}
-			else {
-				// It's an ordinary property. Just copy it.
-				val = pvals[i].getValue();
-			}
-			
-			// Convert to a collection if necessary if it's a single value.
-			// A collection type may be passed a single value without error.
-			if (val != null &&
-					Collection.class.isAssignableFrom(bw.getPropertyDescriptor(pvals[i].getName()).getPropertyType()) &&
-					!(Collection.class.isAssignableFrom(val.getClass()))) {
-				LinkedList ll = new LinkedList();
-				ll.add(val);
-				val = ll;
-			}
-	
-			PropertyValue pv = new PropertyValue(pvals[i].getName(), val);
+			PropertyValue pv = new PropertyValue(pvals[i].getName(), resolveValueIfNecessary(bw, newlyCreatedBeans, pvals[i]));
 			// Update mutable copy
 			deepCopy.setPropertyValueAt(pv, i);
-		}	// for each property value
-		
+		}
 		
 		// Set our (possibly massaged) deepCopy
 		try {
@@ -375,7 +333,61 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			throw new FatalBeanException("Error setting property on bean [" + name + "]", ex);
 		}
 	}
+
+	/**
+	 * Given a PropertyValue, return a value, resolving any references to other
+	 * beans in the factory if necessary. The value could be:
+	 * <li>An ordinary object or null, in which case it's left alone
+	 * <li>A RuntimeBeanReference, which must be resolved
+	 * <li>A ManagedList. This is a special collection that may contain
+	 * RuntimeBeanReferences that will need to be resolved.
+	 * If the value is a simple object, but the property takes a Collection type,
+	 * the value must be placed in a list.
+	 */
+	private Object resolveValueIfNecessary(BeanWrapper bw, Map newlyCreatedBeans, PropertyValue pv)
+		throws BeansException {
+		Object val;
+		
+		// Now we must check each PropertyValue to see whether it
+		 // requires a runtime reference to another bean to be resolved.
+		 // If it does, we'll attempt to instantiate the bean and set the reference.
+		if (pv.getValue() != null && (pv.getValue() instanceof RuntimeBeanReference)) {
+			RuntimeBeanReference ref = (RuntimeBeanReference) pv.getValue();
+			val = resolveReference(pv.getName(), ref, newlyCreatedBeans);
+		}	
+		else if (pv.getValue() != null && (pv.getValue() instanceof ManagedList)) {
+			// Convert from managed list. This is a special container that
+			// may contain runtime bean references.
+			// May need to resolve references
+			ManagedList l = (ManagedList) pv.getValue();
+			for (int j = 0; j < l.size(); j++) {
+				if (l.get(j) instanceof RuntimeBeanReference) {
+					l.set(j, resolveReference(pv.getName(), (RuntimeBeanReference) l.get(j), newlyCreatedBeans));
+				}
+			}
+			val = l;
+		}
+		else {
+			// It's an ordinary property. Just copy it.
+			val = pv.getValue();
+		}
+		
+		// Convert to a collection if necessary if it's a single value.
+		// A collection type may be passed a single value without error.
+		if (val != null &&
+				Collection.class.isAssignableFrom(bw.getPropertyDescriptor(pv.getName()).getPropertyType()) &&
+				!(Collection.class.isAssignableFrom(val.getClass()))) {
+			LinkedList ll = new LinkedList();
+			ll.add(val);
+			val = ll;
+		}
+		
+		return val;
+	}
 	
+	/**
+	 * Resolve a reference to another bean in the factory
+	 */
 	private Object resolveReference(String name, RuntimeBeanReference ref, Map newlyCreatedBeans) {
 		try {
 			// Try to resolve bean reference
