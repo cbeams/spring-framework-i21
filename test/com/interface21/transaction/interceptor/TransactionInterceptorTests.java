@@ -34,14 +34,6 @@ import com.interface21.transaction.UnexpectedRollbackException;
  */
 public class TransactionInterceptorTests extends TestCase {
 
-	/**
-	 * Constructor for TransactionControlTests.
-	 * @param arg0
-	 */
-	public TransactionInterceptorTests(String arg0) {
-		super(arg0);
-	}
-	
 	public void testNoTransaction() throws Exception {
 		// Could do this	
 		/*
@@ -90,7 +82,7 @@ public class TransactionInterceptorTests extends TestCase {
 	 * @throws java.lang.Exception
 	 */
 	public void testTransactionShouldSucceed() throws Exception {
-		TransactionAttribute txatt = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED);
+		TransactionAttribute txatt = new DefaultTransactionAttribute();
 
 		Method m = ITestBean.class.getMethod("getName", null);
 		MockControl arControl = EasyMock.controlFor(AttributeRegistry.class);
@@ -131,7 +123,7 @@ public class TransactionInterceptorTests extends TestCase {
 	 * @throws java.lang.Exception
 	 */
 	public void testProgrammaticRollback() throws Exception {
-		TransactionAttribute txatt = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED);
+		TransactionAttribute txatt = new DefaultTransactionAttribute();
 
 		Method m = ITestBean.class.getMethod("getName", null);
 		MockControl arControl = EasyMock.controlFor(AttributeRegistry.class);
@@ -153,9 +145,7 @@ public class TransactionInterceptorTests extends TestCase {
 		final String name = "jenny";
 		TestBean tb = new TestBean() {
 			public String getName() {
-				//TransactionControl.getTransactionStatus().setRollbackOnly();
-				Invocation inv = AopContext.currentInvocation();
-				TransactionStatus txStatus = (TransactionStatus) inv.getAttachment(TransactionInterceptor.TRANSACTION_STATUS_ATTACHMENT_NAME);
+				TransactionStatus txStatus = TransactionInterceptor.currentTransactionStatus();
 				txStatus.setRollbackOnly();
 				return name;
 			}
@@ -202,8 +192,8 @@ public class TransactionInterceptorTests extends TestCase {
 	 * @throws java.lang.Throwable
 	 */
 	private void testRollbackOnException(final Exception ex, final boolean shouldRollback) throws Throwable {
-		TransactionAttribute txatt = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_SERIALIZABLE) {
-			public boolean rollBackOn(Throwable t) {
+		TransactionAttribute txatt = new DefaultTransactionAttribute() {
+			public boolean rollbackOn(Throwable t) {
 				assertTrue(t == ex);
 				return shouldRollback;
 			}
@@ -252,8 +242,7 @@ public class TransactionInterceptorTests extends TestCase {
 
 		arControl.verify();
 		ptxControl.verify();
-	}	// testRollbackOnException
-	
+	}
 	
 	/**
 	 * Simulate a transaction infrastructure failure. 
@@ -261,7 +250,7 @@ public class TransactionInterceptorTests extends TestCase {
 	 * @throws java.lang.Exception
 	 */
 	public void testCannotCreateTransaction() throws Exception {
-		TransactionAttribute txatt = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED);
+		TransactionAttribute txatt = new DefaultTransactionAttribute();
 
 		Method m = ITestBean.class.getMethod("getName", null);
 		MockControl arControl = EasyMock.controlFor(AttributeRegistry.class);
@@ -303,7 +292,6 @@ public class TransactionInterceptorTests extends TestCase {
 		ptxControl.verify();
 	}
 	
-	
 	/**
 	 * Simulate failure of the underlying transaction infrastructure
 	 * to commit.
@@ -313,7 +301,7 @@ public class TransactionInterceptorTests extends TestCase {
 	 * @throws java.lang.Exception
 	 */
 	public void testCannotCommitTransaction() throws Exception {
-		TransactionAttribute txatt = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED);
+		TransactionAttribute txatt = new DefaultTransactionAttribute();
 
 		Method m = ITestBean.class.getMethod("setName", new Class[] { String.class} );
 		MockControl arControl = EasyMock.controlFor(AttributeRegistry.class);
