@@ -103,8 +103,8 @@ public class CommandControllerTestSuite extends TestCase {
 		assertTrue("command name bound ok", person.getName().equals(name));
 		assertTrue("command age default", person.getAge() == new TestBean().getAge());
 		
-		assertTrue("has error on field age", errors.hasError("person", "age"));
-		FieldError fe = errors.getError("person", "age");
+		assertTrue("has error on field age", errors.hasFieldErrors("age"));
+		FieldError fe = errors.getFieldError("age");
 		assertTrue("Saved invalid value", fe.getRejectedValue().equals(age));
 		assertTrue("Correct field", fe.getField().equals("age"));
 	}

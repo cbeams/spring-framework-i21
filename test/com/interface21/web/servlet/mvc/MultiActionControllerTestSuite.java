@@ -28,7 +28,6 @@ import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.servlet.ModelAndView;
 import com.interface21.web.servlet.View;
 import com.interface21.web.servlet.mvc.multiaction.*;
-import com.sun.corba.ee.internal.iiop.RequestCanceledException;
 
 /**
  *

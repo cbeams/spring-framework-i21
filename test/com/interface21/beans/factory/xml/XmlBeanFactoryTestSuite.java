@@ -2,6 +2,8 @@
 package com.interface21.beans.factory.xml;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -9,6 +11,7 @@ import junit.framework.TestSuite;
 
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;
+import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
 import com.interface21.beans.factory.support.*;
@@ -30,10 +33,15 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 	protected void setUp() throws Exception {
 		//this.listableBeanFactory = new XMLBeanFactory("d:\\book\\project\\i21-framework\\test\\com\\interface21\\beans\\factory\\xml\\test.xml");
 
+		ListableBeanFactoryImpl parent = new ListableBeanFactoryImpl();
+		Map m = new HashMap();
+		m.put("name", "Albert");
+		parent.registerBeanDefinition("father",
+			new DefaultRootBeanDefinition(com.interface21.beans.TestBean.class, new MutablePropertyValues(m), false));
+
 		// Load from classpath, NOT a file path
 		InputStream is = getClass().getResourceAsStream("test.xml");
-		this.factory = new XmlBeanFactory(is);
-
+		this.factory = new XmlBeanFactory(is, parent);
 	}
 
 	/**

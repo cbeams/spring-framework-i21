@@ -94,7 +94,7 @@ public class FormControllerTestSuite extends TestCase {
 		HttpServletResponse response = new TestHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name", mv.getViewname().equals(formView));
-		assertTrue("has errors", mv.getModel().get(BindException.EXCEPTION_KEY) != null);
+		assertTrue("has errors", mv.getModel().get(BindException.ERROR_KEY_PREFIX + mc.getBeanName()) != null);
 		
 		assertTrue("refDataCount == 1", mc.refDataCount == 1);
 		
@@ -207,14 +207,14 @@ public class FormControllerTestSuite extends TestCase {
 		mv.getViewname().equals(formView));
 		
 		// Has bean
-		TestBean person = (TestBean) mv.getModel().get(mc.BEAN_NAME);
+		TestBean person = (TestBean) mv.getModel().get(mc.getBeanName());
 		assertTrue("model is non null", person != null);
 		assertTrue("bean name bound ok", person.getName().equals(name));
 		assertTrue("bean age is default", person.getAge() == new TestBean().getAge());
-		Errors errors = (Errors) mv.getModel().get(BindException.EXCEPTION_KEY);
+		Errors errors = (Errors) mv.getModel().get(BindException.ERROR_KEY_PREFIX + mc.getBeanName());
 		assertTrue("errors returned in model", errors != null);
 		assertTrue("One error", errors.getErrorCount() == 1);
-		FieldError fe = errors.getError(mc.BEAN_NAME, "age");
+		FieldError fe = errors.getFieldError("age");
 		assertTrue("Saved invalid value", fe.getRejectedValue().equals(age));
 		assertTrue("Correct field", fe.getField().equals("age"));
 	}
@@ -249,15 +249,15 @@ public class FormControllerTestSuite extends TestCase {
 		// yes, but it was rejected after binding by the validator
 		assertTrue("bean name bound ok", person.getName().equals(name));
 		assertTrue("bean age is default", person.getAge() == new TestBean().getAge());
-		Errors errors = (Errors) mv.getModel().get(BindException.EXCEPTION_KEY);
+		Errors errors = (Errors) mv.getModel().get(BindException.ERROR_KEY_PREFIX + mc.getBeanName());
 		assertTrue("errors returned in model", errors != null);
 		assertTrue("One error", errors.getErrorCount() == 2);
-		FieldError fe = errors.getError(mc.BEAN_NAME, "age");
+		FieldError fe = errors.getFieldError("age");
 		assertTrue("Saved invalid value", fe.getRejectedValue().equals(age));
 		assertTrue("Correct field", fe.getField().equals("age"));
 		
 		// Raised by validator
-		fe = errors.getError(mc.BEAN_NAME, "name");
+		fe = errors.getFieldError("name");
 		assertTrue("Saved invalid value", fe.getRejectedValue().equals(name));
 		assertTrue("Correct field", fe.getField().equals("name"));
 		assertTrue("Correct validation code: expected '" +TestValidator.TOOSHORT + "', not '" 

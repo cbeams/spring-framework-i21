@@ -204,6 +204,11 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		}
 	}
 
+	public void testGrandparentDefinitionFoundInBeanFactory() throws Exception {
+		TestBean dad = (TestBean) getBeanFactory().getBean("father");
+		assertTrue("Dad has correct name", dad.getName().equals("Albert"));
+	}
+
 /*
 	public void testVeto() {
 		try {
