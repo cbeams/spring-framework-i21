@@ -143,19 +143,28 @@ public class JdbcTemplate {
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
+		ReadOnlyResultSet rors = null;
 		try {
 			con = DataSourceUtils.getConnection(this.dataSource);
 			ps = con.prepareStatement(sql);
 			rs = ps.executeQuery();
+			rors = new ReadOnlyResultSet(rs);
+			
 			if (logger.isInfoEnabled())
 				logger.info("Executing static SQL query '" + sql + "'");
 
 			while (rs.next()) {
-				callbackHandler.processRow(rs);
+				callbackHandler.processRow(rors);
 			}
 			
 			SQLWarning warning = ps.getWarnings();
 			rs.close();
+			
+			// Since rors is a wrapper around rs, calling the close() method is 
+			// forbidden. Since rs is already closed, we only need to make it 
+			// null.
+			rors = null;
+			
 			ps.close();
 			
 			throwExceptionOnWarningIfNotIgnoringWarnings(warning);
@@ -182,21 +191,29 @@ public class JdbcTemplate {
 		Connection con = null;
 		Statement s = null;
 		ResultSet rs = null;
+		ReadOnlyResultSet rors = null;
 		try {
 			con = DataSourceUtils.getConnection(this.dataSource);
 			PreparedStatement ps = psc.createPreparedStatement(con);
 			if (logger.isInfoEnabled())
 				logger.info("Executing SQL query using PreparedStatement: [" + psc + "]");
 			rs = ps.executeQuery();
+			rors = new ReadOnlyResultSet(rs);
 
 			while (rs.next()) {
 				if (logger.isDebugEnabled())
 					logger.debug("Processing row of ResultSet");
-				callbackHandler.processRow(rs);
+				callbackHandler.processRow(rors);
 			}
 			
 			SQLWarning warning = ps.getWarnings();
 			rs.close();
+			
+			// Since rors is a wrapper around rs, calling the close() method is 
+			// forbidden. Since rs is already closed, we only need to make it 
+			// null.
+			rors = null;
+
 			ps.close();
 			throwExceptionOnWarningIfNotIgnoringWarnings(warning);
 		}
