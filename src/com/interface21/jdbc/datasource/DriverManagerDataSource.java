@@ -15,7 +15,7 @@ import java.sql.SQLException;
  * 
  * <p>Useful for test or standalone environments outside of a J2EE container, either
  * as a DataSource bean in a respective ApplicationContext, or in conjunction with a
- * mock JNDI InitialContext. Pool-assuming Connection.close() calls will simply
+ * simple JNDI environment. Pool-assuming Connection.close() calls will simply
  * close the connection, so any DataSource-aware persistence code should work.
  *
  * <p>In a J2EE container, it is recommended to use a JNDI DataSource provided by
@@ -27,12 +27,13 @@ import java.sql.SQLException;
  * <a href="http://jakarta.apache.org/commons/dbcp">Apache's Jakarta Commons DBCP</a>.
  * Its BasicDataSource is a full connection pool bean, supporting the same basic
  * properties as this class + specific settings. It can be used as a replacement for
- * an instance of this class just by exchanging the class name of the bean definition.
+ * an instance of this class just by exchanging the class name of the bean definition
+ * to "org.apache.commons.dbcp.BasicDataSource".
  *
  * @author Juergen Hoeller
  * @since 14.03.2003
  * @version $Id$
- * @see com.interface21.jndi.mock.MockInitialContextFactoryBuilder
+ * @see com.interface21.jndi.support.SimpleNamingContextBuilder
  * @see com.interface21.jndi.JndiObjectFactoryBean
  */
 public class DriverManagerDataSource extends AbstractDataSource implements SmartDataSource {

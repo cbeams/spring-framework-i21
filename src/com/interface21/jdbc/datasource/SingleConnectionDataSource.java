@@ -20,14 +20,14 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
  * not be able to cast this to an OracleConnection anymore, for example.
  *
  * <p>This is primarily a test class. For example, it enables easy testing of code
- * outside of an application server, in conjunction with a mock JNDI InitialContext.
+ * outside of an application server, in conjunction with a simple JNDI environment.
  * In contrast to DriverManagerDataSource, it reuses the same connection all the time,
  * avoiding excessive creation of physical connections.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see DataSourceUtils#closeConnectionIfNecessary
- * @see com.interface21.jndi.mock.MockInitialContextFactoryBuilder
+ * @see com.interface21.jndi.support.SimpleNamingContextBuilder
  */
 public class SingleConnectionDataSource extends DriverManagerDataSource {
 

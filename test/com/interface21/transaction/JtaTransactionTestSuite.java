@@ -15,7 +15,7 @@ import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
 import com.interface21.jndi.JndiTemplate;
-import com.interface21.jndi.mock.MockContext;
+import com.interface21.jndi.support.SimpleNamingContext;
 import com.interface21.transaction.jta.JtaTransactionManager;
 import com.interface21.transaction.support.TransactionSynchronizationManager;
 import com.interface21.transaction.support.TransactionSynchronization;
@@ -35,7 +35,7 @@ public class JtaTransactionTestSuite extends TestCase {
 	public static TransactionTemplate getTransactionTemplateForJta(final String utName, final UserTransaction ut) {
 		JndiTemplate jndiTemplate = new JndiTemplate() {
 			protected Context createInitialContext() throws NamingException {
-				Context mockContext = new MockContext();
+				Context mockContext = new SimpleNamingContext();
 				mockContext.bind(utName, ut);
 				return mockContext;
 			}
