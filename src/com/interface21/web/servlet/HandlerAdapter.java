@@ -24,6 +24,12 @@ import com.interface21.context.ApplicationContextAware;
  * <br/>This interface is not intended for application developers.</b>
  * It is available to handlers who want to develop their own web workflow.
  * Need one of these for each fancy handler type.
+ *
+ * <p>Note: Implementations can implement the Ordered interface to be
+ * able to specify a sorting order and thus a priority for getting
+ * applied by ControllerServlet. Non-Ordered instances get treated as
+ * lowest priority.
+ *
  * @author Rod Johnson
  */
 public interface HandlerAdapter extends ApplicationContextAware {
