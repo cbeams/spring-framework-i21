@@ -41,20 +41,20 @@ public abstract class RequestUtils {
 	/**
 	 * Get an int parameter, throwing an exception if it isn't
 	 * found or isn't a number
-	 * @throws WebRequestBindingException: subclass of ServletException, so it doesn't
+	 * @throws ServletRequestBindingException: subclass of ServletException, so it doesn't
 	 * need to be caught
 	 */
-	public static int getRequiredIntParameter(HttpServletRequest request, String name) throws WebRequestBindingException {
+	public static int getRequiredIntParameter(HttpServletRequest request, String name) throws ServletRequestBindingException {
 		String s = request.getParameter(name);
 		if (s == null)
-			throw new WebRequestBindingException("Required int parameter '" + name + "' was not supplied");
+			throw new ServletRequestBindingException("Required int parameter '" + name + "' was not supplied");
 		if ("".equals(s))
-			throw new WebRequestBindingException("Required int parameter '" + name + "' contained no value");
+			throw new ServletRequestBindingException("Required int parameter '" + name + "' contained no value");
 		try {
 			return Integer.parseInt(s);
 		}
 		catch (NumberFormatException ex) {
-				throw new WebRequestBindingException("Required int parameter '" + name + "' value of '" + s + "' was not a valid number");
+				throw new ServletRequestBindingException("Required int parameter '" + name + "' value of '" + s + "' was not a valid number");
 		}
 	}
 	
@@ -68,23 +68,23 @@ public abstract class RequestUtils {
 		try {
 			return getRequiredIntParameter(request, name);
 		}
-		catch (WebRequestBindingException ex) {
+		catch (ServletRequestBindingException ex) {
 			return defaultVal;
 		}
 	}
 	
 	
-	public static double getRequiredDoubleParameter(HttpServletRequest request, String name) throws WebRequestBindingException {
+	public static double getRequiredDoubleParameter(HttpServletRequest request, String name) throws ServletRequestBindingException {
 		String s = request.getParameter(name);
 		if (s == null)
-			throw new WebRequestBindingException("Required double parameter '" + name + "' was not supplied");
+			throw new ServletRequestBindingException("Required double parameter '" + name + "' was not supplied");
 		if ("".equals(s))
-			throw new WebRequestBindingException("Required double parameter '" + name + "' contained no value");
+			throw new ServletRequestBindingException("Required double parameter '" + name + "' contained no value");
 		try {
 			return Double.parseDouble(s);
 		}
 		catch (NumberFormatException ex) {
-				throw new WebRequestBindingException("Required double parameter '" + name + "' value of '" + s + "' was not a valid number");
+				throw new ServletRequestBindingException("Required double parameter '" + name + "' value of '" + s + "' was not a valid number");
 		}
 	}
 	
@@ -92,12 +92,12 @@ public abstract class RequestUtils {
 	/**
 	 * True is true or yes (no case) or 1
 	 */
-	public static boolean getRequiredBooleanParameter(HttpServletRequest request, String name) throws WebRequestBindingException {
+	public static boolean getRequiredBooleanParameter(HttpServletRequest request, String name) throws ServletRequestBindingException {
 		String s = request.getParameter(name);
 		if (s == null)
-			throw new WebRequestBindingException("Required boolean parameter '" + name + "' was not supplied");
+			throw new ServletRequestBindingException("Required boolean parameter '" + name + "' was not supplied");
 		if ("".equals(s))
-			throw new WebRequestBindingException("Required boolean parameter '" + name + "' contained no value");
+			throw new ServletRequestBindingException("Required boolean parameter '" + name + "' contained no value");
 		return s.equalsIgnoreCase("true") || s.equalsIgnoreCase("yes") || s.equals("1");
 	}
 
