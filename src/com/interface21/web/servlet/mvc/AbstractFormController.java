@@ -69,6 +69,10 @@ import com.interface21.web.servlet.ModelAndView;
  *  <li>binding of the {@link com.interface21.web.bind.ServletRequestDataBinder ServletRequestDataBinder}
  *      in the request to be able to use the property editors in the form rendering
  *      (<i>only if <code>bindOnNewForm</code> is set to <code>true</code></i>)</li>
+ *  <li>call to {@link #referenceData referenceData()} to allow you to bind
+ *      any relevant reference dat you might need when editing a form
+ *      (for instance a List of Locale-object you're going to let the user
+ *      select one from)<li>
  *  <li>call to {@link #showForm(HttpServletRequest, HttpServletResponse, BindException) showForm()}
  *      to return a View that should be rendered (typically the view that renders
  *      the form). This method has be overriden in extending classes</li>
@@ -122,9 +126,10 @@ import com.interface21.web.servlet.ModelAndView;
  *  <tr>
  *      <td>bindOnNewForm</td>
  *      <td>false</td>
- *      <td>Indicates whether or not to bind the ServletRequestDataBinder
- *          to the request for GET requests as well (TODO guys, please help here,
- *          I can't actually describe this too well)</td>
+ *      <td>Indicates whether to bind servletrequestparameters as well when
+ *          creating a new form. If set to <code>true</code> this will happen,
+ *          if set to <code>false</code>, the parameters will only be bound on
+ *          formsubmissions</td>
  *  </tr>
  *  <tr>
  *      <td>sessionForm</td>
