@@ -19,7 +19,7 @@
 	<property name="testreports.dir" value="${test.dir}/reports"/>
 	<property name="testhtml.dir" value="${testreports.dir}/html"/>
 
-	<property name="spring.root" value="../spring-new"/>
+	<property name="spring.root" value="../.."/>
 
 	<property file="build.properties"/>
 	<property name="deploy.dir" value="F:\work\jboss-3.2.0\server\sirene\deploy"/>
