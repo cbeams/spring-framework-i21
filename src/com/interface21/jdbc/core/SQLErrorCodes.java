@@ -12,42 +12,40 @@ package com.interface21.jdbc.core;
 /**
  * JavaBean for holding JDBC Error Codes - loaded through BeanFactory
  * implementation. Used by the SQLExceptionTranslater.
- * @author trisberg
+ * @author Thomas Risberg
  */
 public class SQLErrorCodes {
+
 	private String[] badSqlGrammarCodes = new String[0];
+
 	private String[] dataIntegrityViolationCodes = new String[0];
 
 	/**
-	 * Returns the badSqlGrammarCodes.
-	 * @return String[]
-	 */
-	public String[] getBadSqlGrammarCodes() {
-		return badSqlGrammarCodes;
-	}
-
-	/**
-	 * Returns the dataIntegrityViolationCodes.
-	 * @return String[]
-	 */
-	public String[] getDataIntegrityViolationCodes() {
-		return dataIntegrityViolationCodes;
-	}
-
-	/**
 	 * Sets the badSqlGrammarCodes.
-	 * @param badSqlGrammarCodes The badSqlGrammarCodes to set
 	 */
 	public void setBadSqlGrammarCodes(String[] badSqlGrammarCodes) {
 		this.badSqlGrammarCodes = badSqlGrammarCodes;
 	}
 
 	/**
+	 * Returns the badSqlGrammarCodes.
+	 */
+	public String[] getBadSqlGrammarCodes() {
+		return badSqlGrammarCodes;
+	}
+
+	/**
 	 * Sets the dataIntegrityViolationCodes.
-	 * @param dataIntegrityViolationCodes The dataIntegrityViolationCodes to set
 	 */
 	public void setDataIntegrityViolationCodes(String[] dataIntegrityViolationCodes) {
 		this.dataIntegrityViolationCodes = dataIntegrityViolationCodes;
+	}
+
+	/**
+	 * Returns the dataIntegrityViolationCodes.
+	 */
+	public String[] getDataIntegrityViolationCodes() {
+		return dataIntegrityViolationCodes;
 	}
 
 }
