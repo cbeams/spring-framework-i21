@@ -16,6 +16,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -437,10 +439,15 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	/**
 	 * Private implementation of SAX ErrorHandler used when validating XML.
 	 */
-	private class BeansErrorHandler implements ErrorHandler {
+	private static class BeansErrorHandler implements ErrorHandler {
+		
+		/**
+		 * We can't use the enclosing class's logger as it's
+		 * protected and inherited.
+		 */
+		private static Log logger = LogFactory.getLog(XmlBeanFactory.class);
 
 		public void error(SAXParseException e) throws SAXException {
-			logger.error(e);
 			throw e;
 		}
 
