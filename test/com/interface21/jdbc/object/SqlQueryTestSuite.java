@@ -95,8 +95,8 @@ public class SqlQueryTestSuite extends TestCase {
 			};
 		mockResultSet[0].setExpectedNextCalls(2);
 
-		SqlQuery query = new ManualExtractionSqlQueryWithParameters() {
-			protected Object extract(ResultSet rs, int rownum, Object[] params)
+		SqlQuery query = new MappingSqlQueryWithParameters() {
+			protected Object mapRow(ResultSet rs, int rownum, Object[] params)
 				throws SQLException {
 				assertTrue("params were null", params == null);
 				return new Integer(rs.getInt(1));
@@ -117,8 +117,8 @@ public class SqlQueryTestSuite extends TestCase {
 	}
 
 	public void testQueryWithoutEnoughParams() {
-		ManualExtractionSqlQuery query = new ManualExtractionSqlQuery() {
-			protected Object extract(ResultSet rs, int rownum)
+		MappingSqlQuery query = new MappingSqlQuery() {
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				return new Integer(rs.getInt(1));
 			}
@@ -141,8 +141,8 @@ public class SqlQueryTestSuite extends TestCase {
 	}
 
 	public void testBindVariableCountWrong() {
-		ManualExtractionSqlQuery query = new ManualExtractionSqlQuery() {
-			protected Object extract(ResultSet rs, int rownum)
+		MappingSqlQuery query = new MappingSqlQuery() {
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				return new Integer(rs.getInt(1));
 			}
@@ -163,8 +163,8 @@ public class SqlQueryTestSuite extends TestCase {
 	}
 
 	public void testUncompiledQuery() {
-		ManualExtractionSqlQuery query = new ManualExtractionSqlQuery() {
-			protected Object extract(ResultSet rs, int rownum)
+		MappingSqlQuery query = new MappingSqlQuery() {
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				return new Integer(rs.getInt(1));
 			}
@@ -297,8 +297,8 @@ public class SqlQueryTestSuite extends TestCase {
 			};
 		mockResultSet[0].setExpectedNextCalls(2);
 
-		SqlQuery query = new ManualExtractionSqlQuery() {
-			protected Object extract(ResultSet rs, int rownum)
+		SqlQuery query = new MappingSqlQuery() {
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -349,7 +349,7 @@ public class SqlQueryTestSuite extends TestCase {
 			};
 		mockResultSet[0].setExpectedNextCalls(2);
 
-		class CustomerQuery extends ManualExtractionSqlQuery {
+		class CustomerQuery extends MappingSqlQuery {
 
 			public CustomerQuery(DataSource ds) {
 				super(ds, SELECT_ID_WHERE);
@@ -358,7 +358,7 @@ public class SqlQueryTestSuite extends TestCase {
 				compile();
 			}
 
-			protected Object extract(ResultSet rs, int rownum)
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -400,7 +400,7 @@ public class SqlQueryTestSuite extends TestCase {
 			};
 		mockResultSet[0].setExpectedNextCalls(2);
 
-		class CustomerQuery extends ManualExtractionSqlQuery {
+		class CustomerQuery extends MappingSqlQuery {
 
 			public CustomerQuery(DataSource ds) {
 				super(ds, SELECT_ID_FORENAME_WHERE);
@@ -408,7 +408,7 @@ public class SqlQueryTestSuite extends TestCase {
 				compile();
 			}
 
-			protected Object extract(ResultSet rs, int rownum)
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -463,7 +463,7 @@ public class SqlQueryTestSuite extends TestCase {
 		}, COLUMN_NAMES, mockPreparedStatement[1]);
 		mockResultSet[1].setExpectedNextCalls(1);
 
-		class CustomerQuery extends ManualExtractionSqlQuery {
+		class CustomerQuery extends MappingSqlQuery {
 
 			public CustomerQuery(DataSource ds) {
 				super(ds, SELECT_ID_WHERE);
@@ -474,7 +474,7 @@ public class SqlQueryTestSuite extends TestCase {
 				compile();
 			}
 
-			protected Object extract(ResultSet rs, int rownum)
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -520,7 +520,7 @@ public class SqlQueryTestSuite extends TestCase {
 		mockResultSet[0].setExpectedNextCalls(3);
 		mockResultSet[0].setExpectedCloseCalls(1);
 
-		class CustomerQuery extends ManualExtractionSqlQuery {
+		class CustomerQuery extends MappingSqlQuery {
 
 			public CustomerQuery(DataSource ds) {
 				super(ds, SELECT_ID_FORENAME_WHERE);
@@ -528,7 +528,7 @@ public class SqlQueryTestSuite extends TestCase {
 				compile();
 			}
 
-			protected Object extract(ResultSet rs, int rownum)
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -571,7 +571,7 @@ public class SqlQueryTestSuite extends TestCase {
 			};
 		mockResultSet[0].setExpectedNextCalls(3);
 
-		class CustomerQuery extends ManualExtractionSqlQuery {
+		class CustomerQuery extends MappingSqlQuery {
 
 			public CustomerQuery(DataSource ds) {
 				super(ds, SELECT_ID_WHERE);
@@ -580,7 +580,7 @@ public class SqlQueryTestSuite extends TestCase {
 				compile();
 			}
 
-			protected Object extract(ResultSet rs, int rownum)
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -620,7 +620,7 @@ public class SqlQueryTestSuite extends TestCase {
 			};
 		mockResultSet[0].setExpectedNextCalls(3);
 
-		class CustomerQuery extends ManualExtractionSqlQuery {
+		class CustomerQuery extends MappingSqlQuery {
 
 			public CustomerQuery(DataSource ds) {
 				super(ds, SELECT_ID_FORENAME_WHERE);
@@ -628,7 +628,7 @@ public class SqlQueryTestSuite extends TestCase {
 				compile();
 			}
 
-			protected Object extract(ResultSet rs, int rownum)
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -667,7 +667,7 @@ public class SqlQueryTestSuite extends TestCase {
 			};
 		mockResultSet[0].setExpectedNextCalls(2);
 
-		class CustomerQuery extends ManualExtractionSqlQuery {
+		class CustomerQuery extends MappingSqlQuery {
 
 			public CustomerQuery(DataSource ds) {
 				super(ds, SELECT_ID_FORENAME_WHERE);
@@ -675,7 +675,7 @@ public class SqlQueryTestSuite extends TestCase {
 				compile();
 			}
 
-			protected Object extract(ResultSet rs, int rownum)
+			protected Object mapRow(ResultSet rs, int rownum)
 				throws SQLException {
 				Customer cust = new Customer();
 				cust.setId(rs.getInt(COLUMN_NAMES[0]));
@@ -697,7 +697,7 @@ public class SqlQueryTestSuite extends TestCase {
 	}
 
 	// Could implement an interface
-	private static class StringQuery extends ManualExtractionSqlQuery {
+	private static class StringQuery extends MappingSqlQuery {
 
 		public StringQuery(DataSource ds, String sql) {
 			super(ds, sql);
@@ -707,7 +707,7 @@ public class SqlQueryTestSuite extends TestCase {
 		/*
 		 * @see CustomExtractionQueryCommand#extract(ResultSet, int)
 		 */
-		protected Object extract(ResultSet rs, int rownum)
+		protected Object mapRow(ResultSet rs, int rownum)
 			throws SQLException {
 			return rs.getString(1);
 		}
@@ -719,7 +719,7 @@ public class SqlQueryTestSuite extends TestCase {
 		}
 	}
 
-	private static class ManCustQuery extends ManualExtractionSqlQuery {
+	private static class ManCustQuery extends MappingSqlQuery {
 
 		public ManCustQuery(DataSource ds, String sql) {
 			super(ds, sql);
@@ -729,7 +729,7 @@ public class SqlQueryTestSuite extends TestCase {
 		/*
 		 * @see CustomExtractionQueryCommand#extract(ResultSet, int)
 		 */
-		protected Object extract(ResultSet rs, int rownum)
+		protected Object mapRow(ResultSet rs, int rownum)
 			throws SQLException {
 			Customer cust = new Customer();
 			cust.setId(rs.getInt(COLUMN_NAMES[0]));
