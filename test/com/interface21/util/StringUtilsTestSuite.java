@@ -6,14 +6,12 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-
 /**
  *
  * @author Rod Johnson
  * @version $Id$
  */
 public class StringUtilsTestSuite extends TestCase { 
-
 
 	public StringUtilsTestSuite(String name) {
 		super(name);
@@ -23,9 +21,7 @@ public class StringUtilsTestSuite extends TestCase {
 	protected void setUp() throws Exception {
 	}
 
-
 	public void testCountOccurrencesOf() {
-		
 		assertTrue("nullx2 = 0", StringUtils.countOccurrencesOf(null, null) == 0);
 		assertTrue("null string = 0", StringUtils.countOccurrencesOf("s", null) == 0);
 		assertTrue("null substring = 0", StringUtils.countOccurrencesOf(null, "s") == 0);
@@ -63,17 +59,25 @@ public class StringUtilsTestSuite extends TestCase {
 		assertTrue("Output equals input", Arrays.equals(sa, components));
 	}
 
+	private void testStringArrayReverseTransformationMatches(String[] sa) {
+		String[] reverse = StringUtils.commaDelimitedListToStringArray(StringUtils.arrayToCommaDelimitedString(sa));
+		assertEquals("Reverse transformation is equal", Arrays.asList(sa), Arrays.asList(reverse));
+	}
+
 	public void testCommaDelimitedListToStringArrayMatchWords() {
 		// Could read these from files
 		String[] sa = new String[] { "foo", "bar", "big" };
 		testCommaDelimitedListToStringArrayLegalMatch(sa);
-		
+		testStringArrayReverseTransformationMatches(sa);
+
 		sa = new String[] { "a", "b", "c" };
 		testCommaDelimitedListToStringArrayLegalMatch(sa);
-		
+		testStringArrayReverseTransformationMatches(sa);
+
 		// Test same words
 		sa = new String[] { "AA", "AA", "AA", "AA", "AA" };
 		testCommaDelimitedListToStringArrayLegalMatch(sa);
+		testStringArrayReverseTransformationMatches(sa);
 	}
 	
 	public void testCommaDelimitedListToStringArraySingleString() {
@@ -101,7 +105,6 @@ public class StringUtilsTestSuite extends TestCase {
 		testCommaDelimitedListToStringArrayLegalMatch(sa);
 	}
 	
-
 	public void testReplace() throws Exception {
 		String inString = "a6AazAaa77abaa";
 		String oldPattern = "aa";
@@ -126,36 +129,34 @@ public class StringUtilsTestSuite extends TestCase {
 	
 	public void testDelete() throws Exception {
 		String inString = "The quick brown fox jumped over the lazy dog";
-		String pattern = "the";
-		
+
 		String noThe = StringUtils.delete(inString, "the");
-		assertTrue("REsult has no the [" + noThe + "]", noThe.equals("The quick brown fox jumped over  lazy dog"));
+		assertTrue("Result has no the [" + noThe + "]", noThe.equals("The quick brown fox jumped over  lazy dog"));
 		
 		String nohe = StringUtils.delete(inString, "he");
-		assertTrue("REsult has no he [" + nohe + "]", nohe.equals("T quick brown fox jumped over t lazy dog"));
+		assertTrue("Result has no he [" + nohe + "]", nohe.equals("T quick brown fox jumped over t lazy dog"));
 		
 		String nosp = StringUtils.delete(inString, " ");
-		assertTrue("REsult has no spaces", nosp.equals("Thequickbrownfoxjumpedoverthelazydog"));
+		assertTrue("Result has no spaces", nosp.equals("Thequickbrownfoxjumpedoverthelazydog"));
 		
 		String killEnd = StringUtils.delete(inString, "dog");
-		assertTrue("REsult has no dog", killEnd.equals("The quick brown fox jumped over the lazy "));
+		assertTrue("Result has no dog", killEnd.equals("The quick brown fox jumped over the lazy "));
 		
 		String mismatch = StringUtils.delete(inString, "dxxcxcxog");
-		assertTrue("REsult is unchanged", mismatch.equals(inString));
+		assertTrue("Result is unchanged", mismatch.equals(inString));
 	}
-	
 	
 	public void testDeleteAny() throws Exception {
 		String inString = "Able was I ere I saw Elba";
 		
 		String res = StringUtils.deleteAny(inString, "I");
-		assertTrue("REsult has no Is [" + res + "]", res.equals("Able was  ere  saw Elba"));
+		assertTrue("Result has no Is [" + res + "]", res.equals("Able was  ere  saw Elba"));
 		
 		res = StringUtils.deleteAny(inString, "AeEba!");
-		assertTrue("REsult has no Is [" + res + "]", res.equals("l ws I r I sw l"));
+		assertTrue("Result has no Is [" + res + "]", res.equals("l ws I r I sw l"));
 		
 		String mismatch = StringUtils.deleteAny(inString, "#@$#$^");
-		assertTrue("REsult is unchanged", mismatch.equals(inString));
+		assertTrue("Result is unchanged", mismatch.equals(inString));
 		
 		String whitespace = "This is\n\n\n    \t   a messagy string with whitespace\n";
 		assertTrue("Has CR", whitespace.indexOf("\n") != -1);
@@ -169,16 +170,5 @@ public class StringUtilsTestSuite extends TestCase {
 		() > 10);
 		System.out.println("CLEANED IS " + cleaned);
 	} 
-	
-
-
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(suite());
-		//	junit.swingui.TestRunner.main(new String[] {PrototypeFactoryTests.class.getName() } );
-	}
-
-	public static Test suite() { 
-		return new TestSuite(StringUtilsTestSuite.class);
-	}
 
 }

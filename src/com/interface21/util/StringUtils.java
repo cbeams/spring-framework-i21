@@ -73,7 +73,6 @@ public abstract class StringUtils {
 		return sbuf.toString();
 	}
 
-
 	/**
 	 * Delete all occurrences of the given substring.
 	 * @param pattern pattern to delete all occurrences of
@@ -98,7 +97,6 @@ public abstract class StringUtils {
 		}
 		return out.toString();
 	}
-
 
 	/**
 	 * Take a String which is a delimited list and convert it to a String array
@@ -130,16 +128,15 @@ public abstract class StringUtils {
 			pos = delpos + delimiter.length();
 		}
 		if (pos <= s.length()) {
-			// Add rest of String
+			// add rest of String
 			l.add(s.substring(pos));
 		}
 
 		return (String[]) l.toArray(new String[l.size()]);
 	}
 
-
 	/**
-	 * Convert a CSV list into an array of Strings
+	 * Convert a CSV list into an array of Strings.
 	 * @param s CSV list
 	 * @return an array of Strings. Returns the empty array if
 	 * s is null.
@@ -148,10 +145,9 @@ public abstract class StringUtils {
 		return delimitedListToStringArray(s, ",");
 	}
 
-
 	/**
-	 * Convenience method to convert a CSV string list to a set. Note that
-	 * this will suppress duplicates.
+	 * Convenience method to convert a CSV string list to a set.
+	 * Note that this will suppress duplicates.
 	 * @param s CSV String
 	 * @return a Set of String entries in the list
 	 */
@@ -162,7 +158,6 @@ public abstract class StringUtils {
 			set.add(tokens[i]);
 		return set;
 	}
-
 
 	/**
 	 * Convenience method to return a String array as a delimited (e.g. CSV)
@@ -185,39 +180,43 @@ public abstract class StringUtils {
 		}
 	}
 
-
 	/**
 	 * Convenience method to return a Collection as a delimited (e.g. CSV)
-	 * String. Useful for toString() implementations
+	 * String. Useful for toString() implementations.
 	 * @param c Collection to display
 	 * @param delim delimiter to use (probably a ",")
 	 */
 	public static String collectionToDelimitedString(Collection c, String delim) {
 		if (c == null)
 			return "null";
-		return iteratorToDelimitedString(c.iterator(), delim);
+		StringBuffer sb = new StringBuffer();
+		Iterator itr = c.iterator();
+		int i = 0;
+		while (itr.hasNext()) {
+			if (i++ > 0)
+				sb.append(delim);
+			sb.append(itr.next());
+		}
+		return sb.toString();
 	}
 
+	/**
+	 * Convenience method to return a String array as a CSV String.
+	 * Useful for toString() implementations.
+	 * @param arr array to display. Elements may be of any type (toString() will be
+	 * called on each element).
+	 */
+	public static String arrayToCommaDelimitedString(Object[] arr) {
+		return arrayToDelimitedString(arr, ",");
+	}
 
 	/**
-	 * Convenience method to return a Collection as a delimited (e.g. CSV)
-	 * String. Useful for toString() implementations
-	 * @param itr Iterator of the collection to display
-	 * @param delim delimiter to use (probably a ,)
+	 * Convenience method to return a Collection as a CSV String.
+	 * Useful for toString() implementations.
+	 * @param c Collection to display
 	 */
-	public static String iteratorToDelimitedString(Iterator itr, String delim) {
-		if (itr == null)
-			return "null";
-		else {
-			StringBuffer sb = new StringBuffer();
-			int i = 0;
-			while (itr.hasNext()) {
-				if (i++ > 0)
-					sb.append(delim);
-				sb.append(itr.next());
-			}
-			return sb.toString();
-		}
+	public static String collectionToCommaDelimitedString(Collection c) {
+		return collectionToDelimitedString(c, ",");
 	}
 
 }
