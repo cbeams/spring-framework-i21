@@ -16,6 +16,7 @@ public class BindException extends Exception implements Errors {
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
+
 	private List errors = new LinkedList();
 
 	private BeanWrapper beanWrapper;
@@ -27,6 +28,7 @@ public class BindException extends Exception implements Errors {
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
+
 	public BindException(Object target, String name) {
 		this.beanWrapper = new BeanWrapperImpl(target);
 		this.objectName = name;
@@ -49,6 +51,7 @@ public class BindException extends Exception implements Errors {
 	//---------------------------------------------------------------------
 	// Implementation of Errors
 	//---------------------------------------------------------------------
+
 	public Object getTarget() {
 		return beanWrapper.getWrappedInstance();
 	}
@@ -61,7 +64,7 @@ public class BindException extends Exception implements Errors {
 		errors.add(new ObjectError(this.objectName, errorCode, errorArgs, defaultMessage));
 	}
 
-	public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) throws InvalidBinderUsageException {
+	public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) {
 		field = fixedField(field);
 		Object newVal = getBeanWrapper().getPropertyValue(field);
 		FieldError fe = new FieldError(this.objectName, field, newVal, errorCode, errorArgs, defaultMessage);
@@ -136,10 +139,7 @@ public class BindException extends Exception implements Errors {
 		return null;
 	}
 
-	/**
-	 * Return value held in error if error, else
-	 */
-	public Object getPropertyValueOrRejectedUpdate(String field) {
+	public Object getFieldValue(String field) {
 		field = fixedField(field);
 		FieldError fe = getFieldError(field);
 		if (fe == null)
@@ -153,12 +153,8 @@ public class BindException extends Exception implements Errors {
 		if (nestedPath.length() > 0)
 			nestedPath += ".";
 		this.nestedPath = nestedPath;
-		//System.out.println("NESTEDPATH set to '" + this.nestedPath + "'");
 	}
 
-	/*
-	 * Return model!?
-	 */
 	public final Map getModel() {
 		Map m = new HashMap();
 		// errors instance, even if no errors
