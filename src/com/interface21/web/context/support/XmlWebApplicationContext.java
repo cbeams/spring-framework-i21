@@ -11,6 +11,7 @@
 
 package com.interface21.web.context.support;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -25,29 +26,50 @@ import com.interface21.web.context.WebApplicationContext;
  * WebApplicationContext implementation that takes configuration from an XML document.
  * Used in the sample application included in 
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>.
- * @author  Rod Johnson
+ * @author Rod Johnson, Juergen Hoeller
  * @version $Revision$
  */
 public class XmlWebApplicationContext extends AbstractXmlApplicationContext	implements WebApplicationContext {
 
+	/**
+	 * Name of servlet context parameter that can specify the config location prefix
+	 * for namespaced contexts, falling back to DEFAULT_CONFIG_LOCATION_PREFIX.
+	 */
+	public static final String CONFIG_LOCATION_PREFIX_PARAM = "configLocationPrefix";
+
+	/**
+	 * Name of servlet context parameter that can specify the config location suffix
+	 * for namespaced contexts, falling back to DEFAULT_CONFIG_LOCATION_SUFFIX.
+	 */
+	public static final String CONFIG_LOCATION_SUFFIX_PARAM = "configLocationSuffix";
+
+	/**
+	 * Name of servlet context parameter that can specify the config location
+	 * for the root context, falling back to DEFAULT_CONFIG_LOCATION.
+	 */
 	public static final String CONFIG_LOCATION_PARAM = "configLocation";
 
-	public static final String DEFAULT_CONFIG_LOCATION = "/WEB-INF/applicationContext.xml";
+	/** Default prefix for config locations, followed by the namespace */
+	public static final String DEFAULT_CONFIG_LOCATION_PREFIX = "WEB-INF/";
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/** namespace of this context, or null if root */
+	/** Default suffix for config locations, following the namespace */
+	public static final String DEFAULT_CONFIG_LOCATION_SUFFIX = ".xml";
+
+	/** Default config location for the root context. */
+	public static final String DEFAULT_CONFIG_LOCATION =
+	    DEFAULT_CONFIG_LOCATION_PREFIX + "applicationContext" + DEFAULT_CONFIG_LOCATION_SUFFIX;
+
+
+	/** Namespace of this context, or null if root */
 	private String namespace = null;
 
 	/** URL from which the configuration was loaded */
 	private String configLocation;
 
+	/** Servlet context that this context runs in */
 	private ServletContext servletContext;
 
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
+
 	/**
 	 * Create a new root web application context, for use in an entire
 	 * web application. This context will be the parent for individual
@@ -63,42 +85,9 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	public XmlWebApplicationContext(ApplicationContext parent, String namespace) {
 		super(parent);
 		this.namespace = namespace;
-		this.configLocation = "/WEB-INF/" + namespace + ".xml";
 		setDisplayName("WebApplicationContext for namespace '" + namespace + "'");
 	}
 
-	//---------------------------------------------------------------------
-	// Implementation of WebApplicationContext
-	//---------------------------------------------------------------------
-	/**
-	 * Initialize and attach to the given context.
-	 * @param servletContext ServletContext to use to load configuration,
-	 * and in which this web application context should be set as an attribute.
-	 */
-	public void setServletContext(ServletContext servletContext) throws ServletException {
-		this.servletContext = servletContext;
-
-		if (this.namespace == null) {
-			String configLocation = servletContext.getInitParameter(CONFIG_LOCATION_PARAM);
-			if (configLocation == null)
-				configLocation = DEFAULT_CONFIG_LOCATION;
-			this.configLocation = configLocation;
-		}
-		logger.info("Using config location '" + this.configLocation + "'");
-
-		refresh();
-
-		if (this.namespace == null) {
-			// We're the root context
-			WebApplicationContextUtils.configureConfigObjects(this);
-			// Expose as a ServletContext object
-			WebApplicationContextUtils.setAsContextAttribute(this);
-		}	
-	}	// setServletContext
-	
-	public final ServletContext getServletContext() {
-		return this.servletContext;
-	}
 
 	/**
 	 * @return the namespace of this context, or null if root
@@ -108,10 +97,71 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	}
 
 	/**
+	 * Initialize and attach to the given context.
+	 * @param servletContext ServletContext to use to load configuration,
+	 * and in which this web application context should be set as an attribute.
+	 */
+	public void setServletContext(ServletContext servletContext) throws ServletException {
+		this.servletContext = servletContext;
+
+		this.configLocation = getConfigLocationForNamespace();
+		logger.info("Using config location '" + this.configLocation + "'");
+		refresh();
+
+		if (this.namespace == null) {
+			// We're the root context
+			WebApplicationContextUtils.configureConfigObjects(this);
+			// Expose as a ServletContext object
+			WebApplicationContextUtils.setAsContextAttribute(this);
+		}	
+	}
+
+	public final ServletContext getServletContext() {
+		return this.servletContext;
+	}
+
+	/**
+	 * Initialize the config location for the current namespace.
+	 * This can be overridden in subclasses for custom config lookup.
+	 * <p>Default implementation returns the namespace with the default prefix
+	 * "WEB-INF/" and suffix ".xml", if a namespace is set. For the root context,
+	 * the "configLocation" servlet context parameter is used, falling back to
+	 * "WEB-INF/applicationContext.xml" if no parameter is found.
+	 * @return the URL or path of the configuration to use
+	 */
+	protected String getConfigLocationForNamespace() {
+		if (getNamespace() != null) {
+			String configLocationPrefix = this.servletContext.getInitParameter(CONFIG_LOCATION_PREFIX_PARAM);
+			String prefix = (configLocationPrefix != null) ? configLocationPrefix : DEFAULT_CONFIG_LOCATION_PREFIX;
+			String configLocationSuffix = this.servletContext.getInitParameter(CONFIG_LOCATION_SUFFIX_PARAM);
+			String suffix = (configLocationSuffix != null) ? configLocationSuffix : DEFAULT_CONFIG_LOCATION_SUFFIX;
+			return prefix + getNamespace() + suffix;
+		}
+		else {
+			String configLocation = this.servletContext.getInitParameter(CONFIG_LOCATION_PARAM);
+			return (configLocation != null) ? configLocation : DEFAULT_CONFIG_LOCATION;
+		}
+	}
+
+	/**
 	 * @return the URL or path of the configuration
 	 */
-	protected String getConfigLocation() {
+	protected final String getConfigLocation() {
 		return this.configLocation;
+	}
+
+
+	/**
+	 * Open and return the input stream for the bean factory for this namespace.
+	 * If namespace is null, return the input stream for the default bean factory.
+	 * @exception IOException if the required XML document isn't found
+	 */
+	protected InputStream getInputStreamForBeanFactory() throws IOException {
+		InputStream in = getResourceAsStream(this.configLocation);
+		if (in == null) {
+			throw new FileNotFoundException("Config location not found: " + this.configLocation);
+		}
+		return in;
 	}
 
 	/**
@@ -139,18 +189,6 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 		StringBuffer sb = new StringBuffer(super.toString() + "; ");
 		sb.append("config path='" + configLocation + "'; ");
 		return sb.toString();
-	}
-
-	//---------------------------------------------------------------------
-	// Implementation of superclass abstract methods
-	//---------------------------------------------------------------------
-	/**
-	 * Open and return the input stream for the bean factory for this namespace. 
-	 * If namespace is null, return the input stream for the default bean factory.
-	 * @exception IOException if the required XML document isn't found
-	 */
-	protected InputStream getInputStreamForBeanFactory() throws IOException {
-		return getResourceAsStream(this.configLocation);
 	}
 
 }

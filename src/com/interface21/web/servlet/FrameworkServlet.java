@@ -53,7 +53,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 * given the name 'test' in a context, the namespace used by the servlet will
 	 * resolve to 'test-servlet'.
 	 */
-	private static final String NAMESPACE_SUFFIX = "-servlet";
+	private static final String DEFAULT_NAMESPACE_SUFFIX = "-servlet";
 
 	/**
 	 * Prefix for the ServletContext attribute for the web application context.
@@ -83,6 +83,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
+
 	/** Custom context class */
 	private String contextClass;
 
@@ -97,6 +98,9 @@ public abstract class FrameworkServlet extends HttpServletBean {
 
 	/** Can request debugging be enabled? */
 	private boolean debuggable = false;
+
+	/** Namespace for this servlet */
+	private String namespace;
 
 	/** WebApplicationContext for this servlet */
 	private WebApplicationContext webApplicationContext;
@@ -120,6 +124,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	//---------------------------------------------------------------------
 	// Bean properties
 	//---------------------------------------------------------------------
+
 	/**
 	 * Set the a custom context class name
 	 * @param classname name of custom context class to use
@@ -153,7 +158,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 */
 	public final void setDebug(boolean debug) {
 		this.debug = debug;
-		logger.info("debug property set by bean property to " + this.debug);
+		logger.info("Debug property set by bean property to " + this.debug);
 	}
 
 	/**
@@ -167,12 +172,12 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 * If debuggable is enabled, a debug attribute will be set on every request
 	 * that contains a special parameter, regardless of whether debug mode is
 	 * permanently enabled. Default is false.
-	 * Cooperating classes can use this to output debug information
-	 * in any way they choose.
+	 * <p>Cooperating classes can use this to output debug information in any
+	 * way they choose.
 	 */
 	public final void setDebuggable(boolean debuggable) {
 		this.debuggable = debuggable;
-		logger.info("debuggable property set by bean property to " + this.debuggable);
+		logger.info("Debuggable property set by bean property to " + this.debuggable);
 	}
 
 	/**
@@ -182,12 +187,19 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		return debuggable;
 	}
 
+	/**
+	 * Set a custom namespace for this servlet.
+	 */
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
 
 	/**
-	 * Return the namespace for this servlet.
-	*/
+	 * Return the namespace for this servlet, falling back to default scheme if
+	 * no custom namespace was set: e.g. "test-servlet" for a servlet named "test".
+	 */
 	public String getNamespace() {
-		return getServletName() + FrameworkServlet.NAMESPACE_SUFFIX;
+		return (namespace != null) ? namespace : getServletName() + FrameworkServlet.DEFAULT_NAMESPACE_SUFFIX;
 	}
 
 	/**
@@ -208,6 +220,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	//---------------------------------------------------------------------
 	// Overridden methods of HttpServletBean
 	//---------------------------------------------------------------------
+
 	/**
 	 * Overridden method of HttpServletBean, invoked after any bean properties
 	 * have been set.
@@ -234,7 +247,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 
 		long elapsedTime = System.currentTimeMillis() - startTime;
 		logger.info("Framework servlet '" + getServletName() + "' init completed in " + elapsedTime + " ms");
-	}	// initServletBean
+	}
 
 	/**
 	 * Create the WebApplicationContext for this web app
@@ -273,14 +286,6 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			return waca;
 		}
 		catch (ServletException ex) {
-			//throw new ServletException("Can't load namespace '" + namespace + "': " + ex, ex);
-
-			//WAS: but surely should be fatal
-			// MIGHTn't want to force to use own, I guess
-			// bean exceptions are certainly fatal
-			//logger.logp(Level.WARNING, getClass().getName(), "createWebApplicationContext", "Can't load namespace '" + namespace + "': " + ex, ex);
-			//return parent;
-
 			String mesg = "Can't load namespace '" + namespace + "': " + ex;
 			this.startupException = new ServletException(mesg, ex);
 			logger.error(mesg, ex);
@@ -409,7 +414,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 				new RequestHandledEvent(this, request.getRequestURI(), processingTime, request.getRemoteAddr(), request.getMethod(), getServletConfig().getServletName(), failureCause);
 				webApplicationContext.publishEvent(e);
 		}
-	}	// serviceWrapper
+	}
 
 	/**
 	 * Subclasses must implement this method to do the work of request handling.
@@ -424,4 +429,4 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 */
 	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, boolean debugMode) throws ServletException, IOException;
 
-}	// FrameworkServlet
+}
