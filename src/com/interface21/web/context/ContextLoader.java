@@ -68,16 +68,19 @@ public class ContextLoader {
 		} catch (IllegalAccessException ex) {
 			handleException("Illegal access while finding or instantiating config class '" + contextClass + "': does it have a public no arg constructor?", ex);
 
-		} catch (RuntimeException ex) {
+		} catch (Throwable ex) {
 			handleException("Unexpected error loading config", ex);
 		}
 
 		return null;
 	}
 
-	private static void handleException(String msg, Exception ex) throws ApplicationContextException {
+	private static void handleException(String msg, Throwable ex) throws ApplicationContextException {
 		logger.error(msg, ex);
-		if (ex instanceof ApplicationContextException) {
+		if (ex instanceof Error) {
+			throw (Error) ex;
+		}
+		else if (ex instanceof ApplicationContextException) {
 			throw (ApplicationContextException) ex;
 		}
 		else {
