@@ -1,6 +1,7 @@
 package com.interface21.orm.hibernate;
 
 import java.util.List;
+import java.io.Serializable;
 
 import javax.sql.DataSource;
 
@@ -16,16 +17,17 @@ import com.interface21.dao.DataAccessException;
  * checked HibernateExceptions into unchecked HibernateJdbc/SystemExceptions,
  * compatible to the com.interface21.dao exception hierarchy.
  *
- * <p>The central method is "execute", supporting Hibernate code implementing
- * the HibernateCallback interface. It provides Hibernate Session handling
- * such that neither the HibernateCallback implementation nor the calling
- * code needs to explicitly care about retrieving/closing Hibernate Sessions,
- * or handling Session lifecycle exceptions.
- *
  * <p>Typically used to implement data access or business logic services that
  * use Hibernate within their implementation but are Hibernate-agnostic in
  * their interface. The latter resp. code calling the latter only have to deal
  * with business objects, query objects, and com.interface21.dao exceptions.
+ *
+ * <p>The central method is "execute", supporting Hibernate code implementing
+ * the HibernateCallback interface. It provides Hibernate Session handling
+ * such that neither the HibernateCallback implementation nor the calling
+ * code needs to explicitly care about retrieving/closing Hibernate Sessions,
+ * or handling Session lifecycle exceptions. For typical single step actions,
+ * there are various convenience methods (find, load, saveOrUpdate, delete).
  *
  * <p>Can be used within a service implementation via direct instantiation
  * with a SessionFactory reference, or get prepared in an application context
@@ -49,10 +51,6 @@ import com.interface21.dao.DataAccessException;
  *
  * <p>LocalSessionFactoryBean is the preferred way of obtaining a reference
  * to a specific Hibernate SessionFactory, at least in a non-EJB environment.
- * Registering a SessionFactory with JNDI is only advisable when using
- * Hibernate's JCA Connector, i.e. when the application server cares for
- * initialization. Else, portability is rather limited: Manual JNDI binding
- * isn't supported by some application servers (e.g. Tomcat).
  *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
@@ -157,20 +155,6 @@ public class HibernateTemplate implements InitializingBean {
 		return forceFlush;
 	}
 
-	/**
-	 * Execute the specified action assuming that the result object is a List.
-	 * This is a convenience method for executing Hibernate find calls within
-	 * an action.
-	 * @param action action object that specifies the Hibernate action
-	 * @return a result object returned by the action, or null
-	 * @throws DataAccessException in case of Hibernate errors
-	 * @throws RuntimeException in case of application exceptions thrown by
-	 * the action object
-	 */
-	public List executeFind(HibernateCallback action) throws DataAccessException, RuntimeException {
-		return (List) execute(action);
-	}
-
 	public void afterPropertiesSet() {
 		if (this.sessionFactory == null) {
 			throw new IllegalArgumentException("sessionFactory is required");
@@ -213,6 +197,77 @@ public class HibernateTemplate implements InitializingBean {
 		finally {
 			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory, this.dataSource);
 		}
+	}
+
+	/**
+	 * Execute a query for persistent instances.
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.find.
+	 * @param query a query expressed in Hibernate's query language
+	 * @return the List of persistent instances
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#find(String)
+	 */
+	public List find(final String query) {
+		return (List) execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return session.find(query);
+			}
+		});
+	}
+
+	/**
+	 * Return the persistent instance of the given entity class
+	 * with the given identifier.
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.load.
+	 * @param entityClass a persistent class
+	 * @param id an identifier of the persistent instance
+	 * @return the persistent instance
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#load(Class,Serializable)
+	 */
+	public Object load(final Class entityClass, final Serializable id) throws DataAccessException {
+		return execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return session.load(entityClass, id);
+			}
+		});
+	}
+
+	/**
+	 * Save respectively update the given persistent instance,
+	 * according to its id (matching the configured "unsaved-value"?).
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.saveOrUpdate.
+	 * @param entity the persistent instance to save resp. update
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#saveOrUpdate(Object)
+	 */
+	public void saveOrUpdate(final Object entity) {
+		execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				session.saveOrUpdate(entity);
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Delete the given persistent instance.
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.delete.
+	 * @param entity the persistent instance to delete
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#delete(Object)
+	 */
+	public void delete(final Object entity) {
+		execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				session.delete(entity);
+				return null;
+			}
+		});
 	}
 
 }

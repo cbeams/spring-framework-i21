@@ -37,7 +37,7 @@ public interface HibernateCallback {
 	 *
 	 * <p>Allows for returning a result object created within the callback, i.e.
 	 * a business object or a collection of business objects. Note that there's
-	 * special support for List results: see HibernateTemplate.executeFind.
+	 * special support for single step actions: see HibernateTemplate.find etc.
 	 * A thrown RuntimeException is treated as application exception, it gets
 	 * propagated to the caller of the template.
 	 *
@@ -47,7 +47,6 @@ public interface HibernateCallback {
 	 * @throws RuntimeException in case of an application exception,
 	 * propagating the exception to the caller
 	 * @see HibernateTemplate#execute
-	 * @see HibernateTemplate#executeFind
 	 * @see HibernateTransactionManager
 	 */
 	Object doInHibernate(Session session) throws HibernateException, RuntimeException;
