@@ -70,6 +70,15 @@ public abstract class RequestContextUtils {
 	}
 
 	/**
+	 * Retrieves the current locale from the given request.
+	 * @param request current HTTP request
+	 * @return the current locale
+	 */
+	public static String getTheme(ServletRequest request) {
+		return (String) request.getAttribute(DispatcherServlet.THEME_ATTRIBUTE);
+	}
+
+	/**
 	 * Resolves the given message code using the current WebApplicationContext.
 	 * @param request request to retrieve the WebApplicationContext from
 	 * @param code code of the message

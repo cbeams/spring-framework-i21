@@ -29,6 +29,7 @@ import com.interface21.core.OrderComparator;
 import com.interface21.web.servlet.handler.BeanNameUrlHandlerMapping;
 import com.interface21.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import com.interface21.web.servlet.mvc.SimpleControllerHandlerAdapter;
+import com.interface21.web.servlet.theme.FixedThemeResolver;
 import com.interface21.web.servlet.view.InternalResourceViewResolver;
 import com.interface21.web.util.WebUtils;
 
@@ -84,6 +85,13 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * this namespace.
 	 */
 	public static final String VIEW_RESOLVER_BEAN_NAME = "viewResolver";
+
+	/**
+	 * Well-known name for the ThemeResolver object in the bean factory for
+	 * this namespace.
+	 */
+	public static final String THEME_RESOLVER_BEAN_NAME = "themeResolver";
+	
 	
 	/**
 	 * Request attribute to hold current web application context.
@@ -97,9 +105,17 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	public static final String LOCALE_ATTRIBUTE = DispatcherServlet.class.getName() + ".LOCALE";
 
+	/**
+	 * Request attribute to hold current theme, retrievable by views.
+	 * @see com.interface21.web.servlet.support.RequestContext
+	 */
+	public static final String THEME_ATTRIBUTE = DispatcherServlet.class.getName() + ".THEME";
 
 	/** LocaleResolver used by this servlet */
 	private LocaleResolver localeResolver;
+
+	/** ThemeResolver used by this servlet */
+	private ThemeResolver themeResolver;
 
 	/** List of HandlerMappings */
 	private List handlerMappings;
@@ -109,8 +125,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 	/** ViewResolver used by this servlet */
 	private ViewResolver viewResolver;
-
-
+	
 	/**
 	 * Overridden method, invoked after any bean properties have been set and the
 	 * WebApplicationContext and BeanFactory for this namespace is available.
@@ -119,11 +134,32 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	protected void initFrameworkServlet() throws ServletException {
 		initLocaleResolver();
+		initThemeResolver();
 		initHandlerMappings();
 		initHandlerAdapters();
 		initViewResolver();
 	}
 
+	/**
+	 * Initialize the LocaleResolver used by this class.
+	 * If no bean is defined with the given name in the BeanFactory
+	 * for this namespace, we default to a AcceptHeaderLocaleResolver.
+	 */
+	private void initThemeResolver() throws ServletException {
+		try {
+			this.themeResolver = (ThemeResolver) getWebApplicationContext().getBean(THEME_RESOLVER_BEAN_NAME);
+			logger.info("Loaded themeResolver [" + this.themeResolver + "]");
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			// We need to use the default
+			logger.info("Unable to load theme resolver: bean with name '" + THEME_RESOLVER_BEAN_NAME + "': using default LocaleResolver [" + this.localeResolver + "]");
+			this.themeResolver = new FixedThemeResolver();
+		}
+		catch (BeansException ex) {
+			// We tried and failed to load the ViewResolver specified by a bean
+			throw new ServletException("Fatal error loading theme resolver: bean with name '" + THEME_RESOLVER_BEAN_NAME + "' is required in servlet '" + getServletName()  + "': using default", ex);
+		}
+	}
 
 	/**
 	 * Initialize the LocaleResolver used by this class.
@@ -320,6 +356,10 @@ public class DispatcherServlet extends FrameworkServlet {
 		request.setAttribute(LOCALE_ATTRIBUTE, locale);
 		response.setLocale(locale);
 
+		// Make Themes available */
+		String theme = this.themeResolver.resolveTheme(request);
+		request.setAttribute(THEME_ATTRIBUTE, theme);
+		
 		Object mappedHandler = getHandler(request);
 
 		if (mappedHandler == null) {

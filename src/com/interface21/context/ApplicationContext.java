@@ -38,7 +38,7 @@ import com.interface21.beans.factory.ListableBeanFactory;
  * @author Rod Johnson
  * @version $Revision$
  */
-public interface ApplicationContext extends MessageSource, ListableBeanFactory {
+public interface ApplicationContext extends MessageSource, ListableBeanFactory, ThemeSource {
 	
 	/**
 	 * Return the parent context, or null if there is no parent,
