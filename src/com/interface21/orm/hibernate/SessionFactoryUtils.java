@@ -2,9 +2,7 @@ package com.interface21.orm.hibernate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Connection;
 
-import javax.sql.DataSource;
 import javax.naming.NamingException;
 
 import net.sf.hibernate.HibernateException;
@@ -15,15 +13,14 @@ import net.sf.hibernate.cfg.Configuration;
 import org.apache.log4j.Logger;
 
 import com.interface21.dao.DataAccessResourceFailureException;
-import com.interface21.jdbc.datasource.DataSourceUtils;
-import com.interface21.util.ThreadObjectManager;
 import com.interface21.jndi.JndiServices;
+import com.interface21.util.ThreadObjectManager;
 
 /**
  * Helper class featuring methods for Hibernate session handling.
  * Used by HibernateTemplate, HibernateTransactionManager, etc.
  *
- * Note: This class, like all of Spring's Hibernate support, requires
+ * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
  *
  * @author Juergen Hoeller
@@ -119,43 +116,20 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Open a Hibernate session via the given factory, letting Hibernate retrieve
-	 * the underlying connection.
+	 * Open a Hibernate session via the given factory.
 	 * <p>Is aware of a respective session bound to the current thread,
 	 * for example when using HibernateTransactionManager.
 	 * @param sessionFactory Hibernate SessionFactory to create the session with
 	 * @return the Hibernate Session
 	 */
 	public static Session openSession(SessionFactory sessionFactory) {
-		return openSession(sessionFactory, null);
-	}
-
-	/**
-	 * Open a Hibernate Session via the given factory and the given data source.
-	 * <p>Is aware of a respective Session bound to the current thread,
-	 * for example when using HibernateTransactionManager.
-	 * @param sessionFactory Hibernate SessionFactory to create the session with
-	 * @param ds JDBC DataSource to create the underlying connection with,
-	 * or null to let Hibernate retrieve it (e.g. when using
-	 * DataSourceTransactionManager).
-	 * @return the Hibernate Session
-	 * @see HibernateTransactionManager
-	 * @see com.interface21.transaction.support.DataSourceTransactionManager
-	 */
-	public static Session openSession(SessionFactory sessionFactory, DataSource ds) {
 		SessionHolder holder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
 		if (holder != null) {
 			return holder.getSession();
 		}
 		try {
 			logger.debug("Opening Hibernate session");
-			if (ds != null) {
-				// user-provided DataSource
-				return sessionFactory.openSession(DataSourceUtils.getConnection(ds));
-			}
-			else {
-				return sessionFactory.openSession();
-			}
+			return sessionFactory.openSession();
 		}
 		catch (JDBCException ex) {
 			// SQLException underneath
@@ -173,18 +147,6 @@ public abstract class SessionFactoryUtils {
 	 * @param sessionFactory Hibernate SessionFactory that the Session was created with
 	 */
 	public static void closeSessionIfNecessary(Session session, SessionFactory sessionFactory) {
-		closeSessionIfNecessary(session, sessionFactory, null);
-	}
-
-	/**
-	 * Close the given session, created via the given factory and data source.
-	 * @param session Session to close
-	 * @param sessionFactory Hibernate SessionFactory that the Session was created with
-	 * @param ds JDBC DataSource that created the underlying connection, or null
-	 * if handled by Hibernate
-	 * @see #openSession(SessionFactory,DataSource)
-	 */
-	public static void closeSessionIfNecessary(Session session, SessionFactory sessionFactory, DataSource ds) {
 		if (session == null)
 			return;
 		// only close if it isn't thread-bound
@@ -192,11 +154,7 @@ public abstract class SessionFactoryUtils {
 		if (sessionHolder == null || session != sessionHolder.getSession()) {
 			logger.debug("Closing Hibernate session");
 			try {
-				Connection con = session.close();
-				if (ds != null) {
-					// user-provided DataSource
-					DataSourceUtils.closeConnectionIfNecessary(con, ds);
-				}
+				session.close();
 			}
 			catch (JDBCException ex) {
 				// SQLException underneath

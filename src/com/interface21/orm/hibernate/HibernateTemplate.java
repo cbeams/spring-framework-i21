@@ -2,8 +2,6 @@ package com.interface21.orm.hibernate;
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.JDBCException;
 import net.sf.hibernate.ObjectDeletedException;
@@ -19,7 +17,6 @@ import com.interface21.dao.DataAccessException;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.dao.InvalidDataAccessResourceUsageException;
 import com.interface21.dao.OptimisticLockingFailureException;
-import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**
  * Helper class that simplifies Hibernate data access code, and converts
@@ -50,28 +47,19 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * a code dependency. For example, switching to JTA is just a matter of
  * Spring and Hibernate configuration, without touching applicaiton code.
  *
- * <p>DataSourceTransactionManager can be used with this template too,
- * if the respective DataSource is explicitly set via setDataSource(Name).
- * This is necessary to allow Spring to handle the connection appropriately.
- *
- * Note: This class, like all of Spring's Hibernate support, requires
+ * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
  *
  * @author Juergen Hoeller
  * @since 02.05.2003
  * @see HibernateCallback
  * @see HibernateTransactionManager
- * @see #setDataSource
- * @see #setDataSourceName
- * @see com.interface21.transaction.support.DataSourceTransactionManager
  */
 public class HibernateTemplate {
 
 	private final Logger logger = Logger.getLogger(getClass());
 
 	private SessionFactory sessionFactory;
-
-	private DataSource dataSource;
 
 	/**
 	 * Create a new HibernateTemplate instance.
@@ -90,21 +78,9 @@ public class HibernateTemplate {
 	/**
 	 * Create a new HibernateTemplate instance.
 	 * @param sessionFactoryName name of the SessionFactory to create Sessions
-	 * @param dataSourceName name of the DataSource to retrieve connections from
 	 */
-	public HibernateTemplate(String sessionFactoryName, String dataSourceName) {
+	public HibernateTemplate(String sessionFactoryName) {
 		setSessionFactoryName(sessionFactoryName);
-		setDataSourceName(dataSourceName);
-	}
-
-	/**
-	 * Create a new HibernateTemplate instance.
-	 * @param sessionFactory SessionFactory to create Sessions
-	 * @param dataSource DataSource to retrieve connections from
-	 */
-	public HibernateTemplate(SessionFactory sessionFactory, DataSource dataSource) {
-		this.sessionFactory = sessionFactory;
-		this.dataSource = dataSource;
 	}
 
 	/**
@@ -129,31 +105,6 @@ public class HibernateTemplate {
 	 */
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
-	}
-
-	/**
-	 * Set the name of the J2EE DataSource that should be used to create
-	 * Hibernate Sessions, letting Spring retrieve the DataSource instead of
-	 * Hibernate, e.g. to allow for DataSourceTransactionManager with Hibernate.
-	 */
-	public final void setDataSourceName(String dataSourceName) {
-		this.dataSource = DataSourceUtils.getDataSourceFromJndi(dataSourceName);
-	}
-
-	/**
-	 * Set the DataSource that should be used to create Hibernate Sessions,
-	 * e.g. to allow for DataSourceTransactionManager with Hibernate.
-	 */
-	public final void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-
-	/**
-	 * Return the DataSource that should be used to create Hibernate Sessions,
-	 * or null Hibernate should retrieve a DataSource.
-	 */
-	public DataSource getDataSource() {
-		return dataSource;
 	}
 
 	/**
@@ -188,7 +139,7 @@ public class HibernateTemplate {
 	 * @see com.interface21.transaction
 	 */
 	public Object execute(HibernateCallback action) throws DataAccessException, RuntimeException {
-		Session session = SessionFactoryUtils.openSession(this.sessionFactory, this.dataSource);
+		Session session = SessionFactoryUtils.openSession(this.sessionFactory);
 		try {
 			Object result = action.doInHibernate(session);
 			// flush the changes, also for validation
@@ -230,7 +181,7 @@ public class HibernateTemplate {
 			throw ex;
 		}
 		finally {
-			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory, this.dataSource);
+			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory);
 		}
 	}
 

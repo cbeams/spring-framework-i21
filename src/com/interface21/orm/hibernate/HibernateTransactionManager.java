@@ -3,10 +3,14 @@ package com.interface21.orm.hibernate;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 
+import com.interface21.jdbc.datasource.ConnectionHolder;
+import com.interface21.jdbc.datasource.DataSourceUtils;
 import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
@@ -24,10 +28,16 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * supporting this transaction handling mechanism.
  *
  * <p>This implementation is appropriate for applications that solely use
- * Hibernate for transactional data access. It allows for proper Hibernate
- * transactional cache handling, which is not the case when using
- * DataSourceTransactionManager with Hibernate. The advantage of the latter
- * is that it allows for direct data source access within a transaction too.
+ * Hibernate for transactional data access, but it also supports direct
+ * data source access within a transaction (i.e. plain JDBC code working
+ * with the same DataSource). This allows for mixing services that access
+ * Hibernate including proper transactional caching, and services that
+ * use plain JDBC without being aware of Hibernate!
+ *
+ * <p>Note: To be able to register the Connection for plain JDBC code,
+ * it needs to be aware of the DataSource (see setDataSource). Application
+ * code needs to stick to the same Connection lookup pattern as with
+ * DataSourceTransactionManager (i.e. DataSourceUtils.getConnection).
  *
  * <p>Note: JTA resp. JtaTransactionManager is preferable for accessing
  * multiple transactional resources, but it is significantly harder to
@@ -36,18 +46,23 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * container-specific due to the JTA TransactionManager lookup. Using
  * its J2EE Connector is advisable but involves classloading issues.
  *
- * Note: This class, like all of Spring's Hibernate support, requires
+ * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
  * 
  * @author Juergen Hoeller
  * @since 02.05.2003
  * @see SessionFactoryUtils#openSession
  * @see HibernateTemplate#execute
+ * @see #setDataSourceName
+ * @see #setDataSource
  * @see com.interface21.transaction.support.DataSourceTransactionManager
+ * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
  */
 public class HibernateTransactionManager extends AbstractPlatformTransactionManager {
 
 	private SessionFactory sessionFactory;
+
+	private DataSource dataSource;
 
 	/**
 	 * Create a new HibernateTransactionManager instance.
@@ -58,17 +73,21 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	/**
 	 * Create a new HibernateTransactionManager instance.
 	 * @param sessionFactoryName name of the SessionFactory to manage transactions for
+	 * @param dataSourceName name of the DataSource to manage transactions for
 	 */
-	public HibernateTransactionManager(String sessionFactoryName) {
+	public HibernateTransactionManager(String sessionFactoryName, String dataSourceName) {
 		setSessionFactoryName(sessionFactoryName);
+		setDataSourceName(dataSourceName);
 	}
 
 	/**
 	 * Create a new HibernateTransactionManager instance.
 	 * @param sessionFactory SessionFactory to manage transactions for
+	 * @param dataSource DataSource to manage transactions for
 	 */
-	public HibernateTransactionManager(SessionFactory sessionFactory) {
+	public HibernateTransactionManager(SessionFactory sessionFactory, DataSource dataSource) {
 		this.sessionFactory = sessionFactory;
+		this.dataSource = dataSource;
 	}
 
 	/**
@@ -91,6 +110,31 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	 */
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
+	}
+
+	/**
+	 * Set the name of the J2EE DataSource that this instance should manage
+	 * transactions for (i.e. register the Hibernate transaction's JDBC
+	 * connection to provide it to application code accessing this DataSource).
+	 */
+	public final void setDataSourceName(String dataSourceName) {
+		this.dataSource = DataSourceUtils.getDataSourceFromJndi(dataSourceName);
+	}
+
+	/**
+	 * Set the J2EE DataSource that this instance should manage transactions for
+   * (i.e. register the Hibernate transaction's JDBC connection to provide it
+	 * to application code accessing this DataSource).
+	 */
+	public final void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	/**
+	 * Return the J2EE DataSource that this instance manages transactions for.
+	 */
+	public DataSource getDataSource() {
+		return dataSource;
 	}
 
 	protected Object doGetTransaction() throws CannotCreateTransactionException, TransactionException {
@@ -118,7 +162,15 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 				txObject.setPreviousIsolationLevel(new Integer(session.connection().getTransactionIsolation()));
 				session.connection().setTransactionIsolation(isolationLevel);
 			}
+			// add the Hibernate Transaction to the session holder
 			txObject.getSessionHolder().setTransaction(session.beginTransaction());
+			// register the session holder
+			SessionFactoryUtils.getThreadObjectManager().bindThreadObject(this.sessionFactory, txObject.getSessionHolder());
+			// register the Hibernate Session's JDBC Connection for the DataSource, if set
+			if (this.dataSource != null) {
+				ConnectionHolder conHolder = new ConnectionHolder(session.connection());
+				DataSourceUtils.getThreadObjectManager().bindThreadObject(this.dataSource, conHolder);
+			}
 		}
 		catch (SQLException ex) {
 			throw new CannotCreateTransactionException("Cannot set transaction isolation", ex);
@@ -129,7 +181,6 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		catch (HibernateException ex) {
 			throw new CannotCreateTransactionException("Cannot create Hibernate transaction", ex);
 		}
-		SessionFactoryUtils.getThreadObjectManager().bindThreadObject(this.sessionFactory, txObject.getSessionHolder());
 	}
 
 	protected void doCommit(TransactionStatus status) throws TransactionException {
@@ -179,7 +230,12 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	}
 
 	private void closeSession(HibernateTransactionObject txObject) {
+		// remove the session holder from the thread
 		SessionFactoryUtils.getThreadObjectManager().removeThreadObject(this.sessionFactory);
+		// remove the JDBC connection holder from the thread, if set
+		if (this.dataSource != null) {
+			DataSourceUtils.getThreadObjectManager().removeThreadObject(this.dataSource);
+		}
 		try {
 			// reset transaction isolation to previous value, if changed for the transaction
 			if (txObject.getPreviousIsolationLevel() != null) {
