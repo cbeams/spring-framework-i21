@@ -21,7 +21,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import com.interface21.jndi.AbstractJndiLocator;
-import com.interface21.jndi.JndiObjectEditor;
 import com.interface21.jndi.JndiTemplate;
 import com.interface21.util.ThreadObjectManager;
  
@@ -33,23 +32,16 @@ import com.interface21.util.ThreadObjectManager;
  * <p>Note: The getDataSourceFromJndi methods are targetted at applications
  * that do not use a BeanFactory resp. an ApplicationContext. With the latter,
  * it is preferable to preconfigure your beans or even JdbcTemplate instances
- * in the factory:
- * <ul>
- * <li>JndiObjectFactoryBean can be used to fetch a DataSource
- * from JNDI and give the DataSource bean reference to other beans.
- * <li>JndiObjectEditor is a property editor that allows for directly
- * specifying a (non-beanRef) JNDI name on a DataSource bean property.
- * </ul>
- * Switching to another DataSource is just a matter of configuration then:
- * You can even replace the definition of the FactoryBean with a non-JNDI
- * DriverManagerDataSource!
+ * in the factory: JndiObjectFactoryBean can be used to fetch a DataSource
+ * from JNDI and give the DataSource bean reference to other beans. Switching
+ * to another DataSource is just a matter of configuration then: You can even
+ * replace the definition of the FactoryBean with a non-JNDI DataSource!
  *
  * @version $Id$
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  * @see com.interface21.jndi.JndiObjectFactoryBean
- * @see com.interface21.jndi.JndiObjectEditor
  */
 public abstract class DataSourceUtils {
 
@@ -57,11 +49,6 @@ public abstract class DataSourceUtils {
 	 * Per-thread mappings: DataSource -> ConnectionHolder
 	 */
 	private static final ThreadObjectManager threadObjectManager = new ThreadObjectManager();
-
-	static {
-		// register editor to be able to set a JNDI name to a DataSource property
-		PropertyEditorManager.registerEditor(DataSource.class, JndiObjectEditor.class);
-	}
 
 	/**
 	 * Return the thread object manager for data sources, keeping a

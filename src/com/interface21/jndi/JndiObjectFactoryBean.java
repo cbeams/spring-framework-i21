@@ -19,14 +19,8 @@ import com.interface21.beans.factory.FactoryBean;
  * JNDI name, and easy switching to mock replacements. The latter can be
  * used for test setups, standalone clients, etc.
  *
- * <p>Instead of using bean references via this class, a property can also
- * be fed with a JNDI object via the JndiObjectEditor property editor,
- * i.e. by providing the JNDI name as non-beanRef string value. Note that
- * this does not allow for central configuration of the JNDI name!
- *
  * @author Juergen Hoeller
  * @since 22.05.2003
- * @see JndiObjectEditor
  * @see com.interface21.jdbc.core.JdbcTemplate#setDataSource
  */
 public class JndiObjectFactoryBean extends AbstractJndiLocator implements FactoryBean {
