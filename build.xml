@@ -285,6 +285,28 @@
 	</target>
 
 
+	<target name="buildlivetests" depends="build" description="Compile live test source tree java files into class files.">
+
+		<mkdir dir="${livetestbuild.dir}"/>
+
+		<javac destdir="${livetestbuild.dir}"
+			debug="${debug}"
+			deprecation="false" optimize="false"
+			failonerror="false"
+			>
+			<src path="${livetest.dir}"/>
+
+			<!-- Will pull in dependencies as required  -->
+			<classpath refid="master-classpath"/>
+			<classpath location="${build.dir}"/>
+
+		</javac>
+		
+		<copy file="${src.dir}/sql-error-codes.xml" todir="${testbuild.dir}"/>
+		
+	</target>
+
+
 	<!--
 		Run tests. This and Clover test target take their includes and excludes
 		from build.properties. However it's possible to run specific tests by passing in
