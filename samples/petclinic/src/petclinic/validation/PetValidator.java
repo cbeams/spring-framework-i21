@@ -27,7 +27,7 @@ public class PetValidator implements Validator {
 		if (name == null || "".equals(name)) {
 			errors.rejectValue("name", "required", null, "required");
 		}
-		if (pet.getOwner().hasPet(name)) {
+		if (pet.getId() == 0 && pet.getOwner().hasPet(name)) {
 			errors.rejectValue("name", "duplicate", null, "already exists");
 		}
 	}
