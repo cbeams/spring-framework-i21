@@ -45,9 +45,28 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 	/** ApplicationContext for this ViewResolver */
 	private ApplicationContext applicationContext;
 
-
 	/** Whether we should cache views, once resolved */
 	private boolean cache = true;
+
+	//---------------------------------------------------------------------
+	// Implementation of ApplicationContextAware
+	//---------------------------------------------------------------------
+	/** Set the ApplicationContext object used by this object
+	 * @param applicationContext ApplicationContext object used by this object
+	 * @throws ApplicationContextException if initialization attempted by this object
+	 * after it has access to the WebApplicatinContext fails
+	 */
+	public final void setApplicationContext(ApplicationContext applicationContext)
+		throws ApplicationContextException {
+		this.applicationContext = applicationContext;
+	}
+
+	/**
+	 * @see ApplicationContextAware#getApplicationContext()
+	 */
+	public final ApplicationContext getApplicationContext() {
+		return this.applicationContext;
+	}
 
 	//---------------------------------------------------------------------
 	// Bean properties
@@ -86,7 +105,7 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 		else {
 			// We're caching
 			// Don't really need synchronization
-			v = (View) viewHash.get(viewname);
+			v = (View) viewHash.get(getCacheKey(viewname, locale));
 			if (v == null) {
 				// Ask the subclass to load the View
 				v = loadAndConfigureView(viewname, locale);
@@ -122,43 +141,29 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 				throw new ServletException("Error initializing View [" + v + "]: " + ex.getMessage(), ex);
 			}
 
-			logger.info("Cached view with name '" + viewname + "'");
-			viewHash.put(viewname, v);
+			String cacheKey = getCacheKey(viewname, locale);
+			logger.info("Cached view '" + cacheKey + "'");
+			viewHash.put(cacheKey, v);
 		}
 
 		return v;
 	} // loadAndConfigureView
 
+	/**
+	 * Returns the cache key for the given viewname and the given locale.
+	 * Needs to regard the locale, as a different locale can lead to a different view!
+	 */
+	private String getCacheKey(String viewname, Locale locale) {
+		return viewname + "_" + locale;
+	}
 
 	/** Subclasses must implement this method. There need be no concern for efficiency,
 	 * as this class will cache views.
 	 * @param viewname name of the view to retrieve
 	 * @param locale Locale to retrieve the view for. Not all subclasses may support
 	 * internationalization. A subclass that doesn't can ignore this parameter.
-	 * @throws ServetException if there is an error trying to resolve the view
+	 * @throws ServletException if there is an error trying to resolve the view
 	 * @return the View if it can be resolved; otherwise null.
 	 */
 	protected abstract View loadView(String viewname, Locale locale) throws ServletException;
-
-	//---------------------------------------------------------------------
-	// Implementation of ApplicationContextAware
-	//---------------------------------------------------------------------
-	/** Set the ApplicationContext object used by this object
-	 * @param ctx ApplicationContext object used by this object
-	 * @param namespace namespace this object is in: null means default namespace
-	 * @throws ApplicationContextException if initialization attempted by this object
-	 * after it has access to the WebApplicatinContext fails
-	 */
-	public final void setApplicationContext(ApplicationContext applicationContext)
-		throws ApplicationContextException {
-		this.applicationContext = applicationContext;
-	}
-
-	/**
-	 * @see ApplicationContextAware#getApplicationContext()
-	 */
-	public final ApplicationContext getApplicationContext() {
-		return this.applicationContext;
-	}
-
 }

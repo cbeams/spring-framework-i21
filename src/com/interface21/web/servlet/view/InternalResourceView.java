@@ -32,16 +32,16 @@ import com.interface21.web.servlet.ControllerServlet;
  */
 public class InternalResourceView extends AbstractView {
 	
-	public final static String DEBUG_JSP = "/jsp/debug/trace.jsp"; 
-	
-	
+
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
 	/** URL of the resource within the WAR we'll use a RequestDispatcher
 	 * to forward to */
 	private String url;
-	
+
+	private String debugUrl;
+
 
 	//---------------------------------------------------------------------
 	// Constructors
@@ -51,7 +51,6 @@ public class InternalResourceView extends AbstractView {
 	public InternalResourceView() {
 	}
 	 
-	 
 	/** Create a new InternalResourceView, specifying
 	 * the given url
 	 * @param url url to forward to
@@ -59,7 +58,8 @@ public class InternalResourceView extends AbstractView {
 	public InternalResourceView(String url) {
 		setUrl(url);
 	}
-	
+
+
 	//---------------------------------------------------------------------
 	// Bean properties
 	//---------------------------------------------------------------------
@@ -70,16 +70,23 @@ public class InternalResourceView extends AbstractView {
 		this.url = url;
 	}
 	
-	
-	/** 
+	/**
 	 * Get the URL of the resource this view forwards to
 	 * @return the URL of the resource this view forwards to
 	 */
 	public String getUrl() {
 		return url;
 	}
-	
- 
+
+	public void setDebugUrl(String debugUrl) {
+		this.debugUrl = debugUrl;
+	}
+
+	public String getDebugUrl() {
+		return debugUrl;
+	}
+
+
 	//---------------------------------------------------------------------
 	// Implementation of abstract methods
 	//---------------------------------------------------------------------
@@ -95,14 +102,14 @@ public class InternalResourceView extends AbstractView {
 			throw new ServletException("InternalResourceView is not configured: URL cannot be null");
 			
 		exposeModelsAsRequestAttributes(model, request);
-		
+
 		// Let the target resource set the content type
 				
 		try {
 			if (ControllerServlet.isDebugMode(request)) {
 				logger.debug("Showing debug information, and including JSP with url '" + getUrl() + "' in InternalResourceView with name '" + getName() + "'");
 				request.getRequestDispatcher(getUrl()).include(request, response);
-				request.getRequestDispatcher(DEBUG_JSP).include(request, response);
+				request.getRequestDispatcher(getDebugUrl()).include(request, response);
 			}
 			else {
 				// Simply forward to the JSP
@@ -127,7 +134,7 @@ public class InternalResourceView extends AbstractView {
 	 * @param model Map of models to expose
 	 * @param request HttpServletRequest to preprocess.
 	 */
-	protected final void exposeModelsAsRequestAttributes(Map model,  HttpServletRequest request) {
+	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) {
 		if (model != null) {
 			Set keys = model.keySet();
 			Iterator itr = keys.iterator();

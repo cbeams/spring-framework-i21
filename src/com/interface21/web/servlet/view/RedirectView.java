@@ -10,9 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * View that redirects to an internal or external URL.
- * This class is not fully implemented: it needs to expose
- * model attributes as GET parameters to external view.
+ * View that redirects to an internal or external URL,
+ * exposing all model attributes as HTTP query parameters.
  * @author  Rod Johnson
  * @version $Revision$
  */
@@ -20,9 +19,8 @@ public class RedirectView extends AbstractView {
 	
 	private String url;
 
-	/** Creates new JSPView */
-    public RedirectView() {
-    }
+	public RedirectView() {
+	}
 	 
 	public RedirectView(String url) {
 		setUrl(url);
@@ -36,7 +34,6 @@ public class RedirectView extends AbstractView {
 		return url;
 	}
 	
-	
 	/**
 	 * Subclasses can override this method to return name-value pairs for query strings,
 	 * which will be URLEncoded and formatted by this class.
@@ -45,13 +42,9 @@ public class RedirectView extends AbstractView {
 	protected Map queryProperties(Map model) {
 		return model;
 	}
-	
-	
-	///////////////// FIX BELOW TO USE QUERY PROPERTIES///
-
 
 	/**
-	 * Do a get as 
+	 * Convert model to request parameters and redirect to url.
 	 */
 	protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		if (getUrl() == null)
@@ -62,7 +55,7 @@ public class RedirectView extends AbstractView {
 		// If there are not already some parameters, we need a ?
 		boolean first = (getUrl().indexOf('?') < 0);
 		
-		Iterator entries = model.entrySet().iterator();
+		Iterator entries = queryProperties(model).entrySet().iterator();
 		while (entries.hasNext()) {
 			if (first) {
 				url.append("?");

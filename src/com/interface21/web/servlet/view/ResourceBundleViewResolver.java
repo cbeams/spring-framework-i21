@@ -41,6 +41,7 @@ public class ResourceBundleViewResolver extends AbstractCachingViewResolver {
 	/** Resource bundle basename */
 	private String basename = DEFAULT_BASENAME;
 
+	private String defaultParentView;
 
 	//---------------------------------------------------------------------
 	// Bean properties
@@ -56,6 +57,13 @@ public class ResourceBundleViewResolver extends AbstractCachingViewResolver {
 		this.basename = basename;
 	}
 
+	public String getDefaultParentView() {
+		return defaultParentView;
+	}
+
+	public void setDefaultParentView(String defaultParentView) {
+		this.defaultParentView = defaultParentView;
+	}
 
 	//---------------------------------------------------------------------
 	// Implementation of protected abstract methods
@@ -63,10 +71,10 @@ public class ResourceBundleViewResolver extends AbstractCachingViewResolver {
 	/** 
 	 * Subclasses must implement this method. There need be no concern for efficiency,
 	 * as AbstractCachingViewResolver will cache views.
-	 * @param viewname name of the view to retrieve
+	 * @param viewName name of the view to retrieve
 	 * @param locale Locale to retrieve the view for. Not all subclasses may support
 	 * internationalization. A subclass that doesn't can ignore this parameter.
-	 * @throws ServetException if there is an error trying to resolve the view
+	 * @throws ServletException if there is an error trying to resolve the view
 	 * @return the View if it can be resolved; otherwise null.
 	 */
 	protected View loadView(String viewName, Locale locale) throws ServletException {
@@ -86,6 +94,7 @@ public class ResourceBundleViewResolver extends AbstractCachingViewResolver {
 			// We must pass a class loader context to the ListableBeanFactoryImpl
 			// class, which may have been loaded by a different class Loader.
 			ListableBeanFactoryImpl lbf = new ListableBeanFactoryImpl(this);
+			lbf.setDefaultParentBean(getDefaultParentView());
 			lbf.registerBeanDefinitions(bundle, null);
 			
 			Object o = lbf.getBean(viewName);

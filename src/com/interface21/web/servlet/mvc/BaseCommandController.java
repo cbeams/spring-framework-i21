@@ -30,6 +30,8 @@ import com.interface21.web.bind.HttpServletRequestDataBinder;
  */
 public abstract class BaseCommandController extends AbstractController {
 
+	public static final String DEFAULT_BEAN_NAME = BaseCommandController.class.getName() + ".COMMAND";
+
 	//-------------------------------------------------------------------------
 	// Instance data
 	//-------------------------------------------------------------------------
@@ -37,20 +39,23 @@ public abstract class BaseCommandController extends AbstractController {
 
 	private Validator validator;
 	
-	private String beanName;
-
+	private String beanName = DEFAULT_BEAN_NAME;
 
 	//-------------------------------------------------------------------------
 	// Constructors
 	//-------------------------------------------------------------------------	
 	public BaseCommandController() {
 	}
-	
+
 	protected void setCommandClass(Class commandClass) {
+		checkValidator(this.validator, commandClass);
 		this.commandClass = commandClass;
 	}
 
-	
+	protected Class getCommandClass() {
+		return this.commandClass;
+	}
+
 	//-------------------------------------------------------------------------
 	// JavaBean properties
 	//-------------------------------------------------------------------------
@@ -58,6 +63,14 @@ public abstract class BaseCommandController extends AbstractController {
 		this.commandClass = Class.forName(name);
 	}
 	
+	protected String getCommandClassName() {
+		return (this.commandClass != null ? this.commandClass.getName() : null);
+	}
+
+	protected boolean checkCommandClass(Object command) {
+		return (this.commandClass == null || this.commandClass.isInstance(command));
+	}
+
 	public final void setBeanName(String beanName) {
 		this.beanName = beanName;
 	}
@@ -65,37 +78,45 @@ public abstract class BaseCommandController extends AbstractController {
 	protected final String getBeanName() {
 		return this.beanName;
 	}
-	
 
-	public final void setValidator(Validator validator) throws IllegalArgumentException {
-		if (!validator.supports(this.commandClass))
-			throw new IllegalArgumentException(
-				"Validator [" + validator + "] can't validate command class of type " + commandClass);
+	public final void setValidator(Validator validator) {
+		checkValidator(validator, this.commandClass);
 		this.validator = validator;
 	}
 
-	
+	private void checkValidator(Validator validator, Class commandClass) {
+		if (validator != null && commandClass != null && !validator.supports(commandClass))
+			throw new IllegalArgumentException(
+				"Validator [" + validator + "] can't validate command class of type " + commandClass);
+	}
+
 	//-------------------------------------------------------------------------
 	// Implementation methods
 	//-------------------------------------------------------------------------
+
+	protected Object createCommand(HttpServletRequest request) throws ServletException {
+		logger.info("Must create new command of " + commandClass);
+		try {
+			return commandClass.newInstance();
+		}	catch (InstantiationException ex) {
+			throw new ServletException(
+				"Cannot instantiate command " + commandClass + "; does it have a public no arg constructor?",
+				ex);
+		} catch (IllegalAccessException ex) {
+			throw new ServletException(
+				"Cannot instantiate command " + commandClass + "; cannot access constructor",
+				ex);
+		}
+	}
+
 	/**
 	 * Subclasses can override this
 	 * @return object to bind onto
 	 */
 	protected Object userObject(HttpServletRequest request) throws ServletException {
-		logger.info("Must create new command of " + commandClass);
-		try {
-			Object command = commandClass.newInstance();
-			return command;
-		}
-		catch (Exception ex) {
-			throw new ServletException(
-				"Cannot instantiate command " + commandClass + "; does it have a public no arg constructor?",
-				ex);
-		}
+		return createCommand(request);
 	}
-	
-	
+
 	// *TODO: must be able to parameterize the binding process.
 	// without depending on DataBinder
 	
@@ -103,7 +124,6 @@ public abstract class BaseCommandController extends AbstractController {
 		HttpServletRequestDataBinder binder = new HttpServletRequestDataBinder(command, this.beanName);
 		binder.bind(request);
 
-		
 		// TODO: do we still want to invoke validator!????
 		// it would need to check if there already was an error for each field
 
@@ -125,5 +145,4 @@ public abstract class BaseCommandController extends AbstractController {
 		
 		return binder;		
 	}
-
 }

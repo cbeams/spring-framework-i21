@@ -30,7 +30,7 @@ import com.interface21.context.ApplicationContextException;
  * of is equally flexible.
  * @author Rod Johnson
  */
-public interface HandlerMapping extends ApplicationContextAware {
+public interface HandlerMapping extends ApplicationContextAware, LocaleResolverAware {
 	
 	/** 
 	 * Will be invoked <b>after</b> setApplicationContext().

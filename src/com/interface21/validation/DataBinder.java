@@ -39,13 +39,13 @@ public class DataBinder extends BindException {
 	 * Adds to last bean wrapper
 	 */
 	public void addVetoableChangeListener(VetoableChangeListener vtl) {
-		getLastBeanWrapper().setEventPropagationEnabled(true);
-		getLastBeanWrapper().addVetoableChangeListener(vtl);
+		getBeanWrapper().setEventPropagationEnabled(true);
+		getBeanWrapper().addVetoableChangeListener(vtl);
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {
-		getLastBeanWrapper().setEventPropagationEnabled(true);
-		getLastBeanWrapper().addPropertyChangeListener(pcl);
+		getBeanWrapper().setEventPropagationEnabled(true);
+		getBeanWrapper().addPropertyChangeListener(pcl);
 	}
 	
 	// MULTIPLE ERRORS on same field?!?
@@ -60,7 +60,7 @@ public class DataBinder extends BindException {
 				PropertyValue pv = pvs.getPropertyValue(requiredFields[i]);
 				if (pv == null || "".equals(pv.getValue())) {
 					logger.debug("Required field '" + requiredFields[i] + "' is missing or empty");
-					addFieldError(new FieldError(lastObjectName(),requiredFields[i], "", requiredFields[i] + MISSING_FIELD_ERRORCODE_SUFFIX, "Field '" + requiredFields[i] + "' is required"));
+					addFieldError(new FieldError(getObjectName(),requiredFields[i], "", requiredFields[i] + MISSING_FIELD_ERRORCODE_SUFFIX, "Field '" + requiredFields[i] + "' is required"));
 				}
 			}
 		}
@@ -90,12 +90,12 @@ public class DataBinder extends BindException {
 			
 			// Bind request parameters onto params
 			// We ignore unknown properties
-			getLastBeanWrapper().setPropertyValues(pvs, true, null);
+			getBeanWrapper().setPropertyValues(pvs, true, null);
 		}
 		catch (PropertyVetoExceptionsException ex) {
 			ErrorCodedPropertyVetoException[] exs = ex.getPropertyVetoExceptions();
 			for (int i = 0; i < exs.length; i++) {
-				addFieldError(new FieldError(lastObjectName(), exs[i].getPropertyChangeEvent().getPropertyName(), exs[i].getPropertyChangeEvent().getNewValue(), exs[i].getErrorCode(), exs[i].getLocalizedMessage()));
+				addFieldError(new FieldError(getObjectName(), exs[i].getPropertyChangeEvent().getPropertyName(), exs[i].getPropertyChangeEvent().getNewValue(), exs[i].getErrorCode(), exs[i].getLocalizedMessage()));
 			}
 		}
 	}

@@ -214,12 +214,14 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			initFrameworkServlet();
 		}
 		catch (Exception ex) {
-			this.startupException = new ServletException("Servlet with name '" + getServletName() + " failed to initialize, with exception " + ex, ex);
+			String msg = "Servlet with name '" + getServletName() + "' failed to initialize";
+			log(msg, ex);
+			this.startupException = new ServletException(msg + ", with exception " + ex, ex);
 			throw startupException;
 		}
 		
 		long elapsedTime = System.currentTimeMillis() - startTime;
-		logger.info("-------------- Framework servlet '" + getServletName() + "' init completed in " + elapsedTime + " ms");
+		logger.info("Framework servlet '" + getServletName() + "' init completed in " + elapsedTime + " ms");
 	}	// initServletBean
 
 

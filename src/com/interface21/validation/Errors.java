@@ -18,37 +18,51 @@ package com.interface21.validation;
  * @author Rod Johnson
  */
 public interface Errors {
-	 
-	// Reject a value in the last update
+
+	String getObjectName();
+
+	void reject(String code, String message);
+
 	void rejectValue(String field, String code, String message);
-	
-	void rejectValue(String objName, String field, String code, String message);
-	
+
+	boolean hasErrors();
+
 	int getErrorCount();
 	
-	boolean hasError(String objName, String field);
-	
-	Object getPropertyValueOrRejectedUpdate(String objName, String field);
-	
-	boolean hasErrors();
-	
+	FieldError[] getAllErrors();
+
+	boolean hasGlobalErrors();
+
+	int getGlobalErrorCount();
+
 	/**
 	 * Return FieldError or null
 	 */
-	FieldError getError(String objName, String field);
-	
-	/** Apply to last update */
-	boolean hasError(String field);
-	
-	/** Apply to last update */
-	FieldError getError(String field);
-	
-	/** 
-	 * Apply to last update 
+	FieldError[] getGlobalErrors();
+
+	/**
+	 * Return FieldError or null
 	 */
+	FieldError getGlobalError();
+
+	boolean hasFieldErrors(String field);
+
+	int getFieldErrorCount(String field);
+
+	/**
+	 * Return FieldError or null
+	 */
+	FieldError[] getFieldErrors(String field);
+
+	/**
+	 * Return FieldError or null
+	 */
+	FieldError getFieldError(String field);
+
 	Object getPropertyValueOrRejectedUpdate(String field);
-	
-	
+
+	String getDisplayValue(String field);
+
 	/**
 	 * Allows context to be changed so that standard validators can validate subtrees.
 	 * E.g. an address validator could validate address.
@@ -57,5 +71,4 @@ public interface Errors {
 	 * Rejection amounts to adding this
 	 */
 	void setNestedPath(String nestedPath);
-
 }

@@ -1,199 +1,149 @@
 package com.interface21.validation;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.interface21.beans.BeanWrapper;
 import com.interface21.beans.BeanWrapperImpl;
-
 
 /**
  *
  * @author Rod Johnson
  */
 public class BindException extends Exception implements Errors {
-	
-	public static final String EXCEPTION_KEY = "com.interface21.validation.BindException";
-	
-	public static final String ERRORS_KEY = "com.interface21.validation.BindException.ERRORS";
-	
+
+	public static final String ERROR_KEY_PREFIX = "com.interface21.web.bind.BIND_EXCEPTION.";
+
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
 	private List errors = new LinkedList();
+
+	private BeanWrapper beanWrapper;
 	
-	/** String name -> bw */
-	private HashMap bwHash = new HashMap();
+	private String objectName;
 	
-	/** String name -> object */
-	private HashMap targetHash = new HashMap();
-	
-	private BeanWrapper lastBeanWrapper;
-	
-	private String lastObjectName;
-	
-	/** Nested path */
 	private String nestedPath = "";
-	
-	
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
 	public BindException(Object target, String name) {
-		newTarget(target, name);
-	}
-	
-
-	//---------------------------------------------------------------------
-	// Implementation of Errors
-	//---------------------------------------------------------------------
-	/**
-	 * Return a mapping of target name to target object
-	 */
-	public final Map getTargetMap() {
-		HashMap m = new HashMap();
-		m.putAll(this.targetHash);
-		return m;
-	}
-	
-	public void newTarget(Object target, String name) {
-		this.lastBeanWrapper = new BeanWrapperImpl(target);
-		bwHash.put(name, this.lastBeanWrapper);
-		targetHash.put(name, target);
-		this.lastObjectName = name;
-		
+		this.beanWrapper = new BeanWrapperImpl(target);
+		this.objectName = name;
 		this.nestedPath = "";
 	}
-	
-	protected BeanWrapper getLastBeanWrapper() {
-		return lastBeanWrapper;
+
+	protected BeanWrapper getBeanWrapper() {
+		return beanWrapper;
 	}
-	
-	protected String lastObjectName() {
-		return lastObjectName;
-	}
-	
-	protected BeanWrapper getBeanWrapperFor(String name) throws InvalidBinderUsageException {
-		BeanWrapper bw = (BeanWrapper) bwHash.get(name);
-		if (bw == null)
-			throw new InvalidBinderUsageException("No target with name '" + name + "'");
-		return bw;
-	}
-	
-	public Object getTarget(String name) throws InvalidBinderUsageException {
-		BeanWrapper bw = getBeanWrapperFor(name);
-		return bw.getWrappedInstance();
-	}
-	
-	private BeanWrapper getBeanWrapperForSingleTarget() throws InvalidBinderUsageException {
-		if (bwHash.size() != 1)
-			throw new InvalidBinderUsageException("Multiple targets: can't get default target");
-		BeanWrapper bw = (BeanWrapper) bwHash.values().iterator().next();
-		return bw;
-	}
-	
-	public Object getTarget() throws InvalidBinderUsageException {
-		//BeanWrapper bw = getBeanWrapperForSingleTarget();
-		//return bw.getWrappedInstance();
-		return this.lastBeanWrapper;
-	}
-	
-	/**
-	 * Reject an update from the last binding target
-	 */
-	public void rejectValue(String field, String code, String message) throws InvalidBinderUsageException {
-		rejectValue(this.lastObjectName, field, code, message);
-	}
-	
-	public void rejectValue(String objName, String field, String code, String message) throws InvalidBinderUsageException {
-		
-		field = fixedField(field);
-		Object newVal = getBeanWrapperFor(objName).getPropertyValue(field);
-		FieldError fe = new FieldError(this.lastObjectName, field, newVal, code, message);
-		errors.add(fe);
-	}
-	
+
 	private String fixedField(String field) {
 		// Add nested path, if present, allowing context changes
 		field = nestedPath + field;
 		//System.out.println("Fixed field = '" + field + "'");
 		return field;
 	}
-	
+
 	protected void addFieldError(FieldError fe) {
 		errors.add(fe);
 	}
-	
-	
-	public int getErrorCount() {
-		return errors.size();
+
+	//---------------------------------------------------------------------
+	// Implementation of Errors
+	//---------------------------------------------------------------------
+	public Object getTarget() {
+		return beanWrapper.getWrappedInstance();
 	}
 	
-	public boolean hasError(String objName, String field) { 
+	public String getObjectName() {
+		return objectName;
+	}
+	
+	public void reject(String code, String message) {
+		errors.add(new FieldError(this.objectName, code, message));
+	}
+
+	public void rejectValue(String field, String code, String message) throws InvalidBinderUsageException {
 		field = fixedField(field);
-		return getError(objName, field) != null;
+		Object newVal = getBeanWrapper().getPropertyValue(field);
+		FieldError fe = new FieldError(this.objectName, field, newVal, code, message);
+		errors.add(fe);
 	}
-	
-	public boolean hasError(String field) { 
-		return getError(this.lastObjectName, field) != null;
-	}
-	
+
 	public boolean hasErrors() {
 		return !errors.isEmpty();
 	}
-	
-	
-	/**
-	 * Return value held in error if error, else
-	 * 
-	 */
-	public Object getPropertyValueOrRejectedUpdate(String objName, String field) {
-		field = fixedField(field);
-		FieldError fe = getError(objName, field);
-		if (fe == null)
-			return getBeanWrapperFor(objName).getPropertyValue(field);
-		return fe.getRejectedValue();
+
+	public int getErrorCount() {
+		return errors.size();
 	}
-	
-	public Object getPropertyValueOrRejectedUpdate(String field) {
-		return getPropertyValueOrRejectedUpdate(this.lastObjectName, field);
+
+	public FieldError[] getAllErrors() {
+		return (FieldError[]) errors.toArray(new FieldError[errors.size()]);
 	}
-	
-	/**
-	 * Return FieldError or null
-	 */
-	public FieldError getError(String objName, String field) {
+
+	public boolean hasGlobalErrors() {
+		return (getGlobalErrorCount() > 0);
+	}
+
+	public int getGlobalErrorCount() {
+		return getGlobalErrors().length;
+	}
+
+	public FieldError[] getGlobalErrors() {
+		List result = new ArrayList();
+		for (int i = 0; i < errors.size(); i++) {
+			FieldError fe = (FieldError) errors.get(i);
+			if (fe.getField() == null)
+				result.add(fe);
+		}
+		return (FieldError[])result.toArray(new FieldError[result.size()]);
+	}
+
+	public FieldError getGlobalError() {
+		FieldError[] errors = getGlobalErrors();
+		return (errors.length > 0 ? errors[0] : null);
+	}
+
+	public boolean hasFieldErrors(String field) {
+		return (getFieldErrorCount(field) > 0);
+	}
+
+	public int getFieldErrorCount(String field) {
+		return getFieldErrors(field).length;
+	}
+
+	public FieldError[] getFieldErrors(String field) {
+		List result = new ArrayList();
 		field = fixedField(field);
 		for (int i = 0; i < errors.size(); i++) {
 			FieldError fe = (FieldError) errors.get(i);
-			if (fe.getObject().equals(objName) && fe.getField().equals(field))
-				return fe;
+			if (field.equals(fe.getField()))
+				result.add(fe);
 		}
-		// Return null if not found
-		return null;
+		return (FieldError[])result.toArray(new FieldError[result.size()]);
 	}
-	
-	
-	public FieldError getError(String field) {
-		return getError(this.lastObjectName, field);
+
+	public FieldError getFieldError(String field) {
+		FieldError[] errors = getFieldErrors(field);
+		return (errors.length > 0 ? errors[0] : null);
 	}
-	
-	public FieldError[] getErrors() {
-		return (FieldError[]) errors.toArray(new FieldError[0]);
-	}
-	
-	
+
 	/**
-	 * List of all errors: order isn't guaranteed OR IS IT THAT ON FORM!?
+	 * Return value held in error if error, else
 	 */
-	public List fieldErrors() {
-		return errors;
+	public Object getPropertyValueOrRejectedUpdate(String field) {
+		field = fixedField(field);
+		FieldError fe = getFieldError(field);
+		if (fe == null)
+			return getBeanWrapper().getPropertyValue(field);
+		return fe.getRejectedValue();
 	}
-	
-	
+
+	public String getDisplayValue(String field) {
+		return getPropertyValueOrRejectedUpdate(field).toString();
+	}
+
 	public void setNestedPath(String nestedPath) {
 		if (nestedPath == null)
 			nestedPath = "";
@@ -207,48 +157,20 @@ public class BindException extends Exception implements Errors {
 	 * Return model!?
 	 */
 	public final Map getModel() {
-		if (hasErrors()) {
-			HashMap m = new HashMap();
-			m.put(ERRORS_KEY, getErrors());
-			
-			// or fieldErrors list?
-			m.put(EXCEPTION_KEY, this);
-			
-			m.putAll(getTargetMap());
-			return m;
-		}
-		else {
-			// Mapping from name to target object
-			return getTargetMap();
-
-//			Map m = new HashMap();
-//			Iterator itr = getTargetMap().keySet().iterator();
-//			while (itr.hasNext()) {
-//				String name = (String) itr.next();
-//				Map mm = new HashMap();
-//				BeanWrapper bw = getBeanWrapperFor(name);
-//				PropertyDescriptor[] pds = bw.getPropertyDescriptors();
-//				for (int i = 0; i < pds.length; i++) {
-//					String prop = pds[i].getName();
-//					if (bw.isReadableProperty(prop)) {
-//						Object val = bw.getPropertyValue(prop);
-//						if (val == null) val = "";
-//						mm.put(prop, val);
-//					}
-//				}
-//				m.put(name, mm);
-//			}
-//			return m;
-		}
+		Map m = new HashMap();
+		// errors instance, even if no errors
+		m.put(ERROR_KEY_PREFIX + objectName, this);
+		// mapping from name to target object
+		m.put(objectName, beanWrapper.getWrappedInstance());
+		return m;
 	}
-	
-	
+
 	/**
 	 * @return diagnostic information about the errors held in this object
 	 */
 	public String getMessage() {
 		StringBuffer sb = new StringBuffer("BindException: " + getErrorCount() + " errors");
-		System.out.println("command is " + getTarget() + "; ");
+		//System.out.println("command is " + getTarget() + "; ");
 		Iterator itr = errors.iterator();
 		while (itr.hasNext()) {
 			sb.append("; " + itr.next());

@@ -23,19 +23,23 @@ public class FieldError implements Serializable, ErrorCoded {
 	
 	private Object rejectedValue;
 	
-	private Throwable t;
-	
 	private String message;
 	
 	// TYPOE?
 	
-	 FieldError(String objectName, String field, Object rejectedValue, String errorCode, String message) {
+	protected FieldError(String objectName, String field, Object rejectedValue, String errorCode, String message) {
 	 	this.objName = objectName;
 		this.field = field;
-		this.errorCode = errorCode;
 		this.rejectedValue = rejectedValue;
+		this.errorCode = errorCode;
 		this.message = message;
-    }
+	}
+
+	protected FieldError(String objectName, String errorCode, String message) {
+	 	this.objName = objectName;
+		this.errorCode = errorCode;
+		this.message = message;
+	}
 
 	/** Creates new FieldError */
 //    public FieldError(String field, Object rejectedValue, String errorCode, Throwable t) {
@@ -77,13 +81,7 @@ public class FieldError implements Serializable, ErrorCoded {
 		return message;
 	 }
 	 
-	 /** Will usually return null */
-	 public Throwable getThrowable() {
-		 return t;
-	 }
-	 
 	 public String toString() {
 		 return "FieldError in object '" + objName + "' on '" + field + "': " + getMessage() + "; code=" + errorCode + "; rejected [" + rejectedValue + "]";
 	 }
-
 }
