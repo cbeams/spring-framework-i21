@@ -62,7 +62,7 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	public static final String CONFIG_LOCATION_PARAM = "configLocation";
 
 	/** Default prefix for config locations, followed by the namespace */
-	public static final String DEFAULT_CONFIG_LOCATION_PREFIX = "WEB-INF/";
+	public static final String DEFAULT_CONFIG_LOCATION_PREFIX = "/WEB-INF/";
 
 	/** Default suffix for config locations, following the namespace */
 	public static final String DEFAULT_CONFIG_LOCATION_SUFFIX = ".xml";
