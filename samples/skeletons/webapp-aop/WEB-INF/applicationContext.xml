@@ -130,7 +130,7 @@
 			<value>
 				example.ExampleBusinessObject.exampleMethod=PROPAGATION_REQUIRED
 				example.ExampleBusinessObject.anotherExampleMethod=PROPAGATION_REQUIRED
-      </value>
+			</value>
 		</property>
 	</bean>
 
@@ -144,6 +144,9 @@
 		- "exampleMethod" and "anotherExampleMethod" methods will automatically get
 		- executed within a transaction.
 		-
+		- "proxyInterfaces" could be omitted: The AOP framework would create a CGLIB proxy
+		- for ExampleBusinessObject itself then, not a J2SE proxy for the specific interface.
+		-
 		- See "webapp-typical" skeleton for a non-AOP transaction pattern.
 		-->
 	<bean id="exampleBusinessObject" class="com.interface21.aop.framework.ProxyFactoryBean">
@@ -151,6 +154,7 @@
 		<property name="interceptorNames">
 			<list>
 				<value>exampleTransactionInterceptor</value>
+				<value>exampleBusinessObjectTarget</value>
 			</list>
 		</property>
 	</bean>
