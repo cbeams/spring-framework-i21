@@ -48,6 +48,13 @@ import com.interface21.web.servlet.ModelAndView;
  * by registering custom property editors before binding in an initBinder
  * implementation, or by custom bean population from request parameters after binding
  * in an onBindAndValidate implementation.
+ *
+ * <p>In session form mode, a submission without an existing form object in the
+ * session is considered invalid, like in case of a resubmit/reload by the browser.
+ * The handleInvalidSubmit method is invoked then, showing a new form by default.
+ * It can be overridden in subclasses to show respective messages or redirect to
+ * some other view. This behavior can be leveraged to avoid duplicate submissions:
+ * The form object in the session can be regarded as a transaction token.
  * 
  * <p>Note that views should never retrieve form beans from the session but always
  * from the request, as prepared by the form controller. Remember that some view
@@ -63,6 +70,7 @@ import com.interface21.web.servlet.ModelAndView;
  * @see #isFormSubmission
  * @see #initBinder
  * @see #onBindAndValidate
+ * @see #handleInvalidSubmit
  */
 public abstract class AbstractFormController extends BaseCommandController {
 
@@ -136,26 +144,18 @@ public abstract class AbstractFormController extends BaseCommandController {
 	 */
 	protected final ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		if (isFormSubmission(request) &&
-		    (!isSessionForm() || request.getSession().getAttribute(getFormSessionAttributeName()) != null)) {
+		if (isFormSubmission(request)) {
+		  if (isSessionForm() && request.getSession().getAttribute(getFormSessionAttributeName()) == null) {
+			  // cannot submit a session form if no form object is in the session
+			  return handleInvalidSubmit(request, response);
+		  }
 			// process submit
 			Object command = userObject(request);
 			ServletRequestDataBinder errors = bindAndValidate(request, command);
 			return processSubmit(request, response, command, errors);
 		}
 		else {
-			// show new form
-			logger.debug("Displaying new form");
-			Object command = prepareFormBackingObject(request);
-			// bind without validation, to allow for prepopulating a form, and for
-			// convenient error evaluation in views (on both first attempt and resubmit)
-			ServletRequestDataBinder binder = createBinder(request, command);
-			if (isBindOnNewForm()) {
-				logger.debug("Binding to new form");
-				binder.bind(request);
-			}
-			return showForm(request, response, binder);
+			return showNewForm(request, response);
 		}
 	}
 
@@ -174,18 +174,31 @@ public abstract class AbstractFormController extends BaseCommandController {
 	}
 
 	/**
-	 * Prepare a backing object for the current form and the given request,
-	 * and check its validity.
+	 * Show a new form. Prepares a backing object for the current form and the
+	 * given request, including checking its validity.
 	 * @param request current HTTP request
-	 * @throws ServletException in case of an invalid form object
+	 * @param response current HTTP response
+	 * @return the prepared form view
+	 * @throws ServletException in case of an invalid new form object
+	 * @throws IOException in case of I/O errors
 	 */
-	private Object prepareFormBackingObject(HttpServletRequest request) throws ServletException {
+	protected final ModelAndView showNewForm(HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
+		// show new form
+		logger.debug("Displaying new form");
 		Object formObject = formBackingObject(request);
 		if (formObject == null)
 			throw new ServletException("Form object returned by formBackingObject() may not be null");
 		if (!checkCommand(formObject))
 			throw new ServletException("Form object returned by formBackingObject() must match commandClass");
-		return formObject;
+		// bind without validation, to allow for prepopulating a form, and for
+		// convenient error evaluation in views (on both first attempt and resubmit)
+		ServletRequestDataBinder binder = createBinder(request, formObject);
+		if (isBindOnNewForm()) {
+			logger.debug("Binding to new form");
+			binder.bind(request);
+		}
+		return showForm(request, response, binder);
 	}
 
 	/**
@@ -210,12 +223,12 @@ public abstract class AbstractFormController extends BaseCommandController {
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param errors binder containing errors
-	 * @return the prepared form view
+	 * @return the prepared form view, or null if handled directly
 	 * @throws ServletException in case of invalid state or arguments
 	 * @see #showForm(HttpServletRequest, BindException, String)
 	 */
 	protected abstract ModelAndView showForm(HttpServletRequest request, HttpServletResponse response,
-	                                         BindException errors) throws ServletException;
+	                                         BindException errors) throws ServletException, IOException;
 
 	/**
 	 * Prepare model and view for the given form, including reference and errors.
@@ -278,6 +291,23 @@ public abstract class AbstractFormController extends BaseCommandController {
 	protected Map referenceData(HttpServletRequest request, Object command, Errors errors)
 	    throws ServletException {
 		return null;
+	}
+
+	/**
+	 * Handle an invalid submit request, e.g. when in session form mode but no form object
+	 * was found in the session (like in case of an invalid resubmit by the browser).
+	 * <p>Default implementation simply shows a new form. If the new form should be
+	 * populated with the resubmitted values, set bindOnNewForm to true.
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @return a prepared view, or null if handled directly
+	 * @throws ServletException in case of invalid state
+	 * @throws IOException in case of I/O errors
+	 * @see #setBindOnNewForm
+	 */
+	protected ModelAndView handleInvalidSubmit(HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
+		return showNewForm(request, response);
 	}
 
 	/**
