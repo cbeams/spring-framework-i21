@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 import com.interface21.beans.factory.InitializingBean;
-
+import com.interface21.web.util.WebUtils;
 
 /**
  * The most sophisticated and useful framework implementation of 
@@ -38,16 +38,13 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
-	/**
-	* Create a logging category that is available
-	* to subclasses. 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Logger logger = Logger.getLogger(getClass());
 	
-	/** Properties defining the mapping */
-	private Properties props;
-	
-	
+	private boolean alwaysUseFullPath = false;
+
+	/** Properties defining the mappings */
+	private Properties mappings;
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
@@ -66,44 +63,42 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 	public PropertiesMethodNameResolver(Properties props) {
 		setMappings(props);
 	}
-	
-	
+
 	//---------------------------------------------------------------------
 	// Bean properties and initializer
 	//---------------------------------------------------------------------
 	/**
-	 * Set the mappings configuring this class
-	 * @param props mappings configuring this class
+	 * Set if URL lookup should always use full path within current servlet
+	 * context. Else, the path within the current servlet mapping is used
+	 * if applicable (i.e. in the case of a ".../*" servlet mapping in web.xml).
+	 * Default is false.
 	 */
-	public void setMappings(Properties props) {
-		this.props = props;
-		// WHAT ABOUT /!?
+	public void setAlwaysUseFullPath(boolean alwaysUseFullPath) {
+		this.alwaysUseFullPath = alwaysUseFullPath;
 	}
-	
+
 	/**
-	 * @see InitializingBean#afterPropertiesSet()
+	 * Set the mapping properties configuring this class.
+	 * @param mappings properties configuring this class
 	 */
-	public void afterPropertiesSet() throws Exception {
-		if (props == null)
-			throw new Exception("Must set 'mappings' property on PropertiesMethodNameResolver");
+	public void setMappings(Properties mappings) {
+		this.mappings = mappings;
 	}
 	
-	
+	public void afterPropertiesSet() {
+		if (this.mappings == null)
+			throw new IllegalStateException("Must set 'mappings' property on PropertiesMethodNameResolver");
+	}
+
 	//---------------------------------------------------------------------
 	// Implementation of MethodNameResolver
 	//---------------------------------------------------------------------
-	/**
-	 * @see MethodNameResolver#getHandlerMethodName(HttpServletRequest)
-	 */
 	public String getHandlerMethodName(HttpServletRequest request) throws NoSuchRequestHandlingMethodException {
-		String servletPath = request.getServletPath();
-		// forward slash prepend?
-		String name = props.getProperty(servletPath);
+		String lookupPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
+		String name = this.mappings.getProperty(lookupPath);
 		if (name == null)
 			throw new NoSuchRequestHandlingMethodException(request);
-			
-		if (logger.isDebugEnabled())
-			logger.debug("Returning MultiActionController method name '" + name + "' for servlet path '" + servletPath + "'");
+		logger.debug("Returning MultiActionController method name '" + name + "' for lookup path '" + lookupPath + "'");
 		return name;
 	}
 
