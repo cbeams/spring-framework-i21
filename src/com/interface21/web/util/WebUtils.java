@@ -1,11 +1,5 @@
 package com.interface21.web.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -27,12 +21,22 @@ public abstract class WebUtils {
 	/** HTTP header value */
 	public static final String HEADER_LASTMOD = "Last-Modified";
 
+	/**
+	 * Web app root key parameter at the servlet context level
+	 * (i.e. web.xml): "webAppRootKey".
+	 */
 	public static final String WEB_APP_ROOT_KEY_PARAM = "webAppRootKey";
+
+	/**
+	 * Default web app root key: "webapp.root".
+	 */
+	public static final String DEFAULT_WEB_APP_ROOT_KEY = "webapp.root";
 
 	/**
 	 * Set a system property to the web application root directory.
 	 * The key of the system property can be defined with the
-	 * "webAppRootKey" init parameter at the servlet context level.
+	 * "webAppRootKey" init parameter at the servlet context level
+	 * (i.e. web.xml), the default key is "webapp.root".
 	 *
 	 * <p>Can be used for toolkits that support substition with
 	 * system properties (i.e. System.getProperty values),
@@ -40,11 +44,12 @@ public abstract class WebUtils {
 	 *
 	 * @param servletContext the servlet context of the web application
 	 * @see #WEB_APP_ROOT_KEY_PARAM
+	 * @see #DEFAULT_WEB_APP_ROOT_KEY
 	 * @see WebAppRootListener
 	 */
 	public static void setWebAppRootSystemProperty(ServletContext servletContext) {
 		String param = servletContext.getInitParameter(WEB_APP_ROOT_KEY_PARAM);
-		String key = (param != null ? param : "webapp.root");
+		String key = (param != null ? param : DEFAULT_WEB_APP_ROOT_KEY);
 		String oldValue = System.getProperty(key);
 		if (oldValue != null) {
 			servletContext.log("WARNING: Web app root system property already set: "  + key + " = " + oldValue);
@@ -53,41 +58,6 @@ public abstract class WebUtils {
 			String root = servletContext.getRealPath("/");
 			System.setProperty(key, root);
 			servletContext.log("Set web app root system property: " + key + " = " + root);
-		}
-	}
-
-	/**
-	 * Given a String which may be either a URL, an absolute file location, or a location
-	 * within the WAR. Opens an input stream allowing access to its contents.
-	 * Note: Callers are responsible for closing the input stream.
-	 * @param location String which may be either a URL (e.g. http://somecompany.com/foo.xml),
-	 * an absolute file location, or a location within the WAR (e.g. /WEB-INF/data/file.dat)
-	 * @param servletContext the application's servlet context. We'll need this if we
-	 * need to load from within the WAR
-	 * @throws IOException if we can't open the resource
-	 * @return an InputStream for the resources contents.
-	 */
-	public static InputStream getResourceInputStream(String location, ServletContext servletContext) throws IOException {
-		try {
-			// try URL
-			URL url = new URL(location);
-			return url.openStream();
-
-		} catch (MalformedURLException ex) {
-			// no URL -> file location
-			File file = new File(location);
-			if (!file.isAbsolute()) {
-				// Load from within WAR
-				if (!location.startsWith("/"))
-					location = "/" + location;
-				InputStream is = servletContext.getResourceAsStream(location);
-				if (is == null)
-					throw new IOException("Can't open " + location);
-				return is;
-			} else {
-				// Remote loading
-				return new FileInputStream(location);
-			}
 		}
 	}
 
@@ -110,7 +80,7 @@ public abstract class WebUtils {
 
 	/**
 	 * Return the URL of the root of the current application.
-	 * @param request current request
+	 * @param request current HTTP request
 	 */
 	public static String getUrlToApplication(HttpServletRequest request) {
 		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
@@ -118,7 +88,7 @@ public abstract class WebUtils {
 
 	/**
 	 * Return the path within the web application for the given request.
-	 * @param request current request
+	 * @param request current HTTP request
 	 * @return the path within the web application
 	 */
 	public static String getPathWithinApplication(HttpServletRequest request) {
@@ -132,12 +102,33 @@ public abstract class WebUtils {
 	 * <p>E.g.: servlet mapping = "/test/*"; request URI = "/test/a" -> "/a".
 	 * <p>E.g.: servlet mapping = "/test"; request URI = "/test" -> "".
 	 * <p>E.g.: servlet mapping = "/*.test"; request URI = "/a.test" -> "".
-	 * @param request current request
+	 * @param request current HTTP request
 	 * @return the path within the servlet mapping, or ""
 	 */
 	public static String getPathWithinServletMapping(HttpServletRequest request) {
 		int servletIndex = request.getRequestURI().indexOf(request.getServletPath());
 		return request.getRequestURI().substring(servletIndex + request.getServletPath().length());
+	}
+
+	/**
+	 * Return the mapping lookup path for the given request,
+	 * within the current servlet mapping if applicable,
+	 * else within the web application context.
+	 * @param request current HTTP request
+	 * @param alwaysUseFullPath if the full path within the context
+	 * should be used in any case
+	 * @return the lookup path
+	 */
+	public static String getLookupPathForRequest(HttpServletRequest request, boolean alwaysUseFullPath) {
+		// always use full path within current servlet context?
+		if (alwaysUseFullPath)
+			return WebUtils.getPathWithinApplication(request);
+		// else use path within current servlet mapping if applicable
+		String rest = WebUtils.getPathWithinServletMapping(request);
+		if (!"".equals(rest))
+			return rest;
+		else
+			return WebUtils.getPathWithinApplication(request);
 	}
 
 	/**
