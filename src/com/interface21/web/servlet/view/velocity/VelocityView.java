@@ -13,14 +13,13 @@ package com.interface21.web.servlet.view.velocity;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -31,15 +30,14 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.io.VelocityWriter;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.util.SimplePool;
 
-import com.interface21.web.servlet.view.AbstractView;
 import com.interface21.web.servlet.support.RequestContextUtils;
+import com.interface21.web.servlet.view.AbstractView;
 
 /**
  * View using Velocity template engine.
@@ -55,7 +53,7 @@ import com.interface21.web.servlet.support.RequestContextUtils;
  * Defaults to false, as it creates an object that is only needed if we do date formatting.
  * Velocity is currently weak in this area.
  * <li>exposeCurrencyFormatter: whether to expose a CurrencyFormatter helper object.
- * @author  Rod Johnson	
+ * @author Rod Johnson
  */
 public class VelocityView extends AbstractView {
 	
@@ -65,9 +63,7 @@ public class VelocityView extends AbstractView {
 	/** Helper context name */
 	public static final String CURRENCY_FORMAT_KEY = "currencyFormat";
 
-	/**
-	 *  Encoding for the output stream
-	 */
+	/** Encoding for the output stream */
 	public static final String DEFAULT_OUTPUT_ENCODING = "ISO-8859-1";
 
 	//---------------------------------------------------------------------
@@ -99,9 +95,11 @@ public class VelocityView extends AbstractView {
 	
 	private boolean exposeCurrencyFormatter;
 
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
+
 	/** Creates new VelocityView */
 	public VelocityView() {
 	}
@@ -204,13 +202,14 @@ public class VelocityView extends AbstractView {
 			logger.error(mesg, ex);
 			throw new ServletException(mesg, ex);
 		}
-	}	// getTemplate
+	}
 	
 
 	//---------------------------------------------------------------------
 	// Implementation of View
 	//---------------------------------------------------------------------
-	/** 
+
+	/**
 	 * Render the view given the model to output.
 	 * @param model combined output Map, with dynamic values
 	 * taking precedence over static attributes
@@ -279,7 +278,7 @@ public class VelocityView extends AbstractView {
 			logger.error(mesg, ex);
 			throw new ServletException(mesg, ex);
 		}
-	} 	// render
+	}
 
 	/**
 	 * Expose the models in the given map as Velocity context attributes. Names will be
@@ -295,8 +294,6 @@ public class VelocityView extends AbstractView {
 				String modelname = (String) itr.next();
 				Object val = model.get(modelname);
 
-				// NULL!?
-
 				if (logger.isDebugEnabled())
 					logger.debug("Added model with name '" + modelname
 							+ "' and class "
@@ -311,14 +308,13 @@ public class VelocityView extends AbstractView {
 		else {
 			logger.debug("Model is null. Nothing to expose to FastVelocity context in view with name '" + getName() + "'");
 		}
-	} 	// exposeModelsAsContextAttributes
-	
+	}
 	
 	/**
 	 * Expose helpers unique to each rendring operation. 
 	 * This is necessary so that different rendering operations can't overwrite each other's formats etc.
 	 */
-	private void exposeHelpers(Context vContext, HttpServletRequest request) {
+	private void exposeHelpers(Context vContext, HttpServletRequest request) throws ServletException {
 		Locale locale = RequestContextUtils.getLocale(request);
 
 		if (this.exposeDateFormatter) {
@@ -335,23 +331,15 @@ public class VelocityView extends AbstractView {
 		}
 	}
 	
-
 	/**
-	 * Based on code from the VelocityServlet
-	*  merges the template with the context.  Only override this if you really, really
-	*  really need to. (And don't call us with questions if it breaks :)
-	*  @param template template object returned by the handleRequest() method
-	*  @param context  context created by the createContext() method
-	*  @param response servlet reponse (use this to get the output stream or Writer
-	*/
-	private void mergeTemplate(Template template, Context context, HttpServletResponse response)
-		throws
-			ResourceNotFoundException,
-			ParseErrorException,
-			MethodInvocationException,
-			IOException,
-			UnsupportedEncodingException,
-			Exception {
+	 * Based on code from the VelocityServlet.
+	 * Merges the template with the context. Only override this if you really, really,
+	 * really need to. (And don't call us with questions if it breaks :)
+	 * @param template template object returned by the handleRequest() method
+	 * @param context context created by the createContext() method
+	 * @param response servlet reponse (use this to get the OutputStream or Writer)
+	 */
+	private void mergeTemplate(Template template, Context context, HttpServletResponse response) throws Exception {
 		ServletOutputStream output = response.getOutputStream();
 		VelocityWriter vw = null;
 
@@ -378,7 +366,7 @@ public class VelocityView extends AbstractView {
 			catch (Exception e) {
 				// do nothing
 			}
-		}	// mergeTemplate
+		}
 	}
 
-} 	// class VelocityView
+}

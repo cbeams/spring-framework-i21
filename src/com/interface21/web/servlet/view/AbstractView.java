@@ -24,26 +24,22 @@ import com.interface21.web.servlet.support.RequestContext;
 /**
  * Abstract view superclass. Standard framework view implementations
  * and application-specific custom views can extend this class
- * to simplify their implementation.
- * <br>Subclasses should be JavaBeans.
- * <br>Implements ApplicationContextAware, which will be helpful
- * to some views. This means that the ApplicationContext
- * will be set by the framework during initialization.
- * <br/>Handles static attributes, and merging static with
- * dynamic attributes.
- * <br/>It's recommended that subclasses <b>don't</b> cache
- * anything, in the quest for efficiency. This class offers
- * caching. However, it's possible
+ * to simplify their implementation. Subclasses should be JavaBeans.
+ *
+ * <p>Extends ApplicationObjectSupport, which will be helpful to some views.
+ * Handles static attributes, and merging static with dynamic attributes.
+ * Subclasses just need to implement the actual rendering.
+ *
+ * <p>It's recommended that subclasses <b>don't</b> cache anything, in the
+ * quest for efficiency. This class offers caching. However, it's possible
  * to disable this class's caching, which is useful during development.
- * <br/>Also provides a logging category.
- * @author  Rod Johnson
+ *
+ * @author Rod Johnson
  * @version $Id$
+ * @see #renderMergedOutputModel
  */
 public abstract class AbstractView extends ApplicationObjectSupport implements View {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
 	/** Map of static attributes, keyed by attribute name (String) */
 	private Map	staticAttributes = new HashMap();
 
@@ -57,27 +53,24 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	private String name;
 
 
-	//---------------------------------------------------------------------
-	// Bean properties
-	//---------------------------------------------------------------------
-	/** 
+	/**
 	 * Set static attributes as a CSV string.
-	 * <br>Format is attname0={value1},attname1={value1}
+	 * Format is attname0={value1},attname1={value1}
 	 */
-	public final void setAttributesCSV(String s) throws IllegalArgumentException {
-		if (s == null) 
+	public final void setAttributesCSV(String propString) throws IllegalArgumentException {
+		if (propString == null)
 			// Leave static attributes unchanged
 			return;
 			
-		StringTokenizer st = new StringTokenizer(s, ",");
+		StringTokenizer st = new StringTokenizer(propString, ",");
 		while (st.hasMoreTokens()) {
 			String tok = st.nextToken();
 			int eqindx = tok.indexOf("=");
 			if (eqindx == -1)
-				throw new IllegalArgumentException("Expected = in View string '" + s + "'");
+				throw new IllegalArgumentException("Expected = in View string '" + propString + "'");
 			
 			if (eqindx >= tok.length() - 2)
-				throw new IllegalArgumentException("At least 2 characters ([]) required in View string '" + s + "'");
+				throw new IllegalArgumentException("At least 2 characters ([]) required in View string '" + propString + "'");
 				
 			String name = tok.substring(0, eqindx);
 			String val = tok.substring(eqindx + 1);
@@ -87,26 +80,26 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 			val = val.substring(0, val.length() - 1);
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Set static attribute with name '" + name + "' and value [" + val + "] on view");//with name '" + viewname + "'");
+				logger.debug("Set static attribute with name '" + name + "' and value [" + val + "] on view");
 			}
 			addStaticAttribute(name, val);
 		}
-	}	// setAttributesCSV
-	
+	}
 	
 	/**
 	 * Set static attributes from a java.util.Properties object. This is
 	 * the most convenient way to set static attributes. Note that static
-	 * attributes can be overriden by dynamic attributes, if a value
+	 * attributes can be overridden by dynamic attributes, if a value
 	 * with the same name is included in the model.
-	 * <br>Relies on registration of properties PropertyEditor
+	 * <p>Relies on registration of PropertiesEditor.
+	 * @see com.interface21.beans.propertyeditors.PropertiesEditor
 	 */
-	public final void setAttributes(Properties p) throws IllegalArgumentException {
-		if (p != null) {
-			Iterator itr = p.keySet().iterator();
+	public final void setAttributes(Properties prop) throws IllegalArgumentException {
+		if (prop != null) {
+			Iterator itr = prop.keySet().iterator();
 			while (itr.hasNext()) {
 				String name = (String) itr.next();
-				String val = p.getProperty(name);
+				String val = prop.getProperty(name);
 				if (logger.isDebugEnabled()) {
 					logger.info("Set static attribute with name '" + name + "' and value [" + val + "] on view");//with name '" + viewname + "'");
 				}
@@ -139,10 +132,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	}
 
 
-	//---------------------------------------------------------------------
-	// Implementation of View
-	//---------------------------------------------------------------------
-	/** 
+	/**
 	 * Add static data to this view, exposed in each view.
 	 * <br/>Must be invoked before any calls to render().
 	 * @param name name of attribute to expose
@@ -172,47 +162,51 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	}
 	
 	/** 
-	 * Return the view's name. Should
-	 * never be null, if the view was correctly configured.
+	 * Return the view's name. Should never be null,
+	 * if the view was correctly configured.
 	 * @return the view's name
 	 */
 	public final String getName() {
 		return name;
 	}
 
+
 	/**
-	 * Renders the view given the specified model.  There can be many types of
-	 * view.<br/>
-	 * The first take will be preparing the request: this may include setting the model
-	 * as an attribute, in the case of a JSP view.
+	 * Prepares the view given the specified model.
+	 * Delegates to renderMergedOutputModel for the actual rendering.
+	 * @see #renderMergedOutputModel
 	 */
-	public final void render(Map pModel, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public final void render(Map model, HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
 		if (logger.isDebugEnabled())
-			logger.debug("Rendering view with name '" + this.name + " with model={" + pModel + 
+			logger.debug("Rendering view with name '" + this.name + " with mergedModel={" + model +
 				"} and static attributes={" + this.staticAttributes + "}");
 		
 		// Consolidate static and dynamic model attributes
-		Map model = new HashMap(this.staticAttributes);
-		model.putAll(pModel);
+		Map mergedModel = new HashMap(this.staticAttributes);
+		mergedModel.putAll(model);
 
 		// expose request context?
-		if (this.requestContextAttribute != null)
-			model.put(this.requestContextAttribute, new RequestContext(request));
+		if (this.requestContextAttribute != null) {
+			mergedModel.put(this.requestContextAttribute, new RequestContext(request, mergedModel));
+		}
 
-		renderMergedOutputModel(model, request, response);
+		renderMergedOutputModel(mergedModel, request, response);
 	}
 
 	/** 
-	 * Subclasses must implement this method. 
-	 * Render the view given the model to output.
+	 * Subclasses must implement this method to render the view.
+	 * <p>The first take will be preparing the request: This may include setting
+	 * the model elements as attributes, e.g. in the case of a JSP view.
 	 * @param model combined output Map, with dynamic values
 	 * taking precedence over static attributes
-	 * @param request HttpServetRequest
-	 * @param response HttpServletResponse
+	 * @param request current HTTP request
+	 * @param response current HTTP response
 	 * @throws IOException if there is an IO exception trying to obtain
 	 * or render the view
 	 * @throws ServletException if there is any other error
 	 */
-	protected abstract void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
+	protected abstract void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException;
 
 }

@@ -3,9 +3,9 @@ package com.interface21.web.servlet.i18n;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
 
 import com.interface21.web.servlet.LocaleResolver;
 import com.interface21.web.util.WebUtils;
@@ -23,9 +23,9 @@ import com.interface21.web.util.WebUtils;
  */
 public class CookieLocaleResolver implements LocaleResolver {
 
-	public static final String LOCALE_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+	public static final String LOCALE_REQUEST_ATTRIBUTE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";
 
-	public static final String DEFAULT_COOKIE_NAME = LOCALE_ATTRIBUTE_NAME;
+	public static final String DEFAULT_COOKIE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";
 
 	public static final int DEFAULT_COOKIE_MAX_AGE = Integer.MAX_VALUE;
 
@@ -58,7 +58,7 @@ public class CookieLocaleResolver implements LocaleResolver {
 
 	public Locale resolveLocale(HttpServletRequest request) {
 		// check locale for preparsed resp. preset locale
-		Locale locale = (Locale) request.getAttribute(LOCALE_ATTRIBUTE_NAME);
+		Locale locale = (Locale) request.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
 		if (locale != null)
 			return locale;
 
@@ -82,7 +82,7 @@ public class CookieLocaleResolver implements LocaleResolver {
 			// evaluate results
 			if (language != null) {
 				locale = new Locale(language, country, variant);
-				request.setAttribute(LOCALE_ATTRIBUTE_NAME, locale);
+				request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, locale);
 				return locale;
 			}
 		}
@@ -95,13 +95,13 @@ public class CookieLocaleResolver implements LocaleResolver {
 		Cookie cookie = null;
 		if (locale != null) {
 			// set request attribute and add cookie
-			request.setAttribute(LOCALE_ATTRIBUTE_NAME, locale);
+			request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, locale);
 			cookie = new Cookie(getCookieName(), locale.getLanguage() + " " + locale.getCountry() + " " + locale.getVariant());
 			cookie.setMaxAge(getCookieMaxAge());
 		}
 		else {
 			// set request attribute to fallback locale and remove cookie
-			request.setAttribute(LOCALE_ATTRIBUTE_NAME, request.getLocale());
+			request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, request.getLocale());
 			cookie = new Cookie(getCookieName(), "");
 			cookie.setMaxAge(0);
 		}

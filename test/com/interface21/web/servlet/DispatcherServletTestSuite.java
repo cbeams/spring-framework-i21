@@ -10,6 +10,8 @@ import junit.framework.TestCase;
 
 import com.interface21.context.support.MessageSourceResolvableImpl;
 import com.interface21.web.bind.EscapedErrors;
+import com.interface21.web.context.WebApplicationContext;
+import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.mock.MockHttpServletRequest;
 import com.interface21.web.mock.MockHttpServletResponse;
 import com.interface21.web.mock.MockServletConfig;
@@ -17,8 +19,7 @@ import com.interface21.web.mock.MockServletContext;
 import com.interface21.web.servlet.mvc.BaseCommandController;
 import com.interface21.web.servlet.support.RequestContext;
 import com.interface21.web.servlet.support.RequestContextUtils;
-import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.context.support.StaticWebApplicationContext;
+import com.interface21.web.servlet.theme.AbstractThemeResolver;
 
 /**
  *
@@ -82,21 +83,23 @@ public class DispatcherServletTestSuite extends TestCase {
 			simpleControllerServlet.doGet(request, response);
 			assertTrue("forwarded to form", "form".equals(response.forwarded));
 			MessageSourceResolvableImpl resolvable = new MessageSourceResolvableImpl(new String[] {"test"}, null);
+			RequestContext rc = new RequestContext(request);
 
 			assertTrue("hasn't RequestContext attribute", request.getAttribute("rc") == null);
 			assertTrue("Correct WebApplicationContext", RequestContextUtils.getWebApplicationContext(request) instanceof SimpleWebApplicationContext);
 			assertTrue("Correct Locale", Locale.CANADA.equals(RequestContextUtils.getLocale(request)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, "test", null)));
+			assertTrue("Correct Theme", AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME.equals(RequestContextUtils.getTheme(request).getName()));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null)));
 
-			assertTrue("Correct Errors", !(RequestContextUtils.getErrors(request, BaseCommandController.DEFAULT_BEAN_NAME) instanceof EscapedErrors));
-			assertTrue("Correct Errors", !(RequestContextUtils.getErrors(request, BaseCommandController.DEFAULT_BEAN_NAME, false) instanceof EscapedErrors));
-			assertTrue("Correct Errors", RequestContextUtils.getErrors(request, BaseCommandController.DEFAULT_BEAN_NAME, true) instanceof EscapedErrors);
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, "test", null)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, "test", null, false)));
-			assertTrue("Correct message", "Canadian &amp; test message".equals(RequestContextUtils.getMessage(request, "test", null, true)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, resolvable)));
-			assertTrue("Correct message", "Canadian & test message".equals(RequestContextUtils.getMessage(request, resolvable, false)));
-			assertTrue("Correct message", "Canadian &amp; test message".equals(RequestContextUtils.getMessage(request, resolvable, true)));
+			assertTrue("Correct Errors", !(rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME) instanceof EscapedErrors));
+			assertTrue("Correct Errors", !(rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME, false) instanceof EscapedErrors));
+			assertTrue("Correct Errors", rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME, true) instanceof EscapedErrors);
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null)));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null, false)));
+			assertTrue("Correct message", "Canadian &amp; test message".equals(rc.getMessage("test", null, true)));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage(resolvable)));
+			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage(resolvable, false)));
+			assertTrue("Correct message", "Canadian &amp; test message".equals(rc.getMessage(resolvable, true)));
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());
@@ -172,10 +175,88 @@ public class DispatcherServletTestSuite extends TestCase {
 	public void testAnotherLocaleRequest() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
 		request.addPreferredLocale(Locale.CANADA);
+		request.addRole("role1");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			complexControllerServlet.doGet(request, response);
 			assertTrue("not forwarded", response.forwarded == null);
+		}
+		catch (ServletException ex) {
+			fail("Should not have thrown ServletException: " + ex.getMessage());
+		}
+	}
+
+	public void testLocaleChangeInterceptor1() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.GERMAN);
+		request.addRole("role2");
+		request.addParameter("locale", "en");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+			fail("Should have thrown ServletException");
+		}
+		catch (ServletException ex) {
+			// expected
+		}
+	}
+
+	public void testLocaleChangeInterceptor2() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.GERMAN);
+		request.addRole("role2");
+		request.addParameter("locale", "en");
+		request.addParameter("locale2", "en_CA");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+		}
+		catch (ServletException ex) {
+			fail("Should not have thrown ServletException: " + ex.getMessage());
+		}
+	}
+
+	public void testThemeChangeInterceptor1() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.CANADA);
+		request.addRole("role1");
+		request.addParameter("theme", "mytheme");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+			fail("Should have thrown ServletException");
+		}
+		catch (ServletException ex) {
+			// expected
+		}
+	}
+
+	public void testThemeChangeInterceptor2() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.CANADA);
+		request.addRole("role3");
+		request.addParameter("theme", "mytheme");
+		request.addParameter("theme2", "theme");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+		}
+		catch (ServletException ex) {
+			fail("Should not have thrown ServletException: " + ex.getMessage());
+		}
+	}
+
+	public void testNotAuthorized() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.CANADA);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("Correct response", response.getStatusCode() == HttpServletResponse.SC_FORBIDDEN);
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());

@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.jstl.core.Config;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
+import javax.servlet.ServletException;
 
 import com.interface21.context.support.MessageSourceResourceBundle;
 import com.interface21.web.servlet.support.RequestContextUtils;
@@ -15,7 +16,7 @@ import com.interface21.web.servlet.support.RequestContextUtils;
  * Specialization of InternalResourceView for JSTL pages,
  * i.e. JSP pages that use the JSP Standard Tag Library.
  *
- * Exposes JSTL-specific request attributes specifying locale
+ * <p>Exposes JSTL-specific request attributes specifying locale
  * and resource bundle for JSTL's formatting and message tags,
  * using Spring's locale and message source.
  *
@@ -24,7 +25,9 @@ import com.interface21.web.servlet.support.RequestContextUtils;
  */
 public class JstlView extends InternalResourceView {
 
-	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) {
+	public static final String REQUEST_SCOPE_PREFIX = ".request";
+
+	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) throws ServletException {
 		super.exposeModelsAsRequestAttributes(model, request);
 
 		// add JSTL locale and LocalizationContext request attributes
@@ -37,7 +40,7 @@ public class JstlView extends InternalResourceView {
 		request.setAttribute(Config.FMT_LOCALE, jstlLocale);
 
 		// for JSTL implementations that append the scope to the config names (e.g. Jakarta's)
-		request.setAttribute(Config.FMT_LOCALIZATION_CONTEXT + ".request", jstlContext);
-		request.setAttribute(Config.FMT_LOCALE + ".request", jstlLocale);
+		request.setAttribute(Config.FMT_LOCALIZATION_CONTEXT + REQUEST_SCOPE_PREFIX, jstlContext);
+		request.setAttribute(Config.FMT_LOCALE + REQUEST_SCOPE_PREFIX, jstlLocale);
 	}
 }

@@ -5,19 +5,19 @@ import javax.servlet.ServletContext;
 import com.interface21.beans.BeansException;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
-import com.interface21.context.support.StaticApplicationContext;
+import com.interface21.ui.context.support.StaticUiApplicationContext;
 import com.interface21.web.context.WebApplicationContext;
 
 /**
  * WebApplicationContext implementation for testing.
  * Not for use in production applications.
  */
-public class StaticWebApplicationContext extends StaticApplicationContext implements WebApplicationContext {
+public class StaticWebApplicationContext extends StaticUiApplicationContext implements WebApplicationContext {
 
 	private String namespace;
 
 	private ServletContext servletContext;
-	
+
 	public StaticWebApplicationContext() {
 	}
 

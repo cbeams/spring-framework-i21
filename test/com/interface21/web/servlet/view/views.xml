@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="example1" class="com.interface21.web.servlet.view.InternalResourceView">
+		<property name="url"><value>/example1.jsp</value></property>
+	</bean>
+
+	<bean id="example2" class="com.interface21.web.servlet.view.JstlView">
+		<property name="url"><value>/example2new.jsp</value></property>
+		<property name="attributes">
+			<props>
+				<prop key="test1">testvalue1</prop>
+				<prop key="test2">testvalue2</prop>
+			</props>
+		</property>
+	</bean>
+
+</beans>

@@ -1,11 +1,12 @@
 package com.interface21.web.servlet.handler;
 
 import junit.framework.TestCase;
-import com.interface21.web.mock.MockHttpServletRequest;
-import com.interface21.web.servlet.HandlerMapping;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.support.ClassPathXmlApplicationContext;
+import com.interface21.web.mock.MockHttpServletRequest;
+import com.interface21.web.servlet.HandlerExecutionChain;
+import com.interface21.web.servlet.HandlerMapping;
 
 /**
  *
@@ -28,38 +29,30 @@ public class SimpleUrlHandlerMappingTestSuite extends TestCase {
 		ac = new ClassPathXmlApplicationContext(CONF);
 		hm = (HandlerMapping) ac.getBean("a.urlMap");
 		hm.setApplicationContext(ac);
-		hm.initHandlerMapping();
 	}
 	
-	public void tearDown() {
-	}
-
 	public void testRequestsWithHandlers() throws Exception {
 		Object bean = ac.getBean("mainController");
 		
 		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/welcome.html");
-		Object h = hm.getHandler(req);
-		assertTrue("handler is null", h != null);
-		assertTrue("Handler is correct bean", h == bean);
-		
+		HandlerExecutionChain hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
+
 		req = new MockHttpServletRequest(null, "GET", "/show.html");
-		h = hm.getHandler(req);
-		assertTrue("handler isn't null", h != null);
-		assertTrue("Handler is correct bean", h == bean);
-		
+		hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
+
 		req = new MockHttpServletRequest(null, "GET", "/bookseats.html");
-		h = hm.getHandler(req);
-		assertTrue("handler isn't null", h != null);
-		assertTrue("Handler is correct bean", h == bean);
+		hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
 	}
 	
 	public void testDefaultMapping() throws Exception {
 		Object bean = ac.getBean("starController");
 		
 		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/goggog.html");
-		Object h = hm.getHandler(req);
-		assertTrue("handler is null", h != null);
-		assertTrue("Handler is correct bean", h ==bean);
+		HandlerExecutionChain hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
 	}
 	
 // This test broken by default mapping

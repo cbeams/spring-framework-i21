@@ -86,7 +86,6 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 		try {
 			Object handler = getApplicationContext().getBean(beanName);
 			logger.debug("Initializing handler [" + handler + "] for URL path [" + urlPath + "]");
-			initHandler(handler);
 			if (handler instanceof UrlAwareHandler) {
 				((UrlAwareHandler) handler).setUrlMapping(urlPath);
 			}

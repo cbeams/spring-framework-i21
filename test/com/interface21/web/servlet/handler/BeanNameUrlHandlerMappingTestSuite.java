@@ -3,11 +3,11 @@ package com.interface21.web.servlet.handler;
 import javax.servlet.ServletException;
 
 import junit.framework.TestCase;
-import com.interface21.web.mock.MockHttpServletRequest;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.support.ClassPathXmlApplicationContext;
-import com.interface21.web.servlet.handler.BeanNameUrlHandlerMapping;
+import com.interface21.web.mock.MockHttpServletRequest;
+import com.interface21.web.servlet.HandlerExecutionChain;
 import com.interface21.web.servlet.HandlerMapping;
 
 /**
@@ -41,7 +41,6 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 		ac = new ClassPathXmlApplicationContext(CONF);
 		hm = new BeanNameUrlHandlerMapping();
 		hm.setApplicationContext(ac);
-		hm.initHandlerMapping();
 	}
 	
 	public void tearDown() {
@@ -51,16 +50,16 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 		Object bean = ac.getBean("godCtrl");
 
 		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/welcome.html");
-		Object h = hm.getHandler(req);
-		assertTrue("Handler is correct bean", h == bean);
+		HandlerExecutionChain hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
 		
 		req = new MockHttpServletRequest(null, "GET", "/show.html");
-		h = hm.getHandler(req);
-		assertTrue("Handler is correct bean", h == bean);
-		
+		hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
+
 		req = new MockHttpServletRequest(null, "GET", "/bookseats.html");
-		h = hm.getHandler(req);
-		assertTrue("Handler is correct bean", h == bean);
+		hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
 	}
 	
 	public void testRequestsWithoutHandlers() throws Exception {
@@ -77,16 +76,16 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 		Object bean = ac.getBean("godCtrl");
 
 		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/test.html");
-		Object h = hm.getHandler(req);
-		assertTrue("Handler is correct bean", h == bean);
+		HandlerExecutionChain hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
 
 		req = new MockHttpServletRequest(null, "GET", "/testarossa");
-		h = hm.getHandler(req);
-		assertTrue("Handler is correct bean", h == bean);
+		hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec != null && hec.getHandler() == bean);
 
 		req = new MockHttpServletRequest(null, "GET", "/tes");
-		h = hm.getHandler(req);
-		assertTrue("Handler is null", h == null);
+		hec = hm.getHandler(req);
+		assertTrue("Handler is correct bean", hec == null);
 	}
 
 }

@@ -47,6 +47,8 @@ public interface HandlerAdapter extends ApplicationContextAware {
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
 	 * Can also perform authorization checks.
+	 * @param request current HTTP request
+	 * @param response current HTTP response
 	 * @param handler handler to use. This object must have previously been passed
 	 * to the supports() method of this interface, which must have returned true.
 	 * Implementations that generate output themselves (and return null

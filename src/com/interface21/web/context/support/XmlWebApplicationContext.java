@@ -19,7 +19,7 @@ import javax.servlet.ServletContext;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
-import com.interface21.context.support.AbstractXmlApplicationContext;
+import com.interface21.ui.context.support.AbstractXmlUiApplicationContext;
 import com.interface21.web.context.WebApplicationContext;
 
 /**
@@ -41,7 +41,7 @@ import com.interface21.web.context.WebApplicationContext;
  * @author Juergen Hoeller
  * @version $Revision$
  */
-public class XmlWebApplicationContext extends AbstractXmlApplicationContext	implements WebApplicationContext {
+public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	implements WebApplicationContext {
 
 	/**
 	 * Name of servlet context parameter that can specify the config location prefix
@@ -80,7 +80,6 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 
 	/** Servlet context that this context runs in */
 	private ServletContext servletContext;
-
 
 	/**
 	 * Create a new root web application context, for use in an entire

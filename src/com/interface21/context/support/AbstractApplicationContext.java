@@ -80,7 +80,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 */
 	public static final String MESSAGE_SOURCE_BEAN_NAME = "messageSource";
 
-
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
@@ -211,6 +210,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		else
 			logger.info(getBeanDefinitionCount() + " beans defined in ApplicationContext: " + getDisplayName());
 
+		configureAllManagedObjects();
+		refreshListeners();
+
 		try {
 			loadOptions();
 		}
@@ -233,11 +235,17 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			this.messageSource = new StaticMessageSource();
 		}
 
-		refreshListeners();
-		configureAllManagedObjects();
+		onRefresh();
 		publishEvent(new ContextRefreshedEvent(this));
 	}
 
+	/**
+	 * Callback method which can be overridden to add context-specific refresh work.
+	 * @throws ApplicationContextException in case of errors during refresh
+	 */
+	protected void onRefresh() throws ApplicationContextException {
+		// For subclasses: do nothing by default.
+	}
 
 	/**
 	 * The BeanFactory must be loaded before this method is called
@@ -278,8 +286,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * Add beans that implement listener as listeners
-	 * Doesn't affect other listeners, that can be added without being beans
+	 * Add beans that implement listener as listeners.
+	 * Doesn't affect other listeners, that can be added without being beans.
 	 */
 	private void refreshListeners() throws ApplicationContextException {
 		logger.info("Refreshing listeners");
@@ -291,7 +299,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			try {
 				Object bean = getBeanFactory().getBean(beanName);
 				ApplicationListener l = (ApplicationListener) bean;
-				configureManagedObject(l);
 				addListener(l);
 				logger.info("Bean listener added: [" + l + "]");
 			} catch (BeansException ex) {
@@ -453,7 +460,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
 		return this.messageSource.getMessage(resolvable, locale);
 	}
-
 
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory

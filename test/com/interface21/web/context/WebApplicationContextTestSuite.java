@@ -102,8 +102,8 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	}
 
 	public void testCount() {
-		assertTrue("should have 16 beans, not"+ this.applicationContext.getBeanDefinitionCount(),
-			this.applicationContext.getBeanDefinitionCount() == 16);
+		assertTrue("should have 17 beans, not"+ this.applicationContext.getBeanDefinitionCount(),
+			this.applicationContext.getBeanDefinitionCount() == 17);
 	}
 
 	public void testWithoutMessageSource() throws Exception {

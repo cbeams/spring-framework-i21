@@ -189,9 +189,11 @@ public abstract class BaseCommandController extends AbstractController {
 	 * @param command command to bind onto
 	 * @param request current request
 	 * @return the new binder instance
+	 * @throws ServletException in case of invalid state or arguments
 	 * @see #bindAndValidate
 	 */
-	protected final ServletRequestDataBinder createBinder(HttpServletRequest request, Object command) {
+	protected final ServletRequestDataBinder createBinder(HttpServletRequest request, Object command)
+			throws ServletException {
 		ServletRequestDataBinder binder = new ServletRequestDataBinder(command, getBeanName());
 		initBinder(request, binder);
 		return binder;
@@ -202,9 +204,11 @@ public abstract class BaseCommandController extends AbstractController {
 	 * Called by createBinder.
 	 * @param request current request
 	 * @param binder new binder instance
+	 * @throws ServletException in case of invalid state or arguments
 	 * @see #createBinder
 	 */
-	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
+	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder)
+			throws ServletException {
 	}
 
 	/**

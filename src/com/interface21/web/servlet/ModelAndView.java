@@ -19,19 +19,18 @@ import java.util.Map;
  * Note that these are entirely distinct. This class merely holds
  * both to make it possible for a controller to return both
  * model and view in a single return value.
- * <br>Class to represent a model and view returned by
+ *
+ * <p>Class to represent a model and view returned by
  * an handler used by a DispatcherServlet.
  * The View can take the form of a reference to a View
  * object, or a String view name, which will need
  * to be resolved by a ViewResolver object.
- * The model is a Map, allowing the use of multiplee data objects.
- * @author  Rod Johnson
+ * The model is a Map, allowing the use of multiple data objects.
+ *
+ * @author Rod Johnson
  */
 public class ModelAndView {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
 	/** Model */
 	private Map model;
 
@@ -39,78 +38,12 @@ public class ModelAndView {
 	private View view;
 
 	/** 
-	 * View name if we hold a view name that will be resolved by the DispatcherServlet
+	 * View name if we hold a view name that will be resolved
+	 * by the DispatcherServlet via a ViewResolver
 	 */
 	private String viewName;
 
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
-	/** 
-	 * Creates new ModelAndView given a View reference and a model
-	 * @param view view to render this model
-	 * @param model Map of model names (Strings) to
-	 * models (Objects). Model entries may not be null, but the
-	 * model may be null if there is no model data.
-	 */
-	public ModelAndView(View view, Map model) {
-		this.view = view;
-		// Less efficient than simply copying reference?
-		this.model = new HashMap(model);
-	}
-
-	/** 
-	 * Creates new ModelAndView given a viewName and a model
-	 * @param viewName name of the View to render this model.
-	 * This will be resolved by the Controller servlet at runtime.
-	 * @param model Map of model names (Strings) to
-	 * models (Objects). Model entries may not be null, but the
-	 * model may be null if there is no model data.
-	 */
-	public ModelAndView(String viewName, Map model) {
-		this.viewName = viewName;
-		// Less efficient than simply copying reference?
-		this.model = new HashMap(model);
-	}
-
-	/** 
-	 * Convenient constructor to take a single model
-	 * @param viewName name of the view
-	 * @param modelname name of the single entry in the model
-	 * @param model model data object
-	 */
-	public ModelAndView(String viewName, String modelname, Object model) {
-		this(viewName);
-		this.model.put(modelname, model);
-	}
-	
-
 	/**
-	 * Constructor taking a view name and two model entries.
-	 * @param viewName name of the view
-	 * @param key1 key for first model entry
-	 * @param value1 value for first model entry
-	 * @param key2 key for second model entry
-	 * @param value2 value for second model entry
-	 */
-	public ModelAndView(String viewName, String key1, Object value1, String key2, Object value2) {
-		this(viewName);
-		this.model.put(key1, value1);
-		this.model.put(key2, value2);
-	}
-
-	/** 
-	 * Convenient constructor to take a single model
-	 * @param view view reference
-	 * @param modelname name of the single entry in the model
-	 * @param model model data object
-	 */
-	public ModelAndView(View view, String modelname, Object model) {
-		this(view);
-		this.model.put(modelname, model);
-	}
-
-	/** 
 	 * Convenient constructor when there is no model data to expose
 	 * @param view view reference
 	 */
@@ -120,7 +53,7 @@ public class ModelAndView {
 	}
 
 
-	/** 
+	/**
 	 * Convenient constructor when there is no model data to expose
 	 * @param viewName view name, resolved by the controller servlet
 	 */
@@ -129,18 +62,62 @@ public class ModelAndView {
 		this.model = new HashMap();
 	}
 
-	//---------------------------------------------------------------------
-	// Public methods
-	//---------------------------------------------------------------------
+	/**
+	 * Creates new ModelAndView given a View reference and a model.
+	 * @param view view to render this model
+	 * @param model Map of model names (Strings) to
+	 * models (Objects). Model entries may not be null, but the
+	 * model may be null if there is no model data.
+	 */
+	public ModelAndView(View view, Map model) {
+		this.view = view;
+		this.model = model;
+	}
+
+	/** 
+	 * Creates new ModelAndView given a viewName and a model.
+	 * @param viewName name of the View to render this model.
+	 * This will be resolved by the DispatcherServlet at runtime.
+	 * @param model Map of model names (Strings) to
+	 * models (Objects). Model entries may not be null, but the
+	 * model may be null if there is no model data.
+	 */
+	public ModelAndView(String viewName, Map model) {
+		this.viewName = viewName;
+		this.model = model;
+	}
+
+	/**
+	 * Convenient constructor to take a single model object.
+	 * @param view view reference
+	 * @param modelName modelName of the single entry in the modelObject
+	 * @param modelObject modelObject of the single entry in the modelObject
+	 */
+	public ModelAndView(View view, String modelName, Object modelObject) {
+		this(view);
+		this.model.put(modelName, modelObject);
+	}
+
+	/**
+	 * Convenient constructor to take a single model object.
+	 * @param viewName name of the view
+	 * @param modelName modelName of the single entry in the modelObject
+	 * @param modelObject modelObject of the single entry in the modelObject
+	 */
+	public ModelAndView(String viewName, String modelName, Object modelObject) {
+		this(viewName);
+		this.model.put(modelName, modelObject);
+	}
+
 	/**
 	 * Add an object to the model.
 	 * @param name name of the object to add to the model
-	 * @param o object to add to the model. May not be null.
+	 * @param object object to add to the model. May not be null.
 	 * @return this object, convenient to allow usages like
 	 * return modelAndView.addObject("foo", bar);
 	 */
-	public ModelAndView addObject(String name, Object o) {
-		this.model.put(name, o);
+	public ModelAndView addObject(String name, Object object) {
+		this.model.put(name, object);
 		return this;
 	}
 
@@ -153,15 +130,14 @@ public class ModelAndView {
 
 	/**
 	 * @return the View reference, or null if we are using a viewName
-	 * to be resolved by the controller servlet.
+	 * to be resolved by the DispatcherServlet.
 	 */
 	public View getView() {
 		return view;
 	}
 
 	/**
-	 * @return the viewName, or null if we are using a View
-	 * reference
+	 * @return the viewName, or null if we are using a View reference
 	 */
 	public String getViewName() {
 		return viewName;
@@ -175,7 +151,7 @@ public class ModelAndView {
 	}
 
 	/**
-	 * @return diagnostic information about this model and view.
+	 * @return diagnostic information about this model and view
 	 */
 	public String toString() {
 		String s = "ModelAndView: ";
