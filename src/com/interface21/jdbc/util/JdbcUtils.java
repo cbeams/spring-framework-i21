@@ -88,7 +88,7 @@ public class JdbcUtils {
 		break;
 	    case stateMarker:
 		++count;
-		if (index < len - 1 && !Character.isWhitespace(lookahead))
+		if (index < len - 1 && !Character.isWhitespace(lookahead) && lookahead != ',' && lookahead != ')')
 		    state = stateError;
 		else
 		    state = stateNormalChar;
