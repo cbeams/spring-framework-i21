@@ -16,7 +16,8 @@ import java.util.Properties;
 
 import javax.servlet.ServletException;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.Velocity;
 
 import com.interface21.context.ApplicationContextException;
@@ -34,7 +35,7 @@ import com.interface21.context.support.ApplicationObjectSupport;
  */
 public class VelocityConfigurer extends ApplicationObjectSupport {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	public static final String DEFAULT_VELOCITY_PROPERTIES = "/WEB-INF/velocity.properties";
 

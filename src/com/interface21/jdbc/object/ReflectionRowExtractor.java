@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.BeanWrapper;
 import com.interface21.beans.BeanWrapperImpl;
@@ -23,11 +24,7 @@ import com.interface21.jdbc.core.RowCountCallbackHandler;
  */
 public class ReflectionRowExtractor extends RowCountCallbackHandler implements ResultReader {
 	
-	/**
-	* Create a logging category that is available
-	* to subclasses. 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private List l;
 

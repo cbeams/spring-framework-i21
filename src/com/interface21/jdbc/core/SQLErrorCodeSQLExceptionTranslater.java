@@ -11,7 +11,8 @@ package com.interface21.jdbc.core;
 
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataIntegrityViolationException;
@@ -26,14 +27,11 @@ import com.interface21.dao.DataIntegrityViolationException;
  * @author Thomas Risberg
  */
 public class SQLErrorCodeSQLExceptionTranslater implements SQLExceptionTranslater {
-	/**
-	* Error codes available to subclasses.
-	*/
+
+	protected final Log logger = LogFactory.getLog(getClass());
+
+	/** Error codes available to subclasses */
 	protected SQLErrorCodes sqlErrorCodes;
-	/**
-	* Create a logging category that is available to subclasses.
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
 
 	public SQLErrorCodeSQLExceptionTranslater() {
 		this.sqlErrorCodes = new SQLErrorCodes();		

@@ -2,7 +2,8 @@ package com.interface21.web.servlet.mvc.multiaction;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.web.util.WebUtils;
 
@@ -23,7 +24,7 @@ import com.interface21.web.util.WebUtils;
 */
 public class InternalPathMethodNameResolver implements MethodNameResolver {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	public String getHandlerMethodName(HttpServletRequest request) {
 		String lookupPath = WebUtils.getLookupPathForRequest(request, false);

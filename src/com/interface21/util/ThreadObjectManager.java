@@ -1,9 +1,10 @@
 package com.interface21.util;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Provides static methods for managing key/value pairs that are bound to the
@@ -20,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class ThreadObjectManager {
 
-	private final Logger logger = Logger.getLogger(ThreadObjectManager.class);
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private ThreadLocal threadLocal = new ThreadLocal() {
 		protected Object initialValue() {

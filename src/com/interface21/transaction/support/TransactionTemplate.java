@@ -1,6 +1,7 @@
 package com.interface21.transaction.support;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionDefinition;
@@ -40,10 +41,10 @@ import com.interface21.util.Constants;
  */
 public class TransactionTemplate extends DefaultTransactionDefinition {
 
-	private final Logger logger = Logger.getLogger(getClass());
-
 	/** Constants instance for TransactionDefinition */
-	private final Constants constants = new Constants(TransactionDefinition.class);
+	private static final Constants constants = new Constants(TransactionDefinition.class);
+
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	protected PlatformTransactionManager transactionManager = null;
 

@@ -29,7 +29,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.propertyeditors.ClassEditor;
 import com.interface21.beans.propertyeditors.LocaleEditor;
@@ -71,7 +72,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	/**
 	 * We'll create a lot of these objects, so we don't want a new logger every time.
 	 */
-	private static final Logger logger = Logger.getLogger(BeanWrapperImpl.class);
+	private static final Log logger = LogFactory.getLog(BeanWrapperImpl.class);
 
 	// Install default property editors
 	static {

@@ -1,6 +1,7 @@
 package com.interface21.validation;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This class offers a convenient validate method for invoking a validator.
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class ValidationUtils {
 
-	private static Logger logger = Logger.getLogger(ValidationUtils.class);
+	private static Log logger = LogFactory.getLog(ValidationUtils.class);
 
 	/**
 	 * Invoke the given validator for the given object and Errors instance.

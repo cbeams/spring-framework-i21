@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.BeanWrapper;
 import com.interface21.beans.BeanWrapperImpl;
@@ -29,7 +30,7 @@ import com.interface21.context.ApplicationListener;
  */
 public class PropertyResourceConfigurer implements ApplicationListener {
 
-	private final Logger logger = Logger.getLogger(getClass());
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private String location;
 

@@ -16,7 +16,8 @@ import org.aopalliance.AttributeRegistry;
 import org.aopalliance.Interceptor;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.ProxyInterceptor;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.factory.InitializingBean;
 
@@ -37,9 +38,9 @@ import com.interface21.beans.factory.InitializingBean;
 */
 public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 
-	private AttributeRegistry attributeRegistry;
+	protected final Log logger = LogFactory.getLog(getClass());
 
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	private AttributeRegistry attributeRegistry;
 
 	/** List of MethodPointcut */
 	private List pointcuts = new LinkedList();

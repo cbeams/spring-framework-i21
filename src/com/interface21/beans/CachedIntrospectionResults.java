@@ -7,8 +7,10 @@ import java.beans.Introspector;
 import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
 import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -27,19 +29,14 @@ import org.apache.log4j.Logger;
  */
 final class CachedIntrospectionResults {
     
-	//---------------------------------------------------------------------
-    // Factory implementation
-    //---------------------------------------------------------------------
-	/** HashMap keyed by class containing CachedIntrospectionResults
-	 * or ReflectionException
+	private static final Log logger = LogFactory.getLog(CachedIntrospectionResults.class);
+
+	/**
+	 * Map keyed by class containing CachedIntrospectionResults or ReflectionException
 	 */
-	private static HashMap $cache = new HashMap();		
+	private static Map $cache = new HashMap();
 	
-	/** Logging category to use for logging for this object
-	 */
-	private static Logger logger = Logger.getLogger(CachedIntrospectionResults.class.getName());
-	
-	/** 
+	/**
 	 * We might use this from the EJB tier, so we don't want to use
 	 * synchronization. Object references are atomic, so we
 	 * can live with doing the occasional unnecessary lookup at startup only.

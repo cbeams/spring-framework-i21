@@ -11,7 +11,6 @@
  
 package com.interface21.web.bind;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 
 import com.interface21.validation.DataBinder;

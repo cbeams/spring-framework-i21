@@ -9,7 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.aopalliance.MethodInvocation;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * All subclasses need to do is extend this and
@@ -27,8 +28,8 @@ import org.apache.log4j.Logger;
  * @version $Id$
  */
 public class DelegatingIntroductionInterceptor implements IntroductionInterceptor {
-	
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+
+	protected final Log logger = LogFactory.getLog(getClass());
 		
 	/** Set of Class */
 	private Set publishedInterfaces = new HashSet();

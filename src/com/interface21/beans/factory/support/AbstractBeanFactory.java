@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.BeanWrapper;
 import com.interface21.beans.BeanWrapperImpl;
@@ -64,7 +65,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	private Map sharedInstanceCache = new HashMap();
 
 	/** Logger available to subclasses */
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/** name of default parent bean */
 	protected String defaultParentBean;

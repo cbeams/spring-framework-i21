@@ -15,7 +15,6 @@ import java.util.Map;
 import org.aopalliance.AspectException;
 import org.aopalliance.AttributeRegistry;
 import org.aopalliance.Interceptor;
-import org.apache.log4j.Logger;
 
 import com.interface21.aop.attributes.Attrib4jAttributeRegistry;
 import com.interface21.beans.BeansException;
@@ -62,8 +61,6 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 
 	private AttributeRegistry attributeRegistry;
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
-	
 	private boolean singleton = true;
 	
 	/**

@@ -20,7 +20,8 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.DataAccessException;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
@@ -86,7 +87,7 @@ public class JdbcTemplate {
 	// Instance data
 	//-------------------------------------------------------------------------
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * Used to obtain connections throughout the lifecycle of this object.

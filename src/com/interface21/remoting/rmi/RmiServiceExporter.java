@@ -6,7 +6,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.factory.InitializingBean;
 
@@ -38,7 +39,7 @@ import com.interface21.beans.factory.InitializingBean;
  */
 public class RmiServiceExporter implements InitializingBean {
 
-	private final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private Object service;
 

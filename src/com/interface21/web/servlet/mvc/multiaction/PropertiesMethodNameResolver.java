@@ -15,7 +15,8 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.web.util.WebUtils;
@@ -35,19 +36,13 @@ import com.interface21.web.util.WebUtils;
  */
 public class PropertiesMethodNameResolver implements MethodNameResolver, InitializingBean {
 	
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	protected final Logger logger = Logger.getLogger(getClass());
-	
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	private boolean alwaysUseFullPath = false;
 
 	/** Properties defining the mappings */
 	private Properties mappings;
 
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
 	/**
 	 * Create a new PropertiesMethodNameResolver. The mappings
 	 * property must be set before use.
@@ -64,9 +59,6 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 		setMappings(props);
 	}
 
-	//---------------------------------------------------------------------
-	// Bean properties and initializer
-	//---------------------------------------------------------------------
 	/**
 	 * Set if URL lookup should always use full path within current servlet
 	 * context. Else, the path within the current servlet mapping is used

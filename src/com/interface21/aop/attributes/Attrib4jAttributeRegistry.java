@@ -6,7 +6,6 @@
 package com.interface21.aop.attributes;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
 
 import org.aopalliance.AttributeRegistry;
 

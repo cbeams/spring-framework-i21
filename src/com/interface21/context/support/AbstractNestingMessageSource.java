@@ -1,18 +1,14 @@
 package com.interface21.context.support;
 
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import com.interface21.context.MessageSource;
+import com.interface21.context.MessageSourceResolvable;
 import com.interface21.context.NestingMessageSource;
 import com.interface21.context.NoSuchMessageException;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.text.MessageFormat;
-
-import org.apache.log4j.Logger;
-
-import com.interface21.context.MessageSourceResolvable;
 
 
 /**
@@ -26,12 +22,10 @@ import com.interface21.context.MessageSourceResolvable;
  */
 public abstract class AbstractNestingMessageSource implements NestingMessageSource {
 
-	protected Logger logger = Logger.getLogger(getClass());
-
-
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
+
 	/** Parent MessageSource */
 	private MessageSource parent;
 
@@ -45,6 +39,7 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 * key computed in <code>messageKey()</code>.
 	 */
 	private Map formats = new HashMap();
+
 
 	//---------------------------------------------------------------------
 	// Constructors
@@ -152,7 +147,6 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 		} catch (NoSuchMessageException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			logger.warn("could not resolve message", ex);
 			throw new NoSuchMessageException(code, locale);
 		}
 	}

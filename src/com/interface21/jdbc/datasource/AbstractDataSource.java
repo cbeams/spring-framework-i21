@@ -10,7 +10,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Abstract base class for Spring's DataSource implementations,
@@ -22,7 +23,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractDataSource implements DataSource {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * Returns 0: means use default system timeout.

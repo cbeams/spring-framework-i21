@@ -1,6 +1,7 @@
 package com.interface21.web.context.support;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.context.ApplicationEvent;
 import com.interface21.context.ApplicationListener;
@@ -8,35 +9,22 @@ import com.interface21.util.ResponseTimeMonitor;
 import com.interface21.util.ResponseTimeMonitorImpl;
 import com.interface21.web.context.RequestHandledEvent;
 
-
 /**
  *
- * @author  Rod Johnson
+ * @author  RodJohnson
  * @since January 21, 2001
  * @version $RevisionId$
  */
 public class PerformanceMonitorListener implements ApplicationListener {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private ResponseTimeMonitorImpl responseTimeMonitor;
-
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
 
 	public PerformanceMonitorListener() {
 		responseTimeMonitor = new ResponseTimeMonitorImpl();
 	}
 
-
-	//---------------------------------------------------------------------
-	// Implementation of ApplicationListener
-	//---------------------------------------------------------------------
 	/**
 	 * Ignore log events
 	 */
@@ -52,18 +40,8 @@ public class PerformanceMonitorListener implements ApplicationListener {
 		}
 	}
 
-	private void log(String s) {
-		if (logger.isInfoEnabled()) {
-			logger.info(s);
-		}
-	}
-
-	//public void setWebApplicationManager(WebApplicationManager webApplicationManager) {
-	//	this.webApplicationManager = webApplicationManager;
-	//}
-
 	public ResponseTimeMonitor getResponseTimeMonitor() {
 		return responseTimeMonitor;
 	}
 
-}	// class PerformanceMonitorListener
+}

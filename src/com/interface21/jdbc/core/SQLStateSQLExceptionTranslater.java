@@ -13,7 +13,8 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataIntegrityViolationException;
@@ -29,6 +30,8 @@ import com.interface21.dao.DataIntegrityViolationException;
  */
 public class SQLStateSQLExceptionTranslater implements SQLExceptionTranslater {
 	
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	/** Set of String 2-digit codes that indicate bad SQL */
 	private static Set BAD_SQL_CODES = new HashSet();
 	
@@ -48,14 +51,6 @@ public class SQLStateSQLExceptionTranslater implements SQLExceptionTranslater {
 		INTEGRITY_VIOLATION_CODES.add("44");	// With check violation
 	}
 	
-	
-	/**
-	* Create a logging category that is available
-	* to subclasses. 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-
-
 	/**
 	 * @see SQLExceptionTranslater#translate(String,String,SQLException)
 	 */

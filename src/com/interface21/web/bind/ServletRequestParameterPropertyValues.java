@@ -1,39 +1,32 @@
-
 package com.interface21.web.bind;
 
 import java.util.Properties;
 
 import javax.servlet.ServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
 import com.interface21.web.util.WebUtils;
 
-// Could also provide URL implementation
-// aliases? in superclass?
-
 /**
  * PropertyValues implementation created from parameters in a ServletRequest.
  * Looks for all property values beginning with a certain prefix
  * and prefix separator.
- * <br/>This class is immutable once initialized.
+ * This class is immutable once initialized.
  * @author Rod Johnson
  * @version $Id$
  */
 public class ServletRequestParameterPropertyValues implements PropertyValues {
 
-	/** Default prefix separator */
-	private static final String DEFAULT_PREFIX_SEPARATOR = "_";
+	protected final Log logger = LogFactory.getLog(getClass());
 
-	/**
-	* Create a logging category that is available
-	* to subclasses. 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-	
+	/** Default prefix separator */
+	public static final String DEFAULT_PREFIX_SEPARATOR = "_";
+
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
@@ -48,18 +41,18 @@ public class ServletRequestParameterPropertyValues implements PropertyValues {
 	 * @param request HTTP Request
 	 * @param prefix prefix for properties
 	 */
-    public ServletRequestParameterPropertyValues(ServletRequest request, String prefix) {
+	public ServletRequestParameterPropertyValues(ServletRequest request, String prefix) {
 		this(request, prefix, DEFAULT_PREFIX_SEPARATOR);
-    }
+	}
 
 
-	/** Creates new ServletRequestPropertyValues using no prefix 
+	/** Creates new ServletRequestPropertyValues using no prefix
 	 * (and hence, no prefix separator)
 	 * @param request HTTP Request
 	 */
 	public ServletRequestParameterPropertyValues(ServletRequest request) {
 		this(request, null, null);
-    }
+	}
 
 	/** Creates new ServletRequestPropertyValues supplying
 	 * both prefix and prefixSeparator
@@ -68,13 +61,14 @@ public class ServletRequestParameterPropertyValues implements PropertyValues {
 	 * @param prefixSeparator Separator delimiting prefix (e.g. user) from property name
 	 * (e.g. age) to build a request parameter name such as user_age
 	 */
-    public ServletRequestParameterPropertyValues(ServletRequest request, String prefix, String prefixSeparator) {
-		String base = (prefix != null) ?  prefix + prefixSeparator : null;
+	public ServletRequestParameterPropertyValues(ServletRequest request, String prefix, String prefixSeparator) {
+		String base = (prefix != null) ? prefix + prefixSeparator : null;
 		Properties p = WebUtils.getParametersStartingWith(request, base);
-		mutablePropertyValues = new MutablePropertyValues(p);
-		if (logger.isDebugEnabled())
+		this.mutablePropertyValues = new MutablePropertyValues(p);
+		if (logger.isDebugEnabled()) {
 			logger.debug("Found PropertyValues in request: " + mutablePropertyValues);
     }
+	}
 
 	//---------------------------------------------------------------------
 	// Implementation of PropertyValues
@@ -83,7 +77,7 @@ public class ServletRequestParameterPropertyValues implements PropertyValues {
 	 * held in this object.
 	 * @return an array of the PropertyValue objects
 	 * held in this object.
- 	*/
+	 */
 	public PropertyValue[] getPropertyValues() {
 		// We simply let the delegate handle this
 		return mutablePropertyValues.getPropertyValues();
@@ -97,12 +91,12 @@ public class ServletRequestParameterPropertyValues implements PropertyValues {
 		// Just pass it to the delegate...
 		return mutablePropertyValues.contains(propertyName);
 	}
-	
+
 	public PropertyValue getPropertyValue(String propertyName) {
 		// Just pass it to the delegate...
 		return mutablePropertyValues.getPropertyValue(propertyName);
 	}
-	
+
 	public PropertyValues changesSince(PropertyValues old) {
 		// Just pass it to the delegate...
 		return mutablePropertyValues.changesSince(old);

@@ -11,7 +11,8 @@ import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.StaleObjectStateException;
 import net.sf.hibernate.TransientObjectException;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.DataAccessException;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
@@ -67,7 +68,7 @@ import com.interface21.dao.OptimisticLockingFailureException;
  */
 public class HibernateTemplate {
 
-	private final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private SessionFactory sessionFactory;
 

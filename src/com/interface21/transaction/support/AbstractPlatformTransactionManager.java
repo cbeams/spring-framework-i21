@@ -1,6 +1,7 @@
 package com.interface21.transaction.support;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.NoTransactionException;
@@ -26,7 +27,7 @@ import com.interface21.transaction.TransactionStatus;
  */
 public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * if transaction support needs to be available

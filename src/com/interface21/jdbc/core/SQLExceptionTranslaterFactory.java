@@ -13,13 +13,16 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
+
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.support.XmlBeanFactory;
-import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**
@@ -32,7 +35,9 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  */
 public class SQLExceptionTranslaterFactory {
 	
-	/** 
+	protected final Log logger = LogFactory.getLog(getClass());
+
+	/**
 	 * Name of SQL error code file, loading on the classpath. Will look
 	 * in current directory (no leading /).
 	 */
@@ -40,8 +45,7 @@ public class SQLExceptionTranslaterFactory {
 	public static final String SQL_ERROR_CODE_DEFAULT_PATH = "sql-error-codes.xml";
 	
 	/**
-	* Keep track of this instance so we can return it to classes that request
-	* it.
+	* Keep track of this instance so we can return it to classes that request it.
 	*/
 	private static final SQLExceptionTranslaterFactory instance;
 	
@@ -49,13 +53,8 @@ public class SQLExceptionTranslaterFactory {
 	* Create a HashMap to hold error codes for all databases defined in the
 	* config file.
 	*/
-	private HashMap rdbmsErrorCodes;
+	private Map rdbmsErrorCodes;
 	
-	/**
-	* Create a logging category 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-
 	/**
 	 * Not public to enforce Singleton design pattern
 	 */

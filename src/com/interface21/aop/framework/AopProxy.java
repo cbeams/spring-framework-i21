@@ -10,7 +10,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * InvocationHandler implementation for the Spring AOP
@@ -38,12 +39,7 @@ public class AopProxy implements InvocationHandler {
 		} 
 	}
 	
-	//---------------------------------------------------------------------
-	// Static methods
-	//---------------------------------------------------------------------
-	
 	/**
-	 * @param clazz interface to proxy
 	 * @return a new Proxy object for the given object proxying
 	 * the given interface
 	 */
@@ -53,8 +49,6 @@ public class AopProxy implements InvocationHandler {
 	}
 	
 	/**
-	 * @param obj object to proxy
-	 * @param clazz interface to proxy
 	 * @return a new Proxy object for the given object proxying
 	 * the given interface
 	 */
@@ -65,24 +59,11 @@ public class AopProxy implements InvocationHandler {
 		return proxy;
 	}
 	
+	protected final Log logger = LogFactory.getLog(getClass());
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/**
-	* Logging category. 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-
-	/**
-	 * Config used to configure this proxy.
-	 */
+	/** Config used to configure this proxy */
 	private ProxyConfig config;
 	
-
-	//---------------------------------------------------------------------
-	// Constructor
-	//---------------------------------------------------------------------
 	/**
 	 * 
 	 * @throws AopConfigException if the config is invalid. We try
@@ -97,10 +78,6 @@ public class AopProxy implements InvocationHandler {
 		this.config = config;
 	}
 	
-
-	//---------------------------------------------------------------------
-	// Implementation of InvocationHandler
-	//---------------------------------------------------------------------
 	/**
 	 * Implementation of InvocationHandler.invoke.
 	 * Callers will see exactly the exception thrown by the target, unless a hook
@@ -147,9 +124,8 @@ public class AopProxy implements InvocationHandler {
 				logger.debug("Processed invocation [" + invocation + "]");
 			}
 		}
-	}	// invoke
-	
-	
+	}
+
 	/**
 	 * Equality means interceptors and interfaces are ==
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -189,6 +165,6 @@ public class AopProxy implements InvocationHandler {
 			return false;
 			
 		return true;
-	}	// equals
+	}
 	
-}	// class AopProxy
+}

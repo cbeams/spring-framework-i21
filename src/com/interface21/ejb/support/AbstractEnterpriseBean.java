@@ -7,7 +7,8 @@ package com.interface21.ejb.support;
 
 import javax.ejb.EnterpriseBean;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /** 
@@ -26,14 +27,9 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractEnterpriseBean implements EnterpriseBean {
 	
-	
-	//-------------------------------------------------------------------------
-	// Instance data
-	//-------------------------------------------------------------------------
 	/**
 	 * Logger, available to subclasses
 	 */
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-	
-	
-} 	// class AbstractEnterpriseBean
+	protected final Log logger = LogFactory.getLog(getClass());
+
+}

@@ -13,7 +13,8 @@ package com.interface21.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.factory.InitializingBean;
 
@@ -35,7 +36,7 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	/** JNDI prefix used in a J2EE container */
 	public static String CONTAINER_PREFIX = "java:comp/env/";
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private JndiTemplate jndiTemplate = new JndiTemplate();
 

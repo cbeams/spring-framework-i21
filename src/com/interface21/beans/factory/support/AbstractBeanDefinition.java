@@ -5,8 +5,6 @@
  
 package com.interface21.beans.factory.support;
 
-import org.apache.log4j.Logger;
-
 import com.interface21.beans.PropertyValues;
 
 /**
@@ -26,22 +24,15 @@ import com.interface21.beans.PropertyValues;
  */
 abstract class AbstractBeanDefinition {
 
-	/**
-	* Create a logging category that is available
-	* to subclasses. 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-	
 	/** Is this a singleton bean? */
 	private boolean singleton;
 	
 	/** Property map */
 	private PropertyValues pvs;
-
 	
 	/** 
 	 * Creates new BeanDefinition
-	 * @param map properties of the bean
+	 * @param pvs properties of the bean
 	 */
 	protected AbstractBeanDefinition(PropertyValues pvs, boolean singleton) {
 		this.pvs = pvs;
@@ -79,7 +70,6 @@ abstract class AbstractBeanDefinition {
 		return pvs;
 	}
 
-	
 	/**
 	 * @see Object#equals(Object)
 	 */
@@ -91,4 +81,4 @@ abstract class AbstractBeanDefinition {
 			this.pvs.changesSince(obd.pvs).getPropertyValues().length == 0;
 	}
 
-} 	// class BeanDefinition
+}

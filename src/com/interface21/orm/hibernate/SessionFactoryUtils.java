@@ -9,7 +9,8 @@ import net.sf.hibernate.JDBCException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.cfg.Configuration;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.jndi.JndiObjectEditor;
@@ -29,7 +30,7 @@ import com.interface21.util.ThreadObjectManager;
  */
 public abstract class SessionFactoryUtils {
 
-	private static final Logger logger = Logger.getLogger(SessionFactoryUtils.class);
+	private static final Log logger = LogFactory.getLog(SessionFactoryUtils.class);
 
 	static {
 		// register editor to be able to set a JNDI name to a SessionFactory property

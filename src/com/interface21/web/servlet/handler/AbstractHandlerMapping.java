@@ -1,6 +1,7 @@
 package com.interface21.web.servlet.handler;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.context.support.ApplicationObjectSupport;
 import com.interface21.core.Ordered;
@@ -17,7 +18,7 @@ import com.interface21.web.servlet.LocaleResolverAware;
  */
 public abstract class AbstractHandlerMapping extends ApplicationObjectSupport implements HandlerMapping, Ordered {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private LocaleResolver localeResolver;
 

@@ -2,7 +2,8 @@ package com.interface21.web.context;
 
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.support.XmlWebApplicationContext;
@@ -28,7 +29,7 @@ public class ContextLoader {
 
 	public static final Class DEFAULT_CONTEXT_CLASS = XmlWebApplicationContext.class;
 
-	private static final Logger logger = Logger.getLogger(ContextLoader.class);
+	private static final Log logger = LogFactory.getLog(ContextLoader.class);
 
 	/**
 	 * Initializes Spring's web application context for the given servlet context,

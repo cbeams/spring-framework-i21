@@ -5,7 +5,8 @@ import java.beans.PropertyEditor;
 import java.beans.VetoableChangeListener;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.ErrorCodedPropertyVetoException;
 import com.interface21.beans.PropertyValue;
@@ -24,7 +25,7 @@ public class DataBinder extends BindException {
 
 	public static final String MISSING_FIELD_ERROR_CODE = "required";
 
-	protected static final Logger logger = Logger.getLogger(DataBinder.class);
+	protected static final Log logger = LogFactory.getLog(DataBinder.class);
 
 	private String[] requiredFields;
 

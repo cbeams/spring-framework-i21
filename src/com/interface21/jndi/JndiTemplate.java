@@ -17,7 +17,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Helper class that simplifies JNDI operations. It provides methods to lookup
@@ -34,7 +35,7 @@ import org.apache.log4j.Logger;
  */
 public class JndiTemplate {
 	
-	private final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private Properties environment;
 

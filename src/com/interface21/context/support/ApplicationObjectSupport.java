@@ -11,7 +11,8 @@
 
 package com.interface21.context.support;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextAware;
@@ -27,7 +28,7 @@ import com.interface21.context.ApplicationContextException;
 public abstract class ApplicationObjectSupport implements ApplicationContextAware {
 	
 	/** Logger that is available to subclasses */
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 	
 	/** ApplicationContext this object runs in */
 	private ApplicationContext applicationContext;
