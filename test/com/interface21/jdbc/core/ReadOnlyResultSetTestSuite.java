@@ -20,7 +20,7 @@ import org.easymock.*;
 public class ReadOnlyResultSetTestSuite extends TestCase {
   
   private class MyMockResultSetMetadata extends CommonMockResultSetMetaData {};
-  private class MyMockStatement extends CommonMockStatement {};
+  private class MyMockStatement extends MockStatement {};
   
   private MockSingleRowResultSet rs;
   private MockSingleRowResultSet rs2;

@@ -72,6 +72,8 @@ public class JdbcTemplate {
 	 */
 	private boolean ignoreWarnings = true;
 	
+	/** Factory to get instance of Helper to translate SQL exceptions */
+	private SQLExceptionTranslaterFactory exceptionTranslaterFactory;
 	/** Helper to translate SQL exceptions to DataAccessExceptions */
 	private SQLExceptionTranslater exceptionTranslater;
 
@@ -92,7 +94,8 @@ public class JdbcTemplate {
     	}
 		
 		this.dataSource = dataSource;
-		this.exceptionTranslater = new SQLStateSQLExceptionTranslater();
+		this.exceptionTranslaterFactory = SQLExceptionTranslaterFactory.getInstance();
+		this.exceptionTranslater = this.exceptionTranslaterFactory.getDefaultTranslater(dataSource);
 	}
 	
 	//-------------------------------------------------------------------------
@@ -313,6 +316,9 @@ public class JdbcTemplate {
 				PreparedStatement ps = conn.prepareStatement(sql);
 				pss.setValues(ps);
 				return ps;
+			}
+			public String getSql() {
+				return sql;
 			}
 		});
 	}

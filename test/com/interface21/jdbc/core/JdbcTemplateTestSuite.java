@@ -1,6 +1,7 @@
 package com.interface21.jdbc.core;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,6 +62,9 @@ public class JdbcTemplateTestSuite extends TestCase {
 				ps.setInt(1, id);
 				return ps;
 			}
+			public String getSql() {
+				return sql;
+			}
 		};
 		
 		
@@ -73,7 +77,8 @@ public class JdbcTemplateTestSuite extends TestCase {
 		Dispatcher d = new Dispatcher(idParam);
 		
 		
-		Connection con = MockConnectionFactory.updateWithPreparedStatement(sql, new Object[] { new Integer(idParam) }, 1, true);
+		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, new Object[] { new Integer(idParam) }, 1, true);
+
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
@@ -108,13 +113,16 @@ public class JdbcTemplateTestSuite extends TestCase {
 				ps.setInt(1, id);
 				return ps;
 			}
+			public String getSql() {
+				return sql;
+			}
 		};
 		
 		
 		// It's because Integers aren't canonical
 		SQLException sex = new SQLException("bad update");
 		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, new Object[] { new Integer(iParam) }, 1, true, sex, null);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 		
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
@@ -167,7 +175,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		};
 		
 		MockConnection con = MockConnectionFactory.preparedStatement(sql, null, results, true);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 		
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -211,7 +219,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		};
 		
 		final MockConnection con = MockConnectionFactory.preparedStatement(sql, new Integer[] { new Integer(1) }, results, true);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 		
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
@@ -229,6 +237,9 @@ public class JdbcTemplateTestSuite extends TestCase {
 				// FIX!>
 				ps.setInt(1, 1);
 				return ps;
+			}
+			public String getSql() {
+				return sql;
 			}
 		};
 		
@@ -278,9 +289,8 @@ public class JdbcTemplateTestSuite extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		
-		
 		MockConnection con = MockConnectionFactory.preparedStatement(sql, null, new Object[0][0], false);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
@@ -329,7 +339,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		PreparedStatement ps = (PreparedStatement) psControl.getMock();
 		ps.executeQuery();
 		MockSingleRowResultSet rs = new MockSingleRowResultSet();
-		rs.setExpectedCloseCalls(1);
+		rs.setExpectedCloseCalls(2);
 		//rs.setupMetaData()
 		
 		psControl.setReturnValue(rs);
@@ -414,7 +424,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		// It's because Integers aren't canonical
 		SQLException sex = new SQLException("bad update");
 		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, 0, true, sex, null);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 		
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -444,7 +454,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		
 		// It's because Integers aren't canonical
 		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 		
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -487,7 +497,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.activate();
 		
 		MockConnection con = MockConnectionFactory.update(sql, mockPs);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 	
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -548,7 +558,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 			psControl.activate();
 		
 			MockConnection con = MockConnectionFactory.update(sql, mockPs);
-			con.setExpectedCloseCalls(1);
+			con.setExpectedCloseCalls(2);
 	
 			ds.getConnection();
 			dsControl.setReturnValue(con);
@@ -589,9 +599,9 @@ public class JdbcTemplateTestSuite extends TestCase {
 		dsControl.setThrowable(sex);
 		dsControl.activate();
 		
-		JdbcTemplate template2 = new JdbcTemplate(ds);
-		RowCountCallbackHandler rcch = new RowCountCallbackHandler();
 		try {
+			JdbcTemplate template2 = new JdbcTemplate(ds);
+			RowCountCallbackHandler rcch = new RowCountCallbackHandler();
 			template2.query("SELECT ID, FORENAME FROM CUSTMR WHERE ID < 3", rcch);
 			fail("Shouldn't have executed query without a connection");
 		}
@@ -652,7 +662,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.activate();
 		
 		MockConnection con = MockConnectionFactory.update(sql, mockPs);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 	
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -690,7 +700,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.activate();
 	
 		MockConnection con = MockConnectionFactory.update(sql, mockPs);
-		con.setExpectedCloseCalls(1);
+		con.setExpectedCloseCalls(2);
 
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -719,19 +729,24 @@ public class JdbcTemplateTestSuite extends TestCase {
 		
 		MockControl conControl = EasyMock.controlFor(Connection.class);
 		Connection con = (Connection) conControl.getMock();
+
+		MockControl dbmdControl = EasyMock.controlFor(DatabaseMetaData.class);
+		DatabaseMetaData dbmd = (DatabaseMetaData) dbmdControl.getMock();
+		
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
 		
-		
-		SQLException sex = new SQLException();
+		SQLException sex = new SQLException("bar");
+		con.getMetaData();
+		conControl.setReturnValue(dbmd);
 		con.close();
 		conControl.setThrowable(sex);
 		conControl.activate();
 		
-		JdbcTemplate template2 = new JdbcTemplate(ds);
-		RowCountCallbackHandler rcch = new RowCountCallbackHandler();
 		try {
+			JdbcTemplate template2 = new JdbcTemplate(ds);
+			RowCountCallbackHandler rcch = new RowCountCallbackHandler();
 			template2.query("SELECT ID, FORENAME FROM CUSTMR WHERE ID < 3", rcch);
 			fail("Should throw exception on failure to close");
 		}

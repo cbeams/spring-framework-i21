@@ -212,6 +212,21 @@
 
 	</target>
 
+	<!--
+	    Create the XML Bean implementation JAR file.
+	-->
+	<target name="xmlbean" depends="build">
+
+		<!-- We inherit this property from calling ant script -->
+		<jar jarfile="${spring-xmlbean.jar}">
+			<fileset dir="${build.dir}">
+				<!-- The bean factory classes excluded from the spring-core.jar -->
+				<include name="com/interface21/beans/factory/support/X*"/>
+			</fileset>
+		</jar>
+
+	</target>
+
 
 	<!--
 	    Build all Jar files

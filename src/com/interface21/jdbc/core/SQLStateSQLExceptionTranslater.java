@@ -37,9 +37,12 @@ public class SQLStateSQLExceptionTranslater implements SQLExceptionTranslater {
 	
 	// Populate reference data
 	static {
+		BAD_SQL_CODES.add("07");
 		BAD_SQL_CODES.add("42");
 		BAD_SQL_CODES.add("65");				// Oracle throws on unknown identifier
+		BAD_SQL_CODES.add("S0");                // MySQL uses this - from ODBC error codes?
 		
+		INTEGRITY_VIOLATION_CODES.add("22");	// Integrity constraint violation
 		INTEGRITY_VIOLATION_CODES.add("23");	// Integrity constraint violation
 		INTEGRITY_VIOLATION_CODES.add("27");	// Triggered data change violation
 		INTEGRITY_VIOLATION_CODES.add("44");	// With check violation

@@ -23,6 +23,7 @@ import javax.sql.DataSource;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.DataSourceUtils;
 import com.interface21.jdbc.core.SQLExceptionTranslater;
+import com.interface21.jdbc.core.SQLExceptionTranslaterFactory;
 import com.interface21.jdbc.core.SQLStateSQLExceptionTranslater;
 import com.interface21.jdbc.core.SqlParameter;
 
@@ -44,10 +45,19 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	/** 
 	 * Call string as defined in java.sql.CallableStatement.
 	 * String of form {call add_invoice(?, ?, ?)} 
+	 * or {? = call get_invoice_count(?)} if isFunction is set to true 
 	 * Updated after each parameter is added.
 	 */
 	private String callString;
+
+	/** 
+	 * Flag used to indicate that this call is for a function and to 
+	 * use the {? = call get_invoice_count(?)} syntax. 
+	 */ 
+	private boolean isFunction = false;
 	
+	/** Factory to get instance of Helper to translate SQL exceptions */
+	private SQLExceptionTranslaterFactory exceptionTranslaterFactory;
 	/** Helper to translate SQL exceptions to DataAccessExceptions */
 	private SQLExceptionTranslater exceptionTranslater;
 	
@@ -81,6 +91,8 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	protected StoredProcedure(DataSource ds, String name) {
 		setDataSource(ds);
 		setSql(name);
+		this.exceptionTranslaterFactory = SQLExceptionTranslaterFactory.getInstance();
+		this.exceptionTranslater = this.exceptionTranslaterFactory.getDefaultTranslater(ds);
 	}
 
 
@@ -110,9 +122,16 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	 */
 	protected void compileInternal() {
 		List parameters = getDeclaredParameters();
-		callString = "{call " + getSql() + "(";
-		for (int i = 0; i < parameters.size(); i++) {
-			if (i > 0)
+		int firstParameter = 0;
+		if (isFunction) {
+			callString = "{? = call " + getSql() + "(";
+			firstParameter = 1;
+		} 
+		else {
+			callString = "{call " + getSql() + "(";
+		}
+		for (int i = firstParameter; i < parameters.size(); i++) {
+			if (i > firstParameter)
 				callString += ", ";
 			callString += "?";
 		}
@@ -189,6 +208,8 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		}
 		catch (SQLException ex) {
 			//throw new UncategorizedSQLException("Call to stored procedure '" + getSql() + "' failed", ex);
+			System.out.println(this.callString);
+			System.out.println(this.exceptionTranslater);
 			throw this.exceptionTranslater.translate("Call to stored procedure '" + getSql() + "'", this.callString, ex);
 		}
 		finally {
@@ -293,6 +314,21 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		public OutputParameter(String name, int type) {
 			super(name, type);
 		}
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public boolean isFunction() {
+		return isFunction;
+	}
+
+	/**
+	 * Sets the isFunction.
+	 * @param isFunction The isFunction to set
+	 */
+	public void setFunction(boolean isFunction) {
+		this.isFunction = isFunction;
 	}
 
 }	// class StoredProcedure

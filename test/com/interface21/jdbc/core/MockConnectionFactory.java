@@ -28,7 +28,7 @@ public abstract class MockConnectionFactory {
 		boolean mustClose) {
 
 		MockConnection mc = new MockConnection();
-		mc.setExpectedCloseCalls(mustClose ? 1 : 0);
+		mc.setExpectedCloseCalls(mustClose ? 2 : 0);
 
 		// What about PS?
 		MockStatement s = new MockStatement();
@@ -68,7 +68,7 @@ public abstract class MockConnectionFactory {
 		SQLWarning warnings) {
 
 		MockConnection mc = new MockConnection();
-		mc.setExpectedCloseCalls(mustClose ? 1 : 0);
+		mc.setExpectedCloseCalls(mustClose ? 2 : 0);
 
 		// What about PS?
 		SpringMockPreparedStatement ps = new SpringMockPreparedStatement();
@@ -127,7 +127,7 @@ public abstract class MockConnectionFactory {
 		SQLWarning warnings) {
 
 		MockConnection mc = new MockConnection();
-		mc.setExpectedCloseCalls(mustClose ? 1 : 0);
+		mc.setExpectedCloseCalls(mustClose ? 2 : 0);
 
 		// What about PS?
 		SpringMockPreparedStatement ps = new SpringMockPreparedStatement();
@@ -168,7 +168,7 @@ public abstract class MockConnectionFactory {
 		PreparedStatement mockPs) {
 
 		MockConnection mc = new MockConnection();
-		mc.setExpectedCloseCalls(1);
+		mc.setExpectedCloseCalls(2);
 
 		mc.addExpectedPreparedStatement(mockPs);
 
