@@ -44,9 +44,11 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 		try {
 			// Supports remote as well as local URLs
 			is = getInputStreamForBeanFactory();
-			xmlBeanFactory = new XmlBeanFactory(is, getParent());
+			this.xmlBeanFactory = new XmlBeanFactory(getParent());
+			this.xmlBeanFactory.setEntityResolver(new ResourceBaseEntityResolver(this));
+			this.xmlBeanFactory.loadBeanDefinitions(is);
 			if (logger.isInfoEnabled()) {
-				logger.info("BeanFactory for application context: " + xmlBeanFactory);
+				logger.info("BeanFactory for application context: " + this.xmlBeanFactory);
 			}
 		}
 		catch (IOException ex) {

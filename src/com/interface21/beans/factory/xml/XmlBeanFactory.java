@@ -27,6 +27,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.EntityResolver;
 
 import com.interface21.beans.BeansException;
 import com.interface21.beans.FatalBeanException;
@@ -110,12 +111,36 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	private static final String PROP_ELEMENT = "prop";
 
 
+	private EntityResolver entityResolver;
+
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
 
 	/**
-	 * Creates new XmlBeanFactory using java.io to read the XML document with the given filename
+	 * Create new XmlBeanFactory.
+	 * Can be customized before the loadBeanDefinitions call.
+	 * @see #setEntityResolver
+	 * @see #loadBeanDefinitions
+	 */
+	public XmlBeanFactory() {
+	}
+
+	/**
+	 * Create new XmlBeanFactory.
+	 * Can be customized before the loadBeanDefinitions call.
+	 * @param parentBeanFactory parent bean factory
+	 * @see #setEntityResolver
+	 * @see #loadBeanDefinitions
+	 */
+	public XmlBeanFactory(BeanFactory parentBeanFactory) {
+		super(parentBeanFactory);
+	}
+
+	/**
+	 * Create new XmlBeanFactory using java.io to read the XML document
+	 * with the given filename.
 	 * @param filename name of the file containing the XML document
 	 */
 	public XmlBeanFactory(String filename) throws BeansException {
@@ -123,19 +148,14 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Creates new XmlBeanFactory using java.io to read the XML document with the given filename
+	 * Create new XmlBeanFactory using java.io to read the XML document
+	 * with the given filename.
 	 * @param filename name of the file containing the XML document
 	 * @param parentBeanFactory parent bean factory
 	 */
 	public XmlBeanFactory(String filename, BeanFactory parentBeanFactory) throws BeansException {
 		super(parentBeanFactory);
-		try {
-			logger.info("Loading XmlBeanFactory from file '" + filename + "'");
-			loadBeanDefinitions(new FileInputStream(filename));
-		}
-		catch (IOException ex) {
-			throw new BeanDefinitionStoreException("Can't open file [" + filename + "]", ex);
-		}
+		loadBeanDefinitions(filename);
 	}
 
 	/**
@@ -161,21 +181,13 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Creates new XmlBeanFactory from a DOM document
-	 * @param doc DOM document, already parsed
+	 * Set a SAX entity resolver to be used for parsing. By default,
+	 * BeansDtdResolver will be used. Can be overridden for custom
+	 * entity resolution, e.g. relative to some specific base path.
+	 * @see BeansDtdResolver
 	 */
-	public XmlBeanFactory(Document doc) throws BeansException {
-		this(doc, null);
-	}
-
-	/**
-	 * Creates new XmlBeanFactory from a DOM document
-	 * @param doc DOM document, already parsed
-	 * @param parentBeanFactory parent bean factory
-	 */
-	public XmlBeanFactory(Document doc, BeanFactory parentBeanFactory) throws BeansException {
-		super(parentBeanFactory);
-		loadBeanDefinitions(doc);
+	public void setEntityResolver(EntityResolver entityResolver) {
+		this.entityResolver = entityResolver;
 	}
 
 
@@ -184,9 +196,24 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	//---------------------------------------------------------------------
 
 	/**
-	 * Load definitions from this input stream and close it
+	 * Load definitions from the given file.
+	 * @param filename name of the file containing the XML document
 	 */
-	private void loadBeanDefinitions(InputStream is) throws BeansException {
+	public void loadBeanDefinitions(String filename) throws BeansException {
+		try {
+			logger.info("Loading XmlBeanFactory from file '" + filename + "'");
+			loadBeanDefinitions(new FileInputStream(filename));
+		}
+		catch (IOException ex) {
+			throw new BeanDefinitionStoreException("Can't open file [" + filename + "]", ex);
+		}
+	}
+
+	/**
+	 * Load definitions from the given input stream and close it.
+	 * @param is InputStream containing XML
+	 */
+	public void loadBeanDefinitions(InputStream is) throws BeansException {
 		if (is == null)
 			throw new BeanDefinitionStoreException("InputStream cannot be null: expected an XML file", null);
 
@@ -197,7 +224,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 			factory.setValidating(true);
 			DocumentBuilder db = factory.newDocumentBuilder();
 			db.setErrorHandler(new BeansErrorHandler());
-			db.setEntityResolver(new BeansDtdResolver());
+			db.setEntityResolver(this.entityResolver != null ? this.entityResolver : new BeansDtdResolver());
 			Document doc = db.parse(is);
 			loadBeanDefinitions(doc);
 		}
@@ -224,8 +251,9 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	/**
 	 * Load bean definitions from the given DOM document.
 	 * All calls go through this.
+	 * @param doc the DOM document
 	 */
-	private void loadBeanDefinitions(Document doc) throws BeansException {
+	public void loadBeanDefinitions(Document doc) throws BeansException {
 		Element root = doc.getDocumentElement();
 		logger.debug("Loading bean definitions");
 		NodeList nl = root.getElementsByTagName(BEAN_ELEMENT);
@@ -442,21 +470,20 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	private static class BeansErrorHandler implements ErrorHandler {
 		
 		/**
-		 * We can't use the enclosing class's logger as it's
-		 * protected and inherited.
+		 * We can't use the enclosing class' logger as it's protected and inherited.
 		 */
-		private static Log logger = LogFactory.getLog(XmlBeanFactory.class);
+		private final static Log logger = LogFactory.getLog(XmlBeanFactory.class);
 
-		public void error(SAXParseException e) throws SAXException {
-			throw e;
+		public void error(SAXParseException ex) throws SAXException {
+			throw ex;
 		}
 
-		public void fatalError(SAXParseException e) throws SAXException {
-			throw e;
+		public void fatalError(SAXParseException ex) throws SAXException {
+			throw ex;
 		}
 
-		public void warning(SAXParseException e) throws SAXException {
-			logger.warn("Ignored XML validation warning: " + e);
+		public void warning(SAXParseException ex) throws SAXException {
+			logger.warn("Ignored XML validation warning: " + ex);
 		}
 	}
 
