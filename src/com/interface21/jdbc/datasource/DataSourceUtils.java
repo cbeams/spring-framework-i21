@@ -21,7 +21,7 @@ import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
 import com.interface21.aop.framework.ProxyFactory;
-import com.interface21.jndi.JndiServices;
+import com.interface21.jndi.JndiTemplate;
 import com.interface21.util.ThreadObjectManager;
  
 /**
@@ -53,14 +53,29 @@ public abstract class DataSourceUtils {
 	}
 
 	/**
-	 * Get a data source from JNDI, under java:comp/env/jdbc.
-	 * <p>Uses JndiServices internally for correct InitialContext handling.
-	 * @param name name of the data source
-	 * (supporting "test", "jdbc/test", and "java:comp/env/jdbc/test" syntaxes)
-	 * @return the data source
-	 * @throws com.interface21.jdbc.datasource.CannotGetJdbcConnectionException if the data source cannot be located
- 	*/
+	 * Look up the specified DataSource in JNDI, using a default JndiTemplate.
+	 * @param name name of the DataSource
+	 * (supports "test", "jdbc/test", and "java:comp/env/jdbc/test" syntaxes)
+	 * @return the DataSource
+	 * @throws CannotGetJdbcConnectionException if the data source cannot be located
+	 */
 	public static DataSource getDataSourceFromJndi(String name) throws CannotGetJdbcConnectionException {
+		return getDataSourceFromJndi(name, new JndiTemplate());
+	}
+
+	/**
+	 * Look up the specified DataSource in JNDI, using the given JndiTemplate.
+	 * @param name name of the DataSource
+	 * (supports "test", "jdbc/test", and "java:comp/env/jdbc/test" syntaxes)
+	 * @param jndiTemplate template instance to use for lookup, or null for default
+	 * @return the DataSource
+	 * @throws CannotGetJdbcConnectionException if the data source cannot be located
+	 */
+	protected static DataSource getDataSourceFromJndi(String name, JndiTemplate jndiTemplate) throws CannotGetJdbcConnectionException {
+		if (jndiTemplate == null) {
+			jndiTemplate = new JndiTemplate();
+		}
+
 		// check prefixes in name
 		String jndiName = null;
 		if (name.startsWith("java:comp/env/"))
@@ -72,13 +87,12 @@ public abstract class DataSourceUtils {
 
 		try {
 			// Perform JNDI lookup to obtain resource manager connection factory
-			return (DataSource) JndiServices.lookup(jndiName);
+			return (DataSource) jndiTemplate.lookup(jndiName);
 		}
 		catch (NamingException ex) {
 			throw new CannotGetJdbcConnectionException("Naming exception looking up JNDI data source [" + jndiName + "]", ex);
 		}
 	}
-	
 	/**
 	 * Get a connection from the given J2EE DataSource. Changes any SQL exception into
 	 * the Spring hierarchy of unchecked generic data access exceptions, simplifying

@@ -140,7 +140,7 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 		// This helper will close JNDI context
 		// Commented out as it's impossible to override context to
 		// use a mock object
-		//Object o = JndiServices.lookup(jndiName);
+		//Object o = JndiTemplate.lookup(jndiName);
 		
 		Object o = null;
 		
