@@ -54,14 +54,6 @@ import com.interface21.web.servlet.view.AbstractView;
  * @version $Id$
  */
 public abstract class AbstractXsltView extends AbstractView implements ApplicationContextAware {
-	
-	/**
-	 * Name of the XML element that will contain locale and language information about the
-	 * request, enabling XSLT stylesheets to use this information without access
-	 * to the Servlet API.
-	 */
-	public static final String REQUEST_INFO_KEY = "request-info"; 
-
 
 	//---------------------------------------------------------------------
 	// Instance data
@@ -274,8 +266,7 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 
 			// docRoot local variable takes precedence
 			try {
-				addRequestInfoToModel(model, request);
-				dom = createDomNode(model, (docRoot == null) ? this.root : docRoot);
+				dom = createDomNode(model, (docRoot == null) ? this.root : docRoot, request, response);
 			}
 			catch (Exception rex) {
 				throw new ServletException("Error creating XML node from model in XSLT view with name='" + getName() + "'", rex);
@@ -289,14 +280,17 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 	/**
 	 * Subclasses must implement this method
 	 * Return the XML node to transform.
+	 * @param model model
+	 * @param root name for root element
+	 * @param request HTTP request. Subclasses won't normally use this, as request
+	 * processing should have been complete. However, we might to create
+	 * a RequestContext to expose as part of the model.
+	 * @param response HTTP response. Subclasses won't normally use this, however
+	 * there may sometimes be a need to set cookies.
+	 * @throws Exception we let this method throw any exception; the
+	 * AbstractXlstView superclass will catch exceptions
 	 */
-	protected abstract Node createDomNode(Map model, String root) throws Exception;
-	 
-	protected void addRequestInfoToModel(Map model, HttpServletRequest request) {
-		// TODO implement this
-		//System.out.println("SOMETHING SHOULD GO HERE IN ADD RequestInfo");
-		//model.put(REQUEST_INFO_KEY, new RequestInf(request));
-	}
+	protected abstract Node createDomNode(Map model, String root, HttpServletRequest request, HttpServletResponse response) throws Exception;
 	
 
 	/**
