@@ -39,12 +39,13 @@ public class InvalidPropertyValuesException extends BeansException {
 	public PropertyValues getPropertyValues() {
 		return pvs;
 	}
-	
+
+
 	public static class MissingFieldException extends Exception implements ErrorCoded {
 		
 		private String field;
 		
-		private String errorCode = UNCODED;
+		private String errorCode;
 		
 		public MissingFieldException(String field, String errorCode) {
 			super("Field '" + field + "' is required");

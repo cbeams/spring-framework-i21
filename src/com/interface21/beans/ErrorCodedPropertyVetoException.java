@@ -9,7 +9,7 @@ import com.interface21.core.HasRootCause;
 /**
  * Exception used by PropertyVetoException to wrap failures.
  * Clients can throw these.
- * @author  Rod Johnson
+ * @author Rod Johnson
  * @version $Id$
  */
 public class ErrorCodedPropertyVetoException extends PropertyVetoException implements ErrorCoded, HasRootCause {
@@ -18,7 +18,7 @@ public class ErrorCodedPropertyVetoException extends PropertyVetoException imple
 
 	private static final String METHOD_INVOCATION_ERROR_CODE = "methodInvocation";
 
-	private String errorCode = UNCODED;
+	private String errorCode;
 
 	private Throwable rootCause;
 
