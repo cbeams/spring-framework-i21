@@ -54,9 +54,27 @@ public class SqlStateExceptionTranslaterTestSuite extends TestCase {
 		}
 	}
 	
-	public void testNullSqlStateCode() {
+	/**
+	 * PostgreSQL can return null
+	 * SAP DB can apparently return empty SQL code
+	 * Bug 729170 
+	 */
+	public void testMalformedSqlStateCodes() {
 		String sql = "SELECT FOO FROM BAR";
 		SQLException sex = new SQLException("Message", null, 1);
+		testMalformedSqlStateCode(sex);
+		
+		sex = new SQLException("Message", "", 1);
+		testMalformedSqlStateCode(sex);
+				
+		// One char's not allowed
+		sex = new SQLException("Message", "I", 1);
+		testMalformedSqlStateCode(sex);
+	}
+	
+	
+	private void testMalformedSqlStateCode(SQLException sex) {
+		String sql = "SELECT FOO FROM BAR";
 		try {
 			throw this.trans.translate("task", sql, sex);
 		}

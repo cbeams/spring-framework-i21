@@ -64,7 +64,7 @@ public class SQLStateSQLExceptionTranslater implements SQLExceptionTranslater {
 						" and message=" + sqlex.getMessage() + "; sql was '" + sql + "'");
 			
 		String sqlstate = sqlex.getSQLState();
-		if (sqlstate != null) {
+		if (sqlstate != null && sqlstate.length() >= 2) {
 			String classCode = sqlstate.substring(0, 2);
 			if (BAD_SQL_CODES.contains(classCode))
 				throw new BadSqlGrammarException("(" + task + "): SQL grammatical error '" + sql + "'", sql, sqlex);
