@@ -51,12 +51,20 @@
 	<bean id="mySessionFactory" class="com.interface21.orm.hibernate.LocalSessionFactoryBean"/>
 
 	<!--
-	  - Optional: DataSource definition that matches the one that Hibernate uses,
-	  - as specified in the SessionFactory's configuration file, to be able to share
-	  - transactions with plain JDBC access code.
+	  - Optional: JDBC DataSource definition to be able to share transactions with
+	  - plain JDBC access code. If Hibernate is configured to a certain JNDI DataSource,
+	  - this definition should match Hibernate's.
+	  -
+	  - Alternatively, Connections from this DataSource can be given directly to
+	  - Hibernate Sessions: The Hibernate configuration does not need to specify an
+	  - own connection provider then, avoiding config duplication. To support this,
+	  - all data access objects need to pass the DataSource reference to
+	  - HibernateTemplate or SessionFactoryUtils.
 	  -
 	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
 	  - By default, "java:comp/env/" will be prepended if not already specified.
+	  - If using this DataSource to create Hibernate Sessions, an alternative DataSource
+	  - can be used here too, e.g. for non-J2EE environments (see "webapp-typical").
 	  -->
 	<!--
 	<bean id="myDataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
@@ -78,8 +86,10 @@
 	  - transactions on a single Hibernate SessionFactory. Does not depend on JTA!
 	  -
 	  - Needs a SessionFactory reference that it should handle transactions for.
-	  - Can optionally take a DataSource reference that it should export Hibernate
-	  - transactions for, to be able to share transactions with plain JDBC access code.
+	  - Can optionally take a DataSource reference that it should use for Hibernate
+	  - transactions, to be able to share transactions with plain JDBC access code.
+	  - The same JDBC Connections will be used for Hibernate Sessions then: The
+	  - Hibernate configuration does not need to specify an own connection provider.
 	  -->
 	<!--
 	<bean id="myTransactionManager" class="com.interface21.orm.hibernate.HibernateTransactionManager">
@@ -100,11 +110,17 @@
 	  - <ref external="exampleDataAccessObject") bean reference -
 	  - but shouldn't for the sake of clear application layering.
 	  -
-	  - Is assumed to use the SessionFactory reference, handed to it via a
+	  - Is assumed to use the SessionFactory reference, passed to it via a
 	  - "setSessionFactory" bean property setter, probably with HibernateTemplate.
+	  - Can also take a JDBC DataSource reference for use with HibernateTemplate or
+	  - SessionFactoryUtils, to create JDBC Connections for Hibernate Sessions. The
+	  - Hibernate config does not need to specify an own connection provider then.
     -->
 	<bean id="exampleDataAccessObject" class="example.ExampleDataAccessObject">
 		<property name="sessionFactory"><ref bean="mySessionFactory"/></property>
+		<!--
+		<property name="dataSource"><ref bean="myDataSource"/></property>
+		-->
 	  <property name="exampleParam"><value>someValue</value></property>
 	</bean>
 

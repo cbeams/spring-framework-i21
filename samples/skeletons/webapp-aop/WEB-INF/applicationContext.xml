@@ -115,7 +115,6 @@
 	  - Note: Does not need to be aware that it works with a JDBC data access object!
 	  -->
 	<bean id="exampleBusinessObjectTarget" class="example.ExampleBusinessObject">
-		<property name="transactionManager"><ref bean="myTransactionManager"/></property>
 		<property name="dataAccessObject"><ref bean="exampleDataAccessObject"/></property>
 	  <property name="exampleParam"><value>someOtherValue</value></property>
 	</bean>

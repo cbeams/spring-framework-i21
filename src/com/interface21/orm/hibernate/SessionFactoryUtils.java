@@ -2,6 +2,9 @@ package com.interface21.orm.hibernate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Connection;
+
+import javax.sql.DataSource;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.JDBCException;
@@ -25,6 +28,7 @@ import com.interface21.dao.OptimisticLockingFailureException;
 import com.interface21.transaction.support.TransactionSynchronization;
 import com.interface21.transaction.support.TransactionSynchronizationManager;
 import com.interface21.util.ThreadObjectManager;
+import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**
  * Helper class featuring methods for Hibernate session handling,
@@ -107,12 +111,14 @@ public abstract class SessionFactoryUtils {
 	 * for example when using HibernateTransactionManager.
 	 * Will create a new Session else, if allowCreate is true.
 	 * @param sessionFactory Hibernate SessionFactory to create the session with
+	 * @param dataSource JDBC DataSource that the Session's JDBC Connection should
+	 * come from, or null for a Hibernate-provided one
 	 * @param allowCreate if a new Session should be created if no thread-bound found
 	 * @return the Hibernate Session
 	 * @throws DataAccessResourceFailureException if the Session couldn't be created
 	 * @throws IllegalStateException if no thread-bound Session found and allowCreate false
 	 */
-	public static Session getSession(SessionFactory sessionFactory, boolean allowCreate)
+	public static Session getSession(SessionFactory sessionFactory, DataSource dataSource, boolean allowCreate)
 	    throws DataAccessResourceFailureException, IllegalStateException {
 		SessionHolder holder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
 		if (holder != null) {
@@ -123,7 +129,12 @@ public abstract class SessionFactoryUtils {
 		}
 		try {
 			logger.debug("Opening Hibernate session");
-			return sessionFactory.openSession();
+			if (dataSource != null) {
+				return sessionFactory.openSession(DataSourceUtils.getConnection(dataSource));
+			}
+			else {
+				return sessionFactory.openSession();
+			}
 		}
 		catch (JDBCException ex) {
 			// SQLException underneath
@@ -169,22 +180,24 @@ public abstract class SessionFactoryUtils {
 	 * if it isn't bound to the thread.
 	 * @param session Session to close
 	 * @param sessionFactory Hibernate SessionFactory that the Session was created with
+	 * @param dataSource JDBC DataSource that the Session's JDBC Connection came from,
+	 * or null if using a Hibernate-provided one
 	 * @throws DataAccessResourceFailureException if the Session couldn't be closed
 	 */
-	public static void closeSessionIfNecessary(Session session, SessionFactory sessionFactory)
+	public static void closeSessionIfNecessary(Session session, SessionFactory sessionFactory, DataSource dataSource)
 	    throws CleanupFailureDataAccessException {
 		if (session == null || isSessionBoundToThread(session, sessionFactory)) {
 			return;
 		}
 		if (TransactionSynchronizationManager.isActive()) {
 			logger.debug("Registering JTA synchronization for Hibernate session");
-			TransactionSynchronizationManager.register(new SessionSynchronization(session, sessionFactory));
+			TransactionSynchronizationManager.register(new SessionSynchronization(session, sessionFactory, dataSource));
 			// use same Session for further Hibernate actions within the transaction
 			// to save resources (thread object will get remoed by synchronization)
 			threadObjectManager.bindThreadObject(sessionFactory, new SessionHolder(session));
 		}
 		else {
-			doCloseSession(session);
+			doCloseSession(session, dataSource);
 		}
 	}
 
@@ -203,10 +216,13 @@ public abstract class SessionFactoryUtils {
 	/**
 	 * Actually perform close on the given Session.
 	 */
-	private static void doCloseSession(Session session) throws CleanupFailureDataAccessException {
+	private static void doCloseSession(Session session, DataSource dataSource) throws CleanupFailureDataAccessException {
 		logger.debug("Closing Hibernate session");
 		try {
-			session.close();
+			Connection con = session.close();
+			if (dataSource != null) {
+				DataSourceUtils.closeConnectionIfNecessary(con, dataSource);
+			}
 		}
 		catch (JDBCException ex) {
 			// SQLException underneath
@@ -226,15 +242,17 @@ public abstract class SessionFactoryUtils {
 
 		private Session session;
 		private SessionFactory sessionFactory;
+		private DataSource dataSource;
 
-		private SessionSynchronization(Session session, SessionFactory sessionFactory) {
+		private SessionSynchronization(Session session, SessionFactory sessionFactory, DataSource dataSource) {
 			this.session = session;
 			this.sessionFactory = sessionFactory;
+			this.dataSource = dataSource;
 		}
 
 		public void afterCompletion(int status) {
 			threadObjectManager.removeThreadObject(this.sessionFactory);
-			doCloseSession(this.session);
+			doCloseSession(this.session, this.dataSource);
 		}
 	}
 

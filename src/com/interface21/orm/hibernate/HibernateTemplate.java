@@ -2,6 +2,8 @@ package com.interface21.orm.hibernate;
 
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
@@ -67,6 +69,8 @@ public class HibernateTemplate implements InitializingBean {
 
 	private SessionFactory sessionFactory;
 
+	private DataSource dataSource;
+
 	private boolean forceFlush = false;
 
 	/**
@@ -85,6 +89,17 @@ public class HibernateTemplate implements InitializingBean {
 	}
 
 	/**
+	 * Create a new HibernateTemplate instance.
+	 * @param sessionFactory SessionFactory to create Sessions
+	 * @param dataSource JDBC DataSource to use Connections from
+	 */
+	public HibernateTemplate(SessionFactory sessionFactory, DataSource dataSource) {
+		this.sessionFactory = sessionFactory;
+		this.dataSource = dataSource;
+		afterPropertiesSet();
+	}
+
+	/**
 	 * Set the Hibernate SessionFactory that should be used to create
 	 * Hibernate Sessions.
 	 */
@@ -98,6 +113,23 @@ public class HibernateTemplate implements InitializingBean {
 	 */
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
+	}
+
+	/**
+	 * Set the JDBC DataSource that this instance should use Connections from.
+   * A Connection from this DataSource will be used for the Hibernate Session.
+   * The Hibernate configuration does not need to specify an own connection
+	 * provider then, avoiding config duplication.
+	 */
+	public final void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	/**
+	 * Return the JDBC DataSource that this instance manages transactions for.
+	 */
+	public DataSource getDataSource() {
+		return dataSource;
 	}
 
 	/**
@@ -163,7 +195,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * @see com.interface21.transaction
 	 */
 	public Object execute(HibernateCallback action) throws DataAccessException, RuntimeException {
-		Session session = SessionFactoryUtils.getSession(this.sessionFactory, true);
+		Session session = SessionFactoryUtils.getSession(this.sessionFactory, this.dataSource, true);
 		try {
 			Object result = action.doInHibernate(session);
 			if (this.forceFlush || !SessionFactoryUtils.isSessionBoundToThread(session, this.sessionFactory)) {
@@ -179,7 +211,7 @@ public class HibernateTemplate implements InitializingBean {
 			throw ex;
 		}
 		finally {
-			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory);
+			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory, this.dataSource);
 		}
 	}
 

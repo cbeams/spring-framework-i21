@@ -26,21 +26,26 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * factories. Binds a Hibernate Session from the specified factory to the
  * thread, potentially allowing for one thread Session per factory.
  * SessionFactoryUtils and HibernateTemplate are aware of thread-bound
- * Sessions and take part in such transactions automatically.
- * Using either is required for proper Hibernate access code supporting
- * this transaction handling mechanism.
- * Supports custom isolation levels but not timeouts.
+ * Sessions and take part in such transactions automatically. Using either
+ * is required for proper Hibernate access code supporting this transaction
+ * handling mechanism. Supports custom isolation levels but not timeouts.
  *
  * <p>This implementation is appropriate for applications that solely use
  * Hibernate for transactional data access, but it also supports direct
  * data source access within a transaction (i.e. plain JDBC code working
  * with the same DataSource). This allows for mixing services that access
  * Hibernate including proper transactional caching, and services that use
- * plain JDBC without being aware of Hibernate! To be able to register the
- * Connection for plain JDBC code, the instance needs to be aware of the
- * DataSource (see setDataSource). Application code needs to stick to the
- * same Connection lookup pattern as with DataSourceTransactionManager
- * (i.e. DataSourceUtils.getConnection).
+ * plain JDBC without being aware of Hibernate! Application code needs to
+ * stick to the same simple Connection lookup pattern as with
+ * DataSourceTransactionManager (i.e. DataSourceUtils.getConnection).
+ *
+ * <p>To be able to register a DataSource's Connection for plain JDBC code,
+ * this instance needs to be aware of the DataSource (see setDataSource).
+ * Note that the same JDBC Connection will be used for the Hibernate
+ * Session then: The Hibernate configuration does not need to specify an
+ * own connection provider, avoiding config duplication. The same
+ * SessionFactory/DataSource needs to be used in data access code too,
+ * i.e. passed to HibernateTemplate or SessionFactoryUtils.
  *
  * <p>JTA resp. JtaTransactionManager is necessary for accessing multiple
  * transactional resources. The DataSource that Hibernate uses needs to be
@@ -50,10 +55,11 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * TransactionManager lookup, required for proper transactional handling of
  * the JVM-level cache. Using the JCA Connector can solve this but involves
  * classloading issues and container-specific connector deployment.
- * Fortunately, there is an easier way with Spring: SessionFactoryUtils'
+ *
+ * <p>Fortunately, there is an easier way with Spring: SessionFactoryUtils'
  * close and thus HibernateTemplate register synchronizations with
- * JtaTransactionManager, for proper completion callbacks.
- * Therefore, as long as JtaTransactionManager demarcates the JTA transactions,
+ * JtaTransactionManager, for proper completion callbacks. Therefore,
+ * as long as JtaTransactionManager demarcates the JTA transactions,
  * Hibernate does not require any special JTA configuration for proper JTA.
  *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
@@ -108,16 +114,16 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	}
 
 	/**
-	 * Set the J2EE DataSource that this instance should manage transactions for
-   * (i.e. register the Hibernate transaction's JDBC connection to provide it
-	 * to application code accessing this DataSource).
+	 * Set the JDBC DataSource that this instance should manage transactions for.
+   * A Connection from this DataSource will be provided to both the Hibernate
+	 * Session and to application code accessing this DataSource directly.
 	 */
 	public final void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 
 	/**
-	 * Return the J2EE DataSource that this instance manages transactions for.
+	 * Return the JDBC DataSource that this instance manages transactions for.
 	 */
 	public DataSource getDataSource() {
 		return dataSource;
@@ -136,9 +142,9 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			return new HibernateTransactionObject(sessionHolder, false);
 		}
 		else {
-			logger.debug("Using new Session for Hibernate transaction");
-			SessionHolder sessionHolder = new SessionHolder(SessionFactoryUtils.getSession(this.sessionFactory, true));
-			return new HibernateTransactionObject(sessionHolder, true);
+			logger.debug("Opening new Session for Hibernate transaction");
+			Session session = SessionFactoryUtils.getSession(this.sessionFactory, this.dataSource, true);
+			return new HibernateTransactionObject(new SessionHolder(session), true);
 		}
 	}
 
@@ -255,8 +261,9 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		}
 		finally {
 			if (txObject.isNewSessionHolder()) {
+				logger.debug("Closing Hibernate session after transaction");
 				try {
-					SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory);
+					SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory, this.dataSource);
 				}
 				catch (CleanupFailureDataAccessException ex) {
 					// just log it, to keep a transaction-related exception
