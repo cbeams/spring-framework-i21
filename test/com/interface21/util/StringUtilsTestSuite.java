@@ -56,7 +56,7 @@ public class StringUtilsTestSuite extends TestCase {
 				sbuf.append(",");
 			sbuf.append(components[i]);
 		}		
-		System.out.println("STRING IS " + sbuf);
+		//System.out.println("STRING IS " + sbuf);
 		
 		String[] sa = StringUtils.commaDelimitedListToStringArray(sbuf.toString());
 		assertTrue("String array isn't null with legal match", sa != null);
