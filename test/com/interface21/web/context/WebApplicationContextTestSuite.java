@@ -114,8 +114,8 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	 * @see com.interface21.beans.factory.AbstractListableBeanFactoryTests#testCount()
 	 */
 	public void testCount() {
-		assertTrue("should have 10 beans, not"+ this.applicationContext.getBeanDefinitionCount(),
-			this.applicationContext.getBeanDefinitionCount() == 10);
+		assertTrue("should have 13 beans, not"+ this.applicationContext.getBeanDefinitionCount(),
+			this.applicationContext.getBeanDefinitionCount() == 13);
 	}
 
 }
