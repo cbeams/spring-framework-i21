@@ -278,10 +278,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 			SqlParameter p = (SqlParameter) parameters.get(i);
 			if (p instanceof OutputParameter) {
 				Object out = null;
-				if (p.getSqlType() == Types.ARRAY)
-					out = call.getArray(i + 1);
-				else
-					out = call.getObject(i + 1);
+				out = call.getObject(i + 1);
 				outParams.put(p.getName(), out);
 			}
 		}
