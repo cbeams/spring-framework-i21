@@ -9,6 +9,9 @@
 	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">
 		<property name="basename"><value>com/interface21/web/context/WEB-INF/test-messages</value></property>
 	</bean>
+	<bean id="themeSource" class="com.interface21.ui.context.support.ResourceBundleThemeSource">
+		<property name="basenamePrefix"><value>com/interface21/web/context/WEB-INF/test-</value></property>
+	</bean>
 
 	<bean id="aca" class="com.interface21.context.ACATest"/>
 
