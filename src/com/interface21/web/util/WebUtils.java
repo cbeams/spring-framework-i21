@@ -214,14 +214,17 @@ public abstract class WebUtils {
 		if (base == null)
 			base = "";
 		while (enum != null && enum.hasMoreElements()) {
-			String paramName = (String) enum.nextElement();
+            String paramName = (String) enum.nextElement();
 			if (base == null || "".equals(base) || paramName.startsWith(base)) {
 				String unprefixed = paramName.substring(base.length());
 				String[] values = request.getParameterValues(paramName);
-				if (values.length > 1)
+				if (values == null) {
+                    // do nothing, no values found at all
+                } else if (values.length > 1) {
 					params.put(unprefixed, values);
-				else
+                } else {
 					params.put(unprefixed, values[0]);
+                }
 			}
 		}
 		return params;
