@@ -37,7 +37,7 @@ public class StaticListableBeanFactory implements ListableBeanFactory {
 	 * @see com.interface21.beans.factory.ListableBeanFactory#getBeanDefinitionNames()
 	 */
 	public String[] getBeanDefinitionNames() {
-		return (String[]) beans.keySet().toArray();
+		return (String[]) beans.keySet().toArray(new String[beans.keySet().size()]);
 	}
 
 	/**
