@@ -8,6 +8,7 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 import javax.servlet.jsp.jstl.core.Config;
 
 import com.interface21.context.support.MessageSourceResourceBundle;
+import com.interface21.web.servlet.support.RequestContextUtils;
 
 /**
  * Specialization of InternalResourceView for JSTL pages,
@@ -25,7 +26,7 @@ public class JstlView extends InternalResourceView {
 		super.exposeModelsAsRequestAttributes(model, request);
 
 		// add JSTL locale and LocalizationContext request attributes
-		Locale jstlLocale = request.getLocale();
+		Locale jstlLocale = RequestContextUtils.getLocale(request);
 		LocalizationContext jstlContext = new LocalizationContext(new MessageSourceResourceBundle(getWebApplicationContext(), jstlLocale), jstlLocale);
 
 		// for JSTL implementations that stick to the config names (e.g. Resin's)

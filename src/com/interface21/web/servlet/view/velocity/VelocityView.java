@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -38,6 +39,7 @@ import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.util.SimplePool;
 
 import com.interface21.web.servlet.view.AbstractView;
+import com.interface21.web.servlet.support.RequestContextUtils;
 
 /**
  * View using Velocity template engine.
@@ -285,7 +287,7 @@ public class VelocityView extends AbstractView {
 	 * Expose the models in the given map as Velocity context attributes. Names will be
 	 * taken from the map. This method can be used by different view type.
 	 * @param model Map of model data to expose
-	 * @param cContext VelocityContext to add data to
+	 * @param vContext VelocityContext to add data to
 	 */
 	private void exposeModelsAsContextAttributes(Map model, Context vContext) {
 		if (model != null) {
@@ -319,15 +321,17 @@ public class VelocityView extends AbstractView {
 	 * This is necessary so that different rendering operations can't overwrite each other's formats etc.
 	 */
 	private void exposeHelpers(Context vContext, HttpServletRequest request) {
+		Locale locale = RequestContextUtils.getLocale(request);
+
 		if (this.exposeDateFormatter) {
 			// Javadocs indicate that this cast will work in most locales
-			SimpleDateFormat df = (SimpleDateFormat) DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, request.getLocale());
+			SimpleDateFormat df = (SimpleDateFormat) DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
 			vContext.put(DATE_FORMAT_KEY, df);
 			logger.debug("Adding date helper to context");
 		}
 		
 		if (this.exposeCurrencyFormatter) {
-			NumberFormat nf = NumberFormat.getCurrencyInstance(request.getLocale());
+			NumberFormat nf = NumberFormat.getCurrencyInstance(locale);
 			vContext.put(CURRENCY_FORMAT_KEY, nf);
 			logger.debug("Adding currency helper to context");
 		}
