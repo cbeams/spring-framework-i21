@@ -2,11 +2,11 @@ package com.interface21.transaction.support;
 
 import org.apache.log4j.Logger;
 
-import com.interface21.util.Constants;
-import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.PlatformTransactionManager;
+import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
+import com.interface21.util.Constants;
 
 /**
  * Helper class that simplifies programmatic transaction demarcation
@@ -59,7 +59,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	/**
 	 * Create a new TransactionTemplate instance.
 	 * @param transactionManager transaction manager to be used
-	 * @see com.interface21.transaction.PlatformTransactionManager
+	 * @see PlatformTransactionManager
 	 */
 	public TransactionTemplate(PlatformTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
@@ -69,7 +69,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	 * Create a new TransactionTemplate instance.
 	 * @param transactionManager transaction manager to be used
 	 * @param propagationBehavior default propagation behavior
-	 * @see com.interface21.transaction.PlatformTransactionManager
+	 * @see PlatformTransactionManager
 	 */
 	public TransactionTemplate(PlatformTransactionManager transactionManager, int propagationBehavior) {
 		super(propagationBehavior);
@@ -81,7 +81,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	 * @param transactionManager transaction manager to be used
 	 * @param propagationBehavior default propagation behavior
 	 * @param isolationLevel default isolation level
-	 * @see com.interface21.transaction.PlatformTransactionManager
+	 * @see PlatformTransactionManager
 	 */
 	public TransactionTemplate(PlatformTransactionManager transactionManager, int propagationBehavior, int isolationLevel) {
 		super(propagationBehavior, isolationLevel);
@@ -106,8 +106,8 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	 * Set the propagation behavior by the name of the respective constant in
 	 * PlatformTransactionManager (e.g. "PROPAGATION_REQUIRED");
 	 * @param constantName name of the constant
-	 * @throws java.lang.IllegalArgumentException if an invalid constant was specified
-	 * @see com.interface21.transaction.PlatformTransactionManager
+	 * @throws IllegalArgumentException if an invalid constant was specified
+	 * @see PlatformTransactionManager
 	 */
 	public void setPropagationBehaviorName(String constantName) throws IllegalArgumentException {
 		if (constantName == null || !constantName.startsWith(PROPAGATION_CONSTANT_PREFIX)) {
@@ -120,8 +120,8 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	 * Set the isolation level by the name of the respective constant in
 	 * PlatformTransactionManager (e.g. "ISOLATION_DEFAULT");
 	 * @param constantName name of the constant
-	 * @throws java.lang.IllegalArgumentException if an invalid constant was specified
-	 * @see com.interface21.transaction.PlatformTransactionManager
+	 * @throws IllegalArgumentException if an invalid constant was specified
+	 * @see PlatformTransactionManager
 	 */
 	public void setIsolationLevelName(String constantName) throws IllegalArgumentException {
 		if (constantName == null || !constantName.startsWith(ISOLATION_CONSTANT_PREFIX)) {
@@ -138,9 +138,9 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	 *
 	 * @param action callback object that specifies the transactional action
 	 * @return a result object returned by the callback, or null
-	 * @throws com.interface21.transaction.TransactionException in case of initialization, rollback,
+	 * @throws TransactionException in case of initialization, rollback,
 	 * or system errors
-	 * @throws java.lang.RuntimeException in case of application exceptions thrown by
+	 * @throws RuntimeException in case of application exceptions thrown by
 	 * the callback object
 	 */
 	public Object execute(TransactionCallback action) throws TransactionException, RuntimeException {
@@ -157,11 +157,6 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 			logger.info("Transactional code threw exception", ex);
 			this.transactionManager.rollback(status);
 			throw ex;
-		}
-		catch (Error err) {
-			logger.info("Error while executing transactional code", err);
-			this.transactionManager.rollback(status);
-			throw err;
 		}
 	}
 	
