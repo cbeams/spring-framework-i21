@@ -662,6 +662,54 @@ public class BeanWrapperTestSuite extends TestCase {
 		}
 	}
 
+	public void testCustomEditorForSingleProperty() {
+		TestBean tb = new TestBean();
+		BeanWrapper bw = new BeanWrapperImpl(tb);
+		bw.registerCustomEditor(String.class, "name", new PropertyEditorSupport() {
+			public void setAsText(String text) throws IllegalArgumentException {
+				setValue("prefix" + text);
+			}
+		});
+		try {
+			bw.setPropertyValue("name", "value");
+			bw.setPropertyValue("touchy", "value");
+		}
+		catch (PropertyVetoException ex) {
+			fail("Should not throw PropertyVetoException: " + ex.getMessage());
+		}
+		catch (BeansException ex) {
+			fail("Should not throw BeansException: " + ex.getMessage());
+		}
+		assertEquals("prefixvalue", bw.getPropertyValue("name"));
+		assertEquals("prefixvalue", tb.getName());
+		assertEquals("value", bw.getPropertyValue("touchy"));
+		assertEquals("value", tb.getTouchy());
+	}
+
+	public void testCustomEditorForAllStringProperties() {
+		TestBean tb = new TestBean();
+		BeanWrapper bw = new BeanWrapperImpl(tb);
+		bw.registerCustomEditor(String.class, null, new PropertyEditorSupport() {
+			public void setAsText(String text) throws IllegalArgumentException {
+				setValue("prefix" + text);
+			}
+		});
+		try {
+			bw.setPropertyValue("name", "value");
+			bw.setPropertyValue("touchy", "value");
+		}
+		catch (PropertyVetoException ex) {
+			fail("Should not throw PropertyVetoException: " + ex.getMessage());
+		}
+		catch (BeansException ex) {
+			fail("Should not throw BeansException: " + ex.getMessage());
+		}
+		assertEquals("prefixvalue", bw.getPropertyValue("name"));
+		assertEquals("prefixvalue", tb.getName());
+		assertEquals("prefixvalue", bw.getPropertyValue("touchy"));
+		assertEquals("prefixvalue", tb.getTouchy());
+	}
+
 
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(suite());

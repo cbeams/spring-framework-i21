@@ -13,12 +13,12 @@ package com.interface21.beans;
  */
 public class TestBean implements ITestBean, IOther {
     
-    /** Holds value of property age. */
-    private int age;
-    
-    /** Holds value of property name. */
-    private String name;
-	
+	/** Holds value of property age. */
+	private int age;
+
+	/** Holds value of property name. */
+	private String name;
+
 	private ITestBean spouse;
 	
 	private String touchy;
