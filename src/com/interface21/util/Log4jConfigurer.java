@@ -4,14 +4,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.helpers.FileWatchdog;
 import org.apache.log4j.xml.DOMConfigurator;
 
 /**
  * Convenience class that features simple methods for custom Log4J configuration.
- *
  * @author Juergen Hoeller
  * @since 13.03.2003
+ * @see com.interface21.web.util.Log4jWebConfigurer
  * @see com.interface21.web.util.Log4jConfigListener
  */
 public abstract class Log4jConfigurer {
@@ -19,6 +20,15 @@ public abstract class Log4jConfigurer {
 	public static final long DEFAULT_REFRESH_INTERVAL = FileWatchdog.DEFAULT_DELAY;
 
 	public static final String XML_FILE_EXTENSION = ".xml";
+
+	/**
+	 * Initialize Log4J with the given configuration and the default refresh interval.
+	 * @param location location of the property config file
+	 * @throws FileNotFoundException if the location specifies an invalid file path
+	 */
+	public static void initLogging(String location) throws FileNotFoundException {
+		initLogging(location, DEFAULT_REFRESH_INTERVAL);
+	}
 
 	/**
 	 * Initialize Log4J with the given configuration.
@@ -39,20 +49,18 @@ public abstract class Log4jConfigurer {
 	}
 
 	/**
-	 * Initialize Log4J with the given configuration and the default refresh interval.
-	 * @param location location of the property config file
-	 * @throws FileNotFoundException if the location specifies an invalid file path
+	 * Shutdown Log4J to release all file locks.
 	 */
-	public static void initLogging(String location) throws FileNotFoundException {
-		initLogging(location, DEFAULT_REFRESH_INTERVAL);
+	public static void shutdownLogging() {
+		LogManager.shutdown();
 	}
 
 	/**
 	 * Set the specified system property to the current working directory.
 	 * This can be used e.g. for test environments, for applications that leverage
-	 * Log4jConfigListener's "webAppRootKey" support in a web environment.
+	 * Log4jWebConfigurer's "webAppRootKey" support in a web environment.
 	 * @param key system property key to use
-	 * @see com.interface21.web.util.Log4jConfigListener
+	 * @see com.interface21.web.util.Log4jWebConfigurer
 	 */
 	public static void setWorkingDirSystemProperty(String key) {
 		System.setProperty(key, new File("").getAbsolutePath());
