@@ -34,9 +34,6 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 		this.applicationContext = createContext();
 	}
 
-	/**
-	 * @see BeanFactoryTests#getBeanFactory()
-	 */
 	protected BeanFactory getBeanFactory() {
 		return applicationContext;
 	}
@@ -52,7 +49,7 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 	}
 
 	public void testContextAwareSingletonWasCalledBack() throws Exception {
-		ApplicationContextAware aca = (ApplicationContextAware) applicationContext.getBean("aca");
+		ACATest aca = (ACATest) applicationContext.getBean("aca");
 		assertTrue("has had context set", aca.getApplicationContext() == applicationContext);
 		Object aca2 = applicationContext.getBean("aca");
 		assertTrue("Same instance", aca == aca2);
@@ -60,7 +57,7 @@ public abstract class AbstractApplicationContextTests extends AbstractListableBe
 	}
 
 	public void testContextAwarePrototypeWasCalledBack() throws Exception {
-		ApplicationContextAware aca = (ApplicationContextAware) applicationContext.getBean("aca-prototype");
+		ACATest aca = (ACATest) applicationContext.getBean("aca-prototype");
 		assertTrue("has had context set", aca.getApplicationContext() == applicationContext);
 		Object aca2 = applicationContext.getBean("aca-prototype");
 		assertTrue("NOT Same instance", aca != aca2);
