@@ -79,7 +79,8 @@ public class PagedListHolderTests extends TestCase {
 
 		holder.setPageSize(2);
 		holder.setPage(1);
-		holder.setSort(new MutableSortDefinition("name", false, true));
+		((MutableSortDefinition) holder.getSort()).setProperty("name");
+		((MutableSortDefinition) holder.getSort()).setIgnoreCase(false);
 		holder.resort();
 		assertTrue("Correct source", holder.getSource() == tbs);
 		assertTrue("Correct number of elements", holder.getNrOfElements() == 3);
@@ -89,6 +90,16 @@ public class PagedListHolderTests extends TestCase {
 		assertTrue("Correct first element", holder.getFirstElementOnPage() == 0);
 		assertTrue("Correct first element", holder.getLastElementOnPage() == 1);
 		assertTrue("Correct page list size", holder.getPageList().size() == 2);
+		assertTrue("Correct page list contents", holder.getPageList().get(0) == tb3);
+		assertTrue("Correct page list contents", holder.getPageList().get(1) == tb1);
+
+		((MutableSortDefinition) holder.getSort()).setProperty("name");
+		holder.resort();
+		assertTrue("Correct page list contents", holder.getPageList().get(0) == tb2);
+		assertTrue("Correct page list contents", holder.getPageList().get(1) == tb1);
+
+		((MutableSortDefinition) holder.getSort()).setProperty("name");
+		holder.resort();
 		assertTrue("Correct page list contents", holder.getPageList().get(0) == tb3);
 		assertTrue("Correct page list contents", holder.getPageList().get(1) == tb1);
 
