@@ -60,9 +60,9 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 
 	private String configLocation;
 
-	private Properties hibernateProperties;
-
 	private String[] mappingResources;
+
+	private Properties hibernateProperties;
 
 	private DataSource dataSource;
 
@@ -73,29 +73,35 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 * A typical value is "/hibernate.cfg.xml", in the case of web applications
 	 * normally to be found in WEB-INF/classes.
 	 * <p>Note: Can be omitted when all necessary properties and mapping
-	 * resources are specified locally via this bean.
+	 * resources are specified locally via this bean. If neither a location
+	 * nor any mapping resources are set, a default Hibernate configuration
+	 * will be performed, using "/hibernate.cfg.xml".
 	 */
 	public void setConfigLocation(String configLocation) {
 		this.configLocation = configLocation;
 	}
 
 	/**
-	 * Set Hibernate properties, like "hibernate.dialect".
-	 * <p>Can be used to override values in a Hibernate XML config file,
-	 * or to specify all necessary properties locally.
-	 */
-	public void setHibernateProperties(Properties hibernateProperties) {
-		this.hibernateProperties = hibernateProperties;
-	}
-
-	/**
 	 * Set Hibernate mapping resources to be found in the classpath,
 	 * like "/example.hbm.xml".
-	 * <p>Can be used to complete values from a Hibernate XML config file,
+	 * <p>Can be used to override values from a Hibernate XML config file,
 	 * or to specify all mappings locally.
 	 */
 	public void setMappingResources(String[] mappingResources) {
 		this.mappingResources = mappingResources;
+	}
+
+	/**
+	 * Set Hibernate properties, like "hibernate.dialect".
+	 * <p>Can be used to override values in a Hibernate XML config file,
+	 * or to specify all necessary properties locally.
+	 * <p>Note: Do not specify a transaction provider here when using
+	 * Spring-driven transactions. It is also advisable to omit connection
+	 * provider settings and use a Spring-set DataSource instead.
+	 * @see #setDataSource
+	 */
+	public void setHibernateProperties(Properties hibernateProperties) {
+		this.hibernateProperties = hibernateProperties;
 	}
 
 	/**
@@ -115,33 +121,39 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	 */
 	public void afterPropertiesSet() throws IllegalArgumentException, HibernateException {
 		Configuration config = new Configuration();
+
 		if (this.configLocation == null && this.mappingResources == null) {
-			throw new IllegalArgumentException("Either configLocation (e.g. '/hibernate.cfg.xml') or mappingResources must be set");
+			// default Hibernate configuration from "/hibernate.cfg.xml"
+			config.configure();
 		}
+
 		if (this.configLocation != null) {
 			String resourceLocation = this.configLocation;
 			if (!resourceLocation.startsWith("/")) {
-				// always use root, as loading relative to some
-				// Hibernate class' package doesn't make sense
+				// always use root, as relative loading doesn't make sense
 				resourceLocation = "/" + resourceLocation;
 			}
 			config.configure(resourceLocation);
 		}
-		if (this.hibernateProperties != null) {
-			// add given Hibernate properties
-			config.addProperties(this.hibernateProperties);
-		}
+
 		if (this.mappingResources != null) {
 			// register given Hibernate mapping definitions, contained in resource files
 			for (int i = 0; i < this.mappingResources.length; i++) {
 				config.addResource(this.mappingResources[i], Thread.currentThread().getContextClassLoader());
 			}
 		}
+
+		if (this.hibernateProperties != null) {
+			// add given Hibernate properties
+			config.addProperties(this.hibernateProperties);
+		}
+
 		if (this.dataSource != null) {
 			// make given DataSource available for SessionFactory configuration
 			config.setProperty(Environment.CONNECTION_PROVIDER, LocalDataSourceConnectionProvider.class.getName());
 			LocalDataSourceConnectionProvider.configTimeDataSourceHolder.set(this.dataSource);
 		}
+
 		this.sessionFactory = config.buildSessionFactory();
 	}
 
@@ -153,7 +165,7 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 	}
 
 	public boolean isSingleton() {
-		return false;
+		return true;
 	}
 
 	public PropertyValues getPropertyValues() {
