@@ -1,6 +1,5 @@
 package com.interface21.web.servlet.handler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -11,9 +10,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.interface21.context.support.ApplicationObjectSupport;
 import com.interface21.core.Ordered;
-import com.interface21.web.servlet.HandlerMapping;
 import com.interface21.web.servlet.HandlerExecutionChain;
 import com.interface21.web.servlet.HandlerInterceptor;
+import com.interface21.web.servlet.HandlerMapping;
 
 /**
  * Abstract base class for HandlerMapping implementations.
