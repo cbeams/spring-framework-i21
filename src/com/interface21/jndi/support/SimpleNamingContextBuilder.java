@@ -16,18 +16,14 @@ import javax.naming.spi.NamingManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.interface21.jndi.support.SimpleNamingContext;
-
 /**
  * Simple implementation of a JNDI naming context builder.
  *
  * <p>Mainly targeted at test environments, where each test case can
  * configure JNDI appropriately, so that new InitialContext() will
- * expose the required objects. 
- * <p>
- * This context is also usable for standalone
- * applications. Typically used for binding a JDBC DataSource to a well-known JNDI
- * location, to be able to use J2EE data access code outside of a J2EE container.
+ * expose the required objects. Also usable for standalone applications,
+ * e.g. for binding a JDBC DataSource to a well-known JNDI location,
+ * to be able to use J2EE data access code outside of a J2EE container.
  *
  * <p>There are various choices for DataSource implementations:
  * <ul>
@@ -36,24 +32,25 @@ import com.interface21.jndi.support.SimpleNamingContext;
  * <li>Apache's Jakarta Commons DBCP offers BasicDataSource (a real pool).
  * </ul>
  *
- * <p>Typical usage in bootstrap code:<br><br>
- * <code>
- * SimpleNamingContextBuilder builder = new SimpleNamingContextBuilder();
+ * <p>Typical usage in bootstrap code:
+ * <p><code>
+ * SimpleNamingContextBuilder builder = new SimpleNamingContextBuilder();<br>
  * DataSource ds = new DriverManagerDataSource(...);<br>
  * builder.bind("java:comp/env/jdbc/myds", ds);<br>
  * builder.activate();
  * </code>
  * 
- * Note that it's impossible to create and active multiple builders within the same
- * JVM, due to JNDI restrictions. Thus to get and configure a new builder repeatedly, try:
- * <code>
- * SimpleNamingContextBuilder builder = SimpleNamingContextBuilder.emptyActivatedContextBuilder();
+ * <p>Note that it's impossible to activate multiple builders within the same JVM,
+ * due to JNDI restrictions. Thus to configure a fresh builder repeatedly, use
+ * the following code to get a reference to either an already activated builder
+ * or a newly activated one:
+ * <p><code>
+ * SimpleNamingContextBuilder builder = SimpleNamingContextBuilder.emptyActivatedContextBuilder();<br>
  * DataSource ds = new DriverManagerDataSource(...);<br>
  * builder.bind("java:comp/env/jdbc/myds", ds);<br>
  * </code>
- * Note that you <i>should not</i> call activate() on a context from this
- * static factory method, as this will already have been done and JNDI
- * lets us do it only once.
+ * <p>Note that you <i>should not</i> call activate() on a builder from this
+ * factory method, as there will already be an activated one in any case.
  *
  * <p>An instance of this class is only necessary at setup time.
  * An application does not need to keep it after activation.
@@ -69,41 +66,45 @@ import com.interface21.jndi.support.SimpleNamingContext;
  */
 public class SimpleNamingContextBuilder implements InitialContextFactoryBuilder {
 	
-	/** Any instance of this class bound to JNDI. */
+	/** Any instance of this class bound to JNDI */
 	private static SimpleNamingContextBuilder activated;
 
-	private final Log logger = LogFactory.getLog(getClass());
-	
 	/**
-	 * If no SimpleNamingContextBuilder is already configuring JNDI, create and activate one.
-	 * Otherwise take the existing activate SimpleNamingContextBuilder, clear it and return it
-	 * @return SimpleNamingContextBuilder an empty SimpleNamingContextBuilder that can be used
-	 * to control the results of using JNDI
+	 * Checks if a SimpleNamingContextBuilder is active.
+	 * @return the current SimpleNamingContextBuilder instance,
+	 * or null if none
+	 */
+	public static SimpleNamingContextBuilder getCurrentContextBuilder() {
+		return activated;
+	}
+
+	/**
+	 * If no SimpleNamingContextBuilder is already configuring JNDI,
+	 * create and activate one. Otherwise take the existing activate
+	 * SimpleNamingContextBuilder, clear it and return it.
+	 * <p>This is mainly intended for test suites that want to
+	 * reinitialize JNDI bindings from scratch repeatedly.
+	 * @return an empty SimpleNamingContextBuilder that can be used
+	 * to control JNDI bindings
 	 */
 	public static SimpleNamingContextBuilder emptyActivatedContextBuilder() throws NamingException {
 		if (activated != null) {
-			activated.boundObjects.clear();
+			// clear already activated context builder
+			activated.clear();
 			return activated;
 		}
 		else {
+			// create and activate new context builder
 			SimpleNamingContextBuilder builder = new SimpleNamingContextBuilder();
 			builder.activate();
 			return builder;
 		}
 	}
 
-	private Hashtable boundObjects = new Hashtable(); 
 
-	/**
-	 * Bind the given object under the given name, for all naming contexts
-	 * that this context builder will generate.
-	 * @param name the JNDI name of the object (e.g. "java:comp/env/jdbc/myds")
-	 * @param obj the object to bind (e.g. a DataSource implementation)
-	 */
-	public void bind(String name, Object obj) {
-		logger.info("Static JNDI binding: [" + name + "] = [" + obj + "]");
-		boundObjects.put(name, obj);
-	}
+	private final Log logger = LogFactory.getLog(getClass());
+
+	private Hashtable boundObjects = new Hashtable();
 
 	/**
 	 * Register the context builder by registering it with the JNDI NamingManager.
@@ -114,14 +115,27 @@ public class SimpleNamingContextBuilder implements InitialContextFactoryBuilder 
 	 * registered with the JNDI NamingManager
 	 */
 	public void activate() throws IllegalStateException, NamingException {
-		if (activated == null) {
-			logger.info("Activating simple JNDI environment");
-			NamingManager.setInitialContextFactoryBuilder(this);
-			activated = this;
-		}
-		else {
-			throw new IllegalStateException("Cannot create and activate a SimpleNamingContextBuilder if one has already been activate (JNDI restriction)");
-		}
+		logger.info("Activating simple JNDI environment");
+		NamingManager.setInitialContextFactoryBuilder(this);
+		activated = this;
+	}
+
+	/**
+	 * Clears all bindings in this context builder.
+	 */
+	public void clear() {
+		boundObjects.clear();
+	}
+
+	/**
+	 * Binds the given object under the given name, for all naming contexts
+	 * that this context builder will generate.
+	 * @param name the JNDI name of the object (e.g. "java:comp/env/jdbc/myds")
+	 * @param obj the object to bind (e.g. a DataSource implementation)
+	 */
+	public void bind(String name, Object obj) {
+		logger.info("Static JNDI binding: [" + name + "] = [" + obj + "]");
+		boundObjects.put(name, obj);
 	}
 
 	/**

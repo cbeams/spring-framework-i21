@@ -34,8 +34,6 @@ import com.interface21.beans.factory.InitializingBean;
  * @author Juergen Hoeller
  * @since 13.05.2003
  * @see RmiProxyFactoryBean
- * @see RemoteInvocationHandler
- * @see RemoteInvocationWrapper
  */
 public class RmiServiceExporter implements InitializingBean {
 

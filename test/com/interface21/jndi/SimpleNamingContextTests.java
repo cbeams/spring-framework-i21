@@ -175,10 +175,10 @@ public class SimpleNamingContextTests extends TestCase {
 		try {
 			ctx = new InitialContext();
 			ctx.lookup(name);
-			fail();
+			fail("Should have thrown NamingException");
 		}
 		catch (NamingException ex) {
-			// Ok
+			// expected
 		}
 		
 		// Check the same call will work again, but the context is empty
@@ -186,10 +186,10 @@ public class SimpleNamingContextTests extends TestCase {
 		try {
 			ctx = new InitialContext();
 			ctx.lookup(name);
-			fail();
+			fail("Should have thrown NamingException");
 		}
 		catch (NamingException ex) {
-			// Ok
+			// expected
 		}
 		Object o2 = new Object();
 		builder.bind(name, o2);
