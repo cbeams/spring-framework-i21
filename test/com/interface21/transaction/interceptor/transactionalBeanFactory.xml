@@ -27,11 +27,18 @@
 	<bean id="txtest" 
 			class="com.interface21.aop.framework.ProxyFactoryBean"
 	>	
-		<property name="proxyInterfaces"><value>com.interface21.beans.ITestBean</value></property>		
-		
-		<!-- debugInterceptor -->
-		<property name="interceptorNames"><value>txInterceptor,target</value></property>		
-		
+		<property name="proxyInterfaces">
+			<list>
+				<value>com.interface21.beans.ITestBean</value>
+			</list>
+		</property>		
+
+		<property name="interceptorNames">
+			<list>
+				<value>txInterceptor</value>
+				<value>target</value>
+			</list>
+		</property>		
 	</bean>
 	
 
