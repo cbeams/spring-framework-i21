@@ -59,6 +59,9 @@ public class Log4jConfigListener implements ServletContextListener {
 		if (location != null) {
 
 			// interpret location as relative to the web application root directory
+			if (location.charAt(0) != '/') {
+				location = "/" + location;
+			}
 			location = servletContext.getRealPath(location);
 
 			// use default refresh interval if not specified
