@@ -2,8 +2,8 @@ package com.interface21.web.servlet.tags;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -46,29 +46,29 @@ public class TagTestSuite extends TestCase {
 
 		assertTrue("Correct default", !HtmlEscapeTag.isDefaultHtmlEscape(pc));
 		assertTrue("Correctly applied", !testTag.isHtmlEscape());
-		tag.setDefaultHtmlEscape(true);
+		tag.setDefaultHtmlEscape("true");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correctly enabled", HtmlEscapeTag.isDefaultHtmlEscape(pc));
 		assertTrue("Correctly applied", testTag.isHtmlEscape());
-		tag.setDefaultHtmlEscape(false);
+		tag.setDefaultHtmlEscape("false");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correctly disabled", !HtmlEscapeTag.isDefaultHtmlEscape(pc));
 		assertTrue("Correctly applied", !testTag.isHtmlEscape());
 
-		tag.setDefaultHtmlEscape(true);
+		tag.setDefaultHtmlEscape("true");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
-		testTag.setHtmlEscape(true);
+		testTag.setHtmlEscape("true");
 		assertTrue("Correctly enabled", HtmlEscapeTag.isDefaultHtmlEscape(pc));
 		assertTrue("Correctly applied", testTag.isHtmlEscape());
-		testTag.setHtmlEscape(false);
+		testTag.setHtmlEscape("false");
 		assertTrue("Correctly enabled", HtmlEscapeTag.isDefaultHtmlEscape(pc));
 		assertTrue("Correctly applied", !testTag.isHtmlEscape());
-		tag.setDefaultHtmlEscape(false);
+		tag.setDefaultHtmlEscape("false");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
-		testTag.setHtmlEscape(true);
+		testTag.setHtmlEscape("true");
 		assertTrue("Correctly disabled", !HtmlEscapeTag.isDefaultHtmlEscape(pc));
 		assertTrue("Correctly applied", testTag.isHtmlEscape());
-		testTag.setHtmlEscape(false);
+		testTag.setHtmlEscape("false");
 		assertTrue("Correctly disabled", !HtmlEscapeTag.isDefaultHtmlEscape(pc));
 		assertTrue("Correctly applied", !testTag.isHtmlEscape());
 	}
@@ -81,10 +81,10 @@ public class TagTestSuite extends TestCase {
 
 		sc.addInitParameter(HtmlEscapeTag.HTML_ESCAPE_CONTEXT_PARAM, "true");
 		assertTrue("Correct default", HtmlEscapeTag.isDefaultHtmlEscape(pc));
-		tag.setDefaultHtmlEscape(true);
+		tag.setDefaultHtmlEscape("true");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correctly enabled", HtmlEscapeTag.isDefaultHtmlEscape(pc));
-		tag.setDefaultHtmlEscape(false);
+		tag.setDefaultHtmlEscape("false");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correctly disabled", !HtmlEscapeTag.isDefaultHtmlEscape(pc));
 	}
@@ -97,10 +97,10 @@ public class TagTestSuite extends TestCase {
 
 		sc.addInitParameter(HtmlEscapeTag.HTML_ESCAPE_CONTEXT_PARAM, "false");
 		assertTrue("Correct default", !HtmlEscapeTag.isDefaultHtmlEscape(pc));
-		tag.setDefaultHtmlEscape(true);
+		tag.setDefaultHtmlEscape("true");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correctly enabled", HtmlEscapeTag.isDefaultHtmlEscape(pc));
-		tag.setDefaultHtmlEscape(false);
+		tag.setDefaultHtmlEscape("false");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correctly disabled", !HtmlEscapeTag.isDefaultHtmlEscape(pc));
 	}
@@ -191,7 +191,7 @@ public class TagTestSuite extends TestCase {
 		BindTag tag = new BindTag();
 		tag.setPageContext(pc);
 		tag.setPath("tb.name");
-		tag.setHtmlEscape(true);
+		tag.setHtmlEscape("true");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		BindStatus status = (BindStatus) pc.getAttribute(BindTag.STATUS_VARIABLE_NAME);
 		assertTrue("Has status variable", status != null);
@@ -206,7 +206,7 @@ public class TagTestSuite extends TestCase {
 		assertTrue("Correct errorMessagesAsString", "message &amp; 1 - message2".equals(status.getErrorMessagesAsString(" - ")));
 	}
 
-	public void testBindTagWithoutBean() {
+	public void testBindTagWithoutBean() throws JspException {
 		MockPageContext pc = createPageContext();
 		BindTag tag = new BindTag();
 		tag.setPageContext(pc);
@@ -246,7 +246,7 @@ public class TagTestSuite extends TestCase {
 		};
 		tag.setPageContext(pc);
 		tag.setCode("test");
-		tag.setHtmlEscape(true);
+		tag.setHtmlEscape("true");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correct message", "Canadian &amp; test message".equals(message.toString()));
 	}
@@ -291,7 +291,7 @@ public class TagTestSuite extends TestCase {
 		};
 		tag.setPageContext(pc);
 		tag.setText("test & text");
-		tag.setHtmlEscape(true);
+		tag.setHtmlEscape("true");
 		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
 		assertTrue("Correct message", "test &amp; text".equals(message.toString()));
 	}

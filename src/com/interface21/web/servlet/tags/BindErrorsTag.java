@@ -3,6 +3,7 @@ package com.interface21.web.servlet.tags;
 import javax.servlet.jsp.JspException;
 
 import com.interface21.validation.Errors;
+import com.interface21.web.util.ExpressionEvaluationUtils;
 
 /**
  * Evaluates content if there are bind errors for a certain bean.
@@ -20,8 +21,8 @@ public class BindErrorsTag extends RequestContextAwareTag {
 	/**
 	 * Set the name of the bean that this tag should check.
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setName(String name) throws JspException {
+		this.name = ExpressionEvaluationUtils.evaluateString("name", name, pageContext);
 	}
 
 	public int doStartTag() throws JspException {

@@ -7,6 +7,7 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import com.interface21.web.servlet.support.RequestContext;
+import com.interface21.web.util.ExpressionEvaluationUtils;
 
 /**
  * Superclass for all tags that require a RequestContext.
@@ -35,8 +36,8 @@ public abstract class RequestContextAwareTag extends TagSupport {
 	 * HTML escaping setting for the current page.
 	 * @see HtmlEscapeTag#setDefaultHtmlEscape
 	 */
-	public final void setHtmlEscape(boolean htmlEscape) {
-		this.htmlEscape = new Boolean(htmlEscape);
+	public final void setHtmlEscape(String htmlEscape) throws JspException {
+		this.htmlEscape = new Boolean(ExpressionEvaluationUtils.evaluateBoolean("htmlEscape", htmlEscape, pageContext));
 	}
 
 	/**

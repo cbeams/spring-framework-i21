@@ -17,6 +17,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 
 import com.interface21.web.util.HtmlUtils;
+import com.interface21.web.util.ExpressionEvaluationUtils;
 import com.interface21.context.NoSuchMessageException;
 import com.interface21.context.MessageSource;
 
@@ -49,15 +50,15 @@ public class MessageTag extends RequestContextAwareTag {
 	/**
 	 * Set the message code for this tag.
 	 */
-	public final void setCode(String code) {
-		this.code = code;
+	public final void setCode(String code) throws JspException {
+		this.code = ExpressionEvaluationUtils.evaluateString("code", code, pageContext);
 	}
 
 	/**
 	 * Set the message text for this tag.
 	 */
-	public final void setText(String text) {
-		this.text = text;
+	public final void setText(String text) throws JspException {
+		this.text = ExpressionEvaluationUtils.evaluateString("text", text, pageContext);
 	}
 
 	public final int doStartTag() throws JspException {

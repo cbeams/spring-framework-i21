@@ -7,13 +7,14 @@ import javax.servlet.jsp.JspException;
 import com.interface21.context.NoSuchMessageException;
 import com.interface21.validation.Errors;
 import com.interface21.validation.ObjectError;
+import com.interface21.web.util.ExpressionEvaluationUtils;
 import com.interface21.web.util.HtmlUtils;
 
 /**
  * Bind tag, supporting evaluation of binding errors for a certain
  * bean or bean property. Exports a "status" variable of type BindStatus.
  *
- *<p> Discussed in Chapter 12 of
+ * <p>Discussed in Chapter 12 of
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
  * by Rod Johnson.
  *
@@ -31,8 +32,8 @@ public class BindTag extends RequestContextAwareTag {
 	 * Can be a bean (e.g. "person"), or a bean property
 	 * (e.g. "person.name"), also supporting nested beans.
 	 */
-	public void setPath(String path) {
-		this.path = path;
+	public void setPath(String path) throws JspException {
+		this.path = ExpressionEvaluationUtils.evaluateString("path", path, pageContext);
 	}
 
 	public int doStartTag() throws JspException {

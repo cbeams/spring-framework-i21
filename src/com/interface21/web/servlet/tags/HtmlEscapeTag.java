@@ -4,6 +4,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import com.interface21.web.util.ExpressionEvaluationUtils;
+
 /**
  * Sets default HTML escape value for the current page. The actual value
  * can be overridden by escaping-aware tags. The default is "false".
@@ -44,8 +46,8 @@ public class HtmlEscapeTag extends TagSupport {
 	 * Set the default value for HTML escaping,
 	 * to be put in the current PageContext.
 	 */
-	public void setDefaultHtmlEscape(boolean defaultHtmlEscape) {
-		this.defaultHtmlEscape = defaultHtmlEscape;
+	public void setDefaultHtmlEscape(String defaultHtmlEscape) throws JspException {
+		this.defaultHtmlEscape = ExpressionEvaluationUtils.evaluateBoolean("defaultHtmlEscape", defaultHtmlEscape, pageContext);
 	}
 
 	public int doStartTag() throws JspException {
