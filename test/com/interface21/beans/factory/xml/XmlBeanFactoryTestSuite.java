@@ -12,7 +12,6 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 
-import com.interface21.beans.BeansException;
 import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.MethodInvocationException;
@@ -38,11 +37,6 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 
 	public XmlBeanFactoryTestSuite(String name) {
 		super(name);
-	}
-
-	/** Run for each test */
-	protected void setUp() throws Exception {
-		//this.listableBeanFactory = new XMLBeanFactory("d:\\book\\project\\i21-framework\\test\\com\\interface21\\beans\\factory\\xml\\test.xml");
 
 		ListableBeanFactoryImpl parent = new ListableBeanFactoryImpl();
 		Map m = new HashMap();
@@ -53,11 +47,9 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		// Load from classpath, NOT a file path
 		InputStream is = getClass().getResourceAsStream("test.xml");
 		this.factory = new XmlBeanFactory(is, parent);
+		this.factory.preInstantiateSingletons();
 	}
 
-	/**
-	 * @see BeanFactoryTests#getBeanFactory()
-	 */
 	protected BeanFactory getBeanFactory() {
 		return factory;
 	}
@@ -73,7 +65,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		ITestBean georgiasJenks = georgia.getSpouse();
 		assertTrue("Emma and georgia think they have a different boyfriend",emmasJenks != georgiasJenks);
 		assertTrue("Emmas jenks has right name", emmasJenks.getName().equals("Andrew"));
-			assertTrue("Emmas doesn't equal new ref", emmasJenks != xbf.getBean("jenks"));
+		assertTrue("Emmas doesn't equal new ref", emmasJenks != xbf.getBean("jenks"));
 		assertTrue("Georgias jenks has right name", emmasJenks.getName().equals("Andrew"));
 		assertTrue("They are object equal", emmasJenks.equals(georgiasJenks));
 		assertTrue("They object equal direct ref", emmasJenks.equals(xbf.getBean("jenks")));
@@ -191,6 +183,29 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue("Correct circular reference", jenny.getSpouse() == david);
 		assertTrue("Correct circular reference", david.getSpouse() == jenny);
 		assertTrue("Correct circular reference", ego.getSpouse() == ego);
+	}
+
+	public void testFactoryReferences() {
+		DummyReferencer ref = (DummyReferencer) getBeanFactory().getBean("factoryReferencer");
+		assertTrue(ref.getTestBean1() == ref.getTestBean2());
+	}
+
+	public void testPrototypeReferences() {
+		DummyReferencer ref = (DummyReferencer) getBeanFactory().getBean("prototypeReferencer");
+		// check that not broken by circular reference resolution mechanism
+		assertTrue("Not referencing same bean twice", ref.getTestBean1() != ref.getTestBean2());
+	}
+
+	public void testFactoryReferenceCircleDoesNotWork() {
+		InputStream is = getClass().getResourceAsStream("factoryCircle.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		try {
+			xbf.getBean("singletonFactory");
+			fail("Should have thrown StackOverflowError");
+		}
+		catch (StackOverflowError err) {
+			// expected
+		}
 	}
 
 	public void testRefSubelement() throws Exception {
@@ -366,24 +381,6 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertEquals(14, in.getNum());
 	}
 	
-	public static class DoubleInitializer {
-	
-		private int num;
-
-		public int getNum() {
-			return num;
-		}
-
-		public void setNum(int i) {
-			num = i;
-		}
-	
-		/** Init method */
-		public void init() {
-			this.num *= 2;
-		}
-	}
-	
 	/**
 	 * Test that if a custom initializer throws an exception, it's handled correctly
 	 * @throws Exception
@@ -401,16 +398,6 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		}
 	}
 
-	public static class BadInitializer {
-
-		/** Init method */
-		public void init2() throws ServletException {
-			throw new ServletException();
-		}
-	}
-	
-	
-	
 	public void testNoSuchInitMethod() throws Exception {
 		InputStream is = getClass().getResourceAsStream("initializers.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -437,24 +424,6 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(iib.afterPropertiesSetInvoked && iib.initMethodInvoked);
 	}
 
-	public static class InitAndIB implements InitializingBean {
-		
-		public boolean afterPropertiesSetInvoked, initMethodInvoked;
-		
-		public void afterPropertiesSet() {
-			if (this.initMethodInvoked)
-				fail();
-			this.afterPropertiesSetInvoked = true;
-		}
-
-		/** Init method */
-		public void customInit() throws ServletException {
-			if (!this.afterPropertiesSetInvoked)
-				fail();
-			this.initMethodInvoked = true;
-		}
-	}
-	
 	public void testNoSuchXmlFile() throws Exception {
 		String filename = "missing.xml";
 		InputStream is = getClass().getResourceAsStream(filename);
@@ -478,6 +447,53 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		catch (BeanDefinitionStoreException ex) {
 			// Ok
 			// TODO Check that the error message includes filename
+		}
+	}
+
+
+	public static class BadInitializer {
+
+		/** Init method */
+		public void init2() throws ServletException {
+			throw new ServletException();
+		}
+	}
+
+
+	public static class DoubleInitializer {
+
+		private int num;
+
+		public int getNum() {
+			return num;
+		}
+
+		public void setNum(int i) {
+			num = i;
+		}
+
+		/** Init method */
+		public void init() {
+			this.num *= 2;
+		}
+	}
+
+
+	public static class InitAndIB implements InitializingBean {
+
+		public boolean afterPropertiesSetInvoked, initMethodInvoked;
+
+		public void afterPropertiesSet() {
+			if (this.initMethodInvoked)
+				fail();
+			this.afterPropertiesSetInvoked = true;
+		}
+
+		/** Init method */
+		public void customInit() throws ServletException {
+			if (!this.afterPropertiesSetInvoked)
+				fail();
+			this.initMethodInvoked = true;
 		}
 	}
 

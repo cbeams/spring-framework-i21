@@ -35,35 +35,40 @@
 	<!--
 		Tests of lifecycle callbacks
 	-->
-	<bean id="mustBeInitialized"
-		class="com.interface21.beans.factory.MustBeInitialized">
+	<bean id="mustBeInitialized" class="com.interface21.beans.factory.MustBeInitialized">
 	</bean>
 
-	<bean id="lifecycle"
-		class="com.interface21.beans.factory.LifecycleBean">
+	<bean id="lifecycle" class="com.interface21.beans.factory.LifecycleBean">
 	</bean>
 
 
-	<!-- Factory beans are automatically treated
-	differently -->
-	<bean id="singletonFactory"
-		class="com.interface21.beans.factory.DummyFactory">
+	<!-- Factory beans are automatically treated differently -->
+	<bean id="singletonFactory"	class="com.interface21.beans.factory.DummyFactory">
 	</bean>
 
-	<bean id="prototypeFactory"
-		class="com.interface21.beans.factory.DummyFactory">
+	<bean id="prototypeFactory"	class="com.interface21.beans.factory.DummyFactory">
 		<property name="singleton"><value>false</value></property>
 	</bean>
 
 	<bean id="factoryPassThrough"
 		class="com.interface21.beans.factory.DummyFactory">
 		<property name="singleton"><value>true</value></property>
-		<property name="propertyValues"><value>
-			name=passThrough
-			</value>
-		</property>
+		<property name="propertyValues"><value>name=passThrough</value></property>
 	</bean>
 
+	<!-- Check that the circular reference resolution mechanism doesn't break
+	     repeated references to the same FactoryBean -->
+	<bean id="factoryReferencer" class="com.interface21.beans.factory.xml.DummyReferencer">
+		<property name="testBean1"><ref bean="singletonFactory"/></property>
+		<property name="testBean2"><ref bean="singletonFactory"/></property>
+	</bean>
+
+	<!-- Check that the circular reference resolution mechanism doesn't break
+	     prototype instantiation -->
+	<bean id="prototypeReferencer" class="com.interface21.beans.factory.xml.DummyReferencer">
+		<property name="testBean1"><ref bean="kathy"/></property>
+		<property name="testBean2"><ref bean="kathy"/></property>
+	</bean>
 
 	<bean id="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener"/>
 

@@ -27,13 +27,16 @@ public class DummyFactory extends AbstractFactoryBean implements InitializingBea
 	private boolean isInitialized;
 	
 	private TestBean testBean;
-	
+
 	public DummyFactory() {
 		this.testBean = new TestBean();
 		this.testBean.setName(SINGLETON_NAME);
 		this.testBean.setAge(25);
 	}
-	
+
+	public void setOtherFactory(TestBean tb) {
+	}
+
 	public void afterPropertiesSet() {
 		if (isInitialized)
 			throw new RuntimeException("Cannot call afterPropertiesSet twice on the one bean");

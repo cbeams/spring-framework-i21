@@ -30,22 +30,17 @@ public abstract class AbstractListableBeanFactoryTests extends AbstractBeanFacto
 	 * Subclasses can override
 	 */
 	public void testCount() throws Exception {
-		assertCount(13);
+		assertCount(15);
 	}
 	
 	protected final void assertCount(int count) throws Exception {
 		String[] defnames = getListableBeanFactory().getBeanDefinitionNames();
 		assertTrue("We should have " + count + " beans, not " + defnames.length, defnames.length == count);
-		for (int i = 0; i < defnames.length; i++) {
-		}
 	}
 
 	public void testGetDefinitionsForClass() throws Exception {
 		String[] defnames = getListableBeanFactory().getBeanDefinitionNames(com.interface21.beans.TestBean.class);
 		assertTrue("We should have 7 beans for class com.interface21.beans.TestBean, not " + defnames.length, defnames.length == 7);
-		for (int i = 0; i < defnames.length; i++) {
-			// CHECK CLASS OF OBJECT
-		}
 	}
 	
 	public void testGetDefinitionsForNoSuchClass() {

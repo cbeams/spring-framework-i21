@@ -133,69 +133,6 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	}
 
 	/**
-	 * Get a singleton instance of this bean name. Note that this method shouldn't
-	 * be called too often: Callers should keep hold of instances. Hence, the whole
-	 * method is synchronized here.
-	 * TODO: There probably isn't any need for this to be synchronized,
-	 * at least not if we pre-instantiate singletons.
-	 * @param pname name that may include factory dereference prefix
-	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
-	 * if triggered by the creation of another bean, or null else
-	 * (necessary to resolve circular references)
-	 */
-	private final synchronized Object getSharedInstance(String pname, Map newlyCreatedBeans) throws BeansException {
-		// Get rid of the dereference prefix if there is one
-		String name = transformedBeanName(pname);
-
-		Object beanInstance = this.sharedInstanceCache.get(name);
-		if (beanInstance == null) {
-			logger.info("Cached shared instance of Singleton bean '" + name + "'");
-			if (newlyCreatedBeans == null) {
-				newlyCreatedBeans = new HashMap();
-			}
-			beanInstance = createBean(name, newlyCreatedBeans);
-			this.sharedInstanceCache.put(name, beanInstance);
-		}
-		else {
-			if (logger.isDebugEnabled())
-				logger.debug("Returning cached instance of Singleton bean '" + name + "'");
-		}
-
-		// Don't let calling code try to dereference the
-		// bean factory if the bean isn't a factory
-		if (isFactoryDereference(pname) && !(beanInstance instanceof FactoryBean)) {
-			throw new BeanIsNotAFactoryException(name, beanInstance);
-		}
-
-		// Now we have the beanInstance, which may be a normal bean
-		// or a FactoryBean. If it's a FactoryBean, we use it to
-		// create a bean instance, unless the caller actually wants
-		// a reference to the factory.
-		if (beanInstance instanceof FactoryBean) {
-			if (!isFactoryDereference(pname)) {
-				// Configure and return new bean instance from factory
-				FactoryBean factory = (FactoryBean) beanInstance;
-				logger.debug("Bean with name '" + name + "' is a factory bean");
-				beanInstance = factory.getObject();
-
-				// Set pass-through properties
-				if (factory.getPropertyValues() != null) {
-					logger.debug("Applying pass-through properties to bean with name '" + name + "'");
-					new BeanWrapperImpl(beanInstance).setPropertyValues(factory.getPropertyValues());
-				}
-				// Initialization is really up to factory
-				//invokeInitializerIfNecessary(beanInstance);
-			}
-			else {
-				// The user wants the factory itself
-				logger.debug("Calling code asked for BeanFactory instance for name '" + name + "'");
-			}
-		}	// if we're dealing with a factory bean
-
-		return beanInstance;
-	}
-
-	/**
 	 * Return the bean with the given name,
 	 * checking the parent bean factory if not found.
 	 * @param name name of the bean to retrieve
@@ -215,12 +152,19 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	private Object getBeanInternal(String name, Map newlyCreatedBeans) {
 		if (name == null)
 			throw new NoSuchBeanDefinitionException(null, "Cannot get bean with null name");
-		if (newlyCreatedBeans != null && newlyCreatedBeans.containsKey(name)) {
-			return newlyCreatedBeans.get(name);
-		}
 		try {
 			AbstractBeanDefinition bd = getBeanDefinition(transformedBeanName(name));
-			return bd.isSingleton() ? getSharedInstance(name, newlyCreatedBeans) : createBean(name, newlyCreatedBeans);
+			if (bd.isSingleton()) {
+				// check for bean instance created in the current call,
+				// to be able to resolve circular references
+				if (newlyCreatedBeans != null && newlyCreatedBeans.containsKey(name)) {
+					return newlyCreatedBeans.get(name);
+				}
+				return getSharedInstance(name, newlyCreatedBeans);
+			}
+			else {
+				return createBean(name, newlyCreatedBeans);
+			}
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			// not found -> check parent
@@ -267,6 +211,67 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	//---------------------------------------------------------------------
 	// Implementation methods
 	//---------------------------------------------------------------------
+
+	/**
+	 * Get a singleton instance of this bean name. Note that this method shouldn't
+	 * be called too often: Callers should keep hold of instances. Hence, the whole
+	 * method is synchronized here.
+	 * TODO: There probably isn't any need for this to be synchronized,
+	 * at least not if we pre-instantiate singletons.
+	 * @param pname name that may include factory dereference prefix
+	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
+	 * if triggered by the creation of another bean, or null else
+	 * (necessary to resolve circular references)
+	 */
+	private final synchronized Object getSharedInstance(String pname, Map newlyCreatedBeans) throws BeansException {
+		// Get rid of the dereference prefix if there is one
+		String name = transformedBeanName(pname);
+
+		Object beanInstance = this.sharedInstanceCache.get(name);
+		if (beanInstance == null) {
+			beanInstance = createBean(name, newlyCreatedBeans);
+			this.sharedInstanceCache.put(name, beanInstance);
+			logger.info("Cached shared instance of Singleton bean '" + name + "'");
+		}
+		else {
+			if (logger.isDebugEnabled())
+				logger.debug("Returning cached instance of Singleton bean '" + name + "'");
+		}
+
+		// Don't let calling code try to dereference the
+		// bean factory if the bean isn't a factory
+		if (isFactoryDereference(pname) && !(beanInstance instanceof FactoryBean)) {
+			throw new BeanIsNotAFactoryException(name, beanInstance);
+		}
+
+		// Now we have the beanInstance, which may be a normal bean
+		// or a FactoryBean. If it's a FactoryBean, we use it to
+		// create a bean instance, unless the caller actually wants
+		// a reference to the factory.
+		if (beanInstance instanceof FactoryBean) {
+			if (!isFactoryDereference(pname)) {
+				// Configure and return new bean instance from factory
+				FactoryBean factory = (FactoryBean) beanInstance;
+				logger.debug("Bean with name '" + name + "' is a factory bean");
+				beanInstance = factory.getObject();
+
+				// Set pass-through properties
+				if (factory.getPropertyValues() != null) {
+					logger.debug("Applying pass-through properties to bean with name '" + name + "'");
+					new BeanWrapperImpl(beanInstance).setPropertyValues(factory.getPropertyValues());
+				}
+				// Initialization is really up to factory
+				//invokeInitializerIfNecessary(beanInstance);
+			}
+			else {
+				// The user wants the factory itself
+				logger.debug("Calling code asked for BeanFactory instance for name '" + name + "'");
+			}
+		}	// if we're dealing with a factory bean
+
+		return beanInstance;
+	}
+
 	/**
 	 * All the other methods in this class invoke this method
 	 * although beans may be cached after being instantiated by this method.
@@ -281,19 +286,23 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * @return a new instance of this bean
 	 */
 	private Object createBean(String name, Map newlyCreatedBeans) throws BeansException {
-		if (newlyCreatedBeans == null) {
-			newlyCreatedBeans = new HashMap();
-		}
 		logger.debug("createBean (" + name + ")");
 		RootBeanDefinition mergedBeanDefinition = getMergedBeanDefinition(name);
 		logger.debug("Merged definition is: " + mergedBeanDefinition);
 		BeanWrapper instanceWrapper = new BeanWrapperImpl(mergedBeanDefinition.getBeanClass());
-		
-		// cache new instance to be able resolve circular references
-		newlyCreatedBeans.put(name, instanceWrapper.getWrappedInstance());
+		Object bean = instanceWrapper.getWrappedInstance();
+
+		// cache new instance to be able resolve circular references, but ignore
+		// FactoryBean instances as they can't create objects if not initialized
+		if (!(bean instanceof FactoryBean)) {
+			if (newlyCreatedBeans == null) {
+				newlyCreatedBeans = new HashMap();
+			}
+			newlyCreatedBeans.put(name, bean);
+		}
+
 		PropertyValues pvs = mergedBeanDefinition.getPropertyValues();
 		applyPropertyValues(instanceWrapper, pvs, name, newlyCreatedBeans);
-		Object bean = instanceWrapper.getWrappedInstance();
 		callLifecycleMethodsIfNecessary(bean, name, mergedBeanDefinition, instanceWrapper);
 		return bean;
 	}
