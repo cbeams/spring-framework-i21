@@ -3,11 +3,11 @@
  *
  * Copyright (C) 2002 by Interprise Software.  All rights reserved.
  */
-package com.interface21.jdbc.mock;
+package com.interface21.jdbc.datasource;
 
 import java.sql.Connection;
 
-import com.interface21.jdbc.core.SmartDataSource;
+import com.interface21.jdbc.datasource.SmartDataSource;
 import com.mockobjects.sql.MockDataSource;
 
 /**
@@ -28,7 +28,7 @@ public class SpringMockDataSource
 	}
 
 	/**
-	 * @see com.interface21.jdbc.core.SmartDataSource#shouldClose(java.sql.Connection)
+	 * @see com.interface21.jdbc.datasource.SmartDataSource#shouldClose(java.sql.Connection)
 	 */
 	public boolean shouldClose(Connection conn) {
 		return false;

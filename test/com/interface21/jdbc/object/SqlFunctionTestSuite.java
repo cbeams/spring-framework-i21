@@ -11,7 +11,7 @@ import java.sql.Types;
 import junit.framework.TestCase;
 
 import com.interface21.dao.InvalidDataAccessApiUsageException;
-import com.interface21.jdbc.mock.*;
+import com.interface21.jdbc.datasource.*;
 import com.mockobjects.sql.MockResultSet;
 
 /**

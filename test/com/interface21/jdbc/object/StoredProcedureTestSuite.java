@@ -14,7 +14,7 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.BadSqlGrammarException;
 import com.interface21.jdbc.core.SQLExceptionTranslater;
 import com.interface21.jdbc.core.SqlParameter;
-import com.interface21.jdbc.mock.*;
+import com.interface21.jdbc.datasource.*;
 
 
 public class StoredProcedureTestSuite extends TestCase {

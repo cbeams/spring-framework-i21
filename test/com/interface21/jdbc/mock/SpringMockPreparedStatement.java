@@ -1,4 +1,4 @@
-package com.interface21.jdbc.mock;
+package com.interface21.jdbc.datasource;
 
 import java.sql.SQLException;
 import java.sql.SQLWarning;

@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2002 by Interprise Software.  All rights reserved.
  */
-package com.interface21.jdbc.mock;
+package com.interface21.jdbc.datasource;
 
 import java.io.InputStream;
 import java.io.Reader;

@@ -21,7 +21,7 @@ import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.dao.UncategorizedDataAccessException;
-import com.interface21.jdbc.mock.SingleConnectionDataSource;
+import com.interface21.jdbc.datasource.SingleConnectionDataSource;
 
 import com.mockobjects.sql.MockConnection;
 
@@ -39,10 +39,13 @@ public class JdbcTemplateTestSuite extends TestCase {
 	}
 
 
-	public void testBeanProperties() {
+	public void testBeanProperties() throws Exception {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
-		
+		ds.getConnection();
+		dsControl.setReturnValue(new MockConnection());
+		dsControl.activate();
+
 		JdbcTemplate t = new JdbcTemplate(ds);
 		assertTrue("datasource ok", t.getDataSource() == ds);
 		assertTrue("ignores warnings by default", t.getIgnoreWarnings());
@@ -464,7 +467,6 @@ public class JdbcTemplateTestSuite extends TestCase {
 	}
 	
 	
-	
 	public void testSqlUpdate() throws Exception {
 		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
 		
@@ -487,7 +489,32 @@ public class JdbcTemplateTestSuite extends TestCase {
 		
 		dsControl.verify();
 	}
-	
+
+
+	public void testSqlUpdateWithThreadConnection() throws Exception {
+		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
+
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		DataSource ds = (DataSource) dsControl.getMock();
+		int rowsAffected = 33;
+
+		// It's because Integers aren't canonical
+		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
+		con.setExpectedCloseCalls(2);
+
+		ds.getConnection();
+		dsControl.setReturnValue(con);
+		dsControl.activate();
+
+		JdbcTemplate template = new JdbcTemplate(ds);
+
+		int actualRowsAffected = template.update(sql);
+		assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
+
+		dsControl.verify();
+	}
+
+
 	/**
 	 * Check that a successful bulk update works
 	 * @throws Exception

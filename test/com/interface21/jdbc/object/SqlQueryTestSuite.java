@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.JdbcHelper;
 import com.interface21.jdbc.core.SqlParameter;
-import com.interface21.jdbc.mock.*;
+import com.interface21.jdbc.datasource.*;
 import com.mockobjects.sql.MockResultSet;
 
 public class SqlQueryTestSuite extends TestCase {
