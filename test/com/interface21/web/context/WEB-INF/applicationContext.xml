@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
+-->
+		
+<beans>		
+
+	<!-- ===========================================================-->
+	<!-- Message source						-->
+	<!-- ===========================================================-->
+	<bean name="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource" >	
+		<property name="basename">messages</property>										
+	</bean>
+
+
+	<!-- ===========================================================-->
+	<!-- Listeners							-->
+	<!-- ===========================================================-->
+	
+	<!--
+	<bean 
+		name="performanceMonitor" class="com.interface21.context.support.TestListener" 
+	/>	
+	-->
+	
+	<!--
+		<bean name="aca" class="com.interface21.context.ACATest">	
+		</bean>
+		
+		<bean name="aca-prototype" class="com.interface21.context.ACATest" singleton="false">	
+		</bean>
+		-->
+	
+	
+	<bean name="config.testConfigObject" class="com.interface21.web.context.TestConfigBean" >	
+		<property name="name">Tony</property>	
+		<property name="age">48</property>	
+	</bean>
+	
+	<bean name="config.testConfigObject2" class="com.interface21.web.context.ContextAwareTestConfigBean" >	
+		<property name="name">Gordon</property>	
+		<property name="age">49</property>	
+	</bean>
+	
+	
+	<bean name="beanThatListens"
+		class="com.interface21.context.BeanThatListens">
+	</bean>
+	
+	<bean name="parentListener"
+	class="com.interface21.context.TestListener"
+/>
+	
+	<!-- Inherited tests -->
+	<bean name="rod" class="com.interface21.beans.TestBean">	
+		<property name="name">Roderick</property>
+		<property name="age">31</property>
+	</bean>
+	
+	<bean name="father" class="com.interface21.beans.TestBean">	
+		<property name="name">Albert</property>
+	</bean>
+
+</beans>		

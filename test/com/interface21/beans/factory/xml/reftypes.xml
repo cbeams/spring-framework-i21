@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
+-->
+
+<beans>
+	
+	
+	<bean name="jenny" class="com.interface21.beans.TestBean">	
+		<property name="name">Jenny</property>
+		<property name="age">30</property>
+	<!--	<property name="spouse" beanRef="true">david</property> -->
+	</bean>
+	
+	<bean name="david" class="com.interface21.beans.TestBean">	
+		<property name="name">David</property>
+		<property name="age">27</property>
+		<property name="spouse" beanRef="true">jenny</property>
+	</bean>
+	
+	<bean name="jenks" class="com.interface21.beans.TestBean" singleton="false">	
+		<property name="name">Andrew</property>
+		<property name="age">36</property>
+		<property name="spouse" beanRef="true" >jenny</property>
+	</bean>
+
+<bean name="emma" class="com.interface21.beans.TestBean">	
+		<property name="name">Emma</property>
+		<property name="age">31</property>
+		<property name="spouse" beanRef="true" >jenks</property>
+	</bean>
+	
+	<bean name="georgia" class="com.interface21.beans.TestBean">	
+		<property name="name">Geprgia</property>
+		<property name="age">33</property>
+		<property name="spouse" beanRef="true" >jenks</property>
+	</bean>
+
+</beans>		
+	
+	

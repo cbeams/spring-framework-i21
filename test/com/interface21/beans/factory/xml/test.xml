@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
+-->
+
+<beans>
+	<bean name="rod" class="com.interface21.beans.TestBean">	
+		<property name="name">Rod</property>
+		<property name="age">31</property>
+	</bean>
+	
+	<bean name="roderick" parent="rod">	
+		<property name="name">Roderick</property>
+		<!-- Should inherit age -->
+	</bean>
+	
+	<bean name="kerry" class="com.interface21.beans.TestBean">	
+		<property name="name">Kerry</property>
+		<property name="age">34</property>
+		<property name="spouse" beanRef="true">rod</property>
+	</bean>
+	
+	<bean name="kathy" class="com.interface21.beans.TestBean" singleton="false">	
+			<property name="name">Kathy</property>
+			<property name="age">28</property> 
+	</bean>
+
+	<bean name="typeMismatch" class="com.interface21.beans.TestBean" singleton="false">	
+		<property name="name">typeMismatch</property>
+		<property name="age">34x</property>
+                <property name="spouse" beanRef="true">rod</property>
+               
+	</bean>
+
+
+      <bean name="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener" />	
+
+        <bean name="listenerVeto" class="com.interface21.beans.TestBean">	
+                <listener property="age" beanRef="agistListener" />
+		<property name="name">listenerVeto</property>
+		<property name="age">66</property>
+	</bean>
+
+      <bean name="validEmpty" class="com.interface21.beans.TestBean" />	
+
+      
+
+<!--
+        <bean name="invalidClass" class="com.interface21.beans.TestBeanx" />	
+-->
+
+</beans>		
+	
+	

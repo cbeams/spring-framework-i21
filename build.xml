@@ -1,0 +1,562 @@
+<?xml version="1.0"?>
+
+<!--
+	Build the Spring core libraries.
+	These can be used in any project.
+	Expected to be called by targets.
+	
+	Rod Johnson, 2002-3.
+	
+	See page 594 of "Expert One-on-One J2EE" for a description of
+	the JAR files produced by this build script, and how
+	they can be deployed in applications.
+	
+	This script requires a /lib
+	directory containing the necessary third party JAR files.
+-->
+
+<project name="spring-core" default="usage" basedir=".">
+
+	<!-- ===========================================================-->
+	<!-- Change these absolute path settings to match OS and file paths -->
+	<!-- if using this build script in isolation. 					-->
+	<!-- Can be overridden from settings in calling scripts -->
+	<!-- ===========================================================-->
+	<property name="j2ee.dir" value="c:\\j2sdkee1.3.1"/>
+	
+	
+	<property name="spring-version" value="0.8" />
+	
+
+	<!-- ===========================================================-->
+	<!-- End absolute path settings									-->
+	<!-- ===========================================================-->
+	
+	<property name="build.dir" value=".classes" />
+		
+	<property name="testbuild.dir" value=".testclasses"/>	
+
+	<!-- can set -->
+	<property name="spring-full.jar" value="spring-full-${spring-version}.jar"/>
+
+	<!-- Directory for generated API documentation -->
+	<property name="docs.dir" value="./docs/api" />
+	
+	<property name="junit.reports.dir" value="junit-reports" />
+	
+	<property name="name" value="spring-framework"/>
+
+	<property name="j2ee.jar" value="${j2ee.dir}/lib/j2ee.jar"/>
+	
+	<property name="debug" value="on"/>
+	
+	<property name="src.dir" value="src"/>
+	
+	<property name="test.dir" value="test"/>
+	
+	<property name="junit.report.dir" value="junit-reports"/>
+
+	<!-- Where we generate instrumented (Cloverised) classes -->
+    	<property name="clover.build.dir" location=".clover" />
+    	
+    	<property name="clover.dbdir" value="." />
+
+	 <property name="clover.dbfile" value="spring_coverage.db"/>
+	 
+	 <property name="clover.initstring" value="${clover.dbdir}/${clover.dbfile}"/>
+	 
+	 <property name="dist.dir" value="dist"/>
+	    
+	    
+	 <!-- 
+	 	Global property to exclude selected classes from Clover
+	 	instrumentation. Typically we'll use this to exclude experimental
+	 	packages from coverage analysis.
+	 -->
+  	<property name="clover.excludes" value="**/aop/**" />
+
+
+	<!-- Library directory within project -->
+	<property name="lib.dir" value="lib"/>
+	
+	
+	<!-- Directory for generated API documentation -->
+	<property name="docs.dir" value="./docs/api" />
+	
+
+	<path id="master-classpath">
+		<pathelement location="${j2ee.jar}"/>
+		
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+
+
+	<target name="usage" >
+		<echo message=""/>
+		<echo message="${name} build file"/>
+		<echo message="------------------------------------------------------"/>
+		<echo message=""/>
+		<echo message=" Available targets are :"/>
+		<echo message=""/>
+		<echo message="all    --> create all JAR files" />
+		<echo message="build    --> build all; don't create JARs"/>
+		<echo message=" " />
+	</target>
+	
+
+	<!-- Delete all binaries and generated distribution units -->
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+		<delete dir="${testbuild.dir}"/>
+		<delete dir="${clover.build.dir}"/>
+		<delete file="${clover.dbfile}"/>
+		
+		<!-- Delete old coverage databases Clover leaves around -->
+		<delete>
+			<fileset dir="." includes="${clover.dbfile}*"/>
+		</delete>
+	</target>
+
+
+	<!-- 
+		Build framework Jar 
+	-->
+	<target name="build">
+
+		<mkdir dir="${build.dir}"/>
+
+		<javac destdir="${build.dir}" 
+			debug="${debug}" 
+			deprecation="false" optimize="false"
+			failonerror="false"
+		>
+			<src path="${src.dir}"/>
+
+			<classpath refid="master-classpath"/>	
+
+		</javac>
+	</target>
+		
+		
+		<!-- 
+			Build one big JAR. 
+		-->
+		<target name="full" depends="build">
+							
+			 <jar jarfile="${spring-full.jar}">
+			    <fileset dir="${build.dir}">
+			    <include name="com/interface21/**"/>
+			    </fileset>
+			  </jar>
+	</target>
+	
+	
+	
+	<!--
+		Build the framework web classes.
+		This JAR will depend on the core JAR, so can't be used
+		in isolation.
+	-->
+	<target name="web" depends="build">
+
+		<!-- We inherit this property from calling ant script -->
+		 <jar jarfile="${spring-web.jar}"
+		 >
+		 <!--		manifest="framework/webmanifest"
+			-->
+			<fileset dir="${build.dir}">
+
+			<!-- This is web only and shouldn't be loaded from EJB class loader -->
+			<include name="com/interface21/beans/factory/support/X*" />
+
+			<include name="com/interface21/web/**"/>
+			<include name="com/interface21/context/**"/>	
+			<include name="com/interface21/ejb/access/**"/>	
+			<include name="com/interface21/validation/**"/>	
+
+			<include name="com/interface21/jms/*"/>
+
+			</fileset>
+		  </jar>
+	</target>
+	
+	
+	<!-- Create Javadoc -->
+	<target name="javadoc">
+
+		<delete dir="${docs.dir}" />
+		<mkdir dir="${docs.dir}" />
+
+		<!-- java14.java.util.logging?  -->
+
+		<javadoc packagenames="com.interface21.beans.*,com.interface21.web.context.*,com.interface21.web.servlet.*,com.interface21.web.servlet.mvc,com.interface21.util,com.interface21.jndi,com.interface21.core"
+			   sourcepath="src"
+			   defaultexcludes="yes"
+			   destdir="${docs.dir}"
+			   author="true"
+			   version="true"
+			   use="true"
+			   windowtitle="Spring Framework">
+				<doctitle><![CDATA[<h1>Spring Framework</h1>]]></doctitle>
+				<bottom><![CDATA[<i>Rod Johnson and Spring contributors 2001-2003.</i>]]></bottom>
+				<classpath refid="master-classpath" />
+		</javadoc>
+  	</target>
+  	
+		  
+		  
+  	
+  	<!-- 
+  		Create JDBC distribution. 
+  		Depends on core JAR.
+  	-->
+  	<target name="jdbc" depends="build">
+			 		 	
+		<!-- We inherit the spring-jdbc property from calling ant script -->
+		<jar jarfile="${spring-jdbc.jar}">
+		<fileset dir="${build.dir}">
+
+		<include name="com/interface21/jdbc/**"/>
+		<include name="com/interface21/dao/**"/>
+		</fileset>
+	  </jar>					
+	</target>
+	
+	
+	
+	<!--
+		Create the core JAR file. JDBC and other JAR files
+		depend on this.
+	-->
+	<target name="core" depends="build">
+				 		 	
+		<!-- We inherit this property from calling ant script -->
+		<jar jarfile="${spring-core.jar}">
+		<fileset dir="${build.dir}">
+
+		<include name="com/interface21/core/*"/>
+		<include name="com/interface21/beans/*"/>
+		<include name="com/interface21/beans/factory/*"/>
+		<include name="com/interface21/beans/factory/support/*"/>
+
+		<!-- Unless we exclude the bean factory used in web apps,
+			web apps will fail to load classes.
+			Could use thread context class loader in framework, of course -->
+		<exclude name="com/interface21/beans/factory/support/X*" />
+
+		<include name="com/interface21/beans/propertyeditors/*"/>
+		<include name="com/interface21/jndi/*"/>
+
+		<!-- EJB only -->
+		<exclude name="com/interface21/jndi/JndiBeanFactory.class"/>
+		<exclude name="com/interface21/jndi/JndiPropertyValues.class"/>
+
+		<include name="com/interface21/util/*"/>
+		<include name="java14/**"/>
+
+		</fileset>
+	  </jar>				
+	</target>
+	
+	
+	<!--
+		Build load test support JAR
+	-->
+	<target name="load_test" depends="build">
+					 		 	
+			<!-- We inherit this property from calling ant script -->
+			<jar jarfile="${i21-loadtest.jar}">
+			<fileset dir="${build.dir}">
+
+			<include name="com/interface21/load/*"/>
+			</fileset>
+		  </jar>				
+	</target>
+
+	
+	<!--
+		Create the EJB implementation JAR file.
+	-->
+	<target name="ejbimpl" depends="build">
+					 		 	
+		<!-- We inherit this property from calling ant script -->
+		<jar jarfile="${spring-ejbimpl.jar}">
+		<fileset dir="${build.dir}">
+			<include name="com/interface21/ejb/support/*"/>
+			<include name="com/interface21/jndi/JndiBeanFactory.class"/>
+			<include name="com/interface21/jndi/JndiPropertyValues.class"/>
+		</fileset>
+	  </jar>
+							
+	</target>
+	
+	
+	<!--
+		Build all Jar files
+	-->
+	<target name="all" depends="build">
+						 		 	
+		<ant target="ejbimpl">
+			<property name="spring-ejbimpl.jar" value="spring-ejbimpl-${spring-version}.jar"/>
+		  </ant>
+		  <ant target="jdbc">
+		  	<property name="spring-jdbc.jar" value="spring-jdbc-${spring-version}.jar"/>
+		  </ant>
+		  <ant target="core">
+		  	<property name="spring-core.jar" value="spring-core-${spring-version}.jar"/>
+		  </ant>
+		    <ant target="web">
+		  	<property name="spring-web.jar" value="spring-web-${spring-version}.jar"/>
+		  </ant>								
+	</target>
+	
+	
+	 <target name="checkstyle"  description="Runs the checkstyle optional task to check for adherence to coding conventions">
+	    	<taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask"/>
+		<checkstyle failureProperty="checkstyle.failure"  failOnViolation="false" properties="checkstyleConventions.properties">
+			<fileset dir="${src.dir}" includes="com/interface21/beans/BeanWrapperImpl.java"/>
+		</checkstyle>
+    </target>
+
+
+
+	<target name="build-tests" depends="build">
+	
+		<mkdir dir="${testbuild.dir}"/>
+
+		<javac destdir="${testbuild.dir}" 
+			debug="${debug}" 
+			deprecation="false" optimize="false"
+			failonerror="false"
+		>
+			<src path="${test.dir}"/>
+			
+			<exclude name="com/interface21/jdbc/object/**" />
+			<exclude name="**/jta/**" />
+
+			<!-- Will pull in dependencies as required	-->
+
+			<classpath refid="master-classpath"/>	
+			<classpath location="${build.dir}"/>
+
+		</javac>
+		
+		<echo message="excluded JDBC!!!!" />
+	</target>
+		
+
+	<target name="tests" depends="build-tests">
+		<tstamp/>
+
+			<!-- Once in production -->
+			<!-- <property name="reports.dir" value="${junit.reports.dir}/${DSTAMP}-${TSTAMP}" /> -->
+
+		<property name="reports.dir" value="${junit.reports.dir}/last" />
+
+		<mkdir dir="${reports.dir}"/>
+
+		<junit printsummary="yes" haltonfailure="yes">
+
+
+				<!-- Must go first to ensure the jndi.properties takes precedence  -->
+			  <classpath location="${testbuild.dir}"/>
+				<classpath location="${build.dir}"/>
+
+				<!-- Need files loaded as resources -->
+				<classpath location="${test.dir}"/>
+
+			  <classpath refid="master-classpath"/>
+
+
+			  <formatter type="plain"/> 	  
+
+			  <!-- Convention is that our JUnit test classes have names like
+			   XXXXTestSuite.java
+			   -->
+			  <batchtest fork="yes" todir="${reports.dir}">
+				  <fileset dir="test">
+				<include name="**/*TestSuite*"/>
+				<include name="**/*Tests*"/>
+				<exclude name="**/*Abstract*/"/>
+				
+				<exclude name="com/interface21/jta/**" />
+				
+				<exclude name="**/*FIX*/"/>
+
+				  </fileset>
+				</batchtest>
+			</junit>
+			
+			<echo message="excluded JDBC from tests!!!!" />
+	</target>
+	
+	
+	<!-- PASS IN WILDCARDS -->
+	<target name="coretests" depends="build-tests">
+		<tstamp/>
+
+			<!-- Once in production -->
+			<!-- <property name="reports.dir" value="${junit.reports.dir}/${DSTAMP}-${TSTAMP}" /> -->
+
+		<property name="reports.dir" value="${junit.reports.dir}/last" />
+
+		<mkdir dir="${reports.dir}"/>
+
+		<junit printsummary="yes" haltonfailure="yes">
+
+				<!-- Must go first to ensure the jndi.properties takes precedence  -->
+			  <classpath location="${testbuild.dir}"/>
+				<classpath location="${build.dir}"/>
+
+				<!-- Need files loaded as resources -->
+				<classpath location="${test.dir}"/>
+
+			  <classpath refid="master-classpath"/>
+
+
+			  <formatter type="plain"/> 	  
+
+			  <!-- Convention is that our JUnit test classes have names like
+			   XXXXTestSuite.java
+			   -->
+			  <batchtest fork="yes" todir="${reports.dir}">
+				  <fileset dir="test">
+				<include name="**/*TestSuite*"/>
+				<include name="**/*Tests*"/>
+				<exclude name="**/*Abstract*/"/>
+				<exclude name="com/interface21/web/**"/>
+				<exclude name="com/interface21/jta/**"/>
+				<exclude name="com/interface21/jndi/**"/>
+				<exclude name="**/*FIX*/"/>
+
+				  </fileset>
+				</batchtest>
+				</junit>
+	</target>
+
+
+
+	<target name="aoptests" depends="build-tests">
+		<tstamp/>
+
+		<!-- Once in production -->
+		<!-- <property name="reports.dir" value="${junit.reports.dir}/${DSTAMP}-${TSTAMP}" /> -->
+
+		<property name="reports.dir" value="${junit.reports.dir}/last" />
+
+		<mkdir dir="${reports.dir}"/>
+
+		<junit printsummary="yes" haltonfailure="yes">
+
+				<!-- Must go first to ensure the jndi.properties takes precedence  -->
+			  <classpath location="${testbuild.dir}"/>
+				<classpath location="${build.dir}"/>
+
+				<!-- Need files loaded as resources -->
+				<classpath location="${test.dir}"/>
+
+			  <classpath refid="master-classpath"/>
+
+
+			  <formatter type="plain"/> 	  
+
+			  <!-- Convention is that our JUnit test classes have names like
+			   XXXXTestSuite.java
+			   -->
+			  <batchtest fork="yes" todir="${reports.dir}">
+				  <fileset dir="test">
+				<include name="com/interface21/aop/**/*TestSuite*"/>
+				<include name="com/interface21/aop/**/*Tests*"/>
+
+				<exclude name="**/*FIX*/"/>
+
+				  </fileset>
+				</batchtest>
+				</junit>
+	</target>
+
+
+
+	<target name="cloverBuild">
+		<!-- switch on clover by specifying it as the compiler to use -->
+    		<property name="build.compiler" value="org.apache.tools.ant.taskdefs.CloverCompilerAdapter"/>
+    		
+    		<mkdir dir="${clover.build.dir}"/>
+		
+		<javac destdir="${clover.build.dir}" 
+			debug="${debug}" 
+			deprecation="false" optimize="false"
+			failonerror="false"
+		>
+			<src path="${src.dir}"/>
+
+			<classpath refid="master-classpath"/>	
+		
+		</javac>
+    		
+	</target>
+	
+	
+	<target name="cloverTests" depends="build-tests, cloverBuild">
+	
+		<junit printsummary="yes" haltonfailure="yes">
+
+
+		<!-- Must go first to ensure the jndi.properties takes precedence  -->
+		 <classpath location="${testbuild.dir}"/>
+		<classpath location="${clover.build.dir}"/>
+
+		<!-- Need files loaded as resources -->
+		<classpath location="${test.dir}"/>
+
+		  <classpath refid="master-classpath"/>
+
+
+		  <!-- Convention is that our JUnit test classes have names like
+		   XXXXTestSuite.java
+		   -->
+		  <batchtest fork="yes" >
+			  <fileset dir="test">
+			<include name="**/*TestSuite*"/>
+			<include name="**/*Tests*"/>
+			<exclude name="**/*Abstract*/"/>
+
+			<exclude name="com/interface21/jta/**" />
+			
+			<exclude name="com/interface21/jdbc/object/**" />
+
+			<exclude name="**/*FIX*/"/>
+
+			  </fileset>
+			</batchtest>
+			</junit>
+	    		
+	</target>
+
+
+	<!-- =================================================================== -->
+	    <!-- run Clover coverage viewer -->
+	    <!-- =================================================================== -->
+	    <target name="report.view" depends="cloverTests">
+		<echo>Launching coverage viewer</echo>
+		<java classname="com.cortexeb.tools.clover.reporters.jfc.Viewer" fork="yes">
+		    <arg value="${clover.initstring}"/>
+		    <classpath refid="master-classpath"/>
+		</java>
+	    </target>
+	
+	    <!-- =================================================================== -->
+	    <!-- generate an html report -->
+	    <!-- =================================================================== -->
+	    <target name="report.html">
+		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
+		    <arg line="-o ${html.outdir} -i ${clover.initstring} -t 'clover demo'"/>
+		    <classpath refid="clover.classpath"/>
+		</java>
+	    </target>
+	
+    
+	
+</project>
