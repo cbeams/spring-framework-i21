@@ -46,19 +46,27 @@ public interface PlatformTransactionManager {
 	int ISOLATION_SERIALIZABLE     = Connection.TRANSACTION_SERIALIZABLE;
 
 	/**
-	 * Create a new transaction or returns a currently active transaction.
+	 * Return a currently active transaction or create a new one.
 	 * @param propagationBehavior  propagation behavior according to the constants in this interface
 	 * @param isolationLevel  isolation level according to the constants in this interface
-	 * @return transaction object representing the new or current transaction
+	 * @return transaction status object representing the new or current transaction
 	 */
 	TransactionStatus getTransaction(int propagationBehavior, int isolationLevel);
 
 	/**
+	 * Commit the given transaction, with regard to its status.
+	 * If the transaction has been marked rollback-only programmatically,
+	 * perform a rollback.
+	 * If the transaction wasn't a new one, omit the commit
+	 * to take part in the surrounding transaction properly.
 	 * @param status object returned by the getTransaction() method.
 	 */
 	void commit(TransactionStatus status);
 
 	/**
+	 * Roll back the given transaction, with regard to its status.
+	 * If the transaction wasn't a new one, just set it rollback-only
+	 * to take part in the surrounding transaction properly.
 	 * @param status object returned by the getTransaction() method.
 	 */
 	void rollback(TransactionStatus status);
