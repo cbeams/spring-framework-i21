@@ -12,15 +12,71 @@ import com.interface21.validation.Errors;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- * Concrete FormController implementation that provides configurable
- * form and success views, and an onSubmit chain for convenient overriding.
+ * <p>Concrete FormController implementation that provides configurable
+ * form and success views, and an onSubmit chain for convenient overriding.</p>
  *
  * <p>Automatically resubmits to the form view in case of validation errors,
- * and renders the success view in case of a valid submission.
+ * and renders the success view in case of a valid submission.</p>
  *
  * <p>The submit behavior can be customized by overriding one of the onSubmit
  * methods. Submit actions can be used as custom validation if necessary
- * (e.g. login), by calling showForm in case of validation errors.
+ * (e.g. login), by calling showForm in case of validation errors.</p>
+ *
+ * <p>Besides some extra functionality like described above and in the
+ * list of exposed configuration properties and the workflow description,
+ * this class does the same as the {@link AbstractFormController AbstractFormController}
+ * (hmmm, it also extends it).</p>
+ *
+ * <p><b><a name="workflow">Workflow
+ * (<a href="BaseCommandController.html#workflow">and that defined by superclass</a>):</b><br>
+ * The workflow of this Controller does not differ too much from the one described
+ * in the {@link AbstractFormController AbstractFormController}, except for
+ * the fact that overriding of the processSubmit-method and the
+ * showForm-method is not necessary, since the view for the respective occasions
+ * can be configured externally.
+ * <ol>
+ *  <li>XXX After validation of the command object and the perscribed
+ *      call to {@link #onBindAndValidate onBindAndValidate} (for more
+ *      information on that matter, see the AbstractFormController),
+ *      the following:</li>
+ *  <li>call to {@link #processSubmit processSubmit} which inspects the errors
+ *      object to see if any errors are available (they could be inserted in
+ *      the <code>bindAndValidate</code>-method</li>
+ *  <li>If errors occured, the controller will return the formView, giving
+ *      the user the form again (with possible error message render accordingly)</li>
+ *  <li>If no errors occurred, a call to
+ *      {@link #onSubmit(HttpServletRequest, HttpServletResponse, Object, BindException) onSubmit()}
+ *      using all parameters is done which (in case of the default implementation)
+ *      calls {@link #onSubmit(Object) onSubmit()} with just the command object.
+ *      This allows for convenient overriding of custom hooks</li>
+ *  <li>After that has finished, the successview is returned (which again,
+ *      is configurable through the exposed configuration properties)</li>
+ *  </ol>
+ * </p>
+ *
+ * <p><b><a name="config">Exposed configuration properties</a>
+ * (<a href="AbstractFormController.html#config">and those defined by superclass</a>):</b><br>
+ * <table border="1">
+ *  <tr>
+ *      <td><b>name</b></td>
+ *      <td><b>default</b></td>
+ *      <td><b>description</b></td>
+ *  </tr>
+ *  <tr>
+ *      <td>formView</td>
+ *      <td><i>null</i></td>
+ *      <td>Indicates what view to use when the user first asks for the form
+ *          or when validation errors have occurred while submitting the form</td>
+ *  </tr>
+ *  <tr>
+ *      <td>successView</td>
+ *      <td><i>null</i></td>
+ *      <td>Indicates what view to use when successful formsubmissions have
+ *          occurred. This could for instance be a view congrulating the user
+ *          with his successful submission</td>
+ *  </tr>
+ * <table>
+ * </p>
  *
  * @author Juergen Hoeller
  * @since 05.05.2003
