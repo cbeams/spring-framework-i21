@@ -502,7 +502,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		return getBeanFactory().isSingleton(name);
 	}
 
-	public String[] getAliases(String name) throws BeansException {
+	public String[] getAliases(String name) throws NoSuchBeanDefinitionException {
 		return getBeanFactory().getAliases(name);
 	}
 
@@ -522,7 +522,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	public String[] getBeanDefinitionNames(Class type) {
 		return getBeanFactory().getBeanDefinitionNames(type);
 	}
-	
+
 	/**
 	 * @see com.interface21.beans.factory.HierarchicalBeanFactory#getParentBeanFactory()
 	 */
