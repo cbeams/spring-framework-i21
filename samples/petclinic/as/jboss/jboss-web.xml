@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jboss-web>
+
+    <resource-ref>
+        <res-ref-name>jdbc/petclinicHSQL</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <jndi-name>java:/DefaultDS</jndi-name>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/petclinicMYSQL</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <jndi-name>java:/MySqlPetclinicDS</jndi-name>
+    </resource-ref>
+
+</jboss-web>
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  JBoss Server Configuration                                           -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>MySqlPetclinicDS</jndi-name>
+    <connection-url>jdbc:mysql://jppserver:3306/petclinic</connection-url>
+    <driver-class>org.gjt.mm.mysql.Driver</driver-class>
+    <user-name>pc</user-name>
+    <password>pc</password>
+  </local-tx-datasource>
+
+</datasources>

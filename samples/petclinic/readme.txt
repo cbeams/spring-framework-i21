@@ -16,13 +16,14 @@ default settings, you'll need to start the HSQLDB
 instance in db/hsqldb first, using server.bat.
 
 Note 2: If you are using JBoss, the above note doesn't apply.
-You must instead have copied the db/jboss/3.X.X xml files
+You must instead have copied the as/jboss/3.X.X xml files
 in the deploy dir and JBoss must be running while you 
 call the Ant with target all or test.
 
 General note for JBoss users:
 - in web.xml: comment the the log4j listener
 - in build.properties: uncomment the jboss.root property
+- in build.properties: set the port number for HSql to 1701
 - if using JBoss 3.2.x, copy the files db/jboss/3.2.x/*.xml in your deploy directory
 - For time being no database descriptor is provided for other JBoss versions, you have to write them
  
