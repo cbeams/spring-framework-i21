@@ -1,9 +1,22 @@
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
 package com.interface21.jdbc.core;
 
 import java.math.BigDecimal;
-import java.sql.*;
-import java.util.Calendar;
 import java.net.URL;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+import java.util.Calendar;
 
 /**
  * A class that implements java.sql.ResultSet which is used in the
@@ -21,7 +34,7 @@ import java.net.URL;
  * out faulty calls to unauthorised methods behind the scenes. For that very
  * reason, the wrapped methods are not documented here. Please refer to the 
  * official ResultSet Javadoc for more information.
- * 
+ * @version $Id$
  * @author Yann Caroff
  */
 public class ReadOnlyResultSet implements ResultSet {
@@ -41,6 +54,17 @@ public class ReadOnlyResultSet implements ResultSet {
       throw new IllegalArgumentException("ResultSet may not be null");
     }
     this.rs = rs;
+  }
+  
+  
+  /**
+   * This method is necessary in case we need to get at the underlying result
+   * set, for example, to invoke any proprietary methods.
+   * Do not use it if there is an alternative.
+   * @return the wrapped result set returned by the JDBC driver
+   */
+  public ResultSet getUnderlyingResultSet() {
+  	return this.rs;
   }
   
   /**
