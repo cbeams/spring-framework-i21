@@ -152,19 +152,22 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 * @throws ServletException if the context object can't be found
 	 */
 	private WebApplicationContext createWebApplicationContext() throws ServletException {
+		getServletContext().log("Loading WebApplicationContext for servlet '" + getServletName() + "'");
 		ServletContext sc = getServletConfig().getServletContext();
 		WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(sc);
 		String namespace = getNamespace();
+
 		WebApplicationContext waca = (this.contextClass != null) ?
 				instantiateCustomWebApplicationContext(this.contextClass, parent, namespace) :
 				new XmlWebApplicationContext(parent, namespace);
+		logger.info("Loading WebApplicationContext for servlet '" + getServletName() + "': using context class '" + waca.getClass().getName() + "'");
 		waca.setServletContext(sc);
-		logger.info("Servlet with name '" + getServletName() + "' loaded child context " + waca);
+
 		if (this.publishContext) {
 			// Publish the context as a servlet context attribute
 			String attName = getServletContextAttributeName();
 			sc.setAttribute(attName, waca);
-			logger.info("Bound servlet's context in global ServletContext with name '" + attName + "'");
+			logger.info("Bound context of servlet '" + getServletName() + "' in global ServletContext with name '" + attName + "'");
 		}
 		return waca;
 	}
@@ -197,6 +200,11 @@ public abstract class FrameworkServlet extends HttpServletBean {
 		catch (InstantiationException ex) {
 			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + className + "' : failed to instantiate", ex);
 		}
+	}
+
+	public void destroy() {
+		getServletContext().log("Closing WebApplicationContext for servlet '" + getServletName() + "'");
+		getWebApplicationContext().close();
 	}
 
 	/**
