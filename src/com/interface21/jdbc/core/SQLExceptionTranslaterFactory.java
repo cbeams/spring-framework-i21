@@ -27,25 +27,38 @@ import com.interface21.beans.factory.BeanDefinitionStoreException;
  * Returns a SQLExceptionTranslator populated with vendor 
  * codes defined in a configuration file named "sql-error-codes.xml".
  * @author Thomas Risberg
+   @version $Id$
  */
 public class SQLExceptionTranslaterFactory {
+	
+	/** 
+	 * Name of SQL error code file, loading on the classpath. Will look
+	 * in current directory (no leading /).
+	 */
+	public static final String SQL_ERROR_CODE_PATH = "sql-error-codes.xml";
+	
 	/**
 	* Keep track of this instance so we can return it to classes that request
 	* it.
 	*/
 	private static final SQLExceptionTranslaterFactory instance;
+	
 	/**
 	* Create a HashMap to hold error codes for all databases defined in the
 	* config file.
 	*/
 	private HashMap rdbmsErrorCodes;
+	
 	/**
 	* Create a logging category 
 	*/
 	protected final Logger logger = Logger.getLogger(getClass().getName());
 
+	/**
+	 * Not public to enforce Singleton design pattern
+	 */
 	SQLExceptionTranslaterFactory() {
-		String errorCodeXml = "/sql-error-codes.xml";
+		String errorCodeXml = SQL_ERROR_CODE_PATH;
 		try {
 			java.io.InputStream is = SQLExceptionTranslaterFactory.class.getResourceAsStream(errorCodeXml);
 			if (is == null) {
@@ -78,7 +91,7 @@ public class SQLExceptionTranslaterFactory {
 	}
 
 	/**
-	 * 
+	 * Factory method
 	 */
 	public static SQLExceptionTranslaterFactory getInstance() {
 		return instance;
