@@ -1,0 +1,78 @@
+<project
+   xmlns:j="jelly:core"
+   xmlns:maven="jelly:maven"
+  >
+   
+   <postGoal name="java:compile">
+      <!-- Compile RMI stubs  -->
+      <rmic base="${maven.build.dest}" classname="com.interface21.remoting.rmi.RemoteInvocationWrapper"/>
+      
+      <copy todir="${maven.build.dest}">
+         <fileset dir="${pom.build.sourceDirectory}">
+            <include name="**/*.xml"/>
+            <include name="**/*.dtd"/>
+         </fileset>
+      </copy>      
+   </postGoal>   
+   
+   
+   <postGoal name="test:compile">
+      <echo>Copying test files from ${pom.build.unitTestSourceDirectory}</echo>
+      <copy todir="${maven.test.dest}">
+         <fileset dir="${pom.build.unitTestSourceDirectory}">
+            <include name="**/*.xml"/>
+            <include name="**/*.properties"/>            
+         </fileset>
+      </copy>      
+   </postGoal>
+   
+
+   <!--
+    | Build the additional jars. The full spring.jar will be built as the default project target
+    -->
+   <preGoal name="jar:jar">
+      
+      <!-- 
+       | The spring-beans jar.
+       -->
+      <jar jarfile="${maven.build.dir}/spring-beans-${pom.currentVersion}.jar">
+         <fileset dir="${maven.build.dest}">
+            <include name="com/interface21/beans/**"/>
+            <include name="com/interface21/core/**"/>
+            <include name="com/interface21/util/*"/>
+         </fileset>
+      </jar>
+
+      <!-- 
+       | The spring-jdbc jar.
+       -->      
+      <jar jarfile="${maven.build.dir}/spring-jdbc-${pom.currentVersion}.jar">
+         <fileset dir="${maven.build.dest}">
+            <include name="com/interface21/aop/**"/>
+            <include name="com/interface21/beans/**"/>
+            <include name="com/interface21/core/**"/>
+            <include name="com/interface21/dao/**"/>
+            <include name="com/interface21/jdbc/**"/>
+            <include name="com/interface21/jndi/**"/>
+            <include name="com/interface21/orm/**"/>
+            <include name="com/interface21/transaction/**"/>
+            <include name="com/interface21/util/*"/>
+         </fileset>
+      </jar>      
+      
+      
+   </preGoal>
+
+
+   <!--
+    | Copy the additional jars to the distribution binary directory
+    -->
+   <preGoal name="dist:prepare-bin-filesystem">
+   
+      <!-- TODO -->
+         
+   </preGoal>
+
+
+
+</project>
