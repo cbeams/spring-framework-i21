@@ -27,44 +27,73 @@ public abstract class WebUtils {
 	/** HTTP header value */
 	public static final String HEADER_LASTMOD = "Last-Modified";
 
+	public static final String WEB_APP_ROOT_KEY_PARAM = "webAppRootKey";
+
 	/**
-	 * Given a String which may be either a URL, an absolute file path, or a path
+	 * Set a system property to the web application root directory.
+	 * The key of the system property can be defined with the
+	 * "webAppRootKey" init parameter at the servlet context level.
+	 *
+	 * <p>Can be used for toolkits that support substition with
+	 * system properties (i.e. System.getProperty values),
+	 * like Log4J's ${key} syntax within log file locations.
+	 *
+	 * @param servletContext the servlet context of the web application
+	 * @see #WEB_APP_ROOT_KEY_PARAM
+	 * @see WebAppRootListener
+	 */
+	public static void setWebAppRootSystemProperty(ServletContext servletContext) {
+		String param = servletContext.getInitParameter(WEB_APP_ROOT_KEY_PARAM);
+		String key = (param != null ? param : "webapp.root");
+		String oldValue = System.getProperty(key);
+		if (oldValue != null) {
+			servletContext.log("WARNING: Web app root system property already set: "  + key + " = " + oldValue);
+			servletContext.log("WARNING: Choose unique webAppRootKey values in your web.xml files!");
+		} else {
+			String root = servletContext.getRealPath("/");
+			System.setProperty(key, root);
+			servletContext.log("Set web app root system property: " + key + " = " + root);
+		}
+	}
+
+	/**
+	 * Given a String which may be either a URL, an absolute file location, or a location
 	 * within the WAR. Opens an input stream allowing access to its contents.
 	 * Note: Callers are responsible for closing the input stream.
-	 * @param path String which may be either a URL (e.g. http://somecompany.com/foo.xml),
-	 * an absolute file path, or a path within the WAR (e.g. /WEB-INF/data/file.dat)
+	 * @param location String which may be either a URL (e.g. http://somecompany.com/foo.xml),
+	 * an absolute file location, or a location within the WAR (e.g. /WEB-INF/data/file.dat)
 	 * @param servletContext the application's servlet context. We'll need this if we
 	 * need to load from within the WAR
 	 * @throws IOException if we can't open the resource
 	 * @return an InputStream for the resources contents.
 	 */
-	public static InputStream getResourceInputStream(String path, ServletContext servletContext) throws IOException {
+	public static InputStream getResourceInputStream(String location, ServletContext servletContext) throws IOException {
 		try {
 			// try URL
-			URL url = new URL(path);
+			URL url = new URL(location);
 			return url.openStream();
 
 		} catch (MalformedURLException ex) {
-			// no URL -> file path
-			File file = new File(path);
+			// no URL -> file location
+			File file = new File(location);
 			if (!file.isAbsolute()) {
 				// Load from within WAR
-				if (!path.startsWith("/"))
-					path = "/" + path;
-				InputStream is = servletContext.getResourceAsStream(path);
+				if (!location.startsWith("/"))
+					location = "/" + location;
+				InputStream is = servletContext.getResourceAsStream(location);
 				if (is == null)
-					throw new IOException("Can't open " + path);
+					throw new IOException("Can't open " + location);
 				return is;
 			} else {
 				// Remote loading
-				return new FileInputStream(path);
+				return new FileInputStream(location);
 			}
 		}
 	}
 
 	/**
 	 * Retrieve the first cookie with the given name.
-	 * @return the first cookie with the given name or null if none is found
+	 * @return the first cookie with the given name, or null if none is found
 	 * Note that multiple cookies can have the same name but different paths or domains
 	 * @param name cookie name
 	 */
