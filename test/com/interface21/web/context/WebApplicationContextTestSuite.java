@@ -21,41 +21,26 @@ import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.mock.MockServletContext;
 
 /**
- *
- * @author  rod  
- * @version
+ * @author Rod Johnson
  */
 public class WebApplicationContextTestSuite extends AbstractApplicationContextTests {
 
-	/** We use ticket WAR root for file structure.
-	 * We don't attempt to read web.xml.
-	 */
-	public static final String WAR_ROOT = "/com/interface21/web/context";
-
-	ServletContext servletContext;
+	private ServletContext servletContext;
 	
 	private WebApplicationContext root;
 
-	/** Creates new SeatingPlanTest */
-	public WebApplicationContextTestSuite(String name) {
-		super(name);
+	public WebApplicationContextTestSuite() throws Exception {
 	}
 
 	protected ApplicationContext createContext() throws Exception {
 		root = new XmlWebApplicationContext();
-		MockServletContext sc = new MockServletContext(WAR_ROOT);
-
+		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
+		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/com/interface21/web/context/WEB-INF/applicationContext.xml");
+		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PREFIX_PARAM, "/com/interface21/web/context/WEB-INF/");
 		this.servletContext = sc;
-
 		root.setServletContext(sc);
-		
 		WebApplicationContext wac = new XmlWebApplicationContext(root, "test-servlet");
-
 		wac.setServletContext(sc);
-		
-		// Add listeners expected by parent test case
-		//wac.(this.listener);
-
 		return wac;
 	}
 
@@ -110,7 +95,8 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	}
 
 	public void testWithoutMessageSource() throws Exception {
-		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
+		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PREFIX_PARAM, "/com/interface21/web/context/WEB-INF/");
 		WebApplicationContext wac = new XmlWebApplicationContext(null, "testNamespace");
 		wac.setServletContext(sc);
 		try {
@@ -137,7 +123,8 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	}
 
 	public void testContextLoaderWithDefaultContext() throws Exception {
-		ServletContext sc = new MockServletContext(WAR_ROOT);
+		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
+		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/com/interface21/web/context/WEB-INF/applicationContext.xml");
 		ServletContextListener listener = new ContextLoaderListener();
 		ServletContextEvent event = new ServletContextEvent(sc);
 		listener.contextInitialized(event);
@@ -146,7 +133,7 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	}
 
 	public void testContextLoaderWithCustomContext() throws Exception {
-		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
 		sc.addInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, "com.interface21.web.context.support.StaticWebApplicationContext");
 		ServletContextListener listener = new ContextLoaderListener();
 		ServletContextEvent event = new ServletContextEvent(sc);
@@ -156,7 +143,7 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	}
 
 	public void testContextLoaderWithInvalidLocation() throws Exception {
-		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
 		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/WEB-INF/myContext.xml");
 		ServletContextListener listener = new ContextLoaderListener();
 		ServletContextEvent event = new ServletContextEvent(sc);
@@ -171,7 +158,7 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	}
 
 	public void testContextLoaderWithInvalidContext() throws Exception {
-		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
 		sc.addInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, "com.interface21.web.context.support.InvalidWebApplicationContext");
 		ServletContextListener listener = new ContextLoaderListener();
 		ServletContextEvent event = new ServletContextEvent(sc);
@@ -190,8 +177,7 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 		assertTrue("Has father", context.getBean("father") != null);
 		assertTrue("Has father", context.getBean("rod") != null);
 		assertTrue("Doesn't have spouse", ((TestBean) context.getBean("rod")).getSpouse() == null);
-		// "/WEB-INF/myinit.properties" will not be found by in classpath
-		assertTrue("myinit not evaluated", "dummy".equals(((TestBean) context.getBean("rod")).getName()));
+		assertTrue("myinit not evaluated", "Roderick".equals(((TestBean) context.getBean("rod")).getName()));
 
 		context = new ClassPathXmlApplicationContext(new String[] {"/com/interface21/web/context/WEB-INF/applicationContext.xml",
 		                                                           "/com/interface21/web/context/WEB-INF/test-servlet.xml"});

@@ -5,9 +5,6 @@ import java.util.Locale;
 
 import javax.servlet.ServletContext;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.MessageSource;
@@ -30,49 +27,32 @@ import com.interface21.web.servlet.theme.AbstractThemeResolver;
  * to and will be called "messages_XX_YY.properties" where "XX" and "YY" are the
  * language and country codes known by the ResourceBundle class.
  *
- * NOTE:  The main method of this class is the "createContext(...)" method, and
+ * NOTE: The main method of this class is the "createContext(...)" method, and
  * it was copied from the com.interface21.web.context.WebApplicationContextTestSuite
  * class.
  *
- * @author  Rod Johnson
- * @author  Tony Falabella
- * @author  Jean-Pierre Pawlak
+ * @author Rod Johnson
+ * @author Tony Falabella
+ * @author Jean-Pierre Pawlak
  * @version
  */
-public class ResourceBundleMessageSourceTestSuite
-		extends AbstractApplicationContextTests {
+public class ResourceBundleMessageSourceTestSuite extends AbstractApplicationContextTests {
 
-	//~ Static variables/initializers ------------------------------------------
-
-	/** We use ticket WAR root for file structure.
+	/**
+	 * We use ticket WAR root for file structure.
 	 * We don't attempt to read web.xml.
 	 */
 	public static final String WAR_ROOT = "/com/interface21/web/context";
 
 	//~ Instance variables -----------------------------------------------------
 
-	ServletContext servletContext;
+	private ServletContext servletContext;
 
 	private WebApplicationContext root;
 
 	private MessageSource themeMsgSource;
 
-	//~ Constructors -----------------------------------------------------------
-
-	public ResourceBundleMessageSourceTestSuite(String name) {
-		super(name);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(suite());
-
-		//	junit.swingui.TestRunner.main(new String[] {PrototypeFactoryTests.class.getName() } );
-	}
-
-	public static Test suite() {
-		return new TestSuite(ResourceBundleMessageSourceTestSuite.class);
+	public ResourceBundleMessageSourceTestSuite() throws Exception {
 	}
 
 	/**
@@ -85,7 +65,7 @@ public class ResourceBundleMessageSourceTestSuite
 	}
 
 	/**
-	 * Overridden as we can't trust superclass method
+	 * Overridden as we can't trust superclass method.
 	 * @see com.interface21.context.AbstractApplicationContextTests#testEvents()
 	 */
 	public void testEvents() throws Exception {
@@ -97,7 +77,7 @@ public class ResourceBundleMessageSourceTestSuite
 	 * NOTE:  Messages are contained within the "test/com/interface21/web/context/WEB-INF/messagesXXX.properties" files.
 	 */
 	public void testGetMessageWithDefaultPassedInAndFoundInMsgCatalog() {
-		assertTrue("valid msg from resourcebundle with default msg passed in returned default msg.  Expected msg from catalog.",
+		assertTrue("valid msg from resourcebundle with default msg passed in returned default msg. Expected msg from catalog.",
 							 root.getMessage("message.format.example2", null, "This is a default msg if not found in msg.cat.", Locale.US
 							 )
 							 .equals("This is a test message in the message catalog with no args."));
@@ -257,15 +237,12 @@ public class ResourceBundleMessageSourceTestSuite
 
 	protected ApplicationContext createContext() throws Exception {
 		root = new XmlWebApplicationContext();
-
-		MockServletContext sc = new MockServletContext(WAR_ROOT);
-
+		MockServletContext sc = new MockServletContext("", "/com/interface21/web/context/WEB-INF/web.xml");
+		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/com/interface21/web/context/WEB-INF/applicationContext.xml");
+		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PREFIX_PARAM, "/com/interface21/web/context/WEB-INF/");
 		this.servletContext = sc;
-
 		root.setServletContext(sc);
-
 		WebApplicationContext wac = new XmlWebApplicationContext(root, "test-servlet");
-
 		wac.setServletContext(sc);
 
 		Theme theme = wac.getTheme(AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME);

@@ -20,7 +20,7 @@ import org.w3c.dom.Text;
 /**
  * This class is a test implementation of the ServletContext class.
  * Based on ServletUnit, by Rusell Gold
- * <p/>It only requires a pretty simple implementation to bootstrap the I21 framework.
+ * <p>It only requires a pretty simple implementation to bootstrap the Spring framework.
  * getResourceAsStream() and getInitParameter() must be implemented.
  **/
 public class MockServletContext implements ServletContext {
@@ -39,19 +39,18 @@ public class MockServletContext implements ServletContext {
 	/**
 	 * Param warRoot should not end with a /
 	 */
-	public MockServletContext(String warRoot) throws Exception {
+	public MockServletContext(String warRoot, String webXml) throws Exception {
 		this.warRoot = warRoot;
 		//System.out.println("------> MockServletContext: WAR root is '" + warRoot + "'");
 
 		//InputStream is = new FileInputStream(
 		
-		InputStream is = getClass().getResourceAsStream(warRoot + "/WEB-INF/web.xml");
+		InputStream is = getClass().getResourceAsStream(warRoot + webXml);
 		
 		//System.out.println("Loading web.xml from InputStream [" + is + "]");
 		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document doc = db.parse(is);
 		parseWebXml(doc);
-
 	}
 
 	/** Won't be able to load resources */

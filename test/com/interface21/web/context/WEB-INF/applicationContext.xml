@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-		
-<beans>		
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd" [
+<!ENTITY contextInclude SYSTEM "com/interface21/web/context/WEB-INF/contextInclude.xml">
+]>
+
+<beans>
 
 	<!-- ===========================================================-->
 	<!-- Message source						-->
 	<!-- ===========================================================-->
-	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource" >	
+
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource" >
 		<property name="basename"><value>com/interface21/web/context/WEB-INF/context-messages</value></property>
 	</bean>
+
 	<bean id="themeSource" class="com.interface21.ui.context.support.ResourceBundleThemeSource">
 		<property name="basenamePrefix"><value>com/interface21/web/context/WEB-INF/</value></property>
 	</bean>
+
 	<!-- ===========================================================-->
 	<!-- Listeners							-->
 	<!-- ===========================================================-->
@@ -51,13 +56,11 @@
 		<property name="name"><value>dummy</value></property>
 		<property name="age"><value>-1</value></property>
 	</bean>
-	
-	<bean id="father" class="com.interface21.beans.TestBean">	
-		<property name="name"><value>yetanotherdummy</value></property>
-	</bean>
+
+	&contextInclude;
 
 	<bean id="myinit" class="com.interface21.context.support.PropertyResourceConfigurer">
-		<property name="location"><value>/WEB-INF/myinit.properties</value></property>
+		<property name="location"><value>/com/interface21/web/context/WEB-INF/myinit.properties</value></property>
 	</bean>
 
 </beans>
