@@ -154,7 +154,7 @@ public abstract class SqlQuery extends SqlOperation {
 	 * @param context The contextual information for object creation
 	 */
 	public final List execute(int p1, Map context) throws DataAccessException {
-		return execute(new Object[]{new Integer(p1), context});
+		return execute(new Object[]{new Integer(p1)}, context);
 	}
 
 	/**
