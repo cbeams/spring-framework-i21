@@ -19,7 +19,7 @@ import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.FactoryBean;
-import com.interface21.beans.factory.Lifecycle;
+import com.interface21.beans.factory.BeanFactoryAware;
 import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.core.OrderComparator;
 
@@ -49,7 +49,7 @@ import com.interface21.core.OrderComparator;
  * @see #setInterceptorNames
  * @see #setProxyInterfaces
  */
-public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean, Lifecycle {
+public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean, BeanFactoryAware {
 
 	/**
 	 * This suffix in a value in an interceptor list indicates to expand globals.
@@ -108,10 +108,9 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	}
 	
 	/**
-	 * @see com.interface21.beans.factory.Lifecycle#setBeanFactory(com.interface21.beans.factory.BeanFactory)
+	 * @see com.interface21.beans.factory.BeanFactoryAware#setBeanFactory(com.interface21.beans.factory.BeanFactory)
 	 */
 	public void setBeanFactory(BeanFactory beanFactory) {	
-		
 		this.beanFactory = beanFactory;
 			
 		logger.info("Set BeanFactory. Will configure interceptor beans...");

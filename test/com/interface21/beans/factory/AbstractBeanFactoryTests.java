@@ -74,8 +74,8 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 	}
 	
 	/**
-	 * Test that InitializingBean/Lifecycle objects receive the
-	 * afterPropertiesSet() callback before Lifecycle callbacks
+	 * Test that InitializingBean/BeanFactoryAware objects receive the
+	 * afterPropertiesSet() callback before BeanFactoryAware callbacks
 	 */
 	public void testLifecycleCallbacks() {
 		LifecycleBean lb = (LifecycleBean) getBeanFactory().getBean("lifecycle");

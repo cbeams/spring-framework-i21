@@ -67,8 +67,6 @@ public class LocalStatelessSessionProxyFactoryBeanTests extends TestCase {
 		
 		// Need lifecycle methods
 		fb.afterPropertiesSet();
-		fb.setBeanFactory(null);
-		
 
 		MyBusinessMethods mbm = (MyBusinessMethods) fb.getObject();
 		assertTrue(Proxy.isProxyClass(mbm.getClass()));
@@ -104,8 +102,6 @@ public class LocalStatelessSessionProxyFactoryBeanTests extends TestCase {
 	
 		// Need lifecycle methods
 		fb.afterPropertiesSet();
-		fb.setBeanFactory(null);
-	
 
 		MyBusinessMethods mbm = (MyBusinessMethods) fb.getObject();
 		assertTrue(Proxy.isProxyClass(mbm.getClass()));

@@ -7,7 +7,7 @@ package com.interface21.beans.factory;
 
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.InitializingBean;
-import com.interface21.beans.factory.Lifecycle;
+import com.interface21.beans.factory.BeanFactoryAware;
 
 /**
  * Simple test of BeanFactory initialization
@@ -16,7 +16,7 @@ import com.interface21.beans.factory.Lifecycle;
  * @since 12-Mar-2003
  * @version $Revision$
  */
-public class LifecycleBean implements InitializingBean, Lifecycle {
+public class LifecycleBean implements InitializingBean, BeanFactoryAware {
 
 	private boolean inited; 
 	
@@ -39,11 +39,12 @@ public class LifecycleBean implements InitializingBean, Lifecycle {
 	}
 
 	/**
-	 * @see com.interface21.beans.factory.Lifecycle#setBeanFactory(com.interface21.beans.factory.BeanFactory)
+	 * @see com.interface21.beans.factory.BeanFactoryAware#setBeanFactory(com.interface21.beans.factory.BeanFactory)
 	 */
 	public void setBeanFactory(BeanFactory beanFactory) {
 		if (!inited)
-			throw new RuntimeException("Factory didn't call afterPropertiesSet() before invoking setBeanFactory " +				"on lifecycle bean");
+			throw new RuntimeException("Factory didn't call afterPropertiesSet() before invoking setBeanFactory " +
+				"on lifecycle bean");
 		this.owningFactory = beanFactory;
 	}
 

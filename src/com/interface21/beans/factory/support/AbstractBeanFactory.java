@@ -29,7 +29,7 @@ import com.interface21.beans.factory.BeanNotOfRequiredTypeException;
 import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.HierarchicalBeanFactory;
 import com.interface21.beans.factory.InitializingBean;
-import com.interface21.beans.factory.Lifecycle;
+import com.interface21.beans.factory.BeanFactoryAware;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 
 /**
@@ -452,7 +452,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * Give a bean a chance to react now all its properties are set,
 	 * and a chance to know about its owning bean factory (this object).
 	 * This means checking whether the bean implements InitializingBean
-	 * and/or Lifecycle, and invoking the necessary callback(s) if it does.
+	 * and/or BeanFactoryAware, and invoking the necessary callback(s) if it does.
 	 * @param bean new bean instance we may need to initialize
 	 * @param name the bean has in the factory. Used for debug output.
 	 */
@@ -470,16 +470,16 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 			}
 		}
 
-		if (bean instanceof Lifecycle) {
-			logger.debug("configureBeanInstance calling setBeanFactory() on Lifecycle bean with name '" + name + "'");
+		if (bean instanceof BeanFactoryAware) {
+			logger.debug("configureBeanInstance calling setBeanFactory() on BeanFactoryAware bean with name '" + name + "'");
 			try {
-				((Lifecycle) bean).setBeanFactory(this);
+				((BeanFactoryAware) bean).setBeanFactory(this);
 			}
 			catch (BeansException ex) {
 				throw ex;
 			}
 			catch (Exception ex) {
-				throw new FatalBeanException("Lifecycle method on bean with name '" + name + "' threw an exception", ex);
+				throw new FatalBeanException("BeanFactoryAware method on bean with name '" + name + "' threw an exception", ex);
 			}
 		}
 	}

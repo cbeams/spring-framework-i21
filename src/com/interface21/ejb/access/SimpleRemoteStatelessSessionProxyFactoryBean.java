@@ -8,9 +8,7 @@ package com.interface21.ejb.access;
 import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
-import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.FactoryBean;
-import com.interface21.beans.factory.Lifecycle;
 
 /**
  * Convenient factory for local or remote SLSB proxies.
@@ -20,7 +18,8 @@ import com.interface21.beans.factory.Lifecycle;
  * @since 09-May-2003
  * @version $Id$
  */
-public class SimpleRemoteStatelessSessionProxyFactoryBean extends SimpleRemoteSlsbInvokerInterceptor implements FactoryBean, Lifecycle {
+public class SimpleRemoteStatelessSessionProxyFactoryBean extends SimpleRemoteSlsbInvokerInterceptor
+    implements FactoryBean {
 	
 	/*
 	 * Instead of a separate subclass for each type of SLSBInvoker, we could have added
@@ -31,18 +30,12 @@ public class SimpleRemoteStatelessSessionProxyFactoryBean extends SimpleRemoteSl
 	
 	/** EJBObject */
 	private Object proxy;
-	
-	
+
 	/**
 	 * The business interface of the EJB we're proxying.
 	 */
 	private Class businessInterface;
-	
-	
-	public SimpleRemoteStatelessSessionProxyFactoryBean() {
-	}
-	
-		
+
 	/**
 	 * @return the business interface of the EJB. Note that this
 	 * will normally be the superinterface of the EJB remote component interface.
@@ -60,39 +53,24 @@ public class SimpleRemoteStatelessSessionProxyFactoryBean extends SimpleRemoteSl
 	public void setBusinessInterface(Class class1) {
 		this.businessInterface = class1;
 	}
-	
 
-	
-	/**
-	 * @see com.interface21.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
-	public void setBeanFactory(BeanFactory bf) throws Exception {
-
-		if (this.businessInterface == null) 
-			throw new Exception("businessInterface property must be set in SimpleRemoteStatelessSessionProxyFactoryBean");
-		
+	public void afterLocated() {
+		if (this.businessInterface == null) {
+			throw new IllegalArgumentException("businessInterface property must be set in SimpleRemoteStatelessSessionProxyFactoryBean");
+		}
 		ProxyFactory pf = new ProxyFactory(new Class[] { this.businessInterface });
 		pf.addInterceptor(this);
 		this.proxy = pf.getProxy();
 	}
 
-	/**
-	 * @see com.interface21.beans.factory.FactoryBean#getObject()
-	 */
 	public Object getObject() throws BeansException {
 		return this.proxy;
 	}
 
-	/**
-	 * @see com.interface21.beans.factory.FactoryBean#isSingleton()
-	 */
 	public boolean isSingleton() {
 		return true;
 	}
 
-	/**
-	 * @see com.interface21.beans.factory.FactoryBean#getPropertyValues()
-	 */
 	public PropertyValues getPropertyValues() {
 		return null;
 	}
