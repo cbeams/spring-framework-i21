@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
+import com.interface21.beans.factory.InitializingBean;
 
 /**
  * Interceptor providing declarative transaction management using
@@ -30,7 +31,7 @@ import com.interface21.transaction.TransactionStatus;
  * @version $Id$
  * @author Rod Johnson
  */
-public class TransactionInterceptor implements MethodInterceptor {
+public class TransactionInterceptor implements MethodInterceptor, InitializingBean {
 	
 	/**
 	 * Name of transaction attribute in Invocation.
@@ -90,8 +91,17 @@ public class TransactionInterceptor implements MethodInterceptor {
 		return transactionAttributeSource;
 	}
 
+	public void afterPropertiesSet() {
+		if (this.transactionManager == null) {
+			throw new IllegalArgumentException("transactionManager is required");
+		}
+		if (this.transactionAttributeSource == null) {
+			throw new IllegalArgumentException("transactionAttributeSource is required");
+		}
+	}
+
 	/**
-	 * @see org.aopalliance.MethodInterceptor#invoke(org.aopalliance.MethodInvocation)
+	 * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
 	 */
 	public final Object invoke(MethodInvocation invocation) throws Throwable {
 		// If this is null, the method is non-transactional

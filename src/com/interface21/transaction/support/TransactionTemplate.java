@@ -103,12 +103,17 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 		setIsolationLevel(constants.asInt(constantName));
 	}
 
+	public void afterPropertiesSet() {
+		if (this.transactionManager == null) {
+			throw new IllegalArgumentException("transactionManager is required");
+		}
+	}
+
 	/**
 	 * Executes the action specified by the given callback object within a transaction.
 	 * Application exceptions thrown by the callback object get propagated to the caller.
 	 * Allows for returning a result object created within the transaction,
 	 * i.e. a business object or a collection of business objects.
-	 *
 	 * @param action callback object that specifies the transactional action
 	 * @return a result object returned by the callback, or null
 	 * @throws TransactionException in case of initialization, rollback,
