@@ -33,75 +33,62 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Node;
 
-import com.interface21.context.ApplicationContextAware;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.servlet.view.AbstractView;
 
 /**
  * Convenient superclass for views rendered using an XSLT stylesheet.
- * Subclasses must provide the XML W3C document to transform. They do not need to
- * concern themselves with XSLT.
- * Properties:
+ * Subclasses must provide the XML W3C document to transform.
+ * They do not need to concern themselves with XSLT.
+ *
+ * <p>Properties:
+ * <ul>
  * <li>stylesheet: no transform is null
- * <li>uriResolver:
- * <li>cache (optional, default=false): debug setting only. Setting this
- * to true will cause the templates object to be reloaded for each rendering.
- * This is useful during development, but will seriously affect performance in
- * production and isn't threadsafe.
- * root: name of the root element
- * @author  Rod Johnson
+ * <li>root: name of the root element
+ * <li>uriResolver: URIResolver used in the transform
+ * <li>cache (optional, default=true): debug setting only
+ * </ul>
+ *
+ * <p>Setting cache to false will cause the templates object to be reloaded
+ * for each rendering. This is useful during development, but will seriously
+ * affect performance in production and isn't threadsafe.
+ *
+ * @author Rod Johnson
  * @version $Id$
  */
-public abstract class AbstractXsltView extends AbstractView implements ApplicationContextAware {
+public abstract class AbstractXsltView extends AbstractView {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/**
-	 * XSLT Template
-	 */
-	private Templates templates;
+	/** URL of stylesheet */
+	private String stylesheet;
 
-	private TransformerFactory transformerFactory;
+	/** Document root element name */
+	private String root;
 
 	/** Custom URIResolver, set by subclass or as bean property */
 	private URIResolver uriResolver;
 
-	/**
-	 * URL of stylesheet
-	 */
-	private String url;
-
-	private String root;
-	
 	private boolean cache = true;
-	
-	
 
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
-	/** 
-	 * Creates new XsltView 
-	 */
+	private TransformerFactory transformerFactory;
+
+	/** XSLT Template */
+	private Templates templates;
+
 	public AbstractXsltView() {
 	}
 
-	//---------------------------------------------------------------------
-	// Bean properties
-	//---------------------------------------------------------------------
-	/** 
-	 * Set the URL of the XSLT stylesheet
+	/**
+	 * Set the URL of the XSLT stylesheet.
 	 * @param url the URL of the XSLT stylesheet
 	 */
 	public final void setStylesheet(String url) {
-		this.url = url;
+		this.stylesheet = url;
 	}
 
 	/** 
-	 * Document root element name. Only
-	 * used if we're not passed a Node.
+	 * Document root element name.
+	 * Only used if we're not passed a single Node as model.
 	 * @param root document root element name
 	 */
 	public final void setRoot(String root) {
@@ -109,9 +96,8 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 	}
 
 	/**
-	 * Set the URIResolver used in the transform. The
-	 * URIResolver handles calls to the XSLT document()
-	 * function.
+	 * Set the URIResolver used in the transform. The URIResolver
+	 * handles calls to the XSLT document() function.
 	 * This method can be used by subclasses or as a bean property
 	 * @param uriResolver URIResolver to set. No URIResolver
 	 * will be set if this is null (this is the default).
@@ -121,38 +107,15 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 	}
 	
 	/**
-	 * Gets the cache.
-	 * @return Returns a boolean
-	 */
-	public final boolean getCache() {
-		return cache;
-	}
-
-	/**
-	 * Sets the cache.
-	 * @param cache The cache to set
+	 * Activate or deactivate the cache.
+	 * @param cache whether to activate the cache
 	 */
 	public final void setCache(boolean cache) {
 		this.cache = cache;
 	}
 	
-	
 	/**
-	 * Public static to allow use by other classes
-	 */
-	
-
-	//---------------------------------------------------------------------
-	// Implementation of ApplicationContextAware
-	//---------------------------------------------------------------------
-	/** 
-	 * Set the ApplicationContext object used by this object.
-	 * Here is also where we load our template, as we need the
-	 * Application Context to do it
-	 * @param ctx ApplicationContext object used by this object
-	 * @param namespace namespace this object is in: null means default namespace
-	 * @throws ApplicationContextException if initialization attempted by this object
-	 * after it has access to the WebApplicatinContext fails
+	 * Here we load our template, as we need the ApplicationContext to do it.
 	 */
 	protected final void initApplicationContext() throws ApplicationContextException {
 		this.transformerFactory = TransformerFactory.newInstance();
@@ -161,31 +124,27 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 			logger.info("Using custom URIResolver [" + this.uriResolver + "] in XsltView with name '" + getName() + "'");
 			this.transformerFactory.setURIResolver(this.uriResolver);
 		}
-		logger.debug("Url in view is " + url);
+		logger.debug("Url in view is " + stylesheet);
 		cacheTemplates();
 	}	
-	
 
-	
 	private void cacheTemplates() {
-		if (url != null && !"".equals(url)) {
-			Source s = getStylesheetSource(url);
+		if (stylesheet != null && !"".equals(stylesheet)) {
+			Source s = getStylesheetSource(stylesheet);
 			try {
 				this.templates = transformerFactory.newTemplates(s);
 				logger.info("Loaded templates " + templates + " in XsltView with name '" + getName() + "'");
 			}
 			catch (TransformerConfigurationException ex) {
 				throw new ApplicationContextException(
-					"Can't load stylesheet at '" + url + "' in XsltView with name '" + getName() + "'",
+					"Can't load stylesheet at '" + stylesheet + "' in XsltView with name '" + getName() + "'",
 					ex);
 			}
 		}
-	}	// onSetContext
-
+	}
 
 	/** 
-	 * Load the stylesheet.
-	 * This implementation uses getRealPath().
+	 * Load the stylesheet. This implementation uses getRealPath().
 	 * Subclasses can override this method to avoid any container
 	 * restrictions on use of this slightly questionable method.
 	 * However, when it does work it's efficient and convenient.
@@ -200,24 +159,12 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 			throw new ApplicationContextException(
 				"Can't resolve real path for XSLT stylesheet at '" + url + "'; probably results from container restriction: override XsltView.getStylesheetSource() to use an alternative approach to getRealPath()");
 		logger.info("Realpath is '" + realpath + "'");
-
 		Source s = new StreamSource(new File(realpath));
 		return s;
-	}	// getStylesheetSource
-	
-	
+	}
 
-	//---------------------------------------------------------------------
-	// Implementation of protected abstract methods
-	//---------------------------------------------------------------------
-	/**
-	 * Renders the view given the specified model.  There can be many types of
-	 * view.<br/>
-	 * The first take will be preparing the request: this may include setting the model
-	 * as an attribute, in the case of a JSP view.
-	 */
 	protected final void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
+			throws ServletException, IOException {
 
 		if (!this.cache) {
 			logger.warn("DEBUG SETTING: NOT THREADSAFE AND WILL IMPAIR PERFORMANCE: template will be refreshed");
@@ -273,27 +220,25 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 		}
 
 		doTransform(response, dom);
-	}   // renderMergedOutputModel
-	
-	
+	}
+
 	/**
-	 * Subclasses must implement this method
 	 * Return the XML node to transform.
-	 * @param model model
+	 * Subclasses must implement this method.
+	 * @param model the model Map
 	 * @param root name for root element
-	 * @param request HTTP request. Subclasses won't normally use this, as request
-	 * processing should have been complete. However, we might to create
-	 * a RequestContext to expose as part of the model.
-	 * @param response HTTP response. Subclasses won't normally use this, however
-	 * there may sometimes be a need to set cookies.
+	 * @param request HTTP request. Subclasses won't normally use this, as
+	 * request processing should have been complete. However, we might to
+	 * create a RequestContext to expose as part of the model.
+	 * @param response HTTP response. Subclasses won't normally use this,
+	 * however there may sometimes be a need to set cookies.
 	 * @throws Exception we let this method throw any exception; the
 	 * AbstractXlstView superclass will catch exceptions
 	 */
 	protected abstract Node createDomNode(Map model, String root, HttpServletRequest request, HttpServletResponse response) throws Exception;
-	
 
 	/**
-	 * Use TrAX to perform the transform
+	 * Use TrAX to perform the transform.
 	 */
 	protected void doTransform(HttpServletResponse response, Node dom) throws IllegalArgumentException, IOException, ServletException {
 		try {
@@ -305,20 +250,18 @@ public abstract class AbstractXsltView extends AbstractView implements Applicati
 			trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			trans.transform(new DOMSource(dom), new StreamResult(new BufferedOutputStream(response.getOutputStream())));
 		
-			logger.debug("XSLT transformed OK with stylesheet '" + url + "'");
+			logger.debug("XSLT transformed OK with stylesheet '" + stylesheet + "'");
 		}
 		catch (TransformerConfigurationException ex) {
-			//Category.getInstance(getClass()).error("Couldn't dispatch to JSP with url '" + getUrl() + "' defined in view with name '" + cr.getViewName() + "': " + ex, ex);
 			throw new ServletException(
-				"Couldn't create XSLT transformer for stylesheet '" + url + "' in XSLT view with name='" + getName() + "'",
+				"Couldn't create XSLT transformer for stylesheet '" + stylesheet + "' in XSLT view with name='" + getName() + "'",
 				ex);
 		}
 		catch (TransformerException ex) {
-			//Category.getInstance(getClass()).error("Couldn't dispatch to JSP with url '" + getUrl() + "' defined in view with name '" + cr.getViewName() + "': " + ex, ex);
 			throw new ServletException(
-				"Couldn't perform transform with stylesheet '" + url + "' in XSLT view with name='" + getName() + "'",
+				"Couldn't perform transform with stylesheet '" + stylesheet + "' in XSLT view with name='" + getName() + "'",
 				ex);
 		}
 	} 
 
-} 	// class AbstractXsltView
+}
