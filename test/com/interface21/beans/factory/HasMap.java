@@ -23,6 +23,8 @@ public class HasMap {
 	private Object[] objectArray;
 	
 	private Class[] classArray;
+	
+	private Integer[] intArray;
 
 	/**
 	 * @return Map
@@ -82,6 +84,20 @@ public class HasMap {
 	 */
 	public void setClassArray(Class[] classArray) {
 		this.classArray = classArray;
+	}
+
+	/**
+	 * @return
+	 */
+	public Integer[] getIntegerArray() {
+		return intArray;
+	}
+
+	/**
+	 * @param is
+	 */
+	public void setIntegerArray(Integer[] is) {
+		intArray = is;
 	}
 
 }

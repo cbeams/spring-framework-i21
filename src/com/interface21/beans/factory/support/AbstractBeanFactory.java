@@ -5,10 +5,10 @@
 
 package com.interface21.beans.factory.support;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -22,6 +22,7 @@ import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
+import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.BeanIsNotAFactoryException;
 import com.interface21.beans.factory.BeanNotOfRequiredTypeException;
@@ -397,6 +398,30 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			// It's an ordinary property. Just copy it.
 			val = pv.getValue();
 		}
+		
+		 // If it's an array type, we may have to massage type
+		 // of collection. We'll start with ManagedList.
+		 // We may also have to convert array elements from Strings
+		 // TODO consider refactoring into BeanWrapperImpl?
+		 if (val != null && val instanceof ManagedList && bw.getPropertyDescriptor(pv.getName()).getPropertyType().isArray()) {
+			 // It's an array
+			 Class arrayClass = bw.getPropertyDescriptor(pv.getName()).getPropertyType();
+			 Class componentType = arrayClass.getComponentType();
+			 List l = (List) val;
+		
+			try {
+				Object[] arr = (Object[]) Array.newInstance(componentType, l.size());
+				for (int i = 0; i < l.size(); i++) {
+					// TODO hack: BWI cast
+					Object newval = ((BeanWrapperImpl) bw).doTypeConversionIfNecessary(bw.getWrappedInstance(), pv.getName(), null, l.get(i), componentType);
+					arr[i] = newval;
+				}
+				val = arr;
+			}
+			catch (ArrayStoreException ex) {
+				throw new BeanDefinitionStoreException("Cannot convert array element from String to " + componentType, ex);
+			}
+		 }
 		
 		return val;
 	}

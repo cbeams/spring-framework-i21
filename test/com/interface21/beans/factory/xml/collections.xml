@@ -106,6 +106,38 @@
 			</props>
 		</property>
 	</bean>
+	
+	<bean id="objectArray" class="com.interface21.beans.factory.HasMap">	
+		<property name="objectArray">
+			<list>
+				<value>one</value>
+				<ref bean="jenny"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="classArray" class="com.interface21.beans.factory.HasMap">	
+		<property name="classArray">
+			<list>
+				<value>java.lang.String</value>
+				<value>java.lang.Exception</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!--
+	Why does this fail with arrayStoreException? Seems like no
+	conversion takes place? RJ, June 7 03
+	<bean id="integerArray" class="com.interface21.beans.factory.HasMap">	
+		<property name="integerArray">
+			<list>
+				<value>0</value>
+				<value>1</value>
+				<value>2</value>
+			</list>
+		</property>
+	</bean>
+	-->
 
 </beans>		
 	

@@ -210,6 +210,38 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(hasMap.getMap().get("2").equals("TWO"));
 	}
 	
+	public void testObjectArray() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		HasMap hasMap = (HasMap) xbf.getBean("objectArray");
+		assertTrue(hasMap.getObjectArray().length ==2);
+		assertTrue(hasMap.getObjectArray()[0].equals("one"));
+		assertTrue(hasMap.getObjectArray()[1].equals(xbf.getBean("jenny")));
+	}
+	
+	public void testClassArray() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		HasMap hasMap = (HasMap) xbf.getBean("classArray");
+		assertTrue(hasMap.getClassArray().length ==2);
+		assertTrue(hasMap.getClassArray()[0].equals(String.class));
+		assertTrue(hasMap.getClassArray()[1].equals(Exception.class));
+	}
+	
+	/*
+	 * TODO address this failure
+	 *
+	public void testIntegerArray() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		HasMap hasMap = (HasMap) xbf.getBean("integerArray");
+		assertTrue(hasMap.getIntegerArray().length == 3);
+		assertTrue(hasMap.getIntegerArray()[0].intValue() == 0);
+		assertTrue(hasMap.getIntegerArray()[1].intValue() == 1);
+		assertTrue(hasMap.getIntegerArray()[2].intValue() == 2);
+	}
+	*/
+	
 	public void testNoSuchXmlFile() throws Exception {
 		String filename = "missing.xml";
 		InputStream is = getClass().getResourceAsStream(filename);
