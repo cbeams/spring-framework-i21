@@ -8,7 +8,7 @@
   <property name="src.dir" value="src"/>
 	<property name="lib.dir" value="lib"/>
   <property name="build.dir" value=".classes"/>
-	<property name="docs.dir" value="${war.dir}/docs"/>
+	<property name="docs.dir" value="docs"/>
 	<property name="weblib.dir" value="${war.dir}/WEB-INF/lib"/>
   <property name="dist.dir" value="dist"/>
   <property name="db.dir" value="db"/>
@@ -56,6 +56,7 @@
 	  <echo message="warfile  --> Build the web application archive"/>
 		<echo message="setupDB  --> Initialize the database"/>
 		<echo message="test     --> Run tests using initialized database"/>
+		<echo message="all      --> Clean,build,warfile,docs,test"/>
 		<echo message=""/>
 
   </target>
@@ -132,7 +133,7 @@
 			<include name="WEB-INF/classes/*.properties"/>
 			<include name="WEB-INF/lib/**"/>
 			<include name="WEB-INF/jsp/**"/>
-			<exclude name="**/.nbattrs"/>
+			<exclude name="**/.*"/>
 		</war>
 
 	</target>
@@ -201,22 +202,7 @@
 
   </target>
 
-
-	<target name="prjzip" description="Create project ZIP file (containing all sources)">
-
-		<mkdir dir="${dist.dir}"/>
-
-		<zip destfile="${dist.dir}/petclinic.zip">
-			<fileset dir="${basedir}">
-				<include name="${db.dir}/**"/>
-				<include name="${src.dir}/**"/>
-				<include name="${testsrc.dir}/**"/>
-				<include name="${war.dir}/**"/>
-				<include name="*"/>
-				<exclude name="**/.nbattrs"/>
-			</fileset>
-		</zip>
-
+	<target name="all" depends="clean,build,warfile,docs,test" description="Clean,build,warfile,docs,test">
 	</target>
 
 </project>
