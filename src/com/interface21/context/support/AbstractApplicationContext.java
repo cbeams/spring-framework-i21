@@ -311,7 +311,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			// no URL -> try (file) path
 			InputStream in = getResourceByPath(location);
 			if (in == null) {
-				throw new FileNotFoundException("Location isn't a URL and cannot be interpreted as (file) path");
+				throw new FileNotFoundException("Location '" + location + "' isn't a URL and cannot be interpreted as (file) path");
 			}
 			return in;
 		}
