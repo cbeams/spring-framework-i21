@@ -30,10 +30,10 @@ public abstract class WebUtils {
 	public static final String DEFAULT_WEB_APP_ROOT_KEY = "webapp.root";
 
 	/** HTTP header value */
-	public static final String HEADER_IFMODSINCE = "If-Modified-Since";
+	public static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
 
 	/** HTTP header value */
-	public static final String HEADER_LASTMOD = "Last-Modified";
+	public static final String HEADER_LAST_MODIFIED = "Last-Modified";
 
 	/** Name suffix in case of image buttons */
 	public static final String SUBMIT_IMAGE_SUFFIX = ".x";

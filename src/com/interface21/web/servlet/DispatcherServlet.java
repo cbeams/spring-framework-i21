@@ -410,47 +410,46 @@ public class DispatcherServlet extends FrameworkServlet {
 			return false;
 
 		// Apply last modified rule
-		long ifModifiedSince = request.getDateHeader(WebUtils.HEADER_IFMODSINCE);
+		long ifModifiedSince = request.getDateHeader(WebUtils.HEADER_IF_MODIFIED_SINCE);
 		if (ifModifiedSince == -1)
 			return false;
 
 		// We have an if modified since header (value is -1 if we don't)
-		logger.debug("GET request: " + WebUtils.HEADER_IFMODSINCE + " request header present");
+		logger.debug("GET request: " + WebUtils.HEADER_IF_MODIFIED_SINCE + " request header present");
 		long lastModified = ha.getLastModified(request, mappedHandler);
 
 		if (lastModified == -1 || ifModifiedSince < lastModified) {
 			// lastModified was -1, indicating it wasn't understood,
 			// or was earlier than the servlet mod date.
 			// We need to regenerate content.
-			logger.debug("GET request: " + WebUtils.HEADER_IFMODSINCE + " request header contains an earlier date than lastModified date. Will regenerate content and reset lastModified header." );
+			logger.debug("GET request: " + WebUtils.HEADER_IF_MODIFIED_SINCE + " request header contains an earlier date than lastModified date. Will regenerate content and reset lastModified header." );
 			setLastModifiedIfNecessary(response, lastModified);
 			return false;
 		}
 		else {
 			// If mod header present and shows a later date than last modified date on the resource
-			logger.debug("GET request: " + WebUtils.HEADER_IFMODSINCE + " request header contains a later date than lastModified date, or revalidation isn't supported. Indicating unmodified.");
+			logger.debug("GET request: " + WebUtils.HEADER_IF_MODIFIED_SINCE + " request header contains a later date than lastModified date, or revalidation isn't supported. Indicating unmodified.");
 			response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 			return true;
 		}
 	}
 
-	/*
-	 * Sets the Last-Modified entity header field, if it has not
-	 * already been set and if the value is meaningful.  Called before
-	 * doGet, to ensure that headers are set before response data is
-	 * written.  A subclass might have set this header already, so we
-	 * check.
+	/**
+	 * Set the Last-Modified entity header field, if it has not already
+	 * been set and if the value is meaningful. Called before doGet,
+	 * to ensure that headers are set before response data is written.
+	 * A subclass might have set this header already, so we check.
 	 */
 	private void setLastModifiedIfNecessary(HttpServletResponse response, long lastModified) {
-		// Based on code from javax.servlet.HttpServlet
-		if (!response.containsHeader(WebUtils.HEADER_LASTMOD) && lastModified >= 0)
-			response.setDateHeader(WebUtils.HEADER_LASTMOD, lastModified);
+		if (!response.containsHeader(WebUtils.HEADER_LAST_MODIFIED) && lastModified >= 0) {
+			response.setDateHeader(WebUtils.HEADER_LAST_MODIFIED, lastModified);
+		}
 	}
 
 	/**
 	 * Return the handler for this request.
 	 * Try all handler mappings in order.
-	 * @return the handelr, or null if no handler could be found
+	 * @return the handler, or null if no handler could be found
 	 */
 	private HandlerExecutionChain getHandler(HttpServletRequest request) throws ServletException {
 		Iterator itr = this.handlerMappings.iterator();
@@ -484,24 +483,24 @@ public class DispatcherServlet extends FrameworkServlet {
 	/**
 	 * Render the given ModelAndView. This is the last stage in handling a request.
 	 * It may involve resolving the view by name.
-	 * @throws IOException if there's a problem rendering the view
 	 * @throws ServletException if the view cannot be resolved.
+	 * @throws IOException if there's a problem rendering the view
 	 */
 	private void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response, Locale locale)
 	    throws ServletException, IOException {
-		View v = null;
+		View view = null;
 		if (mv.isReference()) {
 			// We need to resolve this view name
-			v = this.viewResolver.resolveViewName(mv.getViewName(), locale);
+			view = this.viewResolver.resolveViewName(mv.getViewName(), locale);
 		}
 		else {
 			// No need to lookup: the ModelAndView object contains the actual view
-			v = mv.getView();
+			view = mv.getView();
 		}
-		if (v == null) {
+		if (view == null) {
 			throw new ServletException("Error in ModelAndView object or View resolution encountered by servlet with name '" + getServletName() + "'. View cannot be null in render with ModelAndView=[" + mv + "]");
 		}
-		v.render(mv.getModel(), request, response);
+		view.render(mv.getModel(), request, response);
 	}
 
 }
