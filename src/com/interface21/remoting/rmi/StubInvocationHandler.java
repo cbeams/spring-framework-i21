@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  */
 class StubInvocationHandler implements InvocationHandler, Serializable {
 
-	/** the remote stub around the remote object */
+	/** remote stub around the server-side RemoteInvocationWrapper */
 	private RemoteInvocationHandler stub;
 
 	/**
@@ -33,7 +33,7 @@ class StubInvocationHandler implements InvocationHandler, Serializable {
 		if (method.getDeclaringClass().equals(Object.class)) {
 			return method.invoke(this, params);
 		}
-		return stub.invokeRemote(method.getName(), method.getParameterTypes(), params);
+		return this.stub.invokeRemote(method.getName(), method.getParameterTypes(), params);
 	}
 
 }

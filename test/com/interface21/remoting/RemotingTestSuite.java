@@ -1,6 +1,7 @@
 package com.interface21.remoting;
 
 import java.net.MalformedURLException;
+import java.rmi.ConnectException;
 
 import junit.framework.TestCase;
 
@@ -12,7 +13,7 @@ import com.interface21.remoting.rmi.RmiProxyFactoryBean;
 import com.interface21.remoting.support.RemoteProxyFactoryBean;
 
 /**
- * @author jho
+ * @author Juergen Hoeller
  * @since 16.05.2003
  */
 public class RemotingTestSuite extends TestCase {
@@ -31,7 +32,7 @@ public class RemotingTestSuite extends TestCase {
 			// expected
 		}
 		factory.setServiceInterface(ITestBean.class);
-		factory.setServiceUrl("http://localhost/testbean");
+		factory.setServiceUrl("http://localhosta/testbean");
 		factory.setUsername("test");
 		factory.setPassword("bean");
 		factory.afterPropertiesSet();
@@ -45,14 +46,13 @@ public class RemotingTestSuite extends TestCase {
 		}
 		catch (RemoteAccessException ex) {
 			// expected
-			assertTrue("Correct remote exception", ex.getRootCause() instanceof java.net.ConnectException);
 		}
 	}
 
 	public void testBurlapProxyFactoryBean() throws Exception {
 		BurlapProxyFactoryBean factory = new BurlapProxyFactoryBean();
 		factory.setServiceInterface(ITestBean.class);
-		factory.setServiceUrl("http://localhost/testbean");
+		factory.setServiceUrl("http://localhosta/testbean");
 		factory.afterPropertiesSet();
 		ITestBean bean = (ITestBean) factory.getObject();
 		try {
@@ -61,21 +61,20 @@ public class RemotingTestSuite extends TestCase {
 		}
 		catch (RemoteAccessException ex) {
 			// expected
-			assertTrue("Correct remote exception", ex.getRootCause() instanceof java.net.ConnectException);
 		}
 	}
 
 	public void testRmiProxyFactoryBean() throws Exception {
 		RmiProxyFactoryBean factory = new RmiProxyFactoryBean();
 		factory.setServiceInterface(ITestBean.class);
-		factory.setServiceUrl("rmi://localhost/testbean");
+		factory.setServiceUrl("rmi://localhosta/testbean");
 		try {
 			factory.afterPropertiesSet();
 			fail("Should have thrown RemoteAccessException");
 		}
 		catch (RemoteAccessException ex) {
 			// expected
-			assertTrue("Correct remote exception", ex.getRootCause() instanceof java.rmi.ConnectException);
+			ex.printStackTrace();
 		}
 	}
 

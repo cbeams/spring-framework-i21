@@ -45,7 +45,8 @@ public class HessianProxyFactoryBean extends AuthorizableRemoteProxyFactoryBean 
 					return invocation.invokeNext();
 				}
 				catch (HessianRuntimeException ex) {
-					throw new RemoteAccessException("Error on remote access", ex.getRootCause());
+					Throwable rootCause = (ex.getRootCause() != null) ? ex.getRootCause() : ex;
+					throw new RemoteAccessException("Error on remote access", rootCause);
 				}
 				catch (UndeclaredThrowableException ex) {
 					throw new RemoteAccessException("Error on remote access", ex.getUndeclaredThrowable());
