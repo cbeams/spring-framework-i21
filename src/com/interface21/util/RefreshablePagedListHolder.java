@@ -149,8 +149,10 @@ public class RefreshablePagedListHolder extends PagedListHolder {
 				this.setPage(0);
 			}
 			this.localeUsed = this.locale;
-			this.filterUsed = BeanUtils.instantiateClass(this.filter.getClass());
-			BeanUtils.copyProperties(this.filter, this.filterUsed);
+			if (null != this.filter) {
+				this.filterUsed = BeanUtils.instantiateClass(this.filter.getClass());
+				BeanUtils.copyProperties(this.filter, this.filterUsed);
+			}
 		}
 		resort();
 	}
