@@ -187,6 +187,14 @@ public abstract class SqlQuery extends SqlOperation {
 	public final Object findObject(String p1) throws DataAccessException {
 		return findObject(new Object[] { p1 });
 	}	
+	
+	
+	/** 
+	 * Convenience method to find a single object given a single long parameter
+	 */
+	public final Object findObject(long p1) throws DataAccessException {
+		return findObject(new Object[] { new Long(p1) });
+	}
 
 	
 	/**
