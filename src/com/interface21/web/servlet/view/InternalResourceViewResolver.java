@@ -23,25 +23,27 @@ import com.interface21.web.servlet.View;
 public class InternalResourceViewResolver extends AbstractCachingViewResolver {
 
 	private String prefix = "";
+
 	private String suffix = "";
+
+	private String requestContextAttribute = null;
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
-	}
-
-	public String getPrefix() {
-		return prefix;
 	}
 
 	public void setSuffix(String suffix) {
 		this.suffix = suffix;
 	}
 
-	public String getSuffix() {
-		return suffix;
+	public void setRequestContextAttribute(String requestContextAttribute) {
+		this.requestContextAttribute = requestContextAttribute;
 	}
 
 	protected View loadView(String viewname, Locale locale) throws ServletException {
-		return new InternalResourceView(getPrefix() + viewname + getSuffix());
+		InternalResourceView view = new InternalResourceView();
+		view.setUrl(this.prefix + viewname + this.suffix);
+		view.setRequestContextAttribute(this.requestContextAttribute);
+		return view;
 	}
 }
