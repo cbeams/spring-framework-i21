@@ -28,7 +28,10 @@ import com.interface21.util.ThreadObjectManager;
  * allowing for reuse of Hibernate Session instances within transactions.
  * Supports synchronization with JTA transactions via JtaTransactionManager,
  * to allow for proper transactional handling of the JVM-level cache.
- * Used by HibernateTemplate, HibernateInterceptor, and HibernateTransactionManager.
+ *
+ * <p>Used by HibernateTemplate, HibernateInterceptor, and
+ * HibernateTransactionManager. Can also be used directly in application
+ * code, e.g. in combination with HibernateInterceptor.
  *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
@@ -59,6 +62,18 @@ public abstract class SessionFactoryUtils {
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
+	}
+
+	/**
+	 * Return if the given Session is bound to the current thread,
+	 * for the given SessionFactory.
+	 * @param session Session that should be checked
+	 * @param sessionFactory SessionFactory that the Session was created with
+	 * @return if the Session is bound for the SessionFactory
+	 */
+	public static boolean isSessionBoundToThread(Session session, SessionFactory sessionFactory) {
+		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
+		return (sessionHolder != null && session == sessionHolder.getSession());
 	}
 
 	/**
@@ -155,7 +170,7 @@ public abstract class SessionFactoryUtils {
 			return;
 		}
 		if (TransactionSynchronizationManager.isActive()) {
-			logger.debug("Registering JTA synchronization for Hibernate session");
+			logger.debug("Registering transaction synchronization for Hibernate session");
 			TransactionSynchronizationManager.register(new SessionSynchronization(session, sessionFactory));
 			// use same Session for further Hibernate actions within the transaction
 			// to save resources (thread object will get remoed by synchronization)
@@ -164,18 +179,6 @@ public abstract class SessionFactoryUtils {
 		else {
 			doCloseSession(session);
 		}
-	}
-
-	/**
-	 * Return if the given Session is bound to the current thread,
-	 * for the given SessionFactory.
-	 * @param session Session that should be checked
-	 * @param sessionFactory SessionFactory that the Session was created with
-	 * @return if the Session is bound for the SessionFactory
-	 */
-	protected static boolean isSessionBoundToThread(Session session, SessionFactory sessionFactory) {
-		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
-		return (sessionHolder != null && session == sessionHolder.getSession());
 	}
 
 	/**

@@ -24,9 +24,9 @@ import com.interface21.jndi.JndiTemplate;
 import com.interface21.util.ThreadObjectManager;
  
 /**
- * Class containing static methods to obtain connections from JNDI and close
- * connections if necessary. Has support for thread-bound connections,
- * for example for using DataSourceTransactionManager.
+ * Helper class that provides static methods to obtain connections from
+ * JNDI and close connections if necessary. Has support for thread-bound
+ * connections, e.g. for use with DataSourceTransactionManager.
  *
  * <p>Note: The getDataSourceFromJndi methods are targetted at applications
  * that do not use a BeanFactory resp. an ApplicationContext. With the latter,
@@ -54,11 +54,23 @@ public abstract class DataSourceUtils {
 	 * DataSource/ConnectionHolder map per thread for JDBC transactions.
 	 * <p>Note: This is an SPI method, not intended to be used by applications.
 	 * @return the thread object manager
+	 * @see ConnectionHolder
 	 * @see #getConnection
-	 * @see DataSourceTransactionManager
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
+	}
+
+	/**
+	 * Return if the given Connection is bound to the current thread,
+	 * for the given DataSource.
+	 * @param con JDBC Connection that should be checked
+	 * @param ds DataSource that the Connection was created with
+	 * @return if the Connection is bound for the DataSource
+	 */
+	public static boolean isConnectionBoundToThread(Connection con, DataSource ds) {
+		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);
+		return (holder != null && con == holder.getConnection());
 	}
 
 	/**
@@ -132,38 +144,23 @@ public abstract class DataSourceUtils {
 	 * @param con connection to close if necessary
 	 * (if this is null, the call will be ignored)
 	 * @param ds DataSource that the connection came from (can be null)
+	 * @throws CannotCloseJdbcConnectionException if the attempt to close the
+	 * Connection failed
 	 */
 	public static void closeConnectionIfNecessary(Connection con, DataSource ds) throws CannotCloseJdbcConnectionException {
-		if (con == null)
+		if (con == null || isConnectionBoundToThread(con, ds)) {
 			return;
-		if (!isConnectionBoundToThread(con, ds)) {
-			boolean shouldClose = true;
-			// leave the connection open only if the DataSource is our
-			// special data source, and it wants the connection left open
-			if (ds != null && ds instanceof SmartDataSource) {
-				shouldClose = ((SmartDataSource) ds).shouldClose(con);
+		}
+		// leave the connection open only if the DataSource is our
+		// special data source, and it wants the connection left open
+		if (!(ds instanceof SmartDataSource) || ((SmartDataSource) ds).shouldClose(con)) {
+			try {
+				con.close();
 			}
-			if (shouldClose) {
-				try {
-					con.close();
-				}
-				catch (SQLException ex) {
-					throw new CannotCloseJdbcConnectionException("Failed to close connection", ex);
-				}
+			catch (SQLException ex) {
+				throw new CannotCloseJdbcConnectionException("Failed to close connection", ex);
 			}
 		}
-	}
-
-	/**
-	 * Return if the given Connection is bound to the current thread,
-	 * for the given DataSource.
-	 * @param con JDBC Connection that should be checked
-	 * @param ds DataSource that the Connection was created with
-	 * @return if the Connection is bound for the DataSource
-	 */
-	protected static boolean isConnectionBoundToThread(Connection con, DataSource ds) {
-		ConnectionHolder holder = (ConnectionHolder) getThreadObjectManager().getThreadObject(ds);
-		return (holder != null && con == holder.getConnection());
 	}
 
 	/**
@@ -174,23 +171,26 @@ public abstract class DataSourceUtils {
 	 * @return the wrapped connection
 	 * @see SingleConnectionDataSource
 	 */
-	protected static Connection getCloseSuppressingConnectionProxy(Connection source) {
+	static Connection getCloseSuppressingConnectionProxy(Connection source) {
 		return (Connection) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
 		                                           new Class[] {Connection.class},
 		                                           new CloseSuppressingInvocationHandler(source));
 	}
 
 
+	/**
+	 * Invocation handler that suppresses close calls on JDBC connections.
+	 * @see #getCloseSuppressingConnectionProxy
+	 */
 	private static class CloseSuppressingInvocationHandler implements InvocationHandler {
 
 		private final Connection source;
 
-		public CloseSuppressingInvocationHandler(Connection source) {
+		private CloseSuppressingInvocationHandler(Connection source) {
 			this.source = source;
 		}
 
-		public Object invoke(Object proxy, Method method, Object[] args)
-				throws Throwable {
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			if (method.getName().equals("close")) {
 				// Don't pass the call on
 				return null;
