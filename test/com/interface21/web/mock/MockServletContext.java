@@ -185,7 +185,7 @@ public class MockServletContext implements ServletContext {
 
 		try {
 			//return new java.io.FileInputStream(warRoot + path);
-			InputStream is = getClass().getResourceAsStream(this.warRoot + "/" + path);
+			InputStream is = getClass().getResourceAsStream(this.warRoot + path);
 			if (is == null)
 				throw new IOException("Can't open resource '" + path + "'");
 				return is;
