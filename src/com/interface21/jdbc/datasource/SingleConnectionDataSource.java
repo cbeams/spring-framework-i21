@@ -1,11 +1,10 @@
 package com.interface21.jdbc.datasource;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import com.interface21.dao.InvalidDataAccessApiUsageException;
 
 /**
  * Implementation of SmartDataSource that wraps a single connection which is not
@@ -22,115 +21,123 @@ import org.apache.log4j.Logger;
  * @author Juergen Hoeller
  * @see com.interface21.jndi.mock.MockInitialContextFactoryBuilder
  */
-public class SingleConnectionDataSource implements SmartDataSource {
+public class SingleConnectionDataSource extends DriverManagerDataSource {
 
-	protected final Logger logger = Logger.getLogger(getClass());
-	
-	/** Wrapped connection */
+	/** if close() calls on the connection should be suppressed */
+	private boolean suppressClose;
+
+	/** wrapped connection */
 	private Connection connection;
 
-	private PrintWriter pw = new PrintWriter(System.out);
-
-	/**
-	 * Create a new SingleConnectionDataSource.
-	 * @param source underlying source connection
-	 * @param suppressClose if the connection should be wrapped with a
-	 * connection that suppressed close() calls (to allow for normal
-	 * close() usage in applications that expect a pooled connection
-	 * but do not know com.interface21.jdbc.core.SmartDataSource)
-	 */
-	public SingleConnectionDataSource(Connection source, boolean suppressClose) {
-		if (source == null) {
-			throw new NullPointerException("Connection is null in SingleConnectionDataSource");
-		}
-		init(source, suppressClose);
+	public SingleConnectionDataSource() {
+		super();
 	}
 
 	/**
-	 * Create a new SingleConnectionDataSource with the given
-	 * standard DriverManager parameters.
-	 * @param suppressClose if the connection should be wrapped with a
-	 * connection that suppressed close() calls (to allow for normal
-	 * close() usage in applications that expect a pooled connection
-	 * but do not know com.interface21.jdbc.core.SmartDataSource)
+	 * Create a new SingleConnectionDataSource with a given connection.
+	 * @param source underlying source connection
+	 * @param suppressClose if the connection should be wrapped with a* connection that
+	 * suppresses close() calls (to allow for normal close() usage in applications that
+	 * expect a pooled connection but do not know our SmartDataSource interface).
+	 */
+	public SingleConnectionDataSource(Connection source, boolean suppressClose) {
+		super();
+		if (source == null) {
+			throw new InvalidDataAccessApiUsageException("Connection is null in SingleConnectionDataSource");
+		}
+		this.suppressClose = suppressClose;
+		init(source);
+	}
+
+	/**
+	 * Create a new SingleConnectionDataSource with the given standard
+	 * DriverManager parameters.
+	 * @param suppressClose if the connection should be wrapped with a* connection that
+	 * suppresses close() calls (to allow for normal close() usage in applications that
+	 * expect a pooled connection but do not know our SmartDataSource interface).
 	 */
 	public SingleConnectionDataSource(String driverName, String url, String user, String password,
 	                                  boolean suppressClose) throws CannotGetJdbcConnectionException {
+		setDriverName(driverName);
+		setUrl(url);
+		setUser(user);
+		setPassword(password);
+		this.suppressClose = suppressClose;
+		afterPropertiesSet();
+	}
+
+	public void setSuppressClose(boolean suppressClose) {
+		this.suppressClose = suppressClose;
+	}
+
+	public boolean isSuppressClose() {
+		return suppressClose;
+	}
+
+	public void afterPropertiesSet() {
+		super.afterPropertiesSet();
 		try {
-			Class.forName(driverName);
-			init(DriverManager.getConnection(url, user, password), suppressClose);
-		}
-		catch (ClassNotFoundException ex) {
-			throw new CannotGetJdbcConnectionException("cannot load driver " + driverName, ex);
+			init(DriverManager.getConnection(getUrl(), getUser(), getPassword()));
 		}
 		catch (SQLException ex) {
-			throw new CannotGetJdbcConnectionException("cannot create connection", ex);
+			throw new CannotCloseJdbcConnectionException("Could not create connection", ex);
 		}
 	}
 
-	protected void init(Connection source, boolean suppressClose) {
+	protected void init(Connection source) {
 		logger.info("Creating SingleConnectionDataSource with source [" + source + "]" +
-		            (suppressClose ? " (close calls suppressed)" : ""));
-		this.connection = suppressClose ? DataSourceUtils.getCloseSuppressingConnectionProxy(source) : source;
-	}
-
-	/**
-	 * @see com.interface21.jdbc.datasource.SmartDataSource#getConnection()
-	 */
-	public Connection getConnection() throws SQLException {
-		logger.debug("SingleConnectionConnectionFactory.getConnection with con=" + connection);
-		if (connection.isClosed()) {
-			String mesg = "Connection was closed in SingleConnectionDataSource. "
-						+ "Check that user code checks shouldClose() before closing connections";
-			logger.warn(mesg);
-			throw new SQLException(mesg);
+		            (this.suppressClose ? " (close calls suppressed)" : ""));
+		try {
+			source.setAutoCommit(true);
 		}
-		return connection;
+		catch (SQLException ex) {
+			throw new CannotGetJdbcConnectionException("Could not set autoCommit", ex);
+		}
+		this.connection = this.suppressClose ? DataSourceUtils.getCloseSuppressingConnectionProxy(source) : source;
 	}
 
 	/**
-	 * @see com.interface21.jdbc.datasource.SmartDataSource#shouldClose(java.sql.Connection)
+	 * Closes the underlying connection.
+	 * The provider of this DataSource needs to care for proper shutdown.
+	 */
+	public void close() throws SQLException {
+		try {
+			this.connection.close();
+		}
+		catch (SQLException ex) {
+			throw new CannotCloseJdbcConnectionException("Cannot close connection", ex);
+		}
+	}
+
+	/**
+	 * This is a single connection: Do not close it when returning to the "pool".
 	 */
 	public boolean shouldClose(Connection conn) {
 		return false;
 	}
 
-	/** Must be invoked in a finally block
-	 */
-	public void close() throws SQLException {
-		connection.close();
+	public Connection getConnection() throws SQLException {
+		logger.debug("SingleConnectionConnectionFactory.getConnection with con=" + connection);
+		if (this.connection.isClosed()) {
+			String mesg = "Connection was closed in SingleConnectionDataSource. "
+						+ "Check that user code checks shouldClose() before closing connections";
+			logger.warn(mesg);
+			throw new SQLException(mesg);
+		}
+		return this.connection;
 	}
 
-	/*
-	 * @see DataSource#getLogWriter()
-	 */
-	public PrintWriter getLogWriter() {
-		// This is basically a debug class
-		return pw;
-	}
-
-	public void setLogWriter(PrintWriter pw) {
-		this.pw = pw;
-	}
-
-	/*
-	 * We concentrate on use in an app server, so we don;t worry about this
-	 * @see DataSource#getConnection(String, String)
+	/**
+	 * Specifying a custom user and password doesn't make sense with a single connection.
+	 * Returns the single connection if given the same user and password, though.
 	 */
 	public Connection getConnection(String user, String password) throws SQLException {
-		throw new UnsupportedOperationException();
+		if (user != null && password != null && user.equals(getUser()) && password.equals(getPassword())) {
+			return getConnection();
+		}
+		else {
+			throw new UnsupportedOperationException("SingleConnectionDataSource does not support custom user and password");
+		}
 	}
 
-	/*
-	 * @see DataSource#getLoginTimeout()
-	 */
-	public int getLoginTimeout() throws SQLException {
-		return 0;
-	}
-
-	/*
-	 * @see DataSource#setLoginTimeout(int)
-	 */
-	public void setLoginTimeout(int timeout) throws SQLException {
-	}
 }

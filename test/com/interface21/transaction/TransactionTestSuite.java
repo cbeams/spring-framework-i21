@@ -246,7 +246,7 @@ public class TransactionTestSuite extends TestCase {
 
 		tt.execute(new TransactionCallbackWithoutResult() {
 			protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
-				assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+				assertTrue("Has thread connection", DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 				JdbcTemplate template = new JdbcTemplate(ds);
 				int actualRowsAffected = template.update(sql);
 				assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
@@ -280,7 +280,7 @@ public class TransactionTestSuite extends TestCase {
 		try {
 			tt.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
-					assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+					assertTrue("Has thread connection", DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 					JdbcTemplate template = new JdbcTemplate(ds);
 					int actualRowsAffected = template.update(sql);
 					assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
