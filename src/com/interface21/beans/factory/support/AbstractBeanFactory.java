@@ -8,6 +8,9 @@ package com.interface21.beans.factory.support;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -474,15 +477,26 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	}
 	
 	/**
-	 * Given a bean id, create an alias. This must respect prototype/
+	 * Given a bean name, create an alias. This must respect prototype/
 	 * singleton behaviour. We typically use this method to support
-	 * names that are illegal within XML ids (used for bean ids).
-	 * @param id id of the bean
-	 * @param alias alias that will behave the same as the bean id
+	 * names that are illegal within XML ids (used for bean names).
+	 * @param name name of the bean
+	 * @param alias alias that will behave the same as the bean names
 	 */
-	public void alias(String id, String alias) {
-		logger.debug("Creating alias '" + alias + "' for bean with id '" + id + "'");
-		this.aliasMap.put(alias, id);
+	public final void registerAlias(String name, String alias) {
+		logger.debug("Creating alias '" + alias + "' for bean with name '" + name + "'");
+		this.aliasMap.put(alias, name);
+	}
+
+	public final String[] getAliases(String name) {
+		List aliases = new ArrayList();
+		for (Iterator it = this.aliasMap.entrySet().iterator(); it.hasNext();) {
+			Map.Entry entry = (Map.Entry) it.next();
+			if (entry.getValue().equals(name)) {
+				aliases.add(entry.getKey());
+			}
+		}
+		return (String[]) aliases.toArray(new String[aliases.size()]);
 	}
 
 

@@ -52,7 +52,6 @@ public class JdbcBeanFactory implements ListableBeanFactory {
 	
 	/**
 	 * Refresh the factory. Uses copy-on-write for thread safety
-	 *
 	 */
 	public void refresh() {
 		ListableBeanFactoryImpl newDelegate =  new ListableBeanFactoryImpl();
@@ -71,54 +70,32 @@ public class JdbcBeanFactory implements ListableBeanFactory {
 		this.delegate = newDelegate;
 	}
 
-	/**
-	 * @param name
-	 * @return
-	 */
 	public Object getBean(String name) {
 		return delegate.getBean(name);
 	}
 
-	/**
-	 * @param name
-	 * @param requiredType
-	 * @return
-	 * @throws com.interface21.beans.BeansException
-	 */
 	public Object getBean(String name, Class requiredType) throws BeansException {
 		return delegate.getBean(name, requiredType);
 	}
 
-	/**
-	 * @return
-	 */
 	public int getBeanDefinitionCount() {
 		return delegate.getBeanDefinitionCount();
 	}
 
-	/**
-	 * @return
-	 */
 	public String[] getBeanDefinitionNames() {
 		return delegate.getBeanDefinitionNames();
 	}
 
-	/**
-	 * @param type
-	 * @return
-	 */
 	public String[] getBeanDefinitionNames(Class type) {
 		return delegate.getBeanDefinitionNames(type);
 	}
 
-
-	/**
-	 * @param name
-	 * @return
-	 * @throws com.interface21.beans.factory.NoSuchBeanDefinitionException
-	 */
 	public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
 		return delegate.isSingleton(name);
 	}
 
-}	// class JdbcBeanFactory
+	public String[] getAliases(String name) {
+		return null;
+	}
+
+}

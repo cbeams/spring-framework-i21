@@ -314,7 +314,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		}
 		
 		// Create alias
-		((AbstractBeanFactory) getBeanFactory()).alias("rod", alias);
+		((AbstractBeanFactory) getBeanFactory()).registerAlias("rod", alias);
 		Object rod = getBeanFactory().getBean("rod");
 		Object aliasRod = getBeanFactory().getBean(alias);
 		assertTrue(rod == aliasRod);

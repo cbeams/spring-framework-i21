@@ -87,13 +87,15 @@ public class StaticListableBeanFactory implements ListableBeanFactory {
 		this.beans.put(name, bean);
 	}
 	
-	
-	
 	/**
 	 * @see com.interface21.beans.factory.BeanFactory#isSingleton(java.lang.String)
 	 */
 	public boolean isSingleton(String name) {
 		return true;
+	}
+
+	public String[] getAliases(String name) {
+		return null;
 	}
 
 }

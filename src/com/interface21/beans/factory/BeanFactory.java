@@ -71,13 +71,18 @@ public interface BeanFactory {
 	Object getBean(String name, Class requiredType) throws BeansException; 		 
 	
 	/**
-	 * Is this bean a singleton? That is, will getBean() always
-	 * return the same object?
+	 * Is this bean a singleton? That is, will getBean() always return the same object?
 	 * @param name name of the bean to query
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
 	 * @return is this bean a singleton
 	*/
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
-    
-}	// interface BeanFactory
 
+	/**
+	 * Return the aliases for the given bean name, if defined.
+	 * @param name the bean name to check for aliases
+	 * @return the aliases, or an empty array if none
+	 */
+	String[] getAliases(String name);
+
+}

@@ -77,7 +77,7 @@ public class BeanFactoryBootstrapTests extends TestCase {
 //	public void testXmlBeanFactory() throws Exception {
 //		Properties p = new Properties();
 //		p.put(BeanFactoryBootstrap.BEAN_FACTORY_BEAN_NAME + ".class", 
-//		"com.interface21.beans.factory.support.XmlBeanFactory");
+//		"XmlBeanFactory");
 //		p.put(BeanFactoryBootstrap.BEAN_FACTORY_BEAN_NAME + ".url", 
 //		"c:/checkouts/book/framework/src/com/interface21/beans/factory/support/bs.xml");
 //		

@@ -1,5 +1,4 @@
-<!DOCTYPE beans 
-	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 	
 <beans>
   <bean id="DB2"

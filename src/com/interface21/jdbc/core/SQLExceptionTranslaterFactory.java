@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.ListableBeanFactory;
-import com.interface21.beans.factory.support.XmlBeanFactory;
+import com.interface21.beans.factory.xml.XmlBeanFactory;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**

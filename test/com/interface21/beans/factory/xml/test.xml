@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE beans 
-	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
-
-
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
 
@@ -26,6 +22,7 @@
 	<bean id="kathy" class="com.interface21.beans.TestBean" singleton="false">
 		<property name="name"><value>Kathy</value></property>
 		<property name="age"><value>28</value></property>
+		<property name="spouse"><ref external="father"/></property>
 	</bean>
 
 	<bean id="typeMismatch" class="com.interface21.beans.TestBean" singleton="false">

@@ -8,21 +8,22 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.PropertyValues;
 
 /**
- * Internal BeanFactory implementation class. Use a
- * FactoryBean to customize behaviour when returning application
- * beans.
- * <br>
- * A BeanDefinition describes a bean instance,
+ * Internal BeanFactory implementation class. This abstract base
+ * class defines the BeanFactory type.Use a FactoryBean to
+ * customize behaviour when returning application beans.
+ *
+ * <p> A BeanDefinition describes a bean instance,
  * which has property values and further information supplied
  * by concrete classes or subinterfaces.
- * <br/>Once configuration is complete, a BeanFactory will be able
+ *
+ * <p>Once configuration is complete, a BeanFactory will be able
  * to return direct references to objects defined by
  * BeanDefinitions.
- * <br>This abstract base class defines the BeanFactory type.
+ *
  * @author Rod Johnson
  * @version $Revision$
  */
-abstract class AbstractBeanDefinition {
+public abstract class AbstractBeanDefinition {
 
 	/** Is this a singleton bean? */
 	private boolean singleton;

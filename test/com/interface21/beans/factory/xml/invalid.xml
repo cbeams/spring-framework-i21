@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE beans 
-	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
-
-<!--	
-<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN 0.8//EN" "http://www.jppawlak.info/spring/spring-beans_0_8.dtd">
--->
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
 	

@@ -2,7 +2,7 @@
  * The Spring Framework is published under the terms
  * of the Apache Software License.
  */
- 
+
 package com.interface21.beans.factory.xml;
 
 import java.io.InputStream;
@@ -19,14 +19,13 @@ import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.HasMap;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
-import com.interface21.beans.factory.support.XmlBeanFactory;
 
 /**
  *
  * @author Rod Johnson
  * @version $Revision$
  */
-public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests { 
+public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 
 	private XmlBeanFactory factory;
 
@@ -72,7 +71,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue("They are object equal", emmasJenks.equals(georgiasJenks));
 		assertTrue("They object equal direct ref", emmasJenks.equals(xbf.getBean("jenks")));
 	}
-	
+
 	public void testRefToSingleton() throws Exception {
 		InputStream is = getClass().getResourceAsStream("reftypes.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -84,7 +83,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		ITestBean jenksJen = jenks.getSpouse();
 		assertTrue("1 jen instances", davesJen == jenksJen);
 	}
-	
+
 	public void testCircularReferences() {
 		InputStream is = getClass().getResourceAsStream("reftypes.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -95,7 +94,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue("Correct circular reference", david.getSpouse() == jenny);
 		assertTrue("Correct circular reference", ego.getSpouse() == ego);
 	}
-	
+
 	public void testRefSubelement() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -104,14 +103,14 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		TestBean dave = (TestBean) xbf.getBean("david");
 		assertTrue(jen.getSpouse() == dave);
 	}
-	
+
 	public void testPropertyWithLiteralValueSubelement() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
 		TestBean verbose = (TestBean) xbf.getBean("verbose");
 		assertTrue(verbose.getName().equals("verbose"));
 	}
-	
+
 	public void testRefSubelementsBuildCollection() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -119,19 +118,19 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		TestBean jen = (TestBean) xbf.getBean("jenny");
 		TestBean dave = (TestBean) xbf.getBean("david");
 		TestBean rod = (TestBean) xbf.getBean("rod");
-		
+
 		// Must be a list to support ordering
 		// Our bean doesn't modify the collection:
 		// of course it could be a different copy in a real object
 		List friends = (List) rod.getFriends();
 		assertTrue(friends.size() == 2);
-		
+
 		assertTrue("First friend must be jen, not " + friends.get(0),
 			friends.get(0).equals(jen));
 		assertTrue(friends.get(1).equals(dave));
 		// Should be ordered
 	}
-	
+
 	public void testRefSubelementsBuildCollectionFromSingleElement() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -141,7 +140,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(loner.getFriends().size() == 1);
 		assertTrue(loner.getFriends().contains(dave));
 	}
-	
+
 	public void testBuildCollectionFromMixtureOfReferencesAndValues() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -155,7 +154,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(l.get(1).equals("literal"));
 		assertTrue(l.get(2).equals(xbf.getBean("jenny")));
 	}
-	
+
 	/**
 	 * Test that properties with name as well as id creating
 	 * an alias up front
@@ -167,14 +166,14 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		TestBean alias = (TestBean) xbf.getBean("I have an alias");
 		assertTrue(tb == alias);
 	}
-	
+
 	public void testEmptyMap() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
 		HasMap hasMap = (HasMap) xbf.getBean("emptyMap");
 		assertTrue(hasMap.getMap().size() == 0);
 	}
-	
+
 	public void testMapWithLiteralsOnly() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -183,7 +182,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(hasMap.getMap().get("foo").equals("bar"));
 		assertTrue(hasMap.getMap().get("fi").equals("fum"));
 	}
-	
+
 	public void testMapWithLiteralsAndReferences() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
@@ -198,17 +197,17 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
 		HasMap hasMap = (HasMap) xbf.getBean("emptyProps");
-		assertTrue(hasMap.getProps().size() == 0);
-		assertTrue(hasMap.getProps().size() == 0);
+		assertTrue(hasMap.getMap().size() == 0);
+		assertTrue(hasMap.getMap().size() == 0);
 	}
 	
 	public void testPopulatedProps() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
 		HasMap hasMap = (HasMap) xbf.getBean("props");
-		assertTrue(hasMap.getProps().size() == 2);
-		assertTrue(hasMap.getProps().getProperty("foo").equals("bar"));
-		assertTrue(hasMap.getProps().getProperty("2").equals("TWO"));
+		assertTrue(hasMap.getMap().size() == 2);
+		assertTrue(hasMap.getMap().get("foo").equals("bar"));
+		assertTrue(hasMap.getMap().get("2").equals("TWO"));
 	}
 	
 	public void testNoSuchXmlFile() throws Exception {
@@ -223,7 +222,7 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 			// TODO Check that the error message includes filename
 		}
 	}
-	
+
 	public void testInvalidXmlFile() throws Exception {
 		String filename = "invalid.xml";
 		InputStream is = getClass().getResourceAsStream(filename);
