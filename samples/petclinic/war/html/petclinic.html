@@ -4,9 +4,7 @@
 </head>
 <body>
 <h1 style="text-align: center;">The Spring Petclinic Application</h1>
-<big><span style="font-weight: bold;"><br>
-Author : </span>Ken Krebs<br style="font-weight: bold;">
-<span style="font-weight: bold;">Updated : </span>22-JUL-2003</big><br>
+<big><span style="font-weight: bold;">Updated : </span>23-JUL-2003</big><br>
 <br>
 <h2>Introduction</h2>
 Spring is a collection of small, well-focused, loosely coupled Java
@@ -52,7 +50,7 @@ facilitates the testing of Business Logic without requiring the presence
 of application or live database servers.</li>
   <li><span style="font-weight: bold; text-decoration: underline;">maintainable</span>
 by facilitating a clean separation of the application layers. It most
-importantly helps maintain the independence of the Business Logic layer
+importantly helps maintain the independence of the Business Layer
 from the Presentation layer through the use of  a Model-View-Controller
 based web presentation framework that can work seamlessly with many
 different types of view technologies. The web Spring web application
@@ -143,7 +141,7 @@ Developer Instructions section.<br>
 <span style="font-weight: bold; text-decoration: underline;">Petclinic
 Database</span><br>
 The following is an overview of the database schema used in Petclinic.
-Detailed field descriptions can be found in the "initDB.txt" SQL script
+Detailed field descriptions can be found in the <span style="font-weight: bold; font-style: italic;">"initDB.txt"</span> SQL script
 files in the database-specific "db" sub-directories. All "id" key fields
 are of Java type <span style="font-weight: bold; font-style: italic;">int</span>.
 For each table with a PRIMARY KEY there is a corresponding sequencer
@@ -187,8 +185,8 @@ TABLE: <span style="font-weight: bold; font-style: italic;">vet_specialties</spa
 a link table for <span style="font-weight: bold; font-style: italic;">vets</span>
 and their <span style="font-weight: bold; font-style: italic;">specialties</span><br>
 &nbsp;&nbsp;&nbsp; FOREIGN KEY <span style="font-weight: bold;">vet_id</span>
-references the <span style="font-weight: bold; font-style: italic;">vets</span>table<span
- style="font-weight: bold;">id </span>field<br>
+references the <span style="font-weight: bold; font-style: italic;">vets</span> table<span
+ style="font-weight: bold;"> id</span> field<br>
 &nbsp;&nbsp;&nbsp; FOREIGN KEY <span style="font-weight: bold;">specialty_id</span>
 references the <span style="font-weight: bold; font-style: italic;">specialties</span>
 table <span style="font-weight: bold;">id </span>field<br>
@@ -196,7 +194,7 @@ table <span style="font-weight: bold;">id </span>field<br>
 TABLE: <span style="font-weight: bold; font-style: italic;">visits</span><br>
 &nbsp;&nbsp;&nbsp; PRIMARY KEY <span style="font-weight: bold;">id</span><br>
 &nbsp;&nbsp;&nbsp; FOREIGN KEY <span style="font-weight: bold;">pet_id</span>
-references the <span style="font-weight: bold; font-style: italic;">pets</span>table<span
+references the <span style="font-weight: bold; font-style: italic;">pets </span>table<span
  style="font-weight: bold;"> id </span>field<br>
 TABLE: <span style="font-weight: bold; font-style: italic;">visits_seq </span>-
 sequencer for <span style="font-weight: bold; font-style: italic;">visits</span><br>
@@ -307,7 +305,7 @@ for a pet. </li>
 is a <span style="font-weight: bold;">RuntimeException </span>thrown
 when an erroneous reference is made to a non-existent <span
  style="font-weight: bold;">Entity</span>.</li>
-  <li><span style="font-weight: bold; font-style: italic;">petclinic.validation.FindOwnerValidator</span>is
+  <li><span style="font-weight: bold; font-style: italic;">petclinic.validation.FindOwnerValidator</span> is
 a Spring <span style="font-weight: bold;">Validator </span>that
 verifies correct data entry for the FindOwner form.</li>
   <li><span style="font-weight: bold; font-style: italic;">petclinic.validation.OwnerValidator</span>
@@ -358,8 +356,8 @@ Examination of the Petclinic source code will show that the
 persistence-oriented code is completely focused on the relevant SQL and
 the transfer of data to/from the referenced objects without extraneous
 error handling. All of the objects used to implement database transfer
-are derived from the Spring class <span style="font-weight: bold;">RdbmsOperation</span>which
-supports using SQL or stored procedures.<br>
+are derived from the Spring class <span style="font-weight: bold;">RdbmsOperation</span>
+which supports using SQL or stored procedures.<br>
 <br>
 All of these objects that are defined for use in Petclinic use SQL in
 their implementation. SQL implementations of <span
@@ -383,12 +381,12 @@ a <span style="font-weight: bold;">PreparedStatement</span>.<br>
 <ul>
   <li><span style="font-weight: bold; font-style: italic;">petclinic.Clinic</span>(interface)
 defines the high-level business/persistence API for Petclinic.</li>
-  <li><span style="font-weight: bold; font-style: italic;">petclinic.jdbc.AbstractJdbcClinic</span>is
+  <li><span style="font-weight: bold; font-style: italic;">petclinic.jdbc.AbstractJdbcClinic</span> is
 the default JDBC implementation of the <span style="font-weight: bold;">Clinic</span>
 interface. It provides caches of all specialties, all vets, all pet
 types, as well as of owners and their pets and visits that have been
-found. It also provides an <span style="font-weight: bold;">RdbmsOperation</span>reference
-and setter and execution ("do") method along with a default inner class
+found. It also provides an <span style="font-weight: bold;">RdbmsOperation</span>
+reference and setter and execution ("do") method along with a default inner class
 implementation for each of the required Spring <span
  style="font-weight: bold;">RdbmsOperation </span>objects. </li>
   <ul>
@@ -402,8 +400,8 @@ Query Object.</li>
 is a particular <span style="font-weight: bold;">Vet's </span>specialties
 Query Object.</li>
     <li><span style="font-weight: bold; font-style: italic;">OwnersQuery</span>
-is an abstract base class for all <span style="font-weight: bold;">Owner</span>Query
-Objects.</li>
+is an abstract base class for all <span style="font-weight: bold;">Owner</span>
+Query Objects.</li>
     <li><span style="font-weight: bold; font-style: italic;">OwnerQuery</span>
 is an <span style="font-weight: bold;">Owner </span>by id Query Object.</li>
     <li><span style="font-weight: bold; font-style: italic;">OwnersByNameQuery</span>
@@ -504,13 +502,13 @@ A Spring <span style="font-weight: bold;">ApplicationContext </span>object
 provides a map of user-defined JavaBeans that specify either a
 singleton object or the initial construction of prototype instances. The
 root <span style="font-weight: bold;">ApplicationContext </span>of
-Petclinic is an instance of <span style="font-weight: bold;">XmlWebApplicationContext</span>and
+Petclinic is an instance of <span style="font-weight: bold;">XmlWebApplicationContext</span> and
 is the parent of all servlet-specific <span style="font-weight: bold;">ApplicationContexts</span>.
 The Spring root <span style="font-weight: bold;">ApplicationContext </span>object
 provides a map of user-defined JavaBeans that can be used in any and
 all layers of the application. Beans defined in the root <span
  style="font-weight: bold;">ApplicationContext</span> are automatically
-available in all child&nbsp;<span style="font-weight: bold;">ApplicationContext</span>objects
+available in all child&nbsp;<span style="font-weight: bold;">ApplicationContext</span> objects
 as (external) bean references. Beans defined in an <span
  style="font-weight: bold;">ApplicationContext </span>can also be
 accessed directly by Java code through <span style="font-style: italic;">getBean(name)</span>
@@ -519,8 +517,8 @@ method calls.</li>
 a <span style="font-weight: bold;">Servlet </span>named <span
  style="font-weight: bold;">"petclinic" </span>is specified to act as
 a dispatcher for the entire application. This <span
- style="font-weight: bold;">com.interface21.web.servlet.DispatcherServlet</span>is
-used to handle all URL's matching the pattern <span
+ style="font-weight: bold;">com.interface21.web.servlet.DispatcherServlet</span>
+is used to handle all URL's matching the pattern <span
  style="font-weight: bold;">"*.htm"</span>. As with any <span
  style="font-weight: bold;">Servlet</span>, multiple URL mappings may
 be defined. It is also possible to define multiple instances of <span
@@ -736,7 +734,7 @@ framework, not application code. Users can directly set the <span
  style="font-style: italic;">validator </span>properties to specify
 the objects of interest. It also provides default implementations of
 several methods that can be overridden to further customize the binding
-and validation process. These methods are :</li>
+and validation process. These methods are:</li>
   <ul>
     <li><span style="font-style: italic;">userObject(HttpServletRequest
 request)</span> is used to create the command object.</li>
@@ -824,7 +822,7 @@ to display the form.</span></li>
   </ul>
   <li style="font-weight: bold;"><span style="font-weight: normal;">&nbsp;</span>com.interface21.web.servlet.mvc.SimpleFormController&nbsp;<span
  style="font-weight: normal;">is a concrete extension of&nbsp;</span>AbstractFormController<span
- style="font-weight: normal;">that provides configurable</span><br
+ style="font-weight: normal;"> that provides configurable</span><br
  style="font-weight: normal;">
     <span style="font-weight: normal;">&nbsp;form and success views,
 and an onSubmit chain for convenient overriding.</span><span
@@ -1124,15 +1122,15 @@ packages</li>
 </ul>
 <span style="font-weight: bold; text-decoration: underline;">Ant Setup</span><br>
 Make sure that the Ant executable is in your command shell path. Ant
-will need to reference classes from <span style="font-weight: bold;">JUnit</span>and
+will need to reference classes from <span style="font-weight: bold;">JUnit</span> and
 the database(s) of interest. Place a copy of any needed jar files in
 Ant's <span style="font-weight: bold; font-style: italic;">/lib </span>directory,
 i.e.:<br>
 <ul>
   <li>JUnit - <span style="font-weight: bold; font-style: italic;">junit.jar</span></li>
   <li>HSQL - <span style="font-weight: bold; font-style: italic;">hsqldb.jar</span></li>
-  <li>MYSQL - <span style="font-weight: bold; font-style: italic;">mysql-connector-java-2.0.14-bin.jar</span>or
-other</li>
+  <li>MYSQL - <span style="font-weight: bold; font-style: italic;">mysql-connector-java-2.0.14-bin.jar</span>
+or other</li>
 </ul>
 <span style="font-weight: bold; text-decoration: underline;">HSQL Setup</span><br>
 Create a new directory containing the a copy of the entire contents of
@@ -1225,7 +1223,7 @@ Deploy the web application to the server in the usual way (see <a
 instructions for web application deployment, see the Tomcat
 documentation for details. The Web ARchive file is <span
  style="font-weight: bold; font-style: italic;">petclinic.war</span> and
-can be found in the <span style="font-weight: bold; font-style: italic;">dist</span>directory.<br>
+can be found in the <span style="font-weight: bold; font-style: italic;">dist</span> directory.<br>
 <br>
 <span style="font-weight: bold; text-decoration: underline;">Using the
 Petclinic Application</span><br>
