@@ -1,6 +1,7 @@
 package com.interface21.web.context;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
@@ -8,11 +9,13 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.interface21.beans.ITestBean;
+import com.interface21.beans.TestBean;
 import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.context.NoSuchMessageException;
 import com.interface21.context.TestListener;
+import com.interface21.context.support.ClassPathXmlApplicationContext;
 import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.mock.MockServletContext;
@@ -180,6 +183,19 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 			// expected
 			assertTrue(ex.getRootCause() instanceof ClassNotFoundException);
 		}
+	}
+
+	public void testClassPathXmlApplicationContext() throws IOException {
+		ApplicationContext context = new ClassPathXmlApplicationContext("/com/interface21/web/context/WEB-INF/applicationContext.xml");
+		assertTrue("Has father", context.getBean("father") != null);
+		assertTrue("Has father", context.getBean("rod") != null);
+		assertTrue("Doesn't have spouse", ((TestBean) context.getBean("rod")).getSpouse() == null);
+
+		context = new ClassPathXmlApplicationContext(new String[] {"/com/interface21/web/context/WEB-INF/applicationContext.xml",
+		                                                           "/com/interface21/web/context/WEB-INF/test-servlet.xml"});
+		assertTrue("Has father", context.getBean("father") != null);
+		assertTrue("Has father", context.getBean("rod") != null);
+		assertTrue("Has spouse", ((TestBean) context.getBean("rod")).getSpouse() != null);
 	}
 
 }
