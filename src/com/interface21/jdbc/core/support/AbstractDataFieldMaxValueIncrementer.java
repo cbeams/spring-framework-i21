@@ -11,9 +11,9 @@ import com.interface21.jdbc.core.DataFieldMaxValueIncrementer;
  * <li>17/04/2003 : donated to Spring by Dmitriy Kopylenko
  * <li>19/04/2003 : modified by Isabelle Muszynski, added nextDoubleValue
  * <li>09/05/2003 : modified by JPP, added nextLongValue
- * @author <a href="mailto:dkopylenko@acs.rutgers.edu>Dmitriy Kopylenko</a>
- * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
- * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
+ * @author Dmitriy Kopylenko
+ * @author Isabelle Muszynski
+ * @author Jean-Pierre Pawlak
  * @version $Id$
  *
  */
