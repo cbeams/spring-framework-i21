@@ -154,6 +154,20 @@ public class PagedListHolder {
 		return page;
 	}
 
+	/**
+	 * Set the maximum number of page links to a few pages around the current one.
+	 */
+	public void setMaxLinkedPages(int maxLinkedPages) {
+		this.maxLinkedPages = maxLinkedPages;
+	}
+
+	/**
+	 * Return the maximum number of page links to a few pages around the current one.
+	 */
+	public int getMaxLinkedPages() {
+		return maxLinkedPages;
+	}
+
 
 	/**
 	 * Return the number of pages for the current source list.
@@ -161,6 +175,20 @@ public class PagedListHolder {
 	public int getNrOfPages() {
 		float nrOfPages = (float) this.source.size() / this.pageSize;
 		return (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages);
+	}
+
+	/**
+	 * Return if the current page is the first one.
+	 */
+	public boolean isFirstPage() {
+		return this.page == 0;
+	}
+
+	/**
+	 * Return if the current page is the last one.
+	 */
+	public boolean isLastPage() {
+		return this.page == getNrOfPages() -1;
 	}
 
 	/**
@@ -192,20 +220,6 @@ public class PagedListHolder {
 	 */
 	public List getPageList() {
 		return this.source.subList(getFirstElementOnPage(), getLastElementOnPage() +1);
-	}
-
-	/**
-	 * Set the maximum number of page links to a few pages around the current one.
-	 */
-	public void setMaxLinkedPages(int maxLinkedPages) {
-		this.maxLinkedPages = maxLinkedPages;
-	}
-
-	/**
-	 * Return the maximum number of page links to a few pages around the current one.
-	 */
-	public int getMaxLinkedPages() {
-		return maxLinkedPages;
 	}
 
 	/**
