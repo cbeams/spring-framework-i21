@@ -61,8 +61,6 @@ public interface Errors {
 
 	Object getPropertyValueOrRejectedUpdate(String field);
 
-	String getDisplayValue(String field);
-
 	/**
 	 * Allows context to be changed so that standard validators can validate subtrees.
 	 * E.g. an address validator could validate address.

@@ -140,10 +140,6 @@ public class BindException extends Exception implements Errors {
 		return fe.getRejectedValue();
 	}
 
-	public String getDisplayValue(String field) {
-		return getPropertyValueOrRejectedUpdate(field).toString();
-	}
-
 	public void setNestedPath(String nestedPath) {
 		if (nestedPath == null)
 			nestedPath = "";

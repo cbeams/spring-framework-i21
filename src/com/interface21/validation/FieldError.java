@@ -15,28 +15,28 @@ import com.interface21.core.ErrorCoded;
  */
 public class FieldError implements Serializable, ErrorCoded {
 	
-	private String objName;
+	private String objectName;
 	
 	private String field;
 	
-	private String errorCode;
-	
 	private Object rejectedValue;
 	
+	private String errorCode;
+
 	private String message;
 	
 	// TYPOE?
 	
-	protected FieldError(String objectName, String field, Object rejectedValue, String errorCode, String message) {
-	 	this.objName = objectName;
+	public FieldError(String objectName, String field, Object rejectedValue, String errorCode, String message) {
+	 	this.objectName = objectName;
 		this.field = field;
 		this.rejectedValue = rejectedValue;
 		this.errorCode = errorCode;
 		this.message = message;
 	}
 
-	protected FieldError(String objectName, String errorCode, String message) {
-	 	this.objName = objectName;
+	public FieldError(String objectName, String errorCode, String message) {
+	 	this.objectName = objectName;
 		this.errorCode = errorCode;
 		this.message = message;
 	}
@@ -60,8 +60,8 @@ public class FieldError implements Serializable, ErrorCoded {
 //		 this(field, rejectedValue, errorCode, errorCode);
 //	 }
 	 
-	 public String getObject() {
-	 	return objName;
+	 public String getObjectName() {
+	 	return objectName;
 	 }
 	 
 	 public String getField() {
@@ -82,6 +82,6 @@ public class FieldError implements Serializable, ErrorCoded {
 	 }
 	 
 	 public String toString() {
-		 return "FieldError in object '" + objName + "' on '" + field + "': " + getMessage() + "; code=" + errorCode + "; rejected [" + rejectedValue + "]";
+		 return "FieldError in object '" + objectName + "' on '" + field + "': " + getMessage() + "; code=" + errorCode + "; rejected [" + rejectedValue + "]";
 	 }
 }

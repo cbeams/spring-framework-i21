@@ -30,7 +30,6 @@ public interface Validator {
 	 * Validate an object, which must be of a class for
 	 * which the supports() method returned true.
 	 * @param obj Populated object to validate
-	 * @param objectName name of object to validate
 	 * @param errors Errors object we're building. May contain
 	 * errors for this field relating to types.
 	 */
