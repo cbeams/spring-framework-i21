@@ -286,7 +286,6 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	//---------------------------------------------------------------------
 	// Implementation methods
 	//---------------------------------------------------------------------
-
 	/**
 	 * All bean instantiation within this class is performed by this method.
 	 * Return a BeanWrapper object for a new instance of this bean.
@@ -377,28 +376,14 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 			// Convert from managed list. This is a special container that
 			// may contain runtime bean references.
 			// May need to resolve references
-			ManagedList l = (ManagedList) pv.getValue();
-			for (int j = 0; j < l.size(); j++) {
-				if (l.get(j) instanceof RuntimeBeanReference) {
-					l.set(j, resolveReference(pv.getName(), (RuntimeBeanReference) l.get(j), newlyCreatedBeans));
-				}
-			}
-			val = l;
+			val = resolveManagedList(pv.getName(), (ManagedList) pv.getValue(), newlyCreatedBeans);
 		}
 		else if (pv.getValue() != null && (pv.getValue() instanceof ManagedMap)) {
 			// Convert from managed map. This is a special container that
 			// may contain runtime bean references as values.
 			// May need to resolve references
 			ManagedMap mm = (ManagedMap) pv.getValue();
-			Iterator keys = mm.keySet().iterator();
-			while (keys.hasNext()) {
-				Object key = keys.next();
-				Object value = mm.get(key);
-				if (value instanceof RuntimeBeanReference) {
-					mm.put(key, resolveReference(pv.getName(), (RuntimeBeanReference) value, newlyCreatedBeans));
-				}
-			}	// for each key in the managed map
-			val = mm;
+			val = resolveManagedMap(pv.getName(), mm, newlyCreatedBeans);	
 		}
 		else {
 			// It's an ordinary property. Just copy it.
@@ -415,18 +400,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 			 Class componentType = arrayClass.getComponentType();
 			 List l = (List) val;
 		
-			try {
-				Object[] arr = (Object[]) Array.newInstance(componentType, l.size());
-				for (int i = 0; i < l.size(); i++) {
-					// TODO hack: BWI cast
-					Object newval = ((BeanWrapperImpl) bw).doTypeConversionIfNecessary(bw.getWrappedInstance(), pv.getName(), null, l.get(i), componentType);
-					arr[i] = newval;
-				}
-				val = arr;
-			}
-			catch (ArrayStoreException ex) {
-				throw new BeanDefinitionStoreException("Cannot convert array element from String to " + componentType, ex);
-			}
+			val = managedListToArray(bw, pv, val, componentType, l);
 		 }
 		
 		return val;
@@ -434,6 +408,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	
 	/**
 	 * Resolve a reference to another bean in the factory
+	 * @param name included for diagnostics
 	 */
 	private Object resolveReference(String name, RuntimeBeanReference ref, Map newlyCreatedBeans) {
 		try {
@@ -448,6 +423,58 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		}
 	}
 
+
+
+	/**
+	 * For each element in the ManagedMap, resolve references if necessary.
+	 * Allow ManagedLists as map entries.
+	 */
+	private ManagedMap resolveManagedMap(String name, ManagedMap mm, Map newlyCreatedBeans) {
+		Iterator keys = mm.keySet().iterator();
+		while (keys.hasNext()) {
+			Object key = keys.next();
+			Object value = mm.get(key);
+			if (value instanceof RuntimeBeanReference) {
+				mm.put(key, resolveReference(name, (RuntimeBeanReference) value, newlyCreatedBeans));
+			}
+			else if (value instanceof ManagedList) {
+				// An entry may be a ManagedList, in which case we may need to
+				// resolve references
+				mm.put(key, resolveManagedList(name, (ManagedList) value, newlyCreatedBeans));
+			}
+		}	// for each key in the managed map
+		return mm;
+	}
+
+	/**
+	 * For each element in the ManagedList, resolve reference if necessary
+	 */
+	private ManagedList resolveManagedList(String name, ManagedList l, Map newlyCreatedBeans) {
+		for (int j = 0; j < l.size(); j++) {
+			if (l.get(j) instanceof RuntimeBeanReference) {
+				l.set(j, resolveReference(name, (RuntimeBeanReference) l.get(j), newlyCreatedBeans));
+			}
+		}
+		return l;
+	}
+	
+	private Object managedListToArray(BeanWrapper bw, PropertyValue pv, Object val, Class componentType, List l)
+		throws NegativeArraySizeException, BeansException, BeanDefinitionStoreException {
+		try {
+			Object[] arr = (Object[]) Array.newInstance(componentType, l.size());
+			for (int i = 0; i < l.size(); i++) {
+				// TODO hack: BWI cast
+				Object newval = ((BeanWrapperImpl) bw).doTypeConversionIfNecessary(bw.getWrappedInstance(), pv.getName(), null, l.get(i), componentType);
+				arr[i] = newval;
+			}
+			val = arr;
+		}
+		catch (ArrayStoreException ex) {
+			throw new BeanDefinitionStoreException("Cannot convert array element from String to " + componentType, ex);
+		}
+		return val;
+	}
+	
 	/**
 	 * Give a bean a chance to react now all its properties are set,
 	 * and a chance to know about its owning bean factory (this object).
@@ -535,7 +562,6 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	//---------------------------------------------------------------------
 	// Abstract method to be implemented by concrete subclasses
 	//---------------------------------------------------------------------
-
 	/**
 	 * This method must be defined by concrete subclasses to implement the
 	 * <b>Template Method</b> GoF design pattern.

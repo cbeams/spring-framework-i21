@@ -90,6 +90,21 @@
 		</property>
 	</bean>
 	
+	<bean id="mixedMapWithList" class="com.interface21.beans.factory.HasMap">	
+		<property name="map">
+			<map>
+				<entry key="foo"><value>bar</value></entry>
+				<entry key="jenny"><ref bean="jenny"/></entry>
+				<entry key="list">
+					<list>
+						<value>zero</value>
+						<ref bean="jenny" />
+					</list>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
 	<bean id="emptyProps" class="com.interface21.beans.factory.HasMap">	
 		<property name="map">
 			<props>

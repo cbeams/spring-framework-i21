@@ -50,7 +50,7 @@
 )>
 
 <!ELEMENT entry (
-        (value | ref)*
+        (value | ref | list)*
 )>
 
 <!ATTLIST entry key CDATA #REQUIRED>

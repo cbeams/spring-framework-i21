@@ -193,6 +193,24 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(hasMap.getMap().get("jenny").equals(jenny));
 	}
 	
+	public void testMapWithLiteralsReferencesAndList() throws Exception {
+		InputStream is = getClass().getResourceAsStream("collections.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		HasMap hasMap = (HasMap) xbf.getBean("mixedMapWithList");
+		assertTrue(hasMap.getMap().size() == 3);
+		assertTrue(hasMap.getMap().get("foo").equals("bar"));
+		TestBean jenny = (TestBean) xbf.getBean("jenny");
+		assertTrue(hasMap.getMap().get("jenny").equals(jenny));
+		
+		// Check list
+		List l = (List) hasMap.getMap().get("list");
+		assertNotNull(l);
+		assertTrue(l.size() == 2);
+		assertTrue(l.get(0).equals("zero"));
+		assertTrue("List elt 1 should be equal to jenny bean, not " + l.get(1),
+			l.get(1).equals(jenny));
+	}
+	
 	public void testEmptyProps() throws Exception {
 		InputStream is = getClass().getResourceAsStream("collections.xml");
 		XmlBeanFactory xbf = new XmlBeanFactory(is);
