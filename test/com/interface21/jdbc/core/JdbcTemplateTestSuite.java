@@ -313,7 +313,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		DataSource ds = (DataSource) dsControl.getMock();
 		
 		MockConnection con = MockConnectionFactory.statement(sql, new Object[0][0], false, null, null);
-		con.setExpectedCloseCalls(2);
+		con.setExpectedCloseCalls(1);
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
@@ -326,13 +326,8 @@ public class JdbcTemplateTestSuite extends TestCase {
 	}
 
 
-	//public void testSQLExceptionsATranslated() throws Exception {
-	//}
-
 // This really tests the translater: shouldn't the SQLTranslater have its own tests?
 // We just need to check that the translater is invoked and that it's exception is correctly used
-
-
 /*
 	public void testSQLExceptionIsTranslated() throws Exception {
 		
@@ -370,15 +365,13 @@ public class JdbcTemplateTestSuite extends TestCase {
 		conControl.setReturnValue(ps);
 		con.close();
 		conControl.activate();
-		
-		
+
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
-		
-		
+
 		JdbcTemplate template = new JdbcTemplate(ds);
 		template.setExceptionTranslater(trans);
 		RowCountCallbackHandler rcch = new RowCountCallbackHandler();
@@ -395,8 +388,8 @@ public class JdbcTemplateTestSuite extends TestCase {
 		dsControl.verify();
 		conControl.verify();
 	}
-	
 	*/
+
 
 	/**
 	 * Test that we see a runtime exception back
@@ -544,7 +537,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.activate();
 		
 		MockConnection con = MockConnectionFactory.update(sql, mockPs);
-		con.setExpectedCloseCalls(2);
+		con.setExpectedCloseCalls(1);
 	
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -802,7 +795,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		psControl.activate();
 		
 		MockConnection con = MockConnectionFactory.update(sql, mockPs);
-		con.setExpectedCloseCalls(2);
+		con.setExpectedCloseCalls(1);
 	
 		ds.getConnection();
 		dsControl.setReturnValue(con);
@@ -871,16 +864,11 @@ public class JdbcTemplateTestSuite extends TestCase {
 		MockControl conControl = EasyMock.controlFor(Connection.class);
 		Connection con = (Connection) conControl.getMock();
 
-		MockControl dbmdControl = EasyMock.controlFor(DatabaseMetaData.class);
-		DatabaseMetaData dbmd = (DatabaseMetaData) dbmdControl.getMock();
-		
 		ds.getConnection();
 		dsControl.setReturnValue(con);
 		dsControl.activate();
 		
 		SQLException sex = new SQLException("bar");
-		con.getMetaData();
-		conControl.setReturnValue(dbmd);
 		con.close();
 		conControl.setThrowable(sex);
 		conControl.activate();

@@ -14,9 +14,9 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.BadSqlGrammarException;
 import com.interface21.jdbc.core.SQLExceptionTranslater;
 import com.interface21.jdbc.core.SqlParameter;
-import com.interface21.jdbc.mock.SpringMockDataSource;
-import com.interface21.jdbc.mock.SpringMockConnection;
 import com.interface21.jdbc.mock.SpringMockCallableStatement;
+import com.interface21.jdbc.mock.SpringMockConnection;
+import com.interface21.jdbc.mock.SpringMockDataSource;
 import com.interface21.jdbc.mock.SpringMockJdbcFactory;
 
 
@@ -49,7 +49,7 @@ public class StoredProcedureTestSuite extends TestCase {
 	}
 
 	public void testNoSuchStoredProcedure() throws Exception {
-		mockDataSource.setExpectedConnectCalls(1);
+		mockDataSource.setExpectedConnectCalls(2);
 		mockCallable = new SpringMockCallableStatement();
 		mockConnection.addExpectedCallableStatement(mockCallable);
 
@@ -69,8 +69,7 @@ public class StoredProcedureTestSuite extends TestCase {
 		}
 	}
 
-	private void testAddInvoice(final int amount, final int custid)
-		throws Exception {
+	private void testAddInvoice(final int amount, final int custid) throws Exception {
 		AddInvoice adder = new AddInvoice(mockDataSource);
 		int id = adder.execute(amount, custid);
 		System.out.println("New row is " + id);
@@ -156,150 +155,145 @@ public class StoredProcedureTestSuite extends TestCase {
 		}
 	}
 
-}
+	// Could implement an interface
+	private class AddInvoice extends StoredProcedure {
 
-// Could implement an interface
-class AddInvoice extends StoredProcedure {
+		/**
+		 * Constructor for AddInvoice.
+		 * @param cf
+		 * @param name
+		 */
+		public AddInvoice(DataSource ds) {
+			setDataSource(ds);
+			setSql("add_invoice");
+			declareParameter(new SqlParameter("amount", Types.INTEGER));
+			declareParameter(new SqlParameter("custid", Types.INTEGER));
+			declareParameter(new OutputParameter("newid", Types.INTEGER));
+			compile();
+		}
 
-	/**
-	 * Constructor for AddInvoice.
-	 * @param cf
-	 * @param name 
-	 */
-	public AddInvoice(DataSource ds) {
-		setDataSource(ds);
-		setSql("add_invoice");
-		declareParameter(new SqlParameter("amount", Types.INTEGER));
-		declareParameter(new SqlParameter("custid", Types.INTEGER));
-		declareParameter(new OutputParameter("newid", Types.INTEGER));
-		compile();
+		public int execute(int amount, int custid) {
+			Map in = new HashMap();
+			in.put("amount", new Integer(amount));
+			in.put("custid", new Integer(custid));
+			in.put("newid", new Integer(-1));
+			Map out = execute(in);
+			Number Id = (Number) out.get("newid");
+			return Id.intValue();
+		}
 	}
 
-	public int execute(int amount, int custid) {
-		Map in = new HashMap();
-		in.put("amount", new Integer(amount));
-		in.put("custid", new Integer(custid));
-		in.put("newid", new Integer(-1));
-		Map out = execute(in);
-		Number Id = (Number) out.get("newid");
-		return Id.intValue();
-	}
-}
+	private class NullArg extends StoredProcedure {
 
-class NullArg extends StoredProcedure {
+		/**
+		 * Constructor for AddInvoice.
+		 * @param cf
+		 * @param name
+		 */
+		public NullArg(DataSource ds) {
+			setDataSource(ds);
+			setSql("takes_null");
+			declareParameter(new SqlParameter("ptest", Types.VARCHAR));
+			compile();
+		}
 
-	/**
-	 * Constructor for AddInvoice.
-	 * @param cf
-	 * @param name 
-	 */
-	public NullArg(DataSource ds) {
-		setDataSource(ds);
-		setSql("takes_null");
-		declareParameter(new SqlParameter("ptest", Types.VARCHAR));
-		compile();
+		public void execute(String s) {
+			Map in = new HashMap();
+			in.put("ptest", s);
+			Map out = execute(in);
+		}
 	}
 
-	public void execute(String s) {
-		Map in = new HashMap();
-		in.put("ptest", s);
-		Map out = execute(in);
-	}
-}
+	private class NoSuchStoredProcedure extends StoredProcedure {
 
-class NoSuchStoredProcedure extends StoredProcedure {
+		/**
+		 * Constructor for AddInvoice.
+		 */
+		public NoSuchStoredProcedure(DataSource ds) {
+			setDataSource(ds);
+			setSql("no_sproc_with_this_name");
+			compile();
+		}
 
-	/**
-	 * Constructor for AddInvoice.
-	 * @param cf
-	 * @param name 
-	 */
-	public NoSuchStoredProcedure(DataSource ds) {
-		setDataSource(ds);
-		setSql("no_sproc_with_this_name");
-		compile();
+		public void execute() {
+			execute(new HashMap());
+		}
 	}
 
-	public void execute() {
-		execute(new HashMap());
-	}
-}
+	private class UncompiledStoredProcedure extends StoredProcedure {
 
-class UncompiledStoredProcedure extends StoredProcedure {
+		public UncompiledStoredProcedure(DataSource ds) {
+			super(ds, "uncompile_sp");
+		}
 
-	public UncompiledStoredProcedure(DataSource ds) {
-		super(ds, "uncompile_sp");
-	}
-
-	public void execute() {
-		execute(new HashMap());
-	}
-
-}
-
-class UnnamedParameterStoredProcedure extends StoredProcedure {
-
-	public UnnamedParameterStoredProcedure(DataSource ds) {
-		super(ds, "unnamed_parameter_sp");
-		declareParameter(new SqlParameter(Types.INTEGER));
-		compile();
-	}
-
-	public void execute(int id) {
-		Map in = new HashMap();
-		in.put("id", new Integer(id));
-		Map out = execute(in);
+		public void execute() {
+			execute(new HashMap());
+		}
 
 	}
 
-}
+	private class UnnamedParameterStoredProcedure extends StoredProcedure {
 
-class MissingParameterStoredProcedure extends StoredProcedure {
+		public UnnamedParameterStoredProcedure(DataSource ds) {
+			super(ds, "unnamed_parameter_sp");
+			declareParameter(new SqlParameter(Types.INTEGER));
+			compile();
+		}
 
-	public MissingParameterStoredProcedure(DataSource ds) {
-		setDataSource(ds);
-		setSql("takes_string");
-		declareParameter(new SqlParameter("mystring", Types.VARCHAR));
-		compile();
+		public void execute(int id) {
+			Map in = new HashMap();
+			in.put("id", new Integer(id));
+			Map out = execute(in);
+
+		}
+
 	}
 
-	public void execute() {
-		execute(new HashMap());
-	}
-}
+	private class MissingParameterStoredProcedure extends StoredProcedure {
 
-class StoredProcedureExceptionTranslator extends StoredProcedure {
+		public MissingParameterStoredProcedure(DataSource ds) {
+			setDataSource(ds);
+			setSql("takes_string");
+			declareParameter(new SqlParameter("mystring", Types.VARCHAR));
+			compile();
+		}
 
-	/**
-	 * Constructor for AddInvoice.
-	 * @param cf
-	 * @param name 
-	 */
-	public StoredProcedureExceptionTranslator(DataSource ds) {
-		setDataSource(ds);
-		setSql("no_sproc_with_this_name");
-		setExceptionTranslater( new SQLExceptionTranslater() {
-			public DataAccessException translate(String task, String sql, SQLException sqlex) {
-				return new CustomDataException(sql, sqlex);
-			}
-			
-		});
-		compile();
-	}
-	
-	public void execute() {
-		execute(new HashMap());
-	}
-}
-
-class CustomDataException extends DataAccessException {
-	
-	public CustomDataException(String s) {
-		super(s);
+		public void execute() {
+			execute(new HashMap());
+		}
 	}
 
-	public CustomDataException(String s, Throwable ex) {
-		super(s, ex);
+	private class StoredProcedureExceptionTranslator extends StoredProcedure {
+
+		/**
+		 * Constructor for AddInvoice.
+		 */
+		public StoredProcedureExceptionTranslator(DataSource ds) {
+			setDataSource(ds);
+			setSql("no_sproc_with_this_name");
+			setExceptionTranslater( new SQLExceptionTranslater() {
+				public DataAccessException translate(String task, String sql, SQLException sqlex) {
+					return new CustomDataException(sql, sqlex);
+				}
+
+			});
+			compile();
+		}
+
+		public void execute() {
+			execute(new HashMap());
+		}
+	}
+
+	private class CustomDataException extends DataAccessException {
+
+		public CustomDataException(String s) {
+			super(s);
+		}
+
+		public CustomDataException(String s, Throwable ex) {
+			super(s, ex);
+		}
 	}
 
 }
