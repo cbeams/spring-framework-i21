@@ -1,0 +1,144 @@
+<html>
+<body>
+
+<h2>The Spring Framework - A Lightweight Container</h2>
+
+<p><i>Rod Johnson, Juergen Hoeller<br>
+July 2003</i>
+
+
+<p><h3>1. Introduction</h3>
+
+<p>There's a lot of interest in what we call lightweight containers these days. We see this as the future, especially where web applications are concerned, but also for reuse of e.g. business and data access objects in both J2EE environments and standalone applications.
+
+<p>What is a lightweight container? EJB is perhaps the best counterexample:
+
+<ul>
+<li>Invasive API (your code depends on EJB)
+<li>Container dependency (your code won't work outside of an EJB container)
+<li>Fixed set of capabilities that can't be configured
+<li>Dedicated deployment steps
+<li>Long startup time
+</ul>
+
+<p>A lightweight container aims to avoid all of these inconveniences.
+
+
+<p><h3>2. Spring As Lightweight Container</h3>
+
+<p>Spring is a very lightweight container in that:
+
+<ul>
+<li>Your objects don't need to implement Spring APIs to run in Spring, as Spring uses Inversion of Control (IoC). Spring configures your objects through JavaBean properties that they expose. Your objects don't need to ask Spring for collaborators, they receive respective references via their bean properties, just like any other property values.
+
+<li>A Spring application context definition and the application beans defined in it can be used in nearly every environment, from J2EE containers to applets. You will just use different bootstrap implementation for the context.
+
+<li>By default, all beans are directly accessible as plain old Java objects, without any overhead. Special capabilities can be added a la carte via respective AOP interceptors, e.g. declarative transactions or security checks.
+
+<li>A Spring bean factory can be initialized from any source: Default implementations are provided for XML, properties files, and programmatic registrations.
+
+<li>An application context is very quick to start up: You can start it in a single JUnit test, and you'll never notice the overhead.
+
+<li>In short, Spring is such a lightweight container that you won't even notice it's there. It is as simple to handle as a library: It can be included in any application, running in any container, without deployment steps.
+</ul>
+
+
+<p><h3>3. A Generic Application Context</h3>
+
+<p>A Spring application context will by default get initialized from an XML file, e.g. "applicationContext.xml". Such a context file will simply define a number of beans, specifying ID, class name, and various properties per bean. Basically, properties can either be String values, getting converted to the target type via JavaBean property editors, or references, getting resolved as bean IDs in the application context.
+
+<p>An example for a business layer application context:
+
+<p><code>
+&lt;beans&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;bean id="mySessionFactory" class="com.interface21.orm.hibernate.LocalSessionFactoryBean"/&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;bean id="myTransactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;bean id="exampleDataAccessObject" class="example.ExampleDataAccessObject"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property name="sessionFactory"&gt;&lt;ref bean="mySessionFactory"/&gt;&lt;/property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property name="exampleParam"&gt;&lt;value&gt;someValue&lt;/value&gt;&lt;/property&gt;<br>
+&nbsp;&nbsp;&lt;/bean&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;bean id="exampleBusinessObject" class="example.ExampleBusinessObject"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property name="transactionManager"&gt;&lt;ref bean="myTransactionManager"/&gt;&lt;/property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property name="dataAccessObject"&gt;&lt;ref bean="exampleDataAccessObject"/&gt;&lt;/property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property name="exampleParam"&gt;&lt;value&gt;someOtherValue&lt;/value&gt;&lt;/property&gt;<br>
+&nbsp;&nbsp;&lt;/bean&gt;<br>
+<br>
+&lt;/beans&gt;
+</code>
+
+<p>Note that "exampleDataAccessObject" depends on a Hibernate SessionFactory: It exposes a "sessionFactory" property (i.e. a "setSessionFactory(SessionFactory)" method) that receives a reference to the "mySessionFactory" bean from Spring. The same applies to "exampleBusinessObject" with its "transactionManager" property.
+
+<p>Such application beans do not need to depend on Spring: They don't need to implement any Spring specifics, they just need to stick to the JavaBean pattern. Reusing one outside of a Spring application context is easy, for example in a test environment: Just instantiate it with its default constructor, and set its properties manually (i.e. via respective "setSessionFactory" or "setExampleParam" calls).
+
+<p>Note that an application context definition does not depend on any specific environment like a web container, at least if it just contains business and data access objects. It can be bootstrapped via any appropriate ApplicationContext implementation, like XmlWebApplicationContext, FileSystemXmlApplicationContext, or ClassPathXmlApplicationContext.
+
+
+<p><h3>4. A Web-Specific Application Context</h3>
+
+<p>For Spring's web MVC, a DispatcherServlet needs a specific application context definition, containing web controllers and various web framework beans like handler mappings and a view resolver. Such a context will obviously depend on a web environment. It will be a child of the web app's root application context though, being able to access the latter's beans.
+
+<p>An example for a web dispatcher application context:
+
+<p><code>
+&lt;beans&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;bean id="urlMapping" class="com.interface21.web.servlet.handler.SimpleUrlHandlerMapping"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property name="mappings"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/mytest=/exampleController<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/value&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/property&gt;<br>
+&nbsp;&nbsp;&lt;/bean&gt;<br>
+<br>
+&nbsp;&nbsp;&lt;bean id="exampleController" class="example.ExampleController"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property name="businessObject"&gt;&lt;ref external="exampleBusinessObject"/&gt;&lt;/property&gt;<br>
+&nbsp;&nbsp;&lt;/bean&gt;<br>
+<br>
+&lt;/beans&gt;
+</code>
+
+<p>The HandlerMapping is detected by the DispatcherServlet through its type, getting applied automatically. It maps the URL "/mytest" to the controller bean "exampleController". The latter performs some web-specific model and view preparation, using "exampleBusinessObject" (the one defined in the root application context) to achieve this. The controller receives the business object via its "setBusinessObnject(ExampleBusinessObject)" method.
+
+<p>A typical Spring web application will consist of a root application context, defining the non-web business layer with various interconnected business objects, and one or more DispatcherServlet contexts, defining web controllers that access the business objects via external references.
+
+<p>Note that most business and data access objects will implement a respective interface, so that client classes like web controllers just need to know the interfaces. This allows for flexible reconfiguration, e.g. simply switching a certain bean definition to a different class that implements the same interface, without any implications on the definitions of client objects.
+
+
+<p><h3>5. Spring Application Context Vs PicoContainer</h3>
+
+<p>Another lightweight container getting attention is the PicoContainer. It is built around components that specify dependencies via constructor arguments. This infrastructure intends to solve the same problems as Spring's application context concept but has some severe drawbacks:
+
+<ul>
+<li>There's no notion of a specific instance, just one implementation class for any given type. What if one would like to use 2 DataSource instances for 2 databases? How to configure the 2 differently? How to pass a specific one of those to a certain component? This is not possible with PicoContainer: It registers exactly one instance per type.
+
+<li>Pico-managed classes are only allowed to have one single constructor, with all objects that the class depends on as arguments. This does not allow for convenient reuse of the class.
+
+<li>Using existing classes is hard with PicoContainer: You have to subclass and write a single magic constructor there. Spring has the ability to work with any existing JavaBean.
+
+<li>Inheritance is painful and error-prone when constructor chaining is required. Spring can use final bean properties to avoid errors. A constructor (or any method) with 10 arguments is a code smell and suggests refactoring into an initializer object. Spring can easily support this, via a bean reference.
+
+<li>Unit tests concern one method of a service object. Why require providing all params to a constructor if you're really interested in the DataSource property etc? You only need to set the properties you require in Spring.
+
+<li>JavaBeans are an elegant part of core Java: Why not use them? PicoContainer objects will need to follow a unique constructor pattern.
+
+<li>JavaBean properties can be defined on interfaces if appropriate, or concealed if not. Why build constructors (an implementation issue) into an OO framework?
+
+<li>Constructors are less obvious in IDEs than bean properties. It's trivial to see the properties on any object.
+
+<li>In the future, Spring may offer dynamic reconfiguration of contexts, if beans can handle it by updating individual changed properties. With constructors alone this would mean changing the identity of the service object.
+</ul>
+
+<p>PicoContainer's main advantage is that it doesn't need any meta data like an XML application context definition. As this basic design strategy leads to the above mentioned severe limitations, we consider it very questionable. Using very simple XML meta data, Spring offers a significantly more flexible and powerful infrastructure that achieves similar goals.
+
+
+<p><h3>Resources</h3>
+
+<a href="http://www.springframework.org" target="_">Spring Framework website</a><br>
+<a href="http://www.picocontainer.org" target="_">PicoContainer website</a><br>
+
+</body>
+</html>

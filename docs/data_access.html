@@ -1,0 +1,97 @@
+<html>
+<body>
+
+<h2>Data Access and Transaction Abstraction with the Spring Framework</h2>
+(with Hibernate examples)
+
+<p><i>Juergen Hoeller<br>
+June 2003</i>
+
+
+<p><h3>1. Introduction: Resource Management</h3>
+
+<p>Typical business applications are often cluttered with repetitive resource management code. Many projects try to invent own solutions for this issue, sometimes sacrificing proper handling of failures for programming convenience. Spring advocates strikingly simple solutions for proper resource handling: Inversion of control via templating, i.e. infrastructure classes with callback interfaces, or applying AOP interceptors. The infrastructure cares for proper resource handling, and for appropriate conversion of specific API exceptions to an unchecked infrastructure exception hierarchy.
+
+<p>To be able to achieve this, Spring introduces a DAO exception hierarchy, applicable to any data access strategy. For direct JDBC, the JdbcTemplate class cares for connection handling, and for proper conversion of SQLException to the DataAccessException hierarchy, including translation of database-specific SQL error codes to meaningful exception classes. It supports both JTA and JDBC transactions, via respective Spring transaction managers. Spring also offers Hibernate and JDO support, consisting of a HibernateTemplate / JdoTemplate analogous to JdbcTemplate, a HibernateInterceptor / JdoInterceptor, and a Hibernate / JDO transaction manager. The major goal is to allow for clear application layering, with any data access technology, in every respect.
+
+<p>All the individual data access features are usable on their own but integrate nicely with Spring's pplication context concept, providing XML-based configuration and cross-referencing of plain JavaBean instances that don't need to be Spring-aware. In a typical Spring app, many important objects are JavaBeans: data access templates, data access objects (that use the templates), transaction managers, business objects (that use the data access objects and transaction managers), web view resolvers, web controllers (that use the business objects), etc.
+
+
+<p><h3>2. Inversion of Control: Template and Callback</h3>
+
+<p>The basic programming model for templating looks as follows, for methods that can be part of any custom data access object or business object. There are no restrictions on the implementation of the surrounding object at all, it just needs to provide a Hibernate SessionFactory. It can get the latter from anywhere, but preferably as bean reference from a Spring application context - via a simple setSessionFactory bean property setter.
+
+<p><code>
+public List loadProductsByCategory(String category) {<br>
+&nbsp;&nbsp;HibernateTemplate hibernateTemplate = new HibernateTemplate(this.sessionFactory);<br>
+&nbsp;&nbsp;List result = hibernateTemplate.executeFind(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new HibernateCallback() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public Object doInHibernate(Session session) throws HibernateException {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return session.find("from product in class test.Product where product.category = '" + category + "'");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;);<br>
+}
+</code>
+
+<p>The "executeFind" method is a convenience for List return values - the standard method is "execute", returning Object. HibernateTemplate cares for proper Session opening and closing, and for automatically taking part in transactions. The latter is available to non-templating code too, via the SessionFactoryUtils helper class. The template instances are thread-safe and reusable, they can thus be kept as instance variables of the surrounding class.
+
+
+<p><h3>3. Alternative: Applying an AOP Interceptor</h3>
+
+<p>An alternative to using a HibernateTemplate is Spring's AOP HibernateInterceptor, replacing the callback implementation with straight Hibernate code within a delegating try/catch block, and a respective interceptor configuration in the application context.
+
+<p><code>
+public List loadProductsByCategory(String category) throws MyException {<br>
+&nbsp;&nbsp;Session session = SessionFactoryUtils.getSession(this.sessionFactory, false);<br>
+&nbsp;&nbsp;try {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;List result = session.find("from product in class test.Product where product.category = '" + category + "'");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if (result == null) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw new MyException("test");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return result;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;catch (HibernateException ex) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;throw SessionFactoryUtils.convertHibernateAccessException(ex);<br>
+&nbsp;&nbsp;}<br>
+}
+</code>
+
+<p>This method will only work with a HibernateInterceptor for it (configured in the Spring application context), caring for opening a thread-bound Session before and closing it after the method call. The "false" flag on getSession makes sure that the Session must already exist; else SessionFactoryUtils would create a new one if none found. If there is already a SessionHolder bound to the thread, e.g. by a HibernateTransactionManager transaction, SessionFactoryUtils automatically takes part in it in any case. BTW, HibernateTemplate uses SessionFactoryUtils underneath - it's all the same infrastructure.
+
+<p>The major advantage of HibernateInterceptor is that it allows any checked application exception to be thrown within the data access code, while HibernateTemplate is restricted to unchecked exceptions within the callback. Note that one can offen defer the respective checks and throwing of application exceptions to after the callback, though. The interceptor's major drawback is that it requires special setup in the context, and that the target class has to implement a (any) business interface.
+
+
+<p><h3>4. Transaction Management</h3>
+
+<p>On top of such lower-level data access services, transactions can be demarcated in a higher level of the application, spanning any number of operations. There are no restrictions on the implementation of the surrounding business object here too, it just needs a Spring PlatformTransactionManager. Again, he latter can come from anywhere, but preferably as bean reference via a setTransactionManager method - just like the productDAO should be set via a setProductDAO method:
+
+<p><code>
+public void increasePriceOfAllProductsInCategory(String category) {<br>
+&nbsp;&nbsp;TransactionTemplate transactionTemplate = new TransactionTemplate(this.transactionManager);<br>
+&nbsp;&nbsp;transactionTemplate.execute(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new TransactionCallback() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public void doInTransaction(TransactionStatus status) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List productsToChange = this.productDAO.loadProductsByCategory(category);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;);<br>
+}
+</code>
+
+<p>Alternatively, one can use Spring's AOP TransactionInterceptor, replacing the transaction demarcation code with an interceptor configuration in the application context. Both delegate the actual transaction handling to a PlatformTransactionManager instance, which can be a JtaTransactionManager, DataSourceTransactionManager (for a single JDBC DataSource, using a ThreadLocal Connection under the hood), HibernateTransactionManager (for a single Hibernate SessionFactory, using a ThreadLocal Session), JdoTransactionManager, or even a custom implementation.
+
+<p>Like with HibernateInterceptor, TransactionInterceptor allows any checked application exception to be thrown with the callback code, while TransactionTemplate is restricted to unchecked exceptions within the callback. TransactionTemplate will trigger a rollback in case of an unchecked application exception, or if the transaction has been marked rollback-only by the application (via TransactionStatus). TransactionInterceptor behaves the same by default but allows configurable rollback policies per method.
+
+<p>Note that switching from native Hibernate transaction management to JTA, i.e. when facing distributed transaction requirements, is just a matter of configuration. BTW, both strategies allow for proper JVM-level cache handling with Hibernate - without container-specific transaction manager lookup or JCA connector (as long as not using EJB to initiate transactions). Additionally, HibernateTransactionManager can export the JDBC Connection used by Hibernate for plain JDBC access code too, just like DataSourceTransactionManager does. This allows for high level transaction demarcation with mixed Hibernate and plain JDBC data access - without JTA (on one database)!
+
+
+<h3><p>Resources</h3>
+
+<a href="http://www.springframework.org" target="_">Spring Framework website</a><br>
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/orm/hibernate" target="_">Hibernate support (CVS)</a><br>
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/transaction" target="_">Transaction support (CVS)</a>
+
+</body>
+</html>
