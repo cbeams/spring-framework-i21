@@ -286,15 +286,15 @@ public class HibernateTemplate implements InitializingBean {
 	 * Save the given persistent instance.
 	 * <p>This is a convenience method for single step actions,
 	 * mirroring Session.save.
-	 * @param entity the persistent instance to save resp. update
+	 * @param entity the persistent instance to save
+	 * @return the generated identifier
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#saveOrUpdate(Object)
 	 */
-	public void save(final Object entity) throws DataAccessException {
-		execute(new HibernateCallback() {
+	public Serializable save(final Object entity) throws DataAccessException {
+		return (Serializable) execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				session.save(entity);
-				return null;
+				return session.save(entity);
 			}
 		});
 	}
@@ -303,7 +303,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * Update the given persistent instance.
 	 * <p>This is a convenience method for single step actions,
 	 * mirroring Session.update.
-	 * @param entity the persistent instance to save resp. update
+	 * @param entity the persistent instance to update
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#saveOrUpdate(Object)
 	 */
