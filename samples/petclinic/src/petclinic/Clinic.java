@@ -62,12 +62,12 @@ public interface Clinic {
      *  revised information.
      *  @param owner to update.
      */
-    public void update(Owner owner) throws NoSuchIdException;
+    public void update(Owner owner) throws NoSuchEntityException;
     
     /** Method to update the datastore with a <code>Pet</code>'s 
      *  revised information.
      *  @param pet to update.
      */
-    public void update(Pet pet) throws NoSuchIdException;
+    public void update(Pet pet) throws NoSuchEntityException;
     
 }
