@@ -314,7 +314,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * @param locale Locale in which to do lookup
 	 * @param args Array of arguments that will be filled in for params within
 	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
-	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a> for more details.
+	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a>
 	 * @param defaultMessage String to return if the lookup fails
 	 * @return a resolved message if the lookup is successful;
 	 * otherwise return the default message passed as a parameter
@@ -331,7 +331,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * @param locale Locale in which to do lookup
 	 * @param args Array of arguments that will be filled in for params within
 	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
-	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a> for more details.
+	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a>
 	 * @return message
 	 * @throws NoSuchMessageException not found in any locale
 	 */
@@ -351,7 +351,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * attribute is null or not.
 	 * @param resolvable Value object storing 4 attributes required to properly resolve a message.
 	 * @param locale Locale to be used as the "driver" to figuring out what message to return.
-	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a> for more details.
+	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a>
 	 * @return message Resolved message.
 	 * @throws NoSuchMessageException not found in any locale
 	 */
@@ -365,7 +365,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	//---------------------------------------------------------------------
 	/**
 	 * Try to find the bean instance in the hierarchy
-	 * @see AbstractBeanFactory#getBean(String)
+	 * @see com.interface21.beans.factory.support.AbstractBeanFactory#getBean(String)
 	 */
 	public Object getBean(String name) throws BeansException {
 		try {
@@ -386,7 +386,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 
 	/**
-	 * @see AbstractBeanFactory#getBean(String, Class)
+	 * @see com.interface21.beans.factory.support.AbstractBeanFactory#getBean(String, Class)
 	 */
 	public Object getBean(String name, Class requiredType) throws BeansException {
 		try {
@@ -404,7 +404,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 
 	/**
-	 * @see AbstractBeanFactory#isSingleton(String)
+	 * @see com.interface21.beans.factory.support.AbstractBeanFactory#isSingleton(String)
 	 */
 	public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
 		return getBeanFactory().isSingleton(name);

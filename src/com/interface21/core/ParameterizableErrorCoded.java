@@ -23,7 +23,7 @@ public interface ParameterizableErrorCoded extends ErrorCoded {
    * Return the Array of arguments that will be filled in for params within
    * the message that is stored for the errorCode that will be looked up.
    * NOTE: params look like "{0}", "{1,date}", "{2,time}" within a message.
-   * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a> for more details.
+   * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a>
    * @return An array of Objects representing the args that
    * need to be passed into the String the errorCode will resolve to.  Return null if there are no args that the message needs.
    */
