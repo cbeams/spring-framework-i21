@@ -119,6 +119,7 @@
          <name>Luke Taylor</name>
          <id>luke_t</id>
          <email>luke_t at users.sourceforge.net</email>
+			<organization>Monkey Machine</organization>
          <roles>
             <role>Developer</role>
          </roles>
@@ -126,9 +127,11 @@
    </developers>
 
    <!-- jar files the project is dependent on -->
-   <!-- The ejb, jms, jta and aopalliance jars must be added manually to the local maven repository -->
+   <!--  aopalliance jars must be added manually to the local maven repository -->
    <dependencies>
-      <!-- J2EE classes -->
+      <!-- J2EE classes. With the exception of servletapi, these are not available from the Maven online repository
+         Due to licensing restrictions.
+      -->
       <dependency>
          <id>servletapi</id>
          <version>2.3</version>
@@ -146,6 +149,12 @@
          <id>jta</id>
          <jar>jta.jar</jar>
       </dependency>
+      <dependency>
+         <groupId>javamail</groupId>
+         <artifactId>mailapi</artifactId>
+         <jar>mailapi.jar</jar>
+         <version>1.3</version>
+      </dependency>
 
       <dependency>
          <id>velocity</id>
@@ -159,11 +168,6 @@
          <id>log4j</id>
          <version>1.2.8</version>
       </dependency>
-      <!--     <dependency>
-              <id>junit</id>
-              <version>3.8.1</version>
-           </dependency>
-      -->
       <dependency>
          <id>easymock</id>
          <version>0.8</version>
@@ -184,26 +188,20 @@
          <version>0.07</version>
       </dependency>
 
+		<!-- these jars are not at http://www.ibiblio.org/maven, so must be manually added to the local repository
+		for the time being -->
       <dependency>
          <id>attrib4j</id>
          <version>0.8.4</version>
          <jar>attrib4j-0.8.4.jar</jar>
       </dependency>
-
       <dependency>
          <id>aopalliance</id>
          <version>0.1-dev</version>
          <jar>aopalliance.jar</jar>
       </dependency>
 
-      <dependency>
-         <groupId>javamail</groupId>
-         <artifactId>mailapi</artifactId>
-         <jar>mailapi.jar</jar>
-         <version>1.3</version>
-      </dependency>
    </dependencies>
-
 
    <!-- build information for the project -->
    <build>
@@ -237,11 +235,9 @@
    </build>
 
    <reports>
-
       <report>maven-changelog-plugin</report>
       <report>maven-developer-activity-plugin</report>
       <report>maven-file-activity-plugin</report>
-
       <report>maven-checkstyle-plugin</report>
       <report>maven-javadoc-plugin</report>
       <report>maven-jxr-plugin</report>
