@@ -31,8 +31,8 @@ public class TestListener implements ApplicationListener {
 	 * Ignore log events
 	 */
 	public void onApplicationEvent(ApplicationEvent e) {
-		System.out.println(e);
+		//System.out.println("onApplicationEvent of class " + e.getClass().getName());
 		++eventCount;
 	}
     
-}	// class ConsoleListener
+}	// class TestListener

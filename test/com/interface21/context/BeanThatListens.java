@@ -24,7 +24,7 @@ public class BeanThatListens implements ApplicationListener {
 	 */
 	public void onApplicationEvent(ApplicationEvent e) {
 		++events;
-		System.out.println("Bean that listens heard event");
+		//System.out.println("Bean that listens heard event");
 	}
 	
 	public int getEventCount() {
