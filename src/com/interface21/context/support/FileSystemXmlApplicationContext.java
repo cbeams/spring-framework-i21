@@ -11,7 +11,8 @@ import com.interface21.util.StringUtils;
  * Standalone XML application context, taking the context definition
  * files from the file system. Mainly useful for test harnesses,
  * but also for standalone environments.
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  */
 public class FileSystemXmlApplicationContext extends AbstractXmlApplicationContext {
 

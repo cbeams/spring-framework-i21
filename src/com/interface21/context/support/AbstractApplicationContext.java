@@ -475,11 +475,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * If the object is context-aware, give it a reference to this object.
-	 * Note that the implementation fo the ApplicationContextAware interface
-	 * must return the ApplicationContext it runs in in it's getApplicationContext()
-	 * method, and null if it has not yet been associated with a context: this
-	 * method relies on this to avoid initialization managed objects
-	 * more than once.
+	 * Note that the implementation of the ApplicationContextAware interface
+	 * must check itself that if it is already initialized resp. if it wants
+	 * to perform reinitialization.
 	 * @param o object to invoke the setApplicationContext() method on,
 	 * if it implements the ApplicationContextAware interface
 	 */
@@ -487,9 +485,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		if (o instanceof ApplicationContextAware) {
 			logger.debug("Setting application context on ApplicationContextAware object [" + o + "]");
 			ApplicationContextAware aca = (ApplicationContextAware) o;
-			if (aca.getApplicationContext() == null) {
-				aca.setApplicationContext(this);
-			}
+			aca.setApplicationContext(this);
 		}
 	}
 

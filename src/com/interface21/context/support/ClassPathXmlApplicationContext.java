@@ -11,7 +11,8 @@ import com.interface21.context.ApplicationContextException;
  * but also for application contexts embedded within JARs.
  * <p>Note: Generally treats (file) paths as class path resources,
  * when using ApplicationContext.getResourceAsStream.
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @see com.interface21.context.ApplicationContext#getResourceAsStream
  * @see #getResourceByPath
  */
