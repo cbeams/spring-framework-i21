@@ -39,7 +39,7 @@ public class SqlParameter {
 	}
 
 	public SqlParameter(String name, int type) {
-		this(null, type, null);
+		this(name, type, null);
 	}
 	
 	public SqlParameter(String name, int type, String typeName) {
