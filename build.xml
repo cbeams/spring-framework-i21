@@ -73,7 +73,8 @@
 
 		</javac>
 
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" todir="${build.dir}/"/>
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" 
+			todir="${build.dir}/com/interface21/jdbc/core" />
 
 	</target>
 
@@ -304,7 +305,8 @@
 
 		</javac>
 
-		<copy file="${src.dir}/sql-error-codes.xml" todir="${testbuild.dir}"/>
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" 
+			todir="${testbuild.dir}/com/interface21/jdbc/core" />
 
 	</target>
 
@@ -362,7 +364,8 @@
 
 		</javac>
 
-		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" todir="${clover.build.dir}/"/>
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" 
+			todir="${clover.build.dir}/com/interface21/jdbc/core" />
 
 	</target>
 
