@@ -1,6 +1,5 @@
 package com.interface21.remoting;
 
-import java.net.ConnectException;
 import java.net.MalformedURLException;
 
 import junit.framework.TestCase;
@@ -46,7 +45,7 @@ public class RemotingTestSuite extends TestCase {
 		}
 		catch (RemoteAccessException ex) {
 			// expected
-			assertTrue("Correct remote exception", ex.getRootCause().getClass().equals(ConnectException.class));
+			assertTrue("Correct remote exception", ex.getRootCause() instanceof java.net.ConnectException);
 		}
 	}
 
@@ -62,7 +61,7 @@ public class RemotingTestSuite extends TestCase {
 		}
 		catch (RemoteAccessException ex) {
 			// expected
-			assertTrue("Correct remote exception", ex.getRootCause().getClass().equals(ConnectException.class));
+			assertTrue("Correct remote exception", ex.getRootCause() instanceof java.net.ConnectException);
 		}
 	}
 
@@ -76,7 +75,7 @@ public class RemotingTestSuite extends TestCase {
 		}
 		catch (RemoteAccessException ex) {
 			// expected
-			assertTrue("Correct remote exception", ex.getRootCause().getClass().equals(java.rmi.ConnectException.class));
+			assertTrue("Correct remote exception", ex.getRootCause() instanceof java.rmi.ConnectException);
 		}
 	}
 
