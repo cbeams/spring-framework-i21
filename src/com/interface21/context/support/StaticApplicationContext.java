@@ -7,7 +7,6 @@ import java.util.Map;
 import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
 import com.interface21.context.ApplicationContext;
@@ -68,7 +67,7 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	protected void refreshBeanFactory() throws ApplicationContextException {
 	}
 
-	protected ListableBeanFactory getBeanFactory() {
+	protected ListableBeanFactoryImpl getBeanFactory() {
 		return defaultBeanFactory;
 	}
 
