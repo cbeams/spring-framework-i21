@@ -10,6 +10,8 @@ import junit.framework.TestCase;
 
 import com.interface21.context.support.MessageSourceResolvableImpl;
 import com.interface21.web.bind.EscapedErrors;
+import com.interface21.web.context.WebApplicationContext;
+import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.mock.MockHttpServletRequest;
 import com.interface21.web.mock.MockHttpServletResponse;
 import com.interface21.web.mock.MockServletConfig;
@@ -17,8 +19,7 @@ import com.interface21.web.mock.MockServletContext;
 import com.interface21.web.servlet.mvc.BaseCommandController;
 import com.interface21.web.servlet.support.RequestContext;
 import com.interface21.web.servlet.support.RequestContextUtils;
-import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.context.support.StaticWebApplicationContext;
+import com.interface21.web.servlet.theme.AbstractThemeResolver;
 
 /**
  *
@@ -87,6 +88,7 @@ public class DispatcherServletTestSuite extends TestCase {
 			assertTrue("hasn't RequestContext attribute", request.getAttribute("rc") == null);
 			assertTrue("Correct WebApplicationContext", RequestContextUtils.getWebApplicationContext(request) instanceof SimpleWebApplicationContext);
 			assertTrue("Correct Locale", Locale.CANADA.equals(RequestContextUtils.getLocale(request)));
+			assertTrue("Correct Theme", AbstractThemeResolver.DEFAULT_THEME.equals(RequestContextUtils.getTheme(request).getName()));
 			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null)));
 
 			assertTrue("Correct Errors", !(rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME) instanceof EscapedErrors));
