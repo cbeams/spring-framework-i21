@@ -33,6 +33,8 @@
 				<prop key="/home.htm">countriesController</prop>
 				<prop key="/main/home.htm">countriesController</prop>
 				<prop key="/main/detail.htm">countriesController</prop>
+				<prop key="/main/countries.xls">countriesController</prop>
+				<prop key="/main/countries.pdf">countriesController</prop>
 			</props>
 		</property>
 	</bean>
@@ -49,6 +51,8 @@
 				<prop key="/home.htm">handleHome</prop>
 				<prop key="/main/home.htm">handleMain</prop>
 				<prop key="/main/detail.htm">handleDetail</prop>
+				<prop key="/main/countries.xls">handleExcel</prop>
+				<prop key="/main/countries.pdf">handlePdf</prop>
 			</props>
 		</property>
 	</bean>
@@ -58,10 +62,19 @@
 	  - (according to the URL handler mapping definition above).
 	  - Uses the MethodNameResolver definition defined above.
 	  -->
+	<!-- ONLY MEMORY OR ONLY DATABASE IMPLEMENTATION -->
 	<bean id="countriesController" class="com.interface21.samples.countries.web.CountriesController">
 		<property name="methodNameResolver"><ref bean="countriesMethodNameResolver"/></property>
 		<property name="daoCountry"><ref external="daoCountry"/></property>
 	</bean>
 
+	<!-- MEMORY+DATABASE IMPLEMENTATION FOR COPYING FROM MEMORY TO DATABASE -->
+	<!--
+	<bean id="countriesController" class="com.interface21.samples.countries.web.CountriesController">
+		<property name="methodNameResolver"><ref bean="countriesMethodNameResolver"/></property>
+		<property name="daoCountry"><ref external="daoCountry"/></property>
+		<property name="secondDaoCountry"><ref external="secondDaoCountry"/></property>
+	</bean>
+	-->
 	
 </beans>

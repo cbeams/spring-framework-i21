@@ -42,33 +42,37 @@
 
 
 	<!-- ========================= Start of PERSISTENCE DEFINITIONS ========================= -->
-  
-	<!-- ========================= In memory version ========================= -->
+	<!-- If another database as MySql is used, replace DaoCountryJdbcMySql by DaoCountryJdbcXXX.
+	     Only the method initBase has normally to be redefined. Its work is to create the table 
+	     holding the countries as the database or instance has to preexist for having a working 
+	     connection.
+		 -->
+		      
+	<!-- ====================== In memory only version ====================== -->
 
 	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem"
 		singleton="true"/>
 
-	<!-- ========================= Database version ========================= -->
+	<!-- ======================= Database only version ====================== -->
 
-<!--
-	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbc"
-		singleton="true"/>
-
--->
-	<!-- MYSQL DataSource for J2EE environments. -->
-<!--
+	<!--
 	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
-		<property name="jndiName"><value>jdbc/sirene-ds</value></property>
+		<property name="jndiName"><value>jdbc/countries-ds</value></property>
 	</bean>
--->
-	<!-- MYSQL Incrementing key generator -->
-<!--
-	<bean id="incrementer" singleton="true" class="com.interface21.jdbc.core.support.MySQLMaxValueIncrementer" >
-		<property name="dataSource"><ref bean="dataSource"/></property>
-		<property name="incrementerName"><value>si3_ids</value></property>
-		<property name="columnName"><value>nextval</value></property>
+	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"
+		singleton="true"/>
+	-->
+
+	<!-- ============= In memory + Database version for copying ============= -->
+	<!--
+	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem"
+		singleton="true"/>
+	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+		<property name="jndiName"><value>jdbc/countries-ds</value></property>
 	</bean>
--->
+	<bean id="secondDaoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"
+		singleton="true"/>
+	-->
 
 	<!-- ========================= End of PERSISTENCE DEFINITIONS ========================= -->
 	
