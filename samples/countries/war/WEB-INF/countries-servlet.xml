@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- ========================= MAPPING DEFINITIONS ========================= -->
+
+	<!--
+	  - Explicit view mappings in bundle instead of default InternalResourceViewResolver.
+	  - Fetches the view mappings from localized "views_xx" classpath files, i.e.
+	  - "/WEB-INF/classes/vues-interp.properties" or "/WEB-INF/classes/vues_interp_fr.properties".
+	  -
+	  - Symbolic view names returned by controllers will be resolved in the respective
+	  - properties file, allowing for arbitrary mappings between names and resources.
+	  -->
+	<bean id="viewResolver" class="com.interface21.web.servlet.view.ResourceBundleViewResolver">			
+		<property name="basename"><value>views-countries</value></property>
+		<property name="defaultParentView"><value>modelView</value></property>
+	</bean>
+
+	<!--
+	 - Explicit URL handler mapping instead of default BeanNameUrlHandlerMapping.
+	 -->
+	<bean id="urlMapping" class="com.interface21.web.servlet.handler.SimpleUrlHandlerMapping"> 
+		<property name="interceptors">
+			<list>
+				<ref external="localeChangeInterceptor"/>
+				<ref external="themeChangeInterceptor"/>
+			</list>
+		</property>
+		<property name="mappings">
+			<props>
+				<prop key="/home.htm">countriesController</prop>
+				<prop key="/main/home.htm">countriesController</prop>
+				<prop key="/main/detail.htm">countriesController</prop>
+			</props>
+		</property>
+	</bean>
+  
+	<!-- ========================= CONTROLLER DEFINITIONS ========================= -->
+
+	<!--
+	  - Method name resolver definition for MultiActionControllers,
+	  - mapping certain URLs to certain methods of the controller class.
+	  -->
+	<bean id="countriesMethodNameResolver" class="com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/home.htm">handleHome</prop>
+				<prop key="/main/home.htm">handleMain</prop>
+				<prop key="/main/detail.htm">handleDetail</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!--
+	  - MultiActionController implementation
+	  - (according to the URL handler mapping definition above).
+	  - Uses the MethodNameResolver definition defined above.
+	  -->
+	<bean id="countriesController" class="com.interface21.samples.countries.web.CountriesController">
+		<property name="methodNameResolver"><ref bean="countriesMethodNameResolver"/></property>
+		<property name="daoCountry"><ref external="daoCountry"/></property>
+	</bean>
+
+	
+</beans>
