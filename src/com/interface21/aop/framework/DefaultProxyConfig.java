@@ -6,8 +6,11 @@
 package com.interface21.aop.framework;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.aopalliance.AttributeRegistry;
 import org.aopalliance.Interceptor;
@@ -42,7 +45,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	private List pointcuts = new LinkedList();
 	
 	/** Interfaces to be implemented by the proxy */
-	private Class[] interfaces = new Class[0];
+	private Set interfaces = new HashSet();
 
 	/**
 	 * May be null. Reassessed on adding an interceptor.
@@ -129,11 +132,11 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * @param interceptor
 	 */
 	private void addAspectInterfacesIfNecessary(Interceptor interceptor) {
-		 if (interceptor instanceof AspectInterfaceInterceptor) {
+		 if (interceptor instanceof IntroductionInterceptor) {
 		 	System.out.println("Added new aspect interface");
-			 AspectInterfaceInterceptor aii = (AspectInterfaceInterceptor) interceptor;
-			 for (int i = 0; i < aii.getAspectInterfaces().length; i++) {
-				 addInterface(aii.getAspectInterfaces()[i]);
+			 IntroductionInterceptor aii = (IntroductionInterceptor) interceptor;
+			 for (int i = 0; i < aii.getIntroducedInterfaces().length; i++) {
+				 addInterface(aii.getIntroducedInterfaces()[i]);
 			 }
 		 }
 	}	
@@ -180,10 +183,10 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	
 		if (removed) {
 			//	We may need to remove interfaces if it was an AspectInterceptor
-			 if (interceptor instanceof AspectInterfaceInterceptor) {
-				 AspectInterfaceInterceptor aii = (AspectInterfaceInterceptor) interceptor;
-				 for (int i = 0; i < aii.getAspectInterfaces().length; i++) {
-					 removeInterface(aii.getAspectInterfaces()[i]);
+			 if (interceptor instanceof IntroductionInterceptor) {
+				 IntroductionInterceptor aii = (IntroductionInterceptor) interceptor;
+				 for (int i = 0; i < aii.getIntroducedInterfaces().length; i++) {
+					 removeInterface(aii.getIntroducedInterfaces()[i]);
 				 }
 			 }
 			computeTargetAndCheckValidity();
@@ -197,9 +200,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * @param newInterface additional interface to proxy.
 	 */
 	protected final void addInterface(Class newInterface) {
-		List l = arrayToList(this.interfaces);
-		l.add(newInterface);
-		this.interfaces = (Class[]) l.toArray(new Class[l.size()]);
+		this.interfaces.add(newInterface);
 	}
 	
 	
@@ -210,19 +211,21 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * @return boolean
 	 */
 	protected final boolean removeInterface(Class intf) {
-		List l = arrayToList(this.interfaces);
-		boolean removed = l.remove(intf);
-		if (removed) {
-			this.interfaces = (Class[]) l.toArray(new Class[l.size()]);
-		}
-		return removed;
+		return this.interfaces.remove(intf);
 	}
 
 	/**
 	 * @see com.interface21.aop.framework.ProxyConfig#getProxiedInterfaces()
 	 */
 	public final Class[] getProxiedInterfaces() {
-		return this.interfaces;
+		//return (Class[]) this.interfaces.toArray();
+		Class[] classes = new Class[this.interfaces.size()];
+		int i = 0;
+		for (Iterator itr = this.interfaces.iterator(); itr.hasNext() ;) {
+			Class clazz = (Class) itr.next();
+			classes[i++] = clazz; 
+		}
+		return classes;
 	}
 	
 
@@ -243,11 +246,13 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 
 	/**
 	 * Sets the interfaces to be proxied.
-	 * This method must be called before using the proxy.
 	 * @param interfaces The interfaces to set
 	 */
 	protected void setInterfaces(Class[] interfaces) {
-		this.interfaces = interfaces;
+		this.interfaces.clear();
+		for (int i = 0; i < interfaces.length; i++) {
+			this.interfaces.add(interfaces[i]);
+		}
 	}
 
 	/**
