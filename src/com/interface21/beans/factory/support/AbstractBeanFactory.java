@@ -56,7 +56,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	//---------------------------------------------------------------------
 
 	/** parent bean factory, for bean inheritance support */
-	private BeanFactory parent;
+	private BeanFactory parentBeanFactory;
 
 	/** Cache of shared instances. bean name --> bean instanced */
 	private HashMap	sharedInstanceCache = new HashMap();
@@ -82,14 +82,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * @see this.getBean 
 	 */
 	public AbstractBeanFactory(BeanFactory parentBeanFactory) {
-		this.parent = parentBeanFactory;
+		this.parentBeanFactory = parentBeanFactory;
 	}
 
 	/**
 	 * Returns the parent bean factory, or null if none.
 	 */
-	public BeanFactory getParent() {
-		return parent;
+	public BeanFactory getParentBeanFactory() {
+		return parentBeanFactory;
 	}
 
 	public void setDefaultParentBean(String defaultParentBean) {
@@ -216,8 +216,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		} 
 		catch (NoSuchBeanDefinitionException ex) {
 			// not found -> check parent
-			if (this.parent != null)
-				return this.parent.getBean(name);
+			if (this.parentBeanFactory != null)
+				return this.parentBeanFactory.getBean(name);
 			throw ex;
 		}
 	}	// getBean
@@ -225,7 +225,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	
 	/**
 	 * Return a shared instance of the given bean. Analogous to getBeanInstance(name, requiredType).
-	 * @name name of the instance to return
+	 * @param name name of the instance to return
 	 * @param requiredType type the bean must match
 	 * @return a shared instance of the given bean
 	 * @throws BeanNotOfRequiredTypeException if the bean  not of the required type
@@ -247,8 +247,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			return getBeanDefinition(name).isSingleton();
 		} catch (NoSuchBeanDefinitionException ex) {
 			// not found -> check parent
-			if (this.parent != null)
-				return this.parent.isSingleton(name);
+			if (this.parentBeanFactory != null)
+				return this.parentBeanFactory.isSingleton(name);
 			throw ex;
 		}
 	}
