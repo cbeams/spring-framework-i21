@@ -27,6 +27,7 @@ import com.interface21.beans.factory.support.AbstractBeanFactory;
  * @version $RevisionId$
  * REQUIRES THE FOLLOWING BEAN DEFINITIONS:
  * see lbiinit
+ * @version $Id$
  */
 public abstract class AbstractBeanFactoryTests extends TestCase {
 
@@ -120,6 +121,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 			assertTrue("Exception has correct bean name", ex.getBeanName().equals("rod"));
 			assertTrue("Exception requiredType must be BeanFactory.class", ex.getRequiredType().equals(BeanFactory.class));
 			assertTrue("Exception actualType as TestBean.class", ex.getActualType().equals(TestBean.class));
+			assertTrue("Actual instance is correct", ex.getActualInstance() == getBeanFactory().getBean("rod"));
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -311,6 +313,7 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			// Ok
+			assertTrue(alias.equals(ex.getBeanName()));
 		}
 		
 		// Create alias
