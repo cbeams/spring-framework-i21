@@ -14,6 +14,11 @@ import javax.ejb.SessionContext;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.support.BeanFactoryLoader;
+import com.interface21.beans.factory.support.BootstrapException;
+import com.interface21.beans.factory.support.StaticListableBeanFactory;
+
 import junit.framework.TestCase;
 
 /**
@@ -32,14 +37,23 @@ public class EjbSupportTests extends TestCase {
 		super(arg0);
 	}
 	
-	public void testSfsb() {
+	public void testSfsb() throws CreateException {
 		MockControl mc = EasyMock.controlFor(SessionContext.class);
 		SessionContext sc = (SessionContext) mc.getMock();
 		mc.activate();
 		
-		// Basically the test is largely what needed to be implemented here!
-		AbstractSessionBean sfsb = new AbstractSessionBean() {
+		final BeanFactory bf = new StaticListableBeanFactory();
+		BeanFactoryLoader bfl = new BeanFactoryLoader() {
+			public BeanFactory loadBeanFactory() throws BootstrapException {
+				return bf;
+			}
+		};
+		
+		// Basically the test is what needed to be implemented here!
+		class MySfsb extends AbstractStatefulSessionBean {
 			public void ejbCreate() throws CreateException {
+				loadBeanFactory();
+				assertTrue(getBeanFactory() == bf);
 				assertTrue(logger != null);
 			}
 			public void ejbActivate() throws EJBException, RemoteException {
@@ -50,20 +64,63 @@ public class EjbSupportTests extends TestCase {
 			}
 
 		};
+		
+		MySfsb sfsb = new MySfsb();
+		sfsb.setBeanFactoryLoader(bfl);
 		sfsb.setSessionContext(sc);
+		sfsb.ejbCreate();
 		assertTrue(sc == sfsb.getSessionContext());
+	}
+	
+	/**
+	 * Check there's a helpful message if no JNDI key is present
+	 *
+	 */
+	public void testHelpfulNamingLookupMessage() {
+		MockControl mc = EasyMock.controlFor(SessionContext.class);
+		SessionContext sc = (SessionContext) mc.getMock();
+		mc.activate();
+	
+		// Leave with default XmlBeanFactoryLoader
+	
+		// Basically the test is what needed to be implemented here!
+		AbstractStatelessSessionBean slsb = new AbstractStatelessSessionBean() {
+			public void onEjbCreate() {
+			}
+		};
+	
+		slsb.setSessionContext(sc);
+		try {
+			slsb.ejbCreate();
+			fail();
+		}
+		catch (CreateException ex) {
+			System.err.println(ex.getMessage());
+			assertTrue(ex.getMessage().indexOf("environment") != -1);
+			assertTrue(ex.getMessage().indexOf("ejb/BeanFactoryPath") != -1);
+		}
 	}
 	
 	public void testSlsb() throws Exception {
 		MockControl mc = EasyMock.controlFor(SessionContext.class);
 		SessionContext sc = (SessionContext) mc.getMock();
 		mc.activate();
+		
+		final BeanFactory bf = new StaticListableBeanFactory();
+		BeanFactoryLoader bfl = new BeanFactoryLoader() {
+			public BeanFactory loadBeanFactory() throws BootstrapException {
+				return bf;
+			}
+		};
 	
 		AbstractStatelessSessionBean slsb = new AbstractStatelessSessionBean() {
-			public void ejbCreate() throws CreateException {
+			protected void onEjbCreate() throws CreateException {
+				assertTrue(getBeanFactory() == bf);
 				assertTrue(logger != null);
 			}
 		};
+		// Must call this method before ejbCreate()
+		slsb.setBeanFactoryLoader(bfl);
 		slsb.setSessionContext(sc);
 		assertTrue(sc == slsb.getSessionContext());
 		slsb.ejbCreate();
