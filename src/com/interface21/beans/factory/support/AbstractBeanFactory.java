@@ -215,13 +215,13 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 
 		Object beanInstance = this.sharedInstanceCache.get(name);
 		if (beanInstance == null) {
+			logger.info("Creating shared instance of singleton bean '" + name + "'");
 			beanInstance = createBean(name, newlyCreatedBeans);
 			this.sharedInstanceCache.put(name, beanInstance);
-			logger.info("Cached shared instance of Singleton bean '" + name + "'");
 		}
 		else {
 			if (logger.isDebugEnabled())
-				logger.debug("Returning cached instance of Singleton bean '" + name + "'");
+				logger.debug("Returning cached instance of singleton bean '" + name + "'");
 		}
 
 		// Don't let calling code try to dereference the
@@ -272,9 +272,8 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * @return a new instance of this bean
 	 */
 	private Object createBean(String name, Map newlyCreatedBeans) throws BeansException {
-		logger.debug("createBean (" + name + ")");
 		RootBeanDefinition mergedBeanDefinition = getMergedBeanDefinition(name);
-		logger.debug("Merged definition is: " + mergedBeanDefinition);
+		logger.debug("Creating instance of bean '" + name + "' with merged definition [" + mergedBeanDefinition + "]");
 		BeanWrapper instanceWrapper = new BeanWrapperImpl(mergedBeanDefinition.getBeanClass());
 		Object bean = instanceWrapper.getWrappedInstance();
 

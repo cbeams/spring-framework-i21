@@ -187,12 +187,12 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 */
 	public void preInstantiateSingletons() {
 		// Ensure that unreferenced singletons are instantiated
+		logger.info("Instantiating singletons in factory [" + this + "]");
 		String[] beanNames = getBeanDefinitionNames();
 		for (int i = 0; i < beanNames.length; i++) {
 			AbstractBeanDefinition bd = getBeanDefinition(beanNames[i]);
 			if (bd.isSingleton()) {
-				Object singleton = getBean(beanNames[i]);
-	 			logger.debug("Instantiated singleton: " + singleton);
+				getBean(beanNames[i]);
 			}
 		}
 	}

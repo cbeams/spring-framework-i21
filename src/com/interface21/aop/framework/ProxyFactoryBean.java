@@ -115,7 +115,7 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	public void setBeanFactory(BeanFactory beanFactory) {	
 		this.beanFactory = beanFactory;
 			
-		logger.info("Set BeanFactory. Will configure interceptor beans...");
+		logger.debug("Set BeanFactory. Will configure interceptor beans...");
 		createInterceptorChain();
 		
 		// Eagerly create singleton proxy instance if necessary

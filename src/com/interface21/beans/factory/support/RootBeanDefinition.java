@@ -61,7 +61,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	}
 
 	public String toString() {
-		return "RootBeanDefinition: class is " + getBeanClass();
+		return "RootBeanDefinition for class '" + getBeanClass().getName() + "'";
 	}
 
 }

@@ -141,7 +141,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 				else {
 					// Interceptor is at end of list
 					this.target = ((ProxyInterceptor) pc.getInterceptor()).getTarget();
-					logger.info("Detected target when adding ProxyInterceptor to end of interceptor array");
+					logger.debug("Detected target when adding ProxyInterceptor to end of interceptor array");
 				}
 			}
 		}

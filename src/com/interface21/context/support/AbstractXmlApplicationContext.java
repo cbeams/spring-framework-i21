@@ -14,19 +14,26 @@ import com.interface21.context.ApplicationContextException;
 /**
  * Convenient abstract superclass for ApplicationContext implementations
  * drawing their configuration from XML documents containing bean definitions
- * understood by an XMLBeanFactory
- * @see com.interface21.beans.factory.xml.XmlBeanFactory
- * @author  Rod Johnson
+ * understood by an XMLBeanFactory.
+ * @author Rod Johnson
  * @version $Revision$
+ * @see com.interface21.beans.factory.xml.XmlBeanFactory
  */
 public abstract class AbstractXmlApplicationContext extends AbstractApplicationContext  {
 
 	/** Default BeanFactory for this context */
 	private XmlBeanFactory xmlBeanFactory;
 
+	/**
+	 * Create a new AbstractXmlApplicationContext with no parent.
+	 */
 	public AbstractXmlApplicationContext() {
 	}
 	
+	/**
+	 * Create a new AbstractXmlApplicationContext with the given parent context.
+	 * @param parent parent context
+	 */
 	public AbstractXmlApplicationContext(ApplicationContext parent) {
 		super(parent);
 	}
@@ -38,7 +45,9 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 			// Supports remote as well as local URLs
 			is = getInputStreamForBeanFactory();
 			xmlBeanFactory = new XmlBeanFactory(is, getParent());
-			logger.info("BeanFactory for application context is [" + xmlBeanFactory + "]");
+			if (logger.isInfoEnabled()) {
+				logger.info("BeanFactory for application context: " + xmlBeanFactory);
+			}
 		}
 		catch (IOException ex) {
 			throw new ApplicationContextException("IOException parsing XML document for " + identifier, ex);
