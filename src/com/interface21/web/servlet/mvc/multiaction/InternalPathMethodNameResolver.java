@@ -18,7 +18,8 @@ import com.interface21.web.util.WebUtils;
  * controller mapping to the respective MultiActionController.
  * Doesn't support wildcards.
  *
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
 */
 public class InternalPathMethodNameResolver implements MethodNameResolver {
 

@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Miscellaneous utilities for web applications.
  * Also used by various framework classes.
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  */
 public abstract class WebUtils {
 
@@ -63,9 +64,10 @@ public abstract class WebUtils {
 
 	/**
 	 * Retrieve the first cookie with the given name.
-	 * @return the first cookie with the given name, or null if none is found
-	 * Note that multiple cookies can have the same name but different paths or domains
+	 * Note that multiple cookies can have the same name
+	 * but different paths or domains.
 	 * @param name cookie name
+	 * @return the first cookie with the given name, or null if none is found
 	 */
 	public static Cookie getCookie(HttpServletRequest request, String name) {
 		Cookie cookies[] = request.getCookies();
@@ -149,8 +151,8 @@ public abstract class WebUtils {
 	 * to values. E.g. with a prefix of price, price_1, price_2 produce
 	 * a properties object with mappings for 1, 2 to the same values.
 	 * @param request HTTP request in which to look for parameters
-	 * @param base beginning of parameter name. If this is null or the empty string,
-	 * all parameters will match
+	 * @param base beginning of parameter name
+	 * (if this is null or the empty string, all parameters will match)
 	 * @return properties mapping request parameters <b>without the prefix</b>
 	 */
 	public static Properties getParametersStartingWith(ServletRequest request, String base) {
