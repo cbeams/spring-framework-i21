@@ -88,14 +88,10 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 			logger.info("BeanFactory for application config is [" + listableBeanFactory + "]");
 		}
 		catch (NoSuchBeanDefinitionException ex) {
-			String mesg = "Cannot load configuration from: missing bean definition [" + ex.getBeanName() + "]";
-			logger.error(mesg, ex);
-			throw new ApplicationContextException(mesg, ex);
+			throw new ApplicationContextException("Cannot load configuration: missing bean definition [" + ex.getBeanName() + "]", ex);
 		}
 		catch (BeansException ex) {
-			String mesg = "Cannot load configuration: problem instantiating or initializing beans (" + ex + ")";
-			logger.error(mesg, ex);
-			throw new ApplicationContextException(mesg, ex);
+			throw new ApplicationContextException("Cannot load configuration: problem instantiating or initializing beans", ex);
 		}
 	}
  

@@ -40,13 +40,6 @@ import com.interface21.beans.factory.ListableBeanFactory;
  */
 public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	
-	/** 
-	 * Name of options bean.
-	 * If none is supplied, the DEFAULT_OPTIONS instance will be used.
-	 * @see ContextOptions#DEFAULT_OPTIONS
-	 */
-	String OPTIONS_BEAN_NAME = "ApplicationContext.options";
-	
 	/**
 	 * Return the parent context, or null if there is no parent,
 	 * and this is the root of the context hierarchy.
@@ -68,12 +61,9 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 
 	/**
 	 * Return context options. These control reloading etc.
-	 * ApplicationContext implementations may subclass ContextOptions to
+	 * <p>ApplicationContext implementations may subclass ContextOptions to
 	 * add additional properties. It must always be a bean.
-	 * @return context options. Never returns null. Context may be
-	 * supplied as a bean in the default bean factory. If it is
-	 * not supplied, the ApplicationContext implementation must supply
-	 * a context.
+	 * @return context options (must not be null).
 	 */
 	ContextOptions getOptions();
 
@@ -88,9 +78,9 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	 * Notify all listeners registered with this application of an application
 	 * event. Events may be framework events (such as RequestHandledEvent)
 	 * or application-specific events.
-	 * @param e event to publish
+	 * @param event event to publish
 	 */
-	void publishEvent(ApplicationEvent e);
+	void publishEvent(ApplicationEvent event);
 
 	/**
 	 * Open an InputStream to the specified resource:
@@ -142,8 +132,8 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	 * Remove a shared object added with a call to shareObject().
 	 * Does nothing if the object was null.
 	 * @param key the object was added with
-	 * @return the object if it was found; or null.
+	 * @return the object if it was found, or null.
 	 */
 	Object removeSharedObject(String key);
 		
-}	// interface ApplicationContext
+}

@@ -1,6 +1,8 @@
 package com.interface21.context.support;
 
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
@@ -10,7 +12,6 @@ import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
-import java.util.Locale;
 
 /**
  * ApplicationContext to allow concrete registration of Java objects
@@ -21,18 +22,11 @@ import java.util.Locale;
  */
 public class StaticApplicationContext extends AbstractApplicationContext {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
 	ListableBeanFactoryImpl defaultBeanFactory;
 
 	/** Namespace --> name */
-	private HashMap beanFactoryHash = new HashMap();
+	private Map beanFactoryHash = new HashMap();
 
-
-	//---------------------------------------------------------------------
-	// Constructor
-	//---------------------------------------------------------------------
 	public StaticApplicationContext() throws BeansException, ApplicationContextException {
 		this(null);
 	}
@@ -68,26 +62,16 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 		return bf;
 	}
 
-	//---------------------------------------------------------------------
-	// Implementation of abstract methods
-	//---------------------------------------------------------------------
 	/**
-	 *  Do nothing: we rely on callers to update our public methods
-	 * @see AbstractApplicationContext#refreshBeanFactory()
+	 * Do nothing: we rely on callers to update our public methods
 	 */
 	protected void refreshBeanFactory() throws ApplicationContextException {
 	}
 
-	/**
-	 * @see AbstractApplicationContext#getBeanFactory()
-	 */
 	protected ListableBeanFactory getBeanFactory() {
 		return defaultBeanFactory;
 	}
 
-	//---------------------------------------------------------------------
-	// Public methods
-	//---------------------------------------------------------------------
 	/**
 	 * Register a bean with the default bean factory
 	 */
@@ -108,9 +92,8 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	 * @param defaultMessage message associated with this lookup code
 	 */
 	public void addMessage(String code, Locale locale, String defaultMessage) {
-		//messageSource.addMessage(code,message)
-		throw new UnsupportedOperationException("Add message not yet implemeneted");
+		StaticMessageSource messageSource = (StaticMessageSource) getBean(MESSAGE_SOURCE_BEAN_NAME);
+		messageSource.addMessage(code, locale, defaultMessage);
 	}
 
 }
-
