@@ -126,6 +126,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	}
 
 	public void addHeader(String str, String str1) {
+		headers.put(str, str1);
+	}
+
+	public String getHeader(String str) {
+		return (String) headers.get(str);
 	}
 
 	public void sendError(int param, String str) throws java.io.IOException {
