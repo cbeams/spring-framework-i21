@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.interface21.context.ApplicationContextException;
-import com.interface21.web.servlet.ControllerServlet;
 
 /**
  * Wrapper for a JSP or other resource within the WAR.
@@ -30,12 +29,6 @@ public class InternalResourceView extends AbstractView {
 
 	/** URL of the JSP or other resource within the WAR */
 	private String url;
-
-	/**
-	 * URL of debug resource optionally appended to the response after 
-	 * content from the actual URL 
-	 */
-	private String debugUrl;
 
 	/**
 	 * Constructor for use as a bean
@@ -64,16 +57,6 @@ public class InternalResourceView extends AbstractView {
 	}
 
 	/**
-	 * Set a debug URL that gets included at the end of the response,
-	 * if the ControllerServlet is in debug mode.
-	 * @param debugUrl the URL of the debug resource
-	 * @see ControllerServlet#setDebug
-	 */
-	public void setDebugUrl(String debugUrl) {
-		this.debugUrl = debugUrl;
-	}
-	
-	/**
 	 * Overridden lifecycle method to check that URL property is set
 	 * @see com.interface21.context.support.ApplicationObjectSupport#initApplicationContext()
 	 */
@@ -81,7 +64,6 @@ public class InternalResourceView extends AbstractView {
 		if (this.url == null) 
 			throw new ApplicationContextException("Must set url property in class " + getClass().getName());
 	}
-
 
 	/**
 	 * Render the internal resource given the specified model.
@@ -97,27 +79,18 @@ public class InternalResourceView extends AbstractView {
 		// Let the target resource set the content type
 				
 		try {
-			if (ControllerServlet.isDebugMode(request)) {
-				logger.debug("Showing debug information, and including JSP with url '" + this.url + "' in InternalResourceView with name '" + getName() + "'");
-				request.getRequestDispatcher(this.url).include(request, response);
-				request.getRequestDispatcher(this.debugUrl).include(request, response);
-			}
-			else {
-				// Simply forward to the JSP
-				RequestDispatcher rd = request.getRequestDispatcher(this.url);
-				if (rd == null)
-					throw new ServletException("Can't get RequestDispatcher for '" + this.url + "': check that this file exists within your WAR");
-				rd.forward(request, response);
-				logger.debug("Forwarded OK to resource within current application with url '" + this.url + "' in InternalResource view with name '" + getName() + "'");
-			}
-			
-		} 
+			// Simply forward to the JSP
+			RequestDispatcher rd = request.getRequestDispatcher(this.url);
+			if (rd == null)
+				throw new ServletException("Can't get RequestDispatcher for '" + this.url + "': check that this file exists within your WAR");
+			rd.forward(request, response);
+			logger.debug("Forwarded OK to resource within current application with url '" + this.url + "' in InternalResource view with name '" + getName() + "'");
+		}
 		catch (IOException ex) {
 			throw new ServletException("Couldn't dispatch to JSP with url '" + this.url + "' in InternalResourceView with name '" + getName() + "'", ex);
 		}
-	}	// renderMergedOutputModel
-	
-	
+	}
+
 	/**
 	 * Expose the models in the given map as request attributes.
 	 * Names will be taken from the map.

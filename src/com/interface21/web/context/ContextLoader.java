@@ -9,7 +9,7 @@ import com.interface21.web.context.support.XmlWebApplicationContext;
 
 /**
  * Performs the actual initialization work for the root application context.
- * Called by both ContextLoaderListener.
+ * Called by ContextLoaderListener.
  *
  * <p>Regards a "contextClass" parameter at the servlet context resp. web.xml root level,
  * falling back to the default context class (XmlWebApplicationContext) if not found.
@@ -33,8 +33,7 @@ public class ContextLoader {
 	/**
 	 * Initializes Spring's web application context for the given servlet context,
 	 * solely regarding the servlet context init parameter.
-	 * 
-	 * @param servletContext  the current servlet context
+	 * @param servletContext current servlet context
 	 * @return the new WebApplicationContext
 	 */
 	public static WebApplicationContext initContext(ServletContext servletContext) throws ApplicationContextException {
@@ -45,7 +44,7 @@ public class ContextLoader {
 		// constructor, and invoke setServletContext.
 		try {
 			Class clazz = (contextClass != null ? Class.forName(contextClass) : DEFAULT_CONTEXT_CLASS);
-			logger.info("Using context class '" + clazz.getName() + "'");
+			logger.info("Loading root WebApplicationContext: using context class '" + clazz.getName() + "'");
 
 			if (!WebApplicationContext.class.isAssignableFrom(clazz)) {
 				String msg = "Context class is no WebApplicationContext: " + contextClass;
@@ -57,28 +56,24 @@ public class ContextLoader {
 			return webApplicationContext;
 
 		} catch (ClassNotFoundException ex) {
-			String msg = "Failed to load config class '" + contextClass + "'";
-			handleException(msg, ex);
+			handleException("Failed to load config class '" + contextClass + "'", ex);
 
 		} catch (InstantiationException ex) {
-			String msg = "Failed to instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
-			handleException(msg, ex);
+			handleException("Failed to instantiate config class '" + contextClass + "': does it have a public no arg constructor?", ex);
 
 		} catch (IllegalAccessException ex) {
-			String msg = "Failed with IllegalAccess to find or instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
-			handleException(msg, ex);
+			handleException("Illegal access while finding or instantiating config class '" + contextClass + "': does it have a public no arg constructor?", ex);
 
-		} catch (Throwable t) {
-			String msg = "Unexpected error loading config: " + t;
-			handleException(msg, t);
+		} catch (RuntimeException ex) {
+			handleException("Unexpected error loading config: " + ex, ex);
 		}
 
 		return null;
 	}
 
-	private static void handleException(String msg, Throwable t) throws ApplicationContextException {
-		logger.error(msg, t);
-		throw new ApplicationContextException(msg, t);
+	private static void handleException(String msg, Exception ex) throws ApplicationContextException {
+		logger.error(msg, ex);
+		throw new ApplicationContextException(msg, ex);
 	}
 
 }

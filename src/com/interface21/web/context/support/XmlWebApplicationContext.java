@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 import com.interface21.context.ApplicationContext;
+import com.interface21.context.ApplicationContextException;
 import com.interface21.context.support.AbstractXmlApplicationContext;
 import com.interface21.web.context.WebApplicationContext;
 
@@ -113,7 +113,7 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	 * @param servletContext ServletContext to use to load configuration,
 	 * and in which this web application context should be set as an attribute.
 	 */
-	public void setServletContext(ServletContext servletContext) throws ServletException {
+	public void setServletContext(ServletContext servletContext) throws ApplicationContextException {
 		this.servletContext = servletContext;
 
 		this.configLocation = getConfigLocationForNamespace();
@@ -181,6 +181,9 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	 * of the web application.
 	 */
 	protected InputStream getResourceByPath(String path) throws IOException {
+		if (path.charAt(0) != '/') {
+			path = "/" + path;
+		}
 		return getServletContext().getResourceAsStream(path);
 	}
 

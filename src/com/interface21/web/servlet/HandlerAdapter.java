@@ -31,7 +31,7 @@ import com.interface21.context.ApplicationContextAware;
 public interface HandlerAdapter extends ApplicationContextAware {
 	
 	/**
-	 * Given a handler instance, return whether or not this* HandlerAdapter can
+	 * Given a handler instance, return whether or not this HandlerAdapter can
 	 * support it. Usually HandlerAdapters will base the decision on the handler
 	 * type. HandlerAdapters will normally support only one handler type.
 	 * <p>A typical implementation:
@@ -44,24 +44,28 @@ public interface HandlerAdapter extends ApplicationContextAware {
 	boolean supports(Object handler); 
 	
 	/**
-	 * Same contract as for Servlet.getLastModified.
-	 * Can simply return -1 if there's no support in the delegate class.
-	 */
-	long getLastModified(HttpServletRequest request, Object delegate);
-	
-	/**
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
 	 * @param delegate handler to use. This object must have previously been passed
 	 * to the supports() method of this interface, which must have returned true.
 	 * Implementations that generate output themselves (and return null
 	 * from this method) may encounter IOExceptions.
+	 * @throws ServletException if there is a general error
 	 * @throws IOException in case of I/O errors
-	 * @throws ServletException if there is an error
 	 * @return ModelAndView object with the name of the view and the required
 	 * model data, or null if the request has been handled directly.
 	 */
 	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object delegate)
-	    throws IOException, ServletException;
+	    throws ServletException, IOException;
+
+	/**
+	 * Same contract as for HttpServlet.getLastModified.
+	 * Can simply return -1 if there's no support in the delegate class.
+	 * @param request current HTTP request
+	 * @param delegate handler to use
+	 * @return the lastModified value for the given delegate
+	 * @see javax.servlet.http.HttpServlet#getLastModified
+	 */
+	long getLastModified(HttpServletRequest request, Object delegate);
 
 }

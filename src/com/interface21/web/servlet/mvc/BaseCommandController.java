@@ -21,7 +21,7 @@ import com.interface21.web.bind.ServletRequestDataBinder;
 
 /**
  * Controller implementation that creates a Command object on receipt
- * of requests and attempts to populate the command's JavaBean properties
+ * of requests, and attempts to populate the command's JavaBean properties
  * with request attributes.
  *
  * <p>Once created, commands can be validated using a Validator associated
@@ -47,30 +47,46 @@ public abstract class BaseCommandController extends AbstractController {
 
 	private boolean validateOnBinding = true;
 
+
 	public BaseCommandController() {
 		super();
 	}
 
+
+	/**
+	 * Set the bean name of the command.
+	 * The command instance will be included in the model under this name.
+	 */
 	public final void setBeanName(String beanName) {
 		this.beanName = beanName;
 	}
 
+	/**
+	 * Return the bean name of the command.
+	 */
 	protected final String getBeanName() {
 		return this.beanName;
 	}
 
-	protected final void setCommandClass(Class commandClass) {
+	/**
+	 * Set the command class for this controller.
+	 * An instance of this class gets populated and validated on each request.
+	 */
+	public final void setCommandClass(Class commandClass) {
 		checkValidator(this.validator, commandClass);
 		this.commandClass = commandClass;
 	}
 
+	/**
+	 * Return the command class for this controller.
+	 */
 	protected final Class getCommandClass() {
 		return this.commandClass;
 	}
 
 	/**
-	 * Set the validator for this controller.
-	 * @param validator validator for this controller.
+	 * Set the validator for this controller (can also be null).
+	 * The validator must support the specified command class.
 	 */
 	public final void setValidator(Validator validator) {
 		checkValidator(validator, this.commandClass);
@@ -79,7 +95,6 @@ public abstract class BaseCommandController extends AbstractController {
 
 	/**
 	 * Return the validator for this controller.
-	 * @return the validator for this controller.
 	 */
 	protected final Validator getValidator() {
 		return validator;
@@ -98,6 +113,7 @@ public abstract class BaseCommandController extends AbstractController {
 	protected final boolean isValidateOnBinding() {
 		return validateOnBinding;
 	}
+
 
 	/**
 	 * Check if the given validator and command class match.

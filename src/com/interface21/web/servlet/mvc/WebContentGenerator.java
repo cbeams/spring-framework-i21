@@ -6,8 +6,9 @@ import com.interface21.context.support.ApplicationObjectSupport;
 
 /**
  * Convenient superclass for any kind of web content generator,
- * like Controller or MultiAction or different workflow.
+ * like AbstractController and MultiActionController.
  * Supports HTTP cache control options.
+ *
  * @author Rod Johnson
  */
 public class WebContentGenerator extends ApplicationObjectSupport {
@@ -30,25 +31,27 @@ public class WebContentGenerator extends ApplicationObjectSupport {
 		response.setHeader("Pragma", "No-cache");
 		// HTTP 1.1 header
 		response.setHeader("Cache-Control", "no-cache");
-		response.setDateHeader("Expires", 1L);
+		// Http 1.0 is Expires
+		if (this.useExpiresHeader) {
+			response.setDateHeader("Expires", 1L);
+		}
 	}
 
 	/**
 	 * Set HTTP headers to allow caching for the given number of seconds.
 	 * @param response HTTP response
 	 * @param seconds number of seconds into the future that the response should
-	 * be cacheable for.
+	 * be cacheable for
 	 */
 	protected final void cacheForSeconds(HttpServletResponse response, int seconds, boolean mustRevalidate) {
 		String hval = "max-age=" + seconds;
 		if (mustRevalidate) {
 			hval += ", must-revalidate";
 		}
-		response.setHeader("Cache-Control", hval);
 		// HTTP 1.1 header
+		response.setHeader("Cache-Control", hval);
 		// Http 1.0 is Expires
 		if (this.useExpiresHeader) {
-			// We do this only if it's set as System current time millis
 			response.setDateHeader("Expires", System.currentTimeMillis() + seconds * 1000L);
 		}
 	}

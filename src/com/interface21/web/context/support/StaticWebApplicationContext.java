@@ -1,8 +1,9 @@
 package com.interface21.web.context.support;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
+import com.interface21.beans.BeansException;
+import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.context.support.StaticApplicationContext;
 import com.interface21.web.context.WebApplicationContext;
@@ -13,41 +14,38 @@ import com.interface21.web.context.WebApplicationContext;
  */
 public class StaticWebApplicationContext extends StaticApplicationContext implements WebApplicationContext {
 
-	private ServletContext sc;
+	private String namespace;
+
+	private ServletContext servletContext;
 	
-	
-	/** Allow superclass to throw exception
-	 */
-	public StaticWebApplicationContext() throws Exception {
+	public StaticWebApplicationContext() {
 	}
-	
+
+	public StaticWebApplicationContext(ApplicationContext parent, String namespace)
+	    throws BeansException, ApplicationContextException {
+		super(parent);
+		this.namespace = namespace;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
 	/**
-	 * Normally this would cause loading, but this
-	 * class doesn't rely on loading
+	 * Normally this would cause loading, but this class doesn't rely on loading.
 	 * @see WebApplicationContext#setServletContext(ServletContext)
 	 */
-	public void setServletContext(ServletContext servletContext) throws ServletException {
-		this.sc = servletContext;
-		try {
-			refresh();
-			WebApplicationContextUtils.publishConfigObjects(this);
-		}
-		catch (ApplicationContextException ex) {
-			// TODO nest properly
-			throw new ServletException(ex.getMessage());
-		}
-		
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
+		refresh();
+		WebApplicationContextUtils.publishConfigObjects(this);
 		// Expose as a ServletContext object
 		WebApplicationContextUtils.publishWebApplicationContext(this);
 	}
 	
 
-	/**
-	 * @see WebApplicationContext#getServletContext()
-	 */
 	public ServletContext getServletContext() {
-		return sc;
+		return servletContext;
 	}
 
 }
-
