@@ -55,8 +55,6 @@ import com.interface21.beans.factory.support.RuntimeBeanReference;
  * interface. It supports singletons, prototypes and references to either of
  * these kinds of bean.
  *
- * <p>Pre-instantiates singletons. TODO: This could be made configurable.
- *
  * @author Rod Johnson
  * @since 15 April 2001
  * @version $Id$
@@ -115,6 +113,14 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	/**
 	 * Creates new XmlBeanFactory using java.io to read the XML document with the given filename
 	 * @param filename name of the file containing the XML document
+	 */
+	public XmlBeanFactory(String filename) throws BeansException {
+		this(filename, null);
+	}
+
+	/**
+	 * Creates new XmlBeanFactory using java.io to read the XML document with the given filename
+	 * @param filename name of the file containing the XML document
 	 * @param parentBeanFactory parent bean factory
 	 */
 	public XmlBeanFactory(String filename, BeanFactory parentBeanFactory) throws BeansException {
@@ -129,11 +135,13 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Creates new XmlBeanFactory using java.io to read the XML document with the given filename
-	 * @param filename name of the file containing the XML document
+	 * Create a new XmlBeanFactory with the given input stream,
+	 * which must be parsable using DOM.
+	 * @param is InputStream containing XML
+	 * @throws BeansException
 	 */
-	public XmlBeanFactory(String filename) throws BeansException {
-		this(filename, null);
+	public XmlBeanFactory(InputStream is) throws BeansException {
+		this(is, null);
 	}
 
 	/**
@@ -149,13 +157,11 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Create a new XmlBeanFactory with the given input stream,
-	 * which must be parsable using DOM.
-	 * @param is InputStream containing XML
-	 * @throws BeansException
+	 * Creates new XmlBeanFactory from a DOM document
+	 * @param doc DOM document, already parsed
 	 */
-	public XmlBeanFactory(InputStream is) throws BeansException {
-		this(is, null);
+	public XmlBeanFactory(Document doc) throws BeansException {
+		this(doc, null);
 	}
 
 	/**
@@ -166,14 +172,6 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	public XmlBeanFactory(Document doc, BeanFactory parentBeanFactory) throws BeansException {
 		super(parentBeanFactory);
 		loadBeanDefinitions(doc);
-	}
-
-	/**
-	 * Creates new XmlBeanFactory from a DOM document
-	 * @param doc DOM document, already parsed
-	 */
-	public XmlBeanFactory(Document doc) throws BeansException {
-		this(doc, null);
 	}
 
 
@@ -217,7 +215,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 				throw new FatalBeanException("IOException closing stream for XML document", ex);
 			}
 		}
-	} // loadDefinitions (InputStream)
+	}
 
 	/**
 	 * Load bean definitions from the given DOM document.
@@ -232,9 +230,6 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 			Node n = nl.item(i);
 			loadBeanDefinition((Element) n);
 		}
-
-		// Ask superclass to eagerly instantiate singletons
-		preInstantiateSingletons();
 	}
 
 	/**
