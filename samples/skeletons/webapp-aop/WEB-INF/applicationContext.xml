@@ -45,12 +45,12 @@
 	  - objects that depend on it will still get their expected DataSource reference,
 	  - just a different one from a different source.
 	  -
-	  - DriverManagerDataSource simply creates a new Connection on each getConnection
-	  - call, it doesn't pool. Consider Apache's Jakarta Commons DBCP for a real pool,
-	  - defining a org.apache.commons.dbcp.BasicDataSource here, with same parameters.
+	  - Apache's Jakarta Commons DBCP is a full-featured connection pool that suits
+		- this usage nicely. The "destroy-method" value triggers BasicDataSource.close
+		- on context shutdown for proper cleanup.
 	  -->
 	<!--
-	<bean id="myDataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
+	<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
 		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
 		<property name="username"><value>sa</value></property>
@@ -60,7 +60,6 @@
 
 	<!--
 	  - Defines a transaction manager for usage in business or data access objects.
-	  -
 	  - No special treatment by the context, just a bean instance available as reference
 	  - for business objects that want to handle transactions, e.g. via TransactionTemplate.
 	  -->
