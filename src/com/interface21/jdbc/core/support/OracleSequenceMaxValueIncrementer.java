@@ -11,7 +11,7 @@ import com.interface21.jdbc.object.SqlFunction;
  * Class to increment maximum value of a given Oracle SEQUENCE 
  * If the sequence is created with a INCREMENT_BY value, this class
  * serves the intermediate values without querying the database
- * <br>TODO Bug: The class has to check if the key donate by Oracle is the INITIAL_VALUE when using INCREMENT_BY.
+ * <br>****TODO Bug: The class has to check if the key donate by Oracle is the INITIAL_VALUE when using INCREMENT_BY.
  * @author <a href="mailto:dkopylenko@acs.rutgers.edu>Dmitriy Kopylenko</a>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
  * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>

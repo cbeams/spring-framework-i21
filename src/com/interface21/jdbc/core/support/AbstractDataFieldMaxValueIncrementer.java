@@ -7,11 +7,10 @@ import com.interface21.jdbc.core.DataFieldMaxValueIncrementer;
  * Implementation of {@link com.interface21.jdbc.core.DataFieldMaxValueIncrementer}
  * Uses <b>Template Method</b> design pattern
  * Subclasses should provide implementations of protected abstract methods.
- * 
- * History 
- * 17/04/2003 : donated to Spring by Dmitriy Kopylenko
- * 19/04/2003 : modified by Isabelle Muszynski, added nextDoubleValue
- * 09/05/2003 : modified by JPP, added nextLongValue
+ * <br><br><b>History:</b> 
+ * <li>17/04/2003 : donated to Spring by Dmitriy Kopylenko
+ * <li>19/04/2003 : modified by Isabelle Muszynski, added nextDoubleValue
+ * <li>09/05/2003 : modified by JPP, added nextLongValue
  * @author <a href="mailto:dkopylenko@acs.rutgers.edu>Dmitriy Kopylenko</a>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
  * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
