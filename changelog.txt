@@ -1,12 +1,27 @@
 SPRING FRAMEWORK CHANGELOG
 ==========================
 
+Changes in version 1.0 M1 (xx.8.2003)
+-------------------------------------
+* introduced DisposableBean interface
+* introduced "destroy-method" attribute for XML bean definitions
+* SingleConnectionDataSource implements DisposableBean
+* LocalSessionFactoryBean implements DisposableBean
+* support for returning Types.ARRAY from stored procedure
+* fixed RMI registry detection in RmiServiceExporter
+* fixed custom editor usage for rejected field values
+* revised exception behavior of RequestContext and BindErrorsTag
+* re-added deprecated ContextLoaderServlet for Servlet 2.2 containers
+* refactored Log4jConfigListener into Log4jWebConfigurer and listener
+* introduced deprecated Log4jConfigServlet for Servlet 2.2 containers
+
 Changes in version 0.9.1 (8.8.2003)
 -----------------------------------
 * revised distribution jar files (spring-beans, spring-jdbc, spring-full)
 * fixed error logging in XmlBeanFactory
 * support for XML bean definition includes via XML entities
 * Spring bean definition DTD allows map entries to be lists now
+* introduced "init-method" attribute for XML bean definitions
 * new BeanFactoryPostProcessor hook to override bean definition values
 * revised PropertyResourceConfigurer based on BeanFactoryPostProcessor
 * revised simple JNDI implementation
