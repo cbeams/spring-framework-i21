@@ -8,21 +8,28 @@ import com.interface21.util.Log4jConfigurer;
 import com.interface21.web.util.WebUtils;
 
 /**
- * Servlet that performs custom Log4J initialization, supporting 3 init parameters:
- * - "location": the name of the Log4J config file (absolute or relative to the
- *   web application root directory, e.g. "WEB-INF/log4j.properties");
- * - "xmlFile": a boolean that indicates whether the specified file is an XML file,
- *   or a properties file else;
- * - "refreshInterval": the interval between config file refresh checks.
+ * Servlet that performs custom Log4J initialization,
+ * supporting 3 init parameters:
+ * <ul>
+ * <li>"location": the name of the Log4J config file
+ * (absolute or relative to the web application root directory,
+ * e.g. "WEB-INF/log4j.properties");
+ * <li>"xmlFile": a boolean that indicates whether the
+ * specified file is an XML file, or a properties file else;
+ * <li>"refreshInterval": the interval between config file
+ * refresh checks.
+ * </ul>
  *
- * <p>Note: For correct initialization order, this servlet should not be used
- * with ContextLoaderListener but rather with ContextLoaderServlet,
- * and it needs a lower load-on-startup number than the latter.
+ * <p>Note: For correct initialization order, this servlet
+ * should not be used with ContextLoaderListener but rather with
+ * ContextLoaderServlet, and it needs a lower load-on-startup
+ * number than the latter.
  *
- * <p>Note: Sets the web app root system property implicitly, for ${key}
- * substitutions within log file locations in the Log4J config file.
- * Example, assuming a "webAppRootKey" context-param with value "demo.root":
- * log4j.appender.demofile.File=${demo.root}/WEB-INF/demo.log
+ * <p>Note: Sets the web app root system property implicitly,
+ * for ${key} substitutions within log file locations in the Log4J
+ * config file. The default system property key is "webapp.root".
+ * Example, using context-param "webAppRootKey" = "demo.root":
+ * log4j.appender.myfile.File=${demo.root}/WEB-INF/demo.log
  *
  * @author Juergen Hoeller
  * @since 13.03.2003

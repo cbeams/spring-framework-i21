@@ -12,15 +12,17 @@ import org.apache.log4j.xml.DOMConfigurator;
  * @since 13.03.2003
  * @see com.interface21.web.util.Log4jConfigServlet
  */
-public class Log4jConfigurer {
+public abstract class Log4jConfigurer {
 
 	public static final long DEFAULT_REFRESH_INTERVAL = FileWatchdog.DEFAULT_DELAY;
 
 	/**
 	 * Initializes Log4J with the given configuration.
 	 * @param location  the location to the config file
-	 * @param xmlFile  if the config file is an XML file (else a property file)
-	 * @param refreshInterval  the interval between config file refresh checks
+	 * @param xmlFile  if the config file is an XML file
+	 * (else a property file)
+	 * @param refreshInterval  the interval between
+	 * config file refresh checks
 	 */
 	public static void initLogging(String location, boolean xmlFile, long refreshInterval) {
 		if (xmlFile) {
@@ -34,14 +36,16 @@ public class Log4jConfigurer {
 	 * Initializes Log4J with the given configuration and the
 	 * default refresh interval.
 	 * @param location  the location to the config file
-	 * @param xmlFile  if the config file is an XML file (else a property file)
+	 * @param xmlFile  if the config file is an XML file
+	 * (else a property file)
 	 */
 	public static void initLogging(String location, boolean xmlFile) {
 		initLogging(location, xmlFile, DEFAULT_REFRESH_INTERVAL);
 	}
 
 	/**
-	 * Initializes Log4J with the given configuration.
+	 * Initializes Log4J with the given configuration and the
+	 * default refresh interval (assuming a properties file).
 	 * @param location  the location to the property config file
 	 */
 	public static void initLogging(String location) {
