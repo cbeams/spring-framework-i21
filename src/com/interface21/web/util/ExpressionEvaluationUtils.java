@@ -9,7 +9,7 @@ import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
  * Convenience methods for easy access to the JSP Expression Language
  * evaluator of Jakarta's JSTL implementation.
  *
- * <p>The evaluation methods check if the value starts with "${"
+ * <p>The evaluation methods check if the value contains "${"
  * before invoking the EL evaluator, treating the value as "normal"
  * expression (i.e. conventional String) else.
  *
@@ -18,6 +18,7 @@ import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
  * actual EL expressions.
  *
  * @author Juergen Hoeller
+ * @author Alef Arendsen
  * @since 11.07.2003
  */
 public abstract class ExpressionEvaluationUtils {
@@ -26,7 +27,7 @@ public abstract class ExpressionEvaluationUtils {
 	 * Check if the given expression value is an EL expression.
 	 */
 	public static boolean isExpressionLanguage(String value) {
-		return value.startsWith("${");
+		return value.indexOf("${") != -1;
 	}
 
 	/**
@@ -40,12 +41,10 @@ public abstract class ExpressionEvaluationUtils {
 	 */
 	public static Object evaluate(String attrName, String attrValue, Class resultClass, PageContext pageContext)
 	    throws JspException {
-		if (isExpressionLanguage(attrValue)) {
+		if (isExpressionLanguage(attrValue))
 			return ExpressionEvaluationHelper.evaluate(attrName, attrValue, resultClass, pageContext);
-		}
-		else {
+		else
 			return attrValue;
-		}
 	}
 
 	/**
@@ -58,12 +57,10 @@ public abstract class ExpressionEvaluationUtils {
 	 */
 	public static String evaluateString(String attrName, String attrValue, PageContext pageContext)
 	    throws JspException {
-		if (isExpressionLanguage(attrValue)) {
+		if (isExpressionLanguage(attrValue))
 			return (String) ExpressionEvaluationHelper.evaluate(attrName, attrValue, String.class, pageContext);
-		}
-		else {
+		else
 			return attrValue;
-		}
 	}
 
 	/**
@@ -76,12 +73,10 @@ public abstract class ExpressionEvaluationUtils {
 	 */
 	public static int evaluateInteger(String attrName, String attrValue, PageContext pageContext)
 	    throws JspException {
-		if (isExpressionLanguage(attrValue)) {
+		if (isExpressionLanguage(attrValue))
 			return ((Integer) ExpressionEvaluationHelper.evaluate(attrName, attrValue, Integer.class, pageContext)).intValue();
-		}
-		else {
+		else
 			return Integer.parseInt(attrValue);
-		}
 	}
 
 	/**
@@ -94,12 +89,10 @@ public abstract class ExpressionEvaluationUtils {
 	 */
 	public static boolean evaluateBoolean(String attrName, String attrValue, PageContext pageContext)
 	    throws JspException {
-		if (isExpressionLanguage(attrValue)) {
+		if (isExpressionLanguage(attrValue))
 			return ((Boolean) ExpressionEvaluationHelper.evaluate(attrName, attrValue, Boolean.class, pageContext)).booleanValue();
-		}
-		else {
+		else
 			return Boolean.valueOf(attrValue).booleanValue();
-		}
 	}
 
 
