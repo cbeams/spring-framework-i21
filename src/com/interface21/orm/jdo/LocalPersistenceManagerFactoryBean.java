@@ -1,5 +1,13 @@
 package com.interface21.orm.jdo;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
+
+import javax.jdo.JDOException;
+import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
 import com.interface21.beans.PropertyValues;
@@ -8,7 +16,7 @@ import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.DataAccessResourceFailureException;
 
 /**
- * FactoryBean that creates local JDO PersistenceManager instances.
+ * FactoryBean that creates a local JDO PersistenceManager instance.
  * Behaves like a PersistenceManagerFactory instance when used as bean
  * reference, e.g. for JdoTemplate's persistenceManagerFactory property.
  * Note that switching to JndiObjectFactoryBean is just a matter of
@@ -42,10 +50,33 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 
 	/**
 	 * Initialize the PersistenceManagerFactory for the given location.
-	 * @throws DataAccessResourceFailureException in case of initialization errors
+	 * @throws IllegalArgumentException in case of illegal property values
+	 * @throws IOException if the properties could not be loaded from the given location
+	 * @throws JDOException in case of JDO initialization errors
 	 */
-	public void afterPropertiesSet() throws DataAccessResourceFailureException {
-		this.persistenceManagerFactory = PersistenceManagerFactoryUtils.createPersistenceManagerFactory(location);
+	public void afterPropertiesSet() throws IllegalArgumentException, IOException, JDOException {
+		if (this.location == null) {
+			throw new IllegalArgumentException("location must be set");
+		}
+		Properties prop = new Properties();
+		try {
+			URL url = new URL(this.location);
+			prop.load(url.openStream());
+		}
+		catch (MalformedURLException ex) {
+			// no URL -> try classpath resource
+			String resourceLocation = this.location;
+			if (!resourceLocation.startsWith("/")) {
+				// always use root, as relative loading doesn't make sense
+				resourceLocation = "/" + resourceLocation;
+				InputStream in = getClass().getResourceAsStream(resourceLocation);
+				if (in == null) {
+					throw new DataAccessResourceFailureException("Cannot open config location: " + resourceLocation, null);
+				}
+				prop.load(in);
+			}
+		}
+		this.persistenceManagerFactory = JDOHelper.getPersistenceManagerFactory(prop);
 	}
 
 	/**

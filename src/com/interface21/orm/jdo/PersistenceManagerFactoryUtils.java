@@ -1,14 +1,7 @@
 package com.interface21.orm.jdo;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Properties;
-
 import javax.jdo.JDOException;
 import javax.jdo.JDOFatalUserException;
-import javax.jdo.JDOHelper;
 import javax.jdo.JDOUserException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
@@ -52,44 +45,6 @@ public abstract class PersistenceManagerFactoryUtils {
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
-	}
-
-	/**
-	 * Create a JDO PersistenceManagerFactory with the given config file.
-	 * @param configLocation location of the config file (can be a URL
-	 * or a classpath resource)
-	 * @return the new PersistenceManagerFactory instance
-	 * @throws DataAccessResourceFailureException if the PersistenceManagerFactory could not be created
-	 */
-	public static PersistenceManagerFactory createPersistenceManagerFactory(String configLocation)
-	    throws DataAccessResourceFailureException {
-		Properties prop = new Properties();
-		try {
-			try {
-				URL url = new URL(configLocation);
-				prop.load(url.openStream());
-			}
-			catch (MalformedURLException ex) {
-				// no URL -> try classpath resource
-				if (!configLocation.startsWith("/")) {
-					// always use root, as relative loading doesn't make sense
-					configLocation = "/" + configLocation;
-					InputStream in = PersistenceManagerFactoryUtils.class.getResourceAsStream(configLocation);
-					if (in == null) {
-						throw new DataAccessResourceFailureException("Cannot open config location: " + configLocation, null);
-					}
-					prop.load(in);
-				}
-			}
-			return JDOHelper.getPersistenceManagerFactory(prop);
-		}
-		catch (IOException ex) {
-			throw new DataAccessResourceFailureException("Cannot open config location: " + configLocation, ex);
-
-		}
-		catch (JDOException ex) {
-			throw new DataAccessResourceFailureException("Cannot create JDO PersistenceManagerFactory", ex);
-		}
 	}
 
 	/**
