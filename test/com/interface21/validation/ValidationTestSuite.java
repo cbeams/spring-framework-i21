@@ -72,7 +72,6 @@ public class ValidationTestSuite extends TestCase {
 		}
 	}
 
-
 	public void testCustomEditorForSingleProperty() {
 		TestBean tb = new TestBean();
 		DataBinder binder = new DataBinder(tb, "tb");
@@ -81,6 +80,9 @@ public class ValidationTestSuite extends TestCase {
 			public void setAsText(String text) throws IllegalArgumentException {
 				setValue("prefix" + text);
 			}
+			public String getAsText() {
+				return ((String) getValue()).substring(6);
+			}
 		});
 
 		MutablePropertyValues pvs = new MutablePropertyValues();
@@ -88,9 +90,14 @@ public class ValidationTestSuite extends TestCase {
 		pvs.addPropertyValue(new PropertyValue("touchy", "value"));
 		binder.bind(pvs);
 
-		assertEquals("prefixvalue", binder.getFieldValue("name"));
+		binder.rejectValue("name", "someCode", "someMessage");
+		binder.rejectValue("touchy", "someCode", "someMessage");
+
+		assertEquals("value", binder.getFieldValue("name"));
+		assertEquals("prefixvalue", binder.getFieldError("name").getRejectedValue());
 		assertEquals("prefixvalue", tb.getName());
 		assertEquals("value", binder.getFieldValue("touchy"));
+		assertEquals("value", binder.getFieldError("touchy").getRejectedValue());
 		assertEquals("value", tb.getTouchy());
 	}
 
@@ -102,6 +109,9 @@ public class ValidationTestSuite extends TestCase {
 			public void setAsText(String text) throws IllegalArgumentException {
 				setValue("prefix" + text);
 			}
+			public String getAsText() {
+				return ((String) getValue()).substring(6);
+			}
 		});
 
 		MutablePropertyValues pvs = new MutablePropertyValues();
@@ -109,9 +119,14 @@ public class ValidationTestSuite extends TestCase {
 		pvs.addPropertyValue(new PropertyValue("touchy", "value"));
 		binder.bind(pvs);
 
-		assertEquals("prefixvalue", binder.getFieldValue("name"));
+		binder.rejectValue("name", "someCode", "someMessage");
+		binder.rejectValue("touchy", "someCode", "someMessage");
+
+		assertEquals("value", binder.getFieldValue("name"));
+		assertEquals("prefixvalue", binder.getFieldError("name").getRejectedValue());
 		assertEquals("prefixvalue", tb.getName());
-		assertEquals("prefixvalue", binder.getFieldValue("touchy"));
+		assertEquals("value", binder.getFieldValue("touchy"));
+		assertEquals("prefixvalue", binder.getFieldError("touchy").getRejectedValue());
 		assertEquals("prefixvalue", tb.getTouchy());
 	}
 
