@@ -28,10 +28,10 @@
 		<property name="name"><value>Rod</value></property>
 		<property name="age"><value>32</value></property>
 		<property name="friends">
-			<collection>
+			<list>
 				<ref bean="jenny"/>
 				<ref bean="david"/>			
-			</collection>
+			</list>
 		</property>
 	</bean>
 	
@@ -42,19 +42,19 @@
 		<property name="name"><value>loner</value></property>
 		<property name="age"><value>26</value></property>
 		<property name="friends">
-			<collection>
+			<list>
 				<ref bean="david"/>			
-			</collection>
+			</list>
 		</property>
 	</bean>
 	
 	<bean id="jumble" class="com.interface21.beans.factory.xml.MixedCollectionBean">	
 		<property name="jumble">
-			<collection>
+			<list>
 				<ref bean="david"/>	
 				<value>literal</value>
 				<ref bean="jenny" />
-			</collection>
+			</list>
 		</property>
 	</bean>
 	
@@ -93,6 +93,23 @@
 				<entry key="foo"><value>bar</value></entry>
 				<entry key="jenny"><ref bean="jenny"/></entry>
 			</map>
+		</property>
+	</bean>
+	
+	<bean id="emptyProps" class="com.interface21.beans.factory.HasMap">	
+		<property name="props">
+			<props>
+			</props>
+		</property>
+	</bean>
+	
+	
+	<bean id="props" class="com.interface21.beans.factory.HasMap">	
+		<property name="props">
+			<props>
+				<prop key="foo">bar</prop>
+				<prop key="2">TWO</prop>
+			</props>
 		</property>
 	</bean>
 
