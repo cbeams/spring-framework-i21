@@ -20,7 +20,7 @@ import java.util.Map;
  * both to make it possible for a controller to return both
  * model and view in a single return value.
  * <br>Class to represent a model and view returned by
- * an handler used by a ControllerServlet.
+ * an handler used by a DispatcherServlet.
  * The View can take the form of a reference to a View
  * object, or a String view name, which will need
  * to be resolved by a ViewResolver object.
@@ -39,7 +39,7 @@ public class ModelAndView {
 	private View view;
 
 	/** 
-	 * View name if we hold a view name that will be resolved by the ControllerServlet
+	 * View name if we hold a view name that will be resolved by the DispatcherServlet
 	 */
 	private String viewName;
 

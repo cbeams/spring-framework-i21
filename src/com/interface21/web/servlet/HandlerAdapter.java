@@ -12,8 +12,8 @@ import com.interface21.context.ApplicationContextAware;
  * MVC framework SPI interface, allowing parameterization of core MVC workflow.
  *
  * <p>Interface that must be implemented for each handler type to handle a request.
- * This interface is used to allow the ControllerServlet to be indefinitely
- * extensible. The ControllerServlet accesses all installed handlers through this
+ * This interface is used to allow the DispatcherServlet to be indefinitely
+ * extensible. The DispatcherServlet accesses all installed handlers through this
  * interface, meaning that it does not contain code specific to any handler type.
  *
  * <p>Note that a handler can be of type Object. This is to enable handlers from
@@ -24,7 +24,7 @@ import com.interface21.context.ApplicationContextAware;
  *
  * <p>Note: Implementations can implement the Ordered interface to be able to
  * specify a sorting order and thus a priority for getting applied by
- * ControllerServlet. Non-Ordered instances get treated as lowest priority.
+ * DispatcherServlet. Non-Ordered instances get treated as lowest priority.
  *
  * @author Rod Johnson
  */
@@ -46,7 +46,8 @@ public interface HandlerAdapter extends ApplicationContextAware {
 	/**
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
-	 * @param delegate handler to use. This object must have previously been passed
+	 * Can also perform authorization checks.
+	 * @param handler handler to use. This object must have previously been passed
 	 * to the supports() method of this interface, which must have returned true.
 	 * Implementations that generate output themselves (and return null
 	 * from this method) may encounter IOExceptions.
@@ -55,17 +56,17 @@ public interface HandlerAdapter extends ApplicationContextAware {
 	 * @return ModelAndView object with the name of the view and the required
 	 * model data, or null if the request has been handled directly.
 	 */
-	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object delegate)
+	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
 	    throws ServletException, IOException;
 
 	/**
 	 * Same contract as for HttpServlet.getLastModified.
-	 * Can simply return -1 if there's no support in the delegate class.
+	 * Can simply return -1 if there's no support in the handler class.
 	 * @param request current HTTP request
-	 * @param delegate handler to use
-	 * @return the lastModified value for the given delegate
+	 * @param handler handler to use
+	 * @return the lastModified value for the given handler
 	 * @see javax.servlet.http.HttpServlet#getLastModified
 	 */
-	long getLastModified(HttpServletRequest request, Object delegate);
+	long getLastModified(HttpServletRequest request, Object handler);
 
 }

@@ -2,6 +2,7 @@ package com.interface21.web.servlet.handler;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,6 +14,10 @@ import com.interface21.beans.BeansException;
  * Abstract base class for url-mapped HandlerMapping implementations.
  * Provides infrastructure for mapping handlers to URLs and configurable
  * URL lookup. For information on the latter, see alwaysUseFullPath property.
+ *
+ * <p>Supports direct matches (given "/test" -> registered "/test")
+ * and "*" matches (given "/test" -> registered "/t*").
+ *
  * @author Juergen Hoeller
  * @since 16.04.2003
  * @see #setAlwaysUseFullPath
@@ -46,11 +51,27 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
 	/**
 	 * Lookup a handler instance for the given URL path.
+	 * Supports direct matches (given "/test" -> registered "/test")
+	 * and "*" matches (given "/test" -> registered "/t*").
 	 * @param urlPath URL the bean is mapped to
 	 * @return the associated handler instance, or null if not found
 	 */
 	protected Object lookupHandler(String urlPath) {
-		return this.handlerMap.get(urlPath);
+		Object handler = this.handlerMap.get(urlPath);
+		if (handler != null) {
+			return handler;
+		}
+		// check for appropriate * mapping
+		for (Iterator it = this.handlerMap.keySet().iterator(); it.hasNext();) {
+			String path = (String) it.next();
+			if (path.endsWith("*") && urlPath.length() >= path.length()-1) {
+				if (path.substring(0, path.length()-1).equals(urlPath.substring(0, path.length()-1))) {
+					return this.handlerMap.get(path);
+				}
+			}
+		}
+		// no match found
+		return null;
 	}
 
 	/**

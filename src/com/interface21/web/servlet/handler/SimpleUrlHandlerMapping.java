@@ -17,41 +17,44 @@ import java.util.Properties;
 /**
  * Implementation of the HandlerMapping interface to map from URLs
  * to request handler beans.
- * <br>Objects of this class are JavaBeans.
- * <br/>Mappings are in a form accepted by the java.util.Properties class, as follows:
+ *
+ * <p>Mappings are set via the "mappings" property, in a form accepted
+ * by the java.util.Properties class, like as follows:<br>
  * <code>
  * /welcome.html=ticketController
  * /show.html=ticketController
- * </code>
- * The syntax is<br>
- * PATH=HANDLER_BEAN_NAME
- * <br>If the path doesn't begin with a /, one is prepended.
- * <br>Mappings are set via the "mappings" property.
- * @see com.interface21.web.servlet.ControllerServlet
+ * </code><br>
+ * The syntax is PATH=HANDLER_BEAN_NAME.
+ * If the path doesn't begin with a /, one is prepended.
+ *
+ * <p>Supports direct matches (given "/test" -> registered "/test")
+ * and "*" matches (given "/test" -> registered "/t*").
+ *
+ * @see com.interface21.web.servlet.DispatcherServlet
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	
-	private Properties mappingProperties;
+	private Properties mappings;
 	
 	/**
 	 * Set mappings from a properties object. This property must
 	 * be set to configure this object.
-	 * @param mappingProperties properties
+	 * @param mappings properties
 	 * @see java.util.Properties
 	 */
-	public void setMappings(Properties mappingProperties) {
-		this.mappingProperties = mappingProperties;
-		logger.debug("Set properties to [" + mappingProperties + "]");
+	public void setMappings(Properties mappings) {
+		this.mappings = mappings;
+		logger.debug("Set properties to [" + mappings + "]");
 	}
 
 	public void initHandlerMapping() {
-		if (!this.mappingProperties.isEmpty()) {
-			Iterator itr = mappingProperties.keySet().iterator();
+		if (!this.mappings.isEmpty()) {
+			Iterator itr = mappings.keySet().iterator();
 			while (itr.hasNext()) {
 				String url = (String) itr.next();
-				String beanName = this.mappingProperties.getProperty(url);
+				String beanName = this.mappings.getProperty(url);
 				logger.info("Controller mapping from URL '" + url + "' to '" + beanName + "'");
 				if ("*".equals(url)) {
 					setDefaultHandler(initHandler(beanName, url));

@@ -36,7 +36,7 @@ public interface Controller {
 
 	/**
 	 * Process the request and return a ModelAndView object which the
-	 * ControllerServlet will render. A null return is not an error.
+	 * DispatcherServlet will render. A null return is not an error.
 	 * It indicates that this object completed request processing itself,
 	 * thus there is no ModelAndView to render.
 	 * @param request current HTTP request

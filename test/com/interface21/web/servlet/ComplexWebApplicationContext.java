@@ -36,7 +36,7 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 	public void setServletContext(ServletContext servletContext) {
 		super.setServletContext(servletContext);
 
-		registerSingleton(ControllerServlet.LOCALE_RESOLVER_BEAN_NAME, SessionLocaleResolver.class, null);
+		registerSingleton(DispatcherServlet.LOCALE_RESOLVER_BEAN_NAME, SessionLocaleResolver.class, null);
 
 		MutablePropertyValues pvs = new MutablePropertyValues();
 		pvs.addPropertyValue(new PropertyValue("mappings", "/form.do=localeHandler\n/locale.do=localeHandler"));
@@ -58,7 +58,7 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 
 		pvs = new MutablePropertyValues();
 		pvs.addPropertyValue(new PropertyValue("basename", "com.interface21.web.servlet.complexviews"));
-		registerSingleton(ControllerServlet.VIEW_RESOLVER_BEAN_NAME, ResourceBundleViewResolver.class, pvs);
+		registerSingleton(DispatcherServlet.VIEW_RESOLVER_BEAN_NAME, ResourceBundleViewResolver.class, pvs);
 
 		pvs = new MutablePropertyValues();
 		pvs.addPropertyValue(new PropertyValue("commandClass", "com.interface21.beans.TestBean"));

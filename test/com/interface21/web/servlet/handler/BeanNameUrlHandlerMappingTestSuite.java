@@ -1,5 +1,7 @@
 package com.interface21.web.servlet.handler;
 
+import javax.servlet.ServletException;
+
 import junit.framework.TestCase;
 import com.interface21.web.mock.MockHttpServletRequest;
 
@@ -28,7 +30,7 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 
 	//ServletConfig servletConfig;
 	
-	//ControllerServlet controllerServlet;
+	//DispatcherServlet controllerServlet;
 
 	/** Creates new SeatingPlanTest */
 	public BeanNameUrlHandlerMappingTestSuite(String name) {
@@ -46,7 +48,7 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 	}
 
 	public void testRequestsWithHandlers() throws Exception {
-		Object bean = ac.getBean("/welcome.html /show.html /bookseats.html /reservation.html /payment.html /confirmation.html");
+		Object bean = ac.getBean("godCtrl");
 
 		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/welcome.html");
 		Object h = hm.getHandler(req);
@@ -67,6 +69,22 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 		assertTrue("Handler is null", h == null);
 		
 		req = new MockHttpServletRequest(null, "GET", "/foo/bar/baz.html");
+		h = hm.getHandler(req);
+		assertTrue("Handler is null", h == null);
+	}
+
+	public void testAsteriskMatches() throws ServletException {
+		Object bean = ac.getBean("godCtrl");
+
+		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/test.html");
+		Object h = hm.getHandler(req);
+		assertTrue("Handler is correct bean", h == bean);
+
+		req = new MockHttpServletRequest(null, "GET", "/testarossa");
+		h = hm.getHandler(req);
+		assertTrue("Handler is correct bean", h == bean);
+
+		req = new MockHttpServletRequest(null, "GET", "/tes");
 		h = hm.getHandler(req);
 		assertTrue("Handler is null", h == null);
 	}

@@ -13,7 +13,7 @@ import com.interface21.validation.Errors;
 import com.interface21.web.bind.EscapedErrors;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.context.support.WebApplicationContextUtils;
-import com.interface21.web.servlet.ControllerServlet;
+import com.interface21.web.servlet.DispatcherServlet;
 import com.interface21.web.util.HtmlUtils;
 
 /**
@@ -47,10 +47,10 @@ public abstract class RequestContextUtils {
 	public static WebApplicationContext getWebApplicationContext(ServletRequest request, ServletContext servletContext)
 	    throws ServletException {
 		WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(
-				ControllerServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+				DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		if (webApplicationContext == null) {
 			if (servletContext == null) {
-				throw new ServletException("No WebApplicationContext found: not in a ControllerServlet request?");
+				throw new ServletException("No WebApplicationContext found: not in a DispatcherServlet request?");
 			}
 			webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 			if (webApplicationContext == null) {
@@ -66,7 +66,7 @@ public abstract class RequestContextUtils {
 	 * @return the current locale
 	 */
 	public static Locale getLocale(ServletRequest request) {
-		return (Locale) request.getAttribute(ControllerServlet.LOCALE_ATTRIBUTE);
+		return (Locale) request.getAttribute(DispatcherServlet.LOCALE_ATTRIBUTE);
 	}
 
 	/**

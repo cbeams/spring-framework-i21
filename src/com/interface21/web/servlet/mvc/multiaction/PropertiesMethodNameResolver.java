@@ -26,12 +26,14 @@ import com.interface21.web.util.WebUtils;
  * the MethodNameResolver interface. Uses java.util.Properties
  * defining the mapping between the URL of incoming requests and
  * method name. Such properties can be held in an XML document.
- * <br>Properties format is
+ *
+ * <p>Properties format is
  * <code>
  * /welcome.html=displayGenresPage
  * </code>
  * Note that method overloading isn't allowed, so there's no
  * need to specify arguments.
+ *
  * @author Rod Johnson
  */
 public class PropertiesMethodNameResolver implements MethodNameResolver, InitializingBean {
@@ -52,11 +54,12 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 	
 	/**
 	 * Create a new PropertiesMethodNameResolver, fully configuring this
-	 * class by passing in propertiers
-	 * @param props property mapping
+	 * class by passing in properties.
+	 * @param mappings property mapping
 	 */
-	public PropertiesMethodNameResolver(Properties props) {
-		setMappings(props);
+	public PropertiesMethodNameResolver(Properties mappings) {
+		this.mappings = mappings;
+		afterPropertiesSet();
 	}
 
 	/**
@@ -71,25 +74,23 @@ public class PropertiesMethodNameResolver implements MethodNameResolver, Initial
 
 	/**
 	 * Set the mapping properties configuring this class.
-	 * @param mappings properties configuring this class
 	 */
 	public void setMappings(Properties mappings) {
 		this.mappings = mappings;
 	}
 	
 	public void afterPropertiesSet() {
-		if (this.mappings == null)
-			throw new IllegalStateException("Must set 'mappings' property on PropertiesMethodNameResolver");
+		if (this.mappings == null) {
+			throw new IllegalArgumentException("'mappings' property is required");
+		}
 	}
 
-	//---------------------------------------------------------------------
-	// Implementation of MethodNameResolver
-	//---------------------------------------------------------------------
 	public String getHandlerMethodName(HttpServletRequest request) throws NoSuchRequestHandlingMethodException {
 		String lookupPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
 		String name = this.mappings.getProperty(lookupPath);
-		if (name == null)
+		if (name == null) {
 			throw new NoSuchRequestHandlingMethodException(request);
+		}
 		logger.debug("Returning MultiActionController method name '" + name + "' for lookup path '" + lookupPath + "'");
 		return name;
 	}

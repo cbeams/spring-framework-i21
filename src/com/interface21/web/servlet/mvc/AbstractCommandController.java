@@ -17,7 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.interface21.validation.Errors;
+import com.interface21.validation.BindException;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
@@ -57,7 +57,7 @@ public abstract class AbstractCommandController extends BaseCommandController {
 	protected final ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		Object command = userObject(request);
-		Errors errors = bindAndValidate(request, command);
+		BindException errors = bindAndValidate(request, command);
 		return handle(request, response, command, errors);
 	}
 
@@ -71,7 +71,7 @@ public abstract class AbstractCommandController extends BaseCommandController {
 	 * @return a ModelAndView to render, or null
 	 */
 	protected abstract ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
-	                                       Object command, Errors errors)
+	                                       Object command, BindException errors)
 	    throws ServletException, IOException;
 
 }

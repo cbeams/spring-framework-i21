@@ -31,7 +31,7 @@ import com.interface21.context.ApplicationContextAware;
  *
  * <p>Note: Implementations can implement the Ordered interface to be able to
  * specify a sorting order and thus a priority for getting applied by
- * ControllerServlet. Non-Ordered instances get treated as lowest priority.
+ * DispatcherServlet. Non-Ordered instances get treated as lowest priority.
  *
  * @author Rod Johnson
  * @see com.interface21.core.Ordered
@@ -45,21 +45,20 @@ public interface HandlerMapping extends ApplicationContextAware, LocaleResolverA
 	 * Handler objects are normally taken from the BeanFactory.
 	 * This means that implementing classes should never need to open
 	 * configuration files for themselves.
-	 * @throws ServletException if this handler mapping cannot initialize correctly.
+	 * @throws ServletException if this handler mapping cannot initialize correctly
 	 */
 	void initHandlerMapping() throws ServletException;
 	
 	/**
-	 * Return a handler for this request.
-	 * The choice may be made on request URL, session state 
-	 * or any factor the implementing class chooses.
-	 * @return a handler object. This returns Object, rather than even a tag
-	 * interface, so that handlers are not constrained. For example, a HandlerAdapter
-	 * could be written to allow another framework's handler objects to be used.
-	 * Returns null if no match was found. This is not an error.
-	 * The controllerServlet will query all registered HandlerMap objects
-	 * to find a match, and only decide there is an error if none
-	 * can find a handler.
+	 * Return a handler for this request. The choice may be made on request URL,
+	 * session state, or any factor the implementing class chooses.
+	 * <p>This returns Object, rather than even a tag interface, so that handlers
+	 * are not constrained in any way. For example, a HandlerAdaptercould be
+	 * written to allow another framework's handler objects to be used.
+	 * <p>Returns null if no match was found. This is not an error. The
+	 * DispatcherServlet will query all registered HandlerMapping beans to find
+	 * a match, and only decide there is an error if none can find a handler.
+	 * @return a handler object, or null if none found
 	 * @throws ServletException if there is an internal error
 	 */
 	Object getHandler(HttpServletRequest request) throws ServletException;

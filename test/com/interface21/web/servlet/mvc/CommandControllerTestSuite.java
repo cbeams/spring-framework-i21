@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 
 import com.interface21.beans.TestBean;
 import com.interface21.beans.propertyeditors.CustomDateEditor;
+import com.interface21.validation.BindException;
 import com.interface21.validation.Errors;
 import com.interface21.validation.FieldError;
 import com.interface21.web.bind.ServletRequestDataBinder;
@@ -229,7 +230,7 @@ public class CommandControllerTestSuite extends TestCase {
 			super(TestBean.class, "person");
 		}
 		
-		protected ModelAndView handle(HttpServletRequest request,	HttpServletResponse response,	Object command,	Errors errors) {
+		protected ModelAndView handle(HttpServletRequest request,	HttpServletResponse response,	Object command,	BindException errors) {
 				Map m = new HashMap();
 				assertTrue("Command not null", command != null);
 				assertTrue("errors not null", errors != null);

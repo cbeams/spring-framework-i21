@@ -44,11 +44,19 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 
 	/**
 	 * Set the default handler.
-	 * @param defaultHandler default handler instance, or null.
+	 * @param defaultHandler default handler instance, or null if none
 	 */
 	public void setDefaultHandler(Object defaultHandler) {
 		this.defaultHandler = defaultHandler;
 		logger.info("Default mapping is to controller [" + this.defaultHandler + "]");
+	}
+
+	/**
+	 * Return the default handler.
+	 * @return the default handler instance, or null if none
+	 */
+	public Object getDefaultHandler() {
+		return defaultHandler;
 	}
 
 	/**
