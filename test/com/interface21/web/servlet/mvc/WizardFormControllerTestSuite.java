@@ -5,19 +5,19 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import junit.framework.TestCase;
 
 import com.interface21.beans.TestBean;
+import com.interface21.validation.BindException;
+import com.interface21.validation.Errors;
 import com.interface21.web.mock.MockHttpServletRequest;
 import com.interface21.web.mock.MockHttpServletResponse;
 import com.interface21.web.servlet.ModelAndView;
-import com.interface21.web.bind.ServletRequestDataBinder;
-import com.interface21.validation.Errors;
-import com.interface21.validation.BindException;
+import com.interface21.web.util.WebUtils;
 
 /**
  * @author Juergen Hoeller
@@ -126,7 +126,7 @@ public class WizardFormControllerTestSuite extends TestCase {
 
 		params.clear();
 		params.setProperty("name", "myname");
-		params.setProperty(AbstractWizardFormController.PARAM_FINISH, "value");
+		params.setProperty(AbstractWizardFormController.PARAM_FINISH + WebUtils.SUBMIT_IMAGE_SUFFIX, "value");
 		performRequest(wizard, session, params, -1, "myname", 32, null);
 		// name set -> now allowed to finish
 	}
@@ -134,9 +134,13 @@ public class WizardFormControllerTestSuite extends TestCase {
 	public void testAbort() {
 		AbstractWizardFormController wizard = createWizard();
 		HttpSession session = performRequest(wizard, null, null, 0, null, 0, null);
-
 		Properties params = new Properties();
 		params.setProperty(AbstractWizardFormController.PARAM_CANCEL, "value");
+		performRequest(wizard, session, params, -2, null, 0, null);
+
+		session = performRequest(wizard, null, null, 0, null, 0, null);
+		params = new Properties();
+		params.setProperty(AbstractWizardFormController.PARAM_CANCEL + WebUtils.SUBMIT_IMAGE_SUFFIX, "value");
 		performRequest(wizard, session, params, -2, null, 0, null);
 	}
 
