@@ -1,12 +1,9 @@
 package com.interface21.web.bind;
 
-import com.interface21.web.mock.MockHttpServletRequest;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.util.Arrays;
 
 import com.interface21.beans.AbstractPropertyValuesTests;
-import com.interface21.web.bind.*;
+import com.interface21.web.mock.MockHttpServletRequest;
 
 
 /**
@@ -16,16 +13,9 @@ import com.interface21.web.bind.*;
  */
 public class ServletRequestParameterPropertyValuesTestSuite extends AbstractPropertyValuesTests {
 
-
-	/** Creates new SeatingPlanTest */
 	public ServletRequestParameterPropertyValuesTestSuite(String name) {
 		super(name);
 	}
-
-	/** Run for each test */
-	protected void setUp() throws Exception {
-	}
-
 
 	public void testNoPrefix() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/test/foobar");
@@ -36,8 +26,6 @@ public class ServletRequestParameterPropertyValuesTestSuite extends AbstractProp
 		ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
 		testTony(pvs);
 	}
-
-	//public void testPrefix(String prefix p, String prefixSeparator ps) throws Exception {
 
 	public void testPrefix() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/test/foobar");
@@ -53,24 +41,22 @@ public class ServletRequestParameterPropertyValuesTestSuite extends AbstractProp
 		testTony(pvs);
 	}
 
-
 	public void testNoParameters() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/test/foobar");
 		ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
 		assertTrue("Found no parameters", pvs.getPropertyValues().length == 0);
 	}
 
+	public void testMultipleValuesForParameter() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/test/foobar");
+		String[] original = new String[] {"Tony", "Rod"};
+		request.addParameter("forname", original);
 
-
-	// NULL TESTS ETC.
-
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(suite());
-		//	junit.swingui.TestRunner.main(new String[] {PrototypeFactoryTests.class.getName() } );
-	}
-
-	public static Test suite() {
-		return new TestSuite(ServletRequestParameterPropertyValuesTestSuite.class);
+		ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
+		assertTrue("Found 1 parameter", pvs.getPropertyValues().length == 1);
+		assertTrue("Found array value", pvs.getPropertyValue("forname").getValue() instanceof String[]);
+		String[] values = (String[]) pvs.getPropertyValue("forname").getValue();
+		assertEquals("Correct values", Arrays.asList(values), Arrays.asList(original));
 	}
 
 }

@@ -1,7 +1,9 @@
 package com.interface21.web.util;
 
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
+import java.util.HashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
@@ -186,25 +188,30 @@ public abstract class WebUtils {
 	 * Convenience method to return a map from un-prefixed property names
 	 * to values. E.g. with a prefix of price, price_1, price_2 produce
 	 * a properties object with mappings for 1, 2 to the same values.
+	 * Maps single values to String and multiple values to String array.
 	 * @param request HTTP request in which to look for parameters
 	 * @param base beginning of parameter name
 	 * (if this is null or the empty string, all parameters will match)
-	 * @return properties mapping request parameters <b>without the prefix</b>
+	 * @return map containing request parameters <b>without the prefix</b>,
+	 * containing either a String or a String[] as values
 	 */
-	public static Properties getParametersStartingWith(ServletRequest request, String base) {
+	public static Map getParametersStartingWith(ServletRequest request, String base) {
 		Enumeration enum = request.getParameterNames();
-		Properties props = new Properties();
+		Map params = new HashMap();
 		if (base == null)
 			base = "";
 		while (enum != null && enum.hasMoreElements()) {
 			String paramName = (String) enum.nextElement();
 			if (base == null || "".equals(base) || paramName.startsWith(base)) {
-				String val = request.getParameter(paramName);
 				String unprefixed = paramName.substring(base.length());
-				props.setProperty(unprefixed, val);
+				String[] values = request.getParameterValues(paramName);
+				if (values.length > 1)
+					params.put(unprefixed, values);
+				else
+					params.put(unprefixed, values[0]);
 			}
 		}
-		return props;
+		return params;
 	}
 
 	/**

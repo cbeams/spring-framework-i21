@@ -49,7 +49,6 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 		this.url = url;
 		this.contextPath = "";
 		this.servletPath = url;
-
 		this.method = method;
 		
 		// We must save the request dispatcher
@@ -58,59 +57,6 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 		locales.add(Locale.ENGLISH);
 	}
 	
-	/** Add a new preferred locale, before any existing locales */
-	public void addPreferredLocale(Locale l) {
-		locales.add(0, l);
-	}
-
-	/*
-	public TestRequest(ServletConfig servletConfig, HttpServletRequest request) {
-		// We must save the request dispatcher
-		this.servletConfig = servletConfig;
-
-		setSession(request.getSession());
-		setCookies(request.getCookies());
-		setPort(request.getServerPort());
-		setServletPath(request.getServletPath());
-		setContentType(request.getContentType());
-		setPathInfo(request.getPathInfo());
-		setMethod(request.getMethod());
-		setUserPrincipal(request.getUserPrincipal());
-		setContextPath(request.getContextPath());
-
-		Enumeration attnames = request.getAttributeNames();
-		while (attnames.hasMoreElements()) {
-			String attname = (String) attnames.nextElement();
-			Object val = request.getAttribute(attname);
-			if (val instanceof Serializable)
-				setAttribute(attname, val);
-			else
-				System.out.println("Skipping copying Request attribute [" + val + "]: not Serializable");
-		}
-		Enumeration parmnames = request.getParameterNames();
-		while (parmnames.hasMoreElements()) {
-			String parmname = (String) parmnames.nextElement();
-			String val = request.getParameter(parmname);
-			addParameter(parmname, val);
-		}
-		Enumeration headernames = request.getHeaderNames();
-		while (headernames.hasMoreElements()) {
-			String headername = (String) headernames.nextElement();
-			String val = request.getHeader(headername);
-			addHeader(headername, (String) val);
-		}
-	}
-	*/
-
-
-	public void addParameter(String name, String value) {
-		params.put(name, value);
-	}
-	
-	public void addRole(String role) {
-		roles.put(role, Boolean.TRUE);
-	}
-
 	public int getIntHeader(String p1) {
 		return -1;
 	}
@@ -124,7 +70,6 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 		l.add(headers.get(s));
 		return Collections.enumeration(l);
 	}
-
 
 	public RequestDispatcher getRequestDispatcher(String url) {
 		return servletContext.getRequestDispatcher(url);
@@ -252,10 +197,6 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 		atts.remove(name);
 	}
 
-	public String getParameter(String name) {
-		return (String) params.get(name);
-	}
-
 	public void setAttribute(String p1, Object p2) {
 		atts.put(p1, p2);
 	}
@@ -280,6 +221,18 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 		return Collections.enumeration(params.keySet());
 	}
 
+	public String getParameter(String name) {
+		return (String) params.get(name);
+	}
+
+	public String[] getParameterValues(String name) {
+		Object obj = params.get(name);
+		if (obj instanceof String[])
+			return (String[]) obj;
+		else
+			return new String[] {obj.toString()};
+	}
+
 	public String getRealPath(java.lang.String p1) {
 		return null;
 	}
@@ -289,10 +242,6 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 	}
 
 	public String getCharacterEncoding() {
-		return null;
-	}
-
-	public String[] getParameterValues(String p1) {
 		return null;
 	}
 
@@ -307,6 +256,24 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 	//---------------------------------------------------------------------
 	// Setters to allow manipulation
 	//---------------------------------------------------------------------
+
+	/** Add a new preferred locale, before any existing locales */
+	public void addPreferredLocale(Locale l) {
+		locales.add(0, l);
+	}
+
+	public void addParameter(String name, String value) {
+		params.put(name, value);
+	}
+
+	public void addParameter(String name, String[] values) {
+		params.put(name, values);
+	}
+
+	public void addRole(String role) {
+		roles.put(role, Boolean.TRUE);
+	}
+
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}

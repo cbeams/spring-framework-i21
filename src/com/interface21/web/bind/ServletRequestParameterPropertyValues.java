@@ -1,6 +1,6 @@
 package com.interface21.web.bind;
 
-import java.util.Properties;
+import java.util.Map;
 
 import javax.servlet.ServletRequest;
 
@@ -22,21 +22,20 @@ import com.interface21.web.util.WebUtils;
  */
 public class ServletRequestParameterPropertyValues implements PropertyValues {
 
-	protected final Log logger = LogFactory.getLog(getClass());
+	protected static final Log logger = LogFactory.getLog(ServletRequestParameterPropertyValues.class);
 
 	/** Default prefix separator */
 	public static final String DEFAULT_PREFIX_SEPARATOR = "_";
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/** PropertyValues delegate. We use delegation rather than simply subclass
+	/**
+	 * PropertyValues delegate. We use delegation rather than simply subclass
 	 * MutablePropertyValues as we don't want to expose MutablePropertyValues's
 	 * update methods. This class is immutable once initialized.
 	 */
 	private MutablePropertyValues mutablePropertyValues;
 
-	/** Creates new ServletRequestPropertyValues using the default
+	/**
+	 * Creates new ServletRequestPropertyValues using the default
 	 * prefix separator and the given prefix (the underscore character, _).
 	 * @param request HTTP Request
 	 * @param prefix prefix for properties
@@ -46,7 +45,8 @@ public class ServletRequestParameterPropertyValues implements PropertyValues {
 	}
 
 
-	/** Creates new ServletRequestPropertyValues using no prefix
+	/**
+	 * Creates new ServletRequestPropertyValues using no prefix
 	 * (and hence, no prefix separator)
 	 * @param request HTTP Request
 	 */
@@ -54,8 +54,8 @@ public class ServletRequestParameterPropertyValues implements PropertyValues {
 		this(request, null, null);
 	}
 
-	/** Creates new ServletRequestPropertyValues supplying
-	 * both prefix and prefixSeparator
+	/**
+	 * Creates new ServletRequestPropertyValues supplying both prefix and prefixSeparator.
 	 * @param request HTTP Request
 	 * @param prefix prefix for properties
 	 * @param prefixSeparator Separator delimiting prefix (e.g. user) from property name
@@ -63,30 +63,18 @@ public class ServletRequestParameterPropertyValues implements PropertyValues {
 	 */
 	public ServletRequestParameterPropertyValues(ServletRequest request, String prefix, String prefixSeparator) {
 		String base = (prefix != null) ? prefix + prefixSeparator : null;
-		Properties p = WebUtils.getParametersStartingWith(request, base);
-		this.mutablePropertyValues = new MutablePropertyValues(p);
+		Map params = WebUtils.getParametersStartingWith(request, base);
+		this.mutablePropertyValues = new MutablePropertyValues(params);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Found PropertyValues in request: " + mutablePropertyValues);
     }
 	}
 
-	//---------------------------------------------------------------------
-	// Implementation of PropertyValues
-	//---------------------------------------------------------------------
-	/** Return an array of the PropertyValue objects
-	 * held in this object.
-	 * @return an array of the PropertyValue objects
-	 * held in this object.
-	 */
 	public PropertyValue[] getPropertyValues() {
 		// We simply let the delegate handle this
 		return mutablePropertyValues.getPropertyValues();
 	}
 
-	/** Is there a propertyValue object for this property?
-	 * @param propertyName name of the property we're interested in
-	 * @return whether there is a propertyValue object for this property?
-	 */
 	public boolean contains(String propertyName) {
 		// Just pass it to the delegate...
 		return mutablePropertyValues.contains(propertyName);
