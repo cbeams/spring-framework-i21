@@ -31,7 +31,7 @@ import com.interface21.util.ThreadObjectManager;
  * allowing for reuse of Hibernate Session instances within transactions.
  * Supports synchronization with JTA transactions via JtaTransactionManager,
  * to allow for proper transactional handling of the JVM-level cache.
- * Used by HibernateTemplate and HibernateTransactionManager.
+ * Used by HibernateTemplate, HibernateInterceptor, and HibernateTransactionManager.
  *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
@@ -39,6 +39,7 @@ import com.interface21.util.ThreadObjectManager;
  * @author Juergen Hoeller
  * @since 02.05.2003
  * @see HibernateTemplate
+ * @see HibernateInterceptor
  * @see HibernateTransactionManager
  * @see com.interface21.transaction.jta.JtaTransactionManager
  */

@@ -31,6 +31,12 @@ import com.interface21.dao.DataAccessException;
  * always be configured as bean in the application context, in the first case
  * given to the service directly, in the second case to the prepared template.
  *
+ * <p>This class can be considered a programmatic alternative to
+ * HibernateInterceptor. The major advantage is its straightforwardness, the
+ * major disadvantage that no checked application exceptions can get thrown
+ * from within data access code. Respective checks and the actual throwing of
+ * such exceptions can often be deferred to after callback execution, though. 
+ *
  * <p>Note that even if HibernateTransactionManager is used for transaction
  * demarcation in higher-level services, all those services above the data
  * access layer don't need need to be Hibernate-aware. Setting such a special
@@ -52,6 +58,7 @@ import com.interface21.dao.DataAccessException;
  * @author Juergen Hoeller
  * @since 02.05.2003
  * @see HibernateCallback
+ * @see HibernateInterceptor
  * @see HibernateTransactionManager
  * @see LocalSessionFactoryBean
  * @see com.interface21.jndi.JndiObjectFactoryBean
