@@ -13,11 +13,6 @@ import com.interface21.transaction.support.TransactionTemplate;
  */
 public class TransactionTestSuite extends TestCase {
 
-	public TransactionTestSuite(String location) {
-		super(location);
-	}
-
-
 	public void testNoExistingTransaction() {
 		PlatformTransactionManager tm = new TestTransactionManager(false, true);
 		TransactionStatus status1 = tm.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS));
@@ -70,7 +65,6 @@ public class TransactionTestSuite extends TestCase {
 		}
 	}
 
-
 	public void testCommitWithoutExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(false, true);
 		TransactionStatus status = tm.getTransaction(null);
@@ -101,7 +95,6 @@ public class TransactionTestSuite extends TestCase {
 		assertTrue("triggered rollback", tm.rollback);
 		assertTrue("no rollbackOnly", !tm.rollbackOnly);
 	}
-
 
 	public void testCommitWithExistingTransaction() {
 		TestTransactionManager tm = new TestTransactionManager(true, true);
@@ -134,8 +127,7 @@ public class TransactionTestSuite extends TestCase {
 		assertTrue("triggered rollbackOnly", tm.rollbackOnly);
 	}
 
-
-	public void testTransactionTemplateWithoutError() {
+	public void testTransactionTemplate() {
 		TestTransactionManager tm = new TestTransactionManager(false, true);
 		TransactionTemplate template = new TransactionTemplate(tm);
 		try {
@@ -153,18 +145,68 @@ public class TransactionTestSuite extends TestCase {
 		}
 	}
 
+	public void testTransactionTemplateWithException() {
+		TestTransactionManager tm = new TestTransactionManager(false, true);
+		TransactionTemplate template = new TransactionTemplate(tm);
+		final RuntimeException ex = new RuntimeException("Some application exception");
+		try {
+			template.execute(new TransactionCallbackWithoutResult() {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					throw ex;
+				}
+			});
+			fail("Should have propagated RuntimeException");
+		}
+		catch (RuntimeException caught) {
+			// expected
+			assertTrue("Correct exception", caught == ex);
+			assertTrue("triggered begin", tm.begin);
+			assertTrue("no commit", !tm.commit);
+			assertTrue("triggered rollback", tm.rollback);
+			assertTrue("no rollbackOnly", !tm.rollbackOnly);
+		}
+	}
+
+	public void testTransactionTemplateWithRollbackException() {
+		final TransactionSystemException tex = new TransactionSystemException("system exception");
+		TestTransactionManager tm = new TestTransactionManager(false, true) {
+			protected void doRollback(TransactionStatus status) {
+				super.doRollback(status);
+				throw tex;
+			}
+		};
+		TransactionTemplate template = new TransactionTemplate(tm);
+		final RuntimeException ex = new RuntimeException("Some application exception");
+		try {
+			template.execute(new TransactionCallbackWithoutResult() {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					throw ex;
+				}
+			});
+			fail("Should have propagated RuntimeException");
+		}
+		catch (RuntimeException caught) {
+			// expected
+			assertTrue("Correct exception", caught == tex);
+			assertTrue("triggered begin", tm.begin);
+			assertTrue("no commit", !tm.commit);
+			assertTrue("triggered rollback", tm.rollback);
+			assertTrue("no rollbackOnly", !tm.rollbackOnly);
+		}
+	}
+
 	public void testTransactionTemplateWithError() {
 		TestTransactionManager tm = new TestTransactionManager(false, true);
 		TransactionTemplate template = new TransactionTemplate(tm);
 		try {
 			template.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
-					throw new RuntimeException("Some application exception");
+					throw new Error("Some application error");
 				}
 			});
-			fail("Should have propagated RuntimeException");
+			fail("Should have propagated Error");
 		}
-		catch (RuntimeException ex) {
+		catch (Error err) {
 			// expected
 			assertTrue("triggered begin", tm.begin);
 			assertTrue("no commit", !tm.commit);

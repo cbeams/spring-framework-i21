@@ -35,12 +35,12 @@ class TestTransactionManager extends AbstractPlatformTransactionManager {
 		return existingTransaction;
 	}
 
-	protected void doBegin(Object transaction, int isolationLevel, int timeout) {
+	protected void doBegin(Object transaction, TransactionDefinition definition) {
 		if (!TRANSACTION.equals(transaction)) {
 			throw new IllegalArgumentException("Not the same transaction object");
 		}
 		if (!this.canCreateTransaction) {
-			throw new CannotCreateTransactionException("cannot create transaction");
+			throw new CannotCreateTransactionException("Cannot create transaction");
 		}
 		this.begin = true;
 	}
