@@ -24,17 +24,28 @@ June 2003</i>
 <p><code>
 public List loadProductsByCategory(String category) {<br>
 &nbsp;&nbsp;HibernateTemplate hibernateTemplate = new HibernateTemplate(this.sessionFactory);<br>
-&nbsp;&nbsp;List result = hibernateTemplate.executeFind(<br>
+&nbsp;&nbsp;return (List) hibernateTemplate.execute(<br>
 &nbsp;&nbsp;&nbsp;&nbsp;new HibernateCallback() {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public Object doInHibernate(Session session) throws HibernateException {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return session.find("from product in class test.Product where product.category = '" + category + "'");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List result = session.find("from product in class test.Product where product.category = '" + category + "'");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// do some further stuff with the result list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return result;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;);<br>
 }
 </code>
 
-<p>The "executeFind" method is a convenience for List return values - the standard method is "execute", returning Object. HibernateTemplate cares for proper Session opening and closing, and for automatically taking part in transactions. The latter is available to non-templating code too, via the SessionFactoryUtils helper class. The template instances are thread-safe and reusable, they can thus be kept as instance variables of the surrounding class.
+<p>A callback implementation can effectively be used for any Hibernate data access. For simple single step actions like a single find, load, saveOrUpdate, or delete call, HibernateTemplate offers alternative convenience methods that can replace such one line callback implementations:
+
+<p><code>
+public List loadProductsByCategory(String category) {<br>
+&nbsp;&nbsp;HibernateTemplate hibernateTemplate = new HibernateTemplate(this.sessionFactory);<br>
+&nbsp;&nbsp;return hibernateTemplate.find("from product in class test.Product where product.category = '" + category + "'");<br>
+}
+</code>
+
+<p>In any case, HibernateTemplate cares for proper Session opening and closing, and for automatically taking part in transactions. The latter is available to non-templating code too, via the SessionFactoryUtils helper class. The template instances are thread-safe and reusable, they can thus be kept as instance variables of the surrounding class.
 
 
 <p><h3>3. Alternative: Applying an AOP Interceptor</h3>
