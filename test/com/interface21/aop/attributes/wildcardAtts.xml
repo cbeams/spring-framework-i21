@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	
+	<bean id="wca1" class="com.interface21.aop.attributes.WildcardAttributeRegistry">	
+		<property name="map">
+			<map>
+				<entry key="setAge"><value>setAgeAtt</value></entry>
+				<entry key="getAge">
+					<list>
+						<value>zero</value>
+						<ref bean="rod"/>
+					</list>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="rod" class="com.interface21.beans.TestBean">	
+		<property name="name"><value>Rod</value></property>
+		<property name="age"><value>33</value></property>
+	</bean>
+	
+</beans>		
+	
+	
