@@ -39,8 +39,15 @@ import com.interface21.core.OrderComparator;
  * implement the Ordered interface. An interceptor name list may not conclude
  * with a global "xxx*" pattern, as global interceptors cannot invoke targets.
  *
+ * <p>Creates a J2SE proxy when proxy interfaces are given, a CGLIB proxy for the
+ * actual target class if not. Note that the latter will only work if the target class
+ * does not have final methods, as a dynamic subclass will be created at runtime.
+ *
  * @author Rod Johnson
+ * @author Juergen Hoeller
  * @version $Id$
+ * @see #setInterceptorNames
+ * @see #setProxyInterfaces
  */
 public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean, Lifecycle {
 
@@ -78,7 +85,8 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 
 
 	/**
-	 * Set the name of the interface we're proxying
+	 * Set the names of the interfaces we're proxying. If no interface
+	 * is given, a CGLIB for the actual class will be created.
 	 */
 	public void setProxyInterfaces(String[] interfaceNames) throws AspectException, ClassNotFoundException {
 		Class[] interfaces = new Class[interfaceNames.length];
@@ -280,7 +288,7 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	private Object createInstance() {
 		refreshInterceptorChain();
 		AopProxy proxy = new AopProxy(this);
-		return AopProxy.getProxy(getClass().getClassLoader(), proxy);
+		return proxy.getProxy(getClass().getClassLoader());
 	}
 
 	/**

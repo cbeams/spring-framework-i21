@@ -62,7 +62,7 @@ public class ProxyFactory extends DefaultProxyConfig {
 	 */
 	public Object getProxy() {
 		AopProxy proxy = new AopProxy(this);
-		return AopProxy.getProxy(proxy);
+		return proxy.getProxy();
 	}
 
 }

@@ -10,19 +10,30 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
+import net.sf.cglib.Enhancer;
+import net.sf.cglib.MethodInterceptor;
+import net.sf.cglib.MethodProxy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * InvocationHandler implementation for the Spring AOP
- * framework, based on Java 1.3+ dynamic proxies.
- * Objects of this type should be obtained through
- * proxy factories, configured by a ProxyConfig implementation.
- * This class is internal to the Spring framework and need not
- * be used directly by client code.
- * <br/>Proxies created using this class can be threadsafe if the
+ * InvocationHandler implementation for the Spring AOP framework,
+ * based on either J2SE 1.3+ dynamic proxies or CGLIB proxies.
+ *
+ * <p>Creates a J2SE proxy when proxied interfaces are given, a CGLIB proxy
+ * for the actual target class if not. Note that the latter will only work
+ * if the target class does not have final methods, as a dynamic subclass
+ * will be created at runtime.
+ *
+ * <p>Objects of this type should be obtained through proxy factories,
+ * configured by a ProxyConfig implementation. This class is internal
+ * to the Spring framework and need not be used directly by client code.
+ *
+ * <p>Proxies created using this class can be threadsafe if the
  * underlying (target) class is threadsafe.
+ *
  * @author Rod Johnson
+ * @author Juergen Hoeller
  * @version $Id$
  */
 public class AopProxy implements InvocationHandler {
@@ -34,29 +45,9 @@ public class AopProxy implements InvocationHandler {
 		try {
 			EQUALS_METHOD = Object.class.getMethod("equals", new Class[] { Object.class});
 		} 
-		catch (Exception e) {
+		catch (NoSuchMethodException e) {
 			// Cannot happen
 		} 
-	}
-	
-	/**
-	 * @return a new Proxy object for the given object proxying
-	 * the given interface
-	 */
-	public static Object getProxy(AopProxy aop) {
-		return getProxy(Thread.currentThread().getContextClassLoader(), 
-					 aop);
-	}
-	
-	/**
-	 * @return a new Proxy object for the given object proxying
-	 * the given interface
-	 */
-	public static Object getProxy(ClassLoader cl, AopProxy aop) {
-		//System.out.println(StringUtils.arrayToDelimitedString(aop.config.getProxiedInterfaces(), "/"));
-		Object proxy =
-			Proxy.newProxyInstance(cl, aop.config.getProxiedInterfaces(), aop);
-		return proxy;
 	}
 	
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -123,6 +114,37 @@ public class AopProxy implements InvocationHandler {
 			//if (logger.isDebugEnabled()) {
 			//	logger.debug("Processed invocation [" + invocation + "]");
 			//}
+		}
+	}
+
+	/**
+	 * @return a new Proxy object for the given object proxying
+	 * the given interface
+	 */
+	public Object getProxy() {
+		return getProxy(Thread.currentThread().getContextClassLoader());
+	}
+
+	/**
+	 * @return a new Proxy object for the given object proxying
+	 * the given interface
+	 */
+	public Object getProxy(ClassLoader cl) {
+		if (this.config.getProxiedInterfaces() != null && this.config.getProxiedInterfaces().length > 0) {
+			// proxy specific interfaces: J2SE Proxy is sufficient
+			logger.info("Creating J2SE proxy for [" + this.config.getTarget() + "]");
+			return Proxy.newProxyInstance(cl, this.config.getProxiedInterfaces(), this);
+		}
+		else {
+			// proxy the given class itself: CGLIB necessary
+			logger.info("Creating CGLIB proxy for [" + this.config.getTarget() + "]");
+			return Enhancer.enhance(this.config.getTarget().getClass(), this.config.getProxiedInterfaces(),
+				new MethodInterceptor() {
+					public Object intercept(Object handler, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+						return invoke(handler, method, objects);
+					}
+				}
+			);
 		}
 	}
 

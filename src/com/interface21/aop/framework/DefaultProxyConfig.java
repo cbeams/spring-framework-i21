@@ -103,19 +103,6 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	}
 	
 	/**
-	 * Convenient method to convert array to
-	 * a list for easier manipulation
-	 * @return List
-	 */
-	private List arrayToList(Object[] array) {
-		// Allow some leeway for manipulation
-		List l = new ArrayList(array.length + 5);
-		for (int i = 0; i < array.length; i++)
-			l.add(array[i]);
-		return l;
-	}
-	
-	/**
 	 * New interfaces will only be available when a new proxy is obtained
 	 * through getObject().
 	 * The same goes for removing interfaces.
@@ -142,11 +129,8 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		 }
 	}	
 	
-	
-	
 	/**
 	 * Work out target from list of interceptors
-	 * @param interceptorList list of interceptors
 	 * @throws AopConfigException if the chain is invalid
 	 */
 	private void computeTargetAndCheckValidity() throws AopConfigException {
@@ -194,7 +178,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		}
 		
 		return removed;
-	}	// removeInterceptor
+	}
 	
 	/**
 	 * Add a new proxied interface.

@@ -44,7 +44,7 @@ public class AopProxyTests extends TestCase {
 	public void testNullConfig() {
 		try {
 			AopProxy aop = new AopProxy(null);
-			AopProxy.getProxy(aop);
+			aop.getProxy();
 			fail("Shouldn't allow null interceptors");
 		} catch (AopConfigException ex) {
 			// Ok
@@ -57,7 +57,7 @@ public class AopProxyTests extends TestCase {
 		// Add no interceptors
 		try {
 			AopProxy aop = new AopProxy(pc);
-			AopProxy.getProxy(aop);
+			aop.getProxy();
 			fail("Shouldn't allow no interceptors");
 		} catch (AopConfigException ex) {
 			// Ok
@@ -86,10 +86,8 @@ public class AopProxyTests extends TestCase {
 		miControl.setDefaultReturnValue(new Integer(age));
 		miControl.activate();
 
-		ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
-
+		ITestBean tb = (ITestBean) aop.getProxy();
 		assertTrue("correct return value", tb.getAge() == age);
-
 		miControl.verify();
 	}
 
@@ -125,7 +123,7 @@ public class AopProxyTests extends TestCase {
 		AopProxy aop = new AopProxy(pc);
 
 		assertNoInvocationContext();
-		ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
+		ITestBean tb = (ITestBean) aop.getProxy();
 		assertNoInvocationContext();
 		assertTrue("correct return value", tb.getName() == s);
 	}
@@ -136,7 +134,6 @@ public class AopProxyTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void testTargetReturnsThis() throws Throwable {
-		final String s = "foo";
 		// Test return value
 		TestBean raw = new TestBean() {
 			public ITestBean getSpouse() {
@@ -150,10 +147,38 @@ public class AopProxyTests extends TestCase {
 		pc.addInterceptor(ii);
 		AopProxy aop = new AopProxy(pc);
 
-		ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
+		ITestBean tb = (ITestBean) aop.getProxy();
 		assertTrue("this is wrapped in a proxy", Proxy.isProxyClass(tb.getSpouse().getClass()));
 
 		assertTrue("this return is wrapped in proxy", tb.getSpouse() == tb);
+	}
+
+	public void testProxyIsJustInterface() throws Throwable {
+		TestBean raw = new TestBean();
+		raw.setAge(32);
+		InvokerInterceptor ii = new InvokerInterceptor(raw);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] {ITestBean.class}, false, null);
+		pc.addInterceptor(ii);
+		AopProxy aop = new AopProxy(pc);
+
+		Object proxy = aop.getProxy();
+		assertTrue(proxy instanceof ITestBean);
+		assertTrue(!(proxy instanceof TestBean));
+	}
+
+	public void testProxyCanBeFullClass() throws Throwable {
+		TestBean raw = new TestBean();
+		raw.setAge(32);
+		InvokerInterceptor ii = new InvokerInterceptor(raw);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] {}, false, null);
+		pc.addInterceptor(ii);
+		AopProxy aop = new AopProxy(pc);
+
+		Object proxy = aop.getProxy();
+		assertTrue(proxy instanceof ITestBean);
+		assertTrue(proxy instanceof TestBean);
+		TestBean tb = (TestBean) proxy;
+		assertTrue("Correct age", tb.getAge() == 32);
 	}
 
 	/**
@@ -175,7 +200,7 @@ public class AopProxyTests extends TestCase {
 		pc.addInterceptor(ii);
 		AopProxy aop = new AopProxy(pc);
 
-		ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
+		ITestBean tb = (ITestBean) aop.getProxy();
 		assertTrue("proxy equals itself", tb.equals(tb));
 		assertTrue("proxy isn't equal to proxied object", !tb.equals(raw));
 		//test null eq
@@ -183,8 +208,6 @@ public class AopProxyTests extends TestCase {
 		assertTrue("test equals proxy", tb.equals(aop));
 
 		// Test with AOP proxy with additional interceptor
-		
-		
 		ProxyConfig pc2 = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, r);
 		pc2.addInterceptor(new DebugInterceptor());
 		assertTrue(!tb.equals(new AopProxy(pc2)));
@@ -210,9 +233,6 @@ public class AopProxyTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void testCanAttach() throws Throwable {
-
-		List l = new LinkedList();
-
 		final TrapInvocationInterceptor tii = new TrapInvocationInterceptor();
 
 		AttributeRegistry r = new Attrib4jAttributeRegistry();
@@ -226,7 +246,7 @@ public class AopProxyTests extends TestCase {
 		});
 		AopProxy aop = new AopProxy(pc);
 
-		ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
+		ITestBean tb = (ITestBean) aop.getProxy();
 		tb.getSpouse();
 		assertTrue(tii.invocation != null);
 		assertTrue(tii.invocation.getProxy() == tb);
@@ -251,7 +271,7 @@ public class AopProxyTests extends TestCase {
 		AopProxy aop = new AopProxy(pc);
 
 		try {
-			ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
+			ITestBean tb = (ITestBean) aop.getProxy();
 			// Note: exception param below isn't used
 			tb.exceptional(ex);
 			fail("Should have thrown exception raised by interceptor");
@@ -261,17 +281,6 @@ public class AopProxyTests extends TestCase {
 	}
 
 	public void testTargetCanGetInvocation() throws Throwable {
-		class ContextTestBean extends TestBean {
-			public MethodInvocation invocation;
-			public String getName() {
-				this.invocation = AopContext.currentInvocation();
-				return super.getName();
-			}
-			public void absquatulate() {
-				this.invocation = AopContext.currentInvocation();
-				super.absquatulate();
-			}
-		}
 		final ContextTestBean target = new ContextTestBean();
 		AttributeRegistry r = new Attrib4jAttributeRegistry();
 		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class, IOther.class }, true, r);
@@ -287,7 +296,7 @@ public class AopProxyTests extends TestCase {
 		pc.addInterceptor(ii);
 		AopProxy aop = new AopProxy(pc);
 
-		ITestBean tb = (ITestBean) AopProxy.getProxy(aop);
+		ITestBean tb = (ITestBean) aop.getProxy();
 		tb.getName();
 		assertTrue(tii.invocation == target.invocation);
 		assertTrue(target.invocation.getInvokedObject() == target);
@@ -312,16 +321,29 @@ public class AopProxyTests extends TestCase {
 		}
 	}
 
-	private class TrapInvocationInterceptor implements MethodInterceptor {
+
+	private static class TrapInvocationInterceptor implements MethodInterceptor {
 
 		public MethodInvocation invocation;
 
-		/**
-		 * @see org.aopalliance.MethodInterceptor#invoke(org.aopalliance.Invocation)
-		 */
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			this.invocation =  invocation;
 			return invocation.invokeNext();
+		}
+	}
+
+	private static class ContextTestBean extends TestBean {
+
+		public MethodInvocation invocation;
+
+		public String getName() {
+			this.invocation = AopContext.currentInvocation();
+			return super.getName();
+		}
+
+		public void absquatulate() {
+			this.invocation = AopContext.currentInvocation();
+			super.absquatulate();
 		}
 	}
 
