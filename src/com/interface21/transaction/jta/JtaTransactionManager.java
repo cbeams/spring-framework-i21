@@ -24,7 +24,12 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
 /**
  * PlatformTransactionManager implementation for JTA.
  *
- * <p>This implementation is appropriate for handling distributed transactions,
+ * <p>Set allowNonTransactionalExecution to be able to fall back to
+ * non-transactional execution if JTA isn't available in the container.
+ * Transaction synchronization is active by default, as it is typically
+ * used for transactional cache handling with JTA (e.g. with Hibernate).
+ *
+ * <p>This transaction manager is appropriate for handling distributed transactions,
  * i.e. transactions that span multiple resources, and for managing transactions
  * on a J2EE Connector (e.g. a persistence toolkit registered as Connector).
  * For a single JDBC DataSource, DataSourceTransactionManager is perfectly sufficient,
@@ -32,11 +37,15 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * HibernateTransactionManager is appropriate.
  *
  * <p>Note: This implementation does not handle isolation levels. This needs
- * to be done by server-specific subclasses. DataSourceTransactionManager and
- * HibernateTransactionManager do support custom isolation levels, though.
+ * to be done by server-specific subclasses, overriding applyIsolationLevel.
+ * DataSourceTransactionManager and HibernateTransactionManager do support
+ * custom isolation levels, though.
  *
  * @author Juergen Hoeller
  * @since 24.03.2003
+ * @see #setAllowNonTransactionalExecution
+ * @see #setTransactionSynchronization
+ * @see #applyIsolationLevel
  * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  * @see com.interface21.orm.hibernate.HibernateTransactionManager
  */
@@ -52,6 +61,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 	 * Create a new JtaTransactionManager instance.
 	 */
 	public JtaTransactionManager() {
+		setTransactionSynchronization(true);
 	}
 
 	/**
@@ -90,17 +100,10 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 		}
 	}
 
-	/**
-	 * This standard JTA implementation simply ignores the isolation level.
-	 * To be overridden by server-specific subclasses that actually handle
-	 * the isolation level.
-	 */
 	protected void doBegin(Object transaction, int isolationLevel, int timeout) {
-		if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
-			throw new InvalidIsolationException("JtaTransactionManager does not support custom isolation levels");
-		}
 		logger.debug("Beginning JTA transaction");
 		UserTransaction ut = (UserTransaction) transaction;
+		applyIsolationLevel(ut, isolationLevel);
 		try {
 			if (timeout >= 0) {
 				ut.setTransactionTimeout(timeout);
@@ -121,6 +124,20 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 		}
 		catch (SystemException ex) {
 			throw new TransactionSystemException("JTA failure on begin", ex);
+		}
+	}
+
+	/**
+	 * Initialize the given UserTransaction with the given isolation level.
+	 * <p>This standard JTA implementation simply ignores the isolation level.
+	 * To be overridden by server-specific subclasses that actually handle
+	 * the isolation level.
+	 * @param ut UserTransaction instance representing the JTA transaction
+	 * @param isolationLevel the isolation level to set
+	 */
+	protected void applyIsolationLevel(UserTransaction ut, int isolationLevel) {
+		if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
+			throw new InvalidIsolationException("JtaTransactionManager does not support custom isolation levels");
 		}
 	}
 

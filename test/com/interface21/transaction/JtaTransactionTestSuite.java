@@ -17,6 +17,8 @@ import org.easymock.MockControl;
 import com.interface21.jndi.JndiTemplate;
 import com.interface21.jndi.mock.MockContext;
 import com.interface21.transaction.jta.JtaTransactionManager;
+import com.interface21.transaction.support.TransactionSynchronizationManager;
+import com.interface21.transaction.support.TransactionSynchronization;
 import com.interface21.transaction.support.TransactionCallbackWithoutResult;
 import com.interface21.transaction.support.TransactionTemplate;
 
@@ -30,7 +32,7 @@ public class JtaTransactionTestSuite extends TestCase {
 		super(msg);
 	}
 
-	private TransactionTemplate getTransactionTemplateForJta(final String utName, final UserTransaction ut) {
+	public static TransactionTemplate getTransactionTemplateForJta(final String utName, final UserTransaction ut) {
 		JndiTemplate jndiTemplate = new JndiTemplate() {
 			protected Context createInitialContext() throws NamingException {
 				Context mockContext = new MockContext();
@@ -48,17 +50,22 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.commit();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		utControl.activate();
 
 		TransactionTemplate tt = getTransactionTemplateForJta(JtaTransactionManager.DEFAULT_USER_TRANSACTION_NAME, ut);
 		tt.execute(new TransactionCallbackWithoutResult() {
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
 				// something transactional
+				TransactionSynchronizationManager.register(new TransactionSynchronization() {
+					public void afterCompletion(int status) {
+						assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_COMMITTED);
+					}
+				});
 			}
 		});
 
@@ -69,19 +76,24 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.setTransactionTimeout(10);
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.begin();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.rollback();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		utControl.activate();
 
 		TransactionTemplate tt = getTransactionTemplateForJta("test", ut);
 		tt.setTimeout(10);
 		tt.execute(new TransactionCallbackWithoutResult() {
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
+				TransactionSynchronizationManager.register(new TransactionSynchronization() {
+					public void afterCompletion(int status) {
+						assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_ROLLED_BACK);
+					}
+				});
 				status.setRollbackOnly();
 			}
 		});
@@ -93,14 +105,19 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_ACTIVE);
+		utControl.setReturnValue(Status.STATUS_ACTIVE, 1);
 		ut.setRollbackOnly();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		utControl.activate();
 
 		TransactionTemplate tt = getTransactionTemplateForJta(JtaTransactionManager.DEFAULT_USER_TRANSACTION_NAME, ut);
 		tt.execute(new TransactionCallbackWithoutResult() {
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
+				TransactionSynchronizationManager.register(new TransactionSynchronization() {
+					public void afterCompletion(int status) {
+						fail("Shouldn't have been triggered");
+					}
+				});
 				status.setRollbackOnly();
 			}
 		});
@@ -112,7 +129,7 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		utControl.activate();
 
 		try {
@@ -170,7 +187,7 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
 		utControl.setThrowable(new NotSupportedException("not supported"));
 		utControl.activate();
@@ -195,7 +212,7 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
 		utControl.setThrowable(new UnsupportedOperationException("not supported"));
 		utControl.activate();
@@ -220,7 +237,7 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
 		utControl.setThrowable(new SystemException("system exception"));
 		utControl.activate();
@@ -245,9 +262,9 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.commit();
 		utControl.setThrowable(new RollbackException("unexpected rollback"));
 		utControl.activate();
@@ -257,6 +274,11 @@ public class JtaTransactionTestSuite extends TestCase {
 			tt.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					// something transactional
+					TransactionSynchronizationManager.register(new TransactionSynchronization() {
+						public void afterCompletion(int status) {
+							assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_ROLLED_BACK);
+						}
+					});
 				}
 			});
 			fail("Should have thrown UnexpectedRollbackException");
@@ -272,9 +294,9 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.commit();
 		utControl.setThrowable(new HeuristicMixedException("heuristic exception"));
 		utControl.activate();
@@ -284,6 +306,11 @@ public class JtaTransactionTestSuite extends TestCase {
 			tt.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					// something transactional
+					TransactionSynchronizationManager.register(new TransactionSynchronization() {
+						public void afterCompletion(int status) {
+							assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_UNKNOWN);
+						}
+					});
 				}
 			});
 			fail("Should have thrown HeuristicCompletionException");
@@ -300,9 +327,9 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.commit();
 		utControl.setThrowable(new HeuristicRollbackException("heuristic exception"));
 		utControl.activate();
@@ -312,6 +339,11 @@ public class JtaTransactionTestSuite extends TestCase {
 			tt.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					// something transactional
+					TransactionSynchronizationManager.register(new TransactionSynchronization() {
+						public void afterCompletion(int status) {
+							assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_UNKNOWN);
+						}
+					});
 				}
 			});
 			fail("Should have thrown HeuristicCompletionException");
@@ -328,9 +360,9 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.commit();
 		utControl.setThrowable(new SystemException("system exception"));
 		utControl.activate();
@@ -340,6 +372,11 @@ public class JtaTransactionTestSuite extends TestCase {
 			tt.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					// something transactional
+					TransactionSynchronizationManager.register(new TransactionSynchronization() {
+						public void afterCompletion(int status) {
+							assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_UNKNOWN);
+						}
+					});
 				}
 			});
 			fail("Should have thrown TransactionSystemException");
@@ -355,9 +392,9 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION);
+		utControl.setReturnValue(Status.STATUS_NO_TRANSACTION, 1);
 		ut.begin();
-		utControl.setVoidCallable();
+		utControl.setVoidCallable(1);
 		ut.rollback();
 		utControl.setThrowable(new SystemException("system exception"));
 		utControl.activate();
@@ -366,6 +403,16 @@ public class JtaTransactionTestSuite extends TestCase {
 			TransactionTemplate tt = getTransactionTemplateForJta(JtaTransactionManager.DEFAULT_USER_TRANSACTION_NAME, ut);
 			tt.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					TransactionSynchronizationManager.register(new TransactionSynchronization() {
+						public void afterCompletion(int status) {
+							assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_UNKNOWN);
+							TransactionSynchronizationManager.register(new TransactionSynchronization() {
+								public void afterCompletion(int status) {
+									assertTrue("Correct completion status", status == TransactionSynchronization.STATUS_UNKNOWN);
+								}
+							});
+						}
+					});
 					status.setRollbackOnly();
 				}
 			});
@@ -382,7 +429,7 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_ACTIVE);
+		utControl.setReturnValue(Status.STATUS_ACTIVE, 1);
 		ut.setRollbackOnly();
 		utControl.setThrowable(new IllegalStateException("no existing transaction"));
 		utControl.activate();
@@ -407,7 +454,7 @@ public class JtaTransactionTestSuite extends TestCase {
 		MockControl utControl = EasyMock.controlFor(UserTransaction.class);
 		UserTransaction ut = (UserTransaction) utControl.getMock();
 		ut.getStatus();
-		utControl.setReturnValue(Status.STATUS_ACTIVE);
+		utControl.setReturnValue(Status.STATUS_ACTIVE, 1);
 		ut.setRollbackOnly();
 		utControl.setThrowable(new SystemException("system exception"));
 		utControl.activate();
@@ -417,6 +464,11 @@ public class JtaTransactionTestSuite extends TestCase {
 			tt.execute(new TransactionCallbackWithoutResult() {
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					status.setRollbackOnly();
+					TransactionSynchronizationManager.register(new TransactionSynchronization() {
+						public void afterCompletion(int status) {
+							fail("Should not have been triggered");
+						}
+					});
 				}
 			});
 			fail("Should have thrown TransactionSystemException");

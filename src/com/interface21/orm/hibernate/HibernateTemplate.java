@@ -5,14 +5,13 @@ import java.util.List;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.DataAccessException;
 
 /**
  * Helper class that simplifies Hibernate data access code, and converts
- * checked HibernateExceptions into unchecked HibernateDataAccessExceptions,
+ * checked HibernateExceptions into unchecked HibernateJdbc/SystemExceptions,
  * compatible to the com.interface21.dao exception hierarchy.
  *
  * <p>The central method is "execute", supporting Hibernate code implementing
@@ -36,15 +35,16 @@ import com.interface21.dao.DataAccessException;
  * demarcation in higher-level services, all those services above the data
  * access layer don't need need to be Hibernate-aware. Setting such a special
  * PlatformTransactionManager is a configuration issue, without introducing
- * a code dependency. For example, switching to JTA is just a matter of
- * Spring and Hibernate configuration, without touching applicaiton code.
+ * code dependencies. For example, switching to JTA is just a matter of
+ * Spring configuration (use JtaTransactionManager instead), without needing
+ * to touch application code.
  *
- * <p>Registering Hibernate with JNDI is only advisable when using
+ * <p>LocalSessionFactoryBean is the preferred way of obtaining a reference
+ * to a specific Hibernate SessionFactory, at least in a non-EJB environment.
+ * Registering a SessionFactory with JNDI is only advisable when using
  * Hibernate's JCA Connector, i.e. when the application server cares for
- * initialization and JTA notification. Else, portability is rather limited:
- * Manual JNDI binding isn't properly supported by all application servers
- * (e.g. Tomcat), and manual JTA integration involves a container-specific
- * JTA TransactionManager lookup.
+ * initialization. Else, portability is rather limited: Manual JNDI binding
+ * isn't supported by some application servers (e.g. Tomcat).
  *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
@@ -55,11 +55,8 @@ import com.interface21.dao.DataAccessException;
  * @see HibernateTransactionManager
  * @see LocalSessionFactoryBean
  * @see com.interface21.jndi.JndiObjectFactoryBean
- * @see com.interface21.jndi.JndiObjectEditor
  */
-public class HibernateTemplate {
-
-	protected final Log logger = LogFactory.getLog(getClass());
+public class HibernateTemplate implements InitializingBean {
 
 	private SessionFactory sessionFactory;
 
@@ -77,6 +74,7 @@ public class HibernateTemplate {
 	 */
 	public HibernateTemplate(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+		afterPropertiesSet();
 	}
 
 	/**
@@ -134,12 +132,18 @@ public class HibernateTemplate {
 		return (List) execute(action);
 	}
 
+	public void afterPropertiesSet() {
+		if (this.sessionFactory == null) {
+			throw new IllegalArgumentException("sessionFactory is required");
+		}
+	}
+
 	/**
 	 * Executes the action specified by the given action object within a session.
 	 * Application exceptions thrown by the action object get propagated to the
 	 * caller, Hibernate exceptions are transformed into appropriate DAO ones.
-	 * Allows for returning a result object created within the transaction,
-	 * i.e. a business object or a collection of business objects.
+	 * Allows for returning a result object, i.e. a business object or a
+	 * collection of business objects.
 	 * <p>Note: Callback code is not supposed to handle transactions itself!
 	 * Use an appropriate transaction manager like HibernateTransactionManager.
 	 * @param action action object that specifies the Hibernate action
@@ -161,11 +165,10 @@ public class HibernateTemplate {
 			return result;
 		}
 		catch (HibernateException ex) {
-			logger.error("Callback code threw Hibernate exception", ex);
 			throw SessionFactoryUtils.convertHibernateAccessException(ex);
 		}
 		catch (RuntimeException ex) {
-			logger.error("Callback code threw application exception", ex);
+			// callback code threw application exception
 			throw ex;
 		}
 		finally {

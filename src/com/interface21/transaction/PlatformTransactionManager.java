@@ -29,6 +29,11 @@ public interface PlatformTransactionManager {
 
 	/**
 	 * Return a currently active transaction or create a new one.
+	 * Note that parameters like isolation level or timeout will only be applied
+	 * to new transactions, and thus be ignored when participating in active ones.
+	 * Furthermore, they aren't supported by every transaction manager:
+	 * A proper implementation should thrown an exception when custom values
+	 * that it doesn't support are specified.
 	 * @param definition TransactionDefinition instance (can be null for defaults),
 	 * describing propagation behavior, isolation level, timeout etc.
 	 * @return transaction status object representing the new or current transaction

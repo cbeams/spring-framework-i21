@@ -9,6 +9,7 @@ import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
+import com.interface21.transaction.UnexpectedRollbackException;
 
 /**
  * Abstract class that allows for easy implementation of PlatformTransactionManager.
@@ -16,40 +17,66 @@ import com.interface21.transaction.TransactionStatus;
  * <ul>
  * <li>determines if there is an existing transaction;
  * <li>applies the appropriate propagation behavior;
- * <li>supports falling back to non-transactional execution;
+ * <li>supports falling back to non-transactional execution
+ * (if allowNonTransactionExecution is set);
  * <li>determines programmatic rollback on commit;
  * <li>applies the appropriate modification on rollback
- * (actual rollback or setting rollback only).
+ * (actual rollback or setting rollback only);
+ * <li>triggers registered synchronization callbacks
+ * (if transactionSynchronization is active).
  * </ul>
  *
  * @author Juergen Hoeller
  * @since 28.03.2003
+ * @see #setAllowNonTransactionalExecution
+ * @see #setTransactionSynchronization
  */
 public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/**
-	 * if transaction support needs to be available
-	 * (else fallback behavior is enabled)
-	 */
 	private boolean allowNonTransactionalExecution = false;
 
+	private boolean transactionSynchronization = false;
+
+
 	/**
-	 * Set if transaction support needs to be available
-	 * (else fallback behavior is enabled).
+	 * Set if transaction support does not need to be available,
+	 * e.g. when JTA isn't available in the container.
+	 * Non-transactional fallback behavior is enabled in this case.
 	 */
 	public final void setAllowNonTransactionalExecution(boolean allowNonTransactionalExecution) {
 		this.allowNonTransactionalExecution = allowNonTransactionalExecution;
 	}
 
 	/**
-	 * Return if transaction support needs to be available
-	 * (else fallback behavior is enabled).
+	 * Return if transaction support does not need to be available.
 	 */
 	public final boolean getAllowNonTransactionalExecution() {
 		return allowNonTransactionalExecution;
 	}
+
+	/**
+	 * Set if this transaction manager should activate the thread-bound
+	 * transaction synchronization support. The default can very between
+	 * transaction manager implementations, this class specifies false.
+	 * <p>Note that transaction synchronization isn't supported for
+	 * multiple concurrent transactions. Only one transaction manager
+	 * is allowed to activate it at any time.
+	 * @see TransactionSynchronizationManager
+	 */
+	public final void setTransactionSynchronization(boolean transactionSynchronization) {
+		this.transactionSynchronization = transactionSynchronization;
+	}
+
+	/**
+	 * Return if this transaction manager should activate the thread-bound
+	 * transaction synchronization support.
+	 */
+	public final boolean getTransactionSynchronization() {
+		return transactionSynchronization;
+	}
+
 
 	/**
 	 * This implementation of getTransaction handles propagation behavior and
@@ -60,6 +87,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	    throws TransactionException {
 		try {
 			Object transaction = doGetTransaction();
+			logger.debug("Using transaction object [" + transaction + "]");
 			if (isExistingTransaction(transaction)) {
 				logger.debug("Participating in existing transaction");
 				return new TransactionStatus(transaction, false);
@@ -74,6 +102,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED) {
 				// create new transaction
 				doBegin(transaction, definition.getIsolationLevel(), definition.getTimeout());
+				if (this.transactionSynchronization) {
+					TransactionSynchronizationManager.init();
+				}
 				return new TransactionStatus(transaction, true);
 			}
 		}
@@ -100,18 +131,29 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * Delegates to doCommit and rollback.
 	 */
 	public final void commit(TransactionStatus status) throws TransactionException {
-		try {
-			if (status.isRollbackOnly()) {
-				logger.debug("Transactional code has requested rollback");
-				rollback(status);
-			}
-			else if (status.isNewTransaction()) {
-				doCommit(status);
-			}
+		if (status.isRollbackOnly()) {
+			logger.debug("Transactional code has requested rollback");
+			rollback(status);
 		}
-		catch (TransactionException ex) {
-			logger.error(ex.getMessage());
-			throw ex;
+		else if (status.isNewTransaction()) {
+			try {
+				doCommit(status);
+				triggerAfterCompletion(TransactionSynchronization.STATUS_COMMITTED);
+			}
+			catch (UnexpectedRollbackException ex) {
+				triggerAfterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK);
+				logger.error(ex.getMessage());
+				throw ex;
+
+			}
+			catch (TransactionException ex) {
+				triggerAfterCompletion(TransactionSynchronization.STATUS_UNKNOWN);
+				logger.error(ex.getMessage());
+				throw ex;
+			}
+			finally {
+				TransactionSynchronizationManager.clear();
+			}
 		}
 	}
 
@@ -121,21 +163,47 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * Delegates to doRollback and doSetRollbackOnly.
 	 */
 	public final void rollback(TransactionStatus status) throws TransactionException {
-		try {
-			if (status.isNewTransaction()) {
+		if (status.isNewTransaction()) {
+			try {
 				doRollback(status);
-			} else if (status.getTransaction() != null) {
-				doSetRollbackOnly(status);
-			} else {
-				// no transaction support available
-				logger.info("Should roll back transaction but cannot - no transaction support available");
+				triggerAfterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK);
+			}
+			catch (TransactionException ex) {
+				triggerAfterCompletion(TransactionSynchronization.STATUS_UNKNOWN);
+				logger.error(ex.getMessage());
+				throw ex;
+			}
+			finally {
+				TransactionSynchronizationManager.clear();
 			}
 		}
-		catch (TransactionException ex) {
-			logger.error(ex.getMessage());
-			throw ex;
+		else if (status.getTransaction() != null) {
+			try {
+				doSetRollbackOnly(status);
+			}
+			catch (TransactionException ex) {
+				logger.error(ex.getMessage());
+				throw ex;
+			}
+		}
+		else {
+			// no transaction support available
+			logger.info("Should roll back transaction but cannot - no transaction support available");
 		}
 	}
+
+	/**
+	 * Trigger afterCompletion callbacks on registered synchronizations,
+	 * if transaction synchronization is active.
+	 * @param status completion status according to TransactionSynchronization constants
+	 * @see #setTransactionSynchronization
+	 */
+	private void triggerAfterCompletion(int status) {
+		if (this.transactionSynchronization) {
+			TransactionSynchronizationManager.triggerAfterCompletion(status);
+		}
+	}
+
 
 	/**
 	 * Return a current transaction object, i.e. a JTA UserTransaction.

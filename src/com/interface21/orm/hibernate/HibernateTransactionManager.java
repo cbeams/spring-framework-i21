@@ -8,8 +8,9 @@ import javax.sql.DataSource;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.JDBCException;
 
+import com.interface21.beans.factory.InitializingBean;
+import com.interface21.dao.CleanupFailureDataAccessException;
 import com.interface21.jdbc.datasource.ConnectionHolder;
 import com.interface21.jdbc.datasource.DataSourceUtils;
 import com.interface21.transaction.CannotCreateTransactionException;
@@ -19,36 +20,41 @@ import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.TransactionSystemException;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
-import com.interface21.dao.DataAccessResourceFailureException;
 
 /**
  * PlatformTransactionManager implementation for single Hibernate session
  * factories. Binds a Hibernate Session from the specified factory to the
  * thread, potentially allowing for one thread Session per factory.
- *
- * <p>SessionFactoryUtils.openSession and HibernateTemplate.execute are
- * aware of thread-bound Sessions and take part in such transactions
- * automatically. This is required for proper Hibernate access code
- * supporting this transaction handling mechanism.
+ * SessionFactoryUtils and HibernateTemplate are aware of thread-bound
+ * Sessions and take part in such transactions automatically.
+ * Using either is required for proper Hibernate access code supporting
+ * this transaction handling mechanism.
+ * Supports custom isolation levels but not timeouts.
  *
  * <p>This implementation is appropriate for applications that solely use
  * Hibernate for transactional data access, but it also supports direct
  * data source access within a transaction (i.e. plain JDBC code working
  * with the same DataSource). This allows for mixing services that access
- * Hibernate including proper transactional caching, and services that
- * use plain JDBC without being aware of Hibernate!
+ * Hibernate including proper transactional caching, and services that use
+ * plain JDBC without being aware of Hibernate! To be able to register the
+ * Connection for plain JDBC code, the instance needs to be aware of the
+ * DataSource (see setDataSource). Application code needs to stick to the
+ * same Connection lookup pattern as with DataSourceTransactionManager
+ * (i.e. DataSourceUtils.getConnection).
  *
- * <p>Note: To be able to register the Connection for plain JDBC code,
- * it needs to be aware of the DataSource (see setDataSource). Application
- * code needs to stick to the same Connection lookup pattern as with
- * DataSourceTransactionManager (i.e. DataSourceUtils.getConnection).
- *
- * <p>Note: JTA resp. JtaTransactionManager is preferable for accessing
- * multiple transactional resources, but it is significantly harder to
- * setup Hibernate including transactional caching for JTA than for
- * this transaction manager. Normally, Hibernate JTA setup is somewhat
- * container-specific due to the JTA TransactionManager lookup. Using
- * its J2EE Connector is advisable but involves classloading issues.
+ * <p>JTA resp. JtaTransactionManager is necessary for accessing multiple
+ * transactional resources. The DataSource that Hibernate uses needs to be
+ * JTA-enabled then (see container setup), alternatively the Hibernate JCA
+ * connector can to be used for direct container integration. Normally,
+ * Hibernate JTA setup is somewhat container-specific due to the JTA
+ * TransactionManager lookup, required for proper transactional handling of
+ * the JVM-level cache. Using the JCA Connector can solve this but involves
+ * classloading issues and container-specific connector deployment.
+ * Fortunately, there is an easier way with Spring: SessionFactoryUtils'
+ * close and thus HibernateTemplate register synchronizations with
+ * JtaTransactionManager, for proper completion callbacks.
+ * Therefore, as long as JtaTransactionManager demarcates the JTA transactions,
+ * Hibernate does not require any special JTA configuration for proper JTA.
  *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
@@ -56,12 +62,13 @@ import com.interface21.dao.DataAccessResourceFailureException;
  * @author Juergen Hoeller
  * @since 02.05.2003
  * @see SessionFactoryUtils#openSession
+ * @see SessionFactoryUtils#closeSessionIfNecessary
  * @see HibernateTemplate#execute
  * @see #setDataSource
  * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
  */
-public class HibernateTransactionManager extends AbstractPlatformTransactionManager {
+public class HibernateTransactionManager extends AbstractPlatformTransactionManager implements InitializingBean {
 
 	private SessionFactory sessionFactory;
 
@@ -69,6 +76,8 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 
 	/**
 	 * Create a new HibernateTransactionManager instance.
+	 * A SessionFactory has to be set to be able to use it.
+	 * @see #setSessionFactory
 	 */
 	public HibernateTransactionManager() {
 	}
@@ -81,6 +90,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	public HibernateTransactionManager(SessionFactory sessionFactory, DataSource dataSource) {
 		this.sessionFactory = sessionFactory;
 		this.dataSource = dataSource;
+		afterPropertiesSet();
 	}
 
 	/**
@@ -113,6 +123,12 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		return dataSource;
 	}
 
+	public void afterPropertiesSet() {
+		if (this.sessionFactory == null) {
+			throw new IllegalArgumentException("sessionFactory is required");
+		}
+	}
+
 	protected Object doGetTransaction() throws CannotCreateTransactionException, TransactionException {
 		if (SessionFactoryUtils.getThreadObjectManager().hasThreadObject(this.sessionFactory)) {
 			SessionHolder sessionHolder = (SessionHolder) SessionFactoryUtils.getThreadObjectManager().getThreadObject(this.sessionFactory);
@@ -128,9 +144,6 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		return SessionFactoryUtils.getThreadObjectManager().hasThreadObject(this.sessionFactory);
 	}
 
-	/**
-	 * This implementation sets the isolation level but ignores the timeout.
-	 */
 	protected void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException {
 		if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
 			throw new InvalidTimeoutException("HibernateTransactionManager does not support timeouts");
@@ -158,7 +171,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			throw new CannotCreateTransactionException("Cannot set transaction isolation", ex);
 		}
 		catch (net.sf.hibernate.TransactionException ex) {
-			throw new TransactionSystemException("Cannot create Hibernate transaction", ex.getCause());
+			throw new CannotCreateTransactionException("Cannot create Hibernate transaction", ex.getCause());
 		}
 		catch (HibernateException ex) {
 			throw new CannotCreateTransactionException("Cannot create Hibernate transaction", ex);
@@ -237,9 +250,9 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			try {
 				SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory);
 			}
-			catch (DataAccessResourceFailureException ex) {
+			catch (CleanupFailureDataAccessException ex) {
 				// just log it, to keep a transaction-related exception
-				logger.error("Cannot close session after transaction", ex);
+				logger.error("Cannot close Hibernate session after transaction", ex);
 			}
 		}
 	}

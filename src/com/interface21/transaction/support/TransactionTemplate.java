@@ -1,8 +1,5 @@
 package com.interface21.transaction.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionException;
@@ -43,8 +40,6 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 
 	/** Constants instance for TransactionDefinition */
 	private static final Constants constants = new Constants(TransactionDefinition.class);
-
-	protected final Log logger = LogFactory.getLog(getClass());
 
 	protected PlatformTransactionManager transactionManager = null;
 
@@ -132,7 +127,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 			throw tse;
 		}
 		catch (RuntimeException ex) {
-			logger.info("Transactional code threw exception", ex);
+			// transactional code threw exception
 			this.transactionManager.rollback(status);
 			throw ex;
 		}

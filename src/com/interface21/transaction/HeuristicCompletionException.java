@@ -7,12 +7,16 @@ package com.interface21.transaction;
 
 /**
  * Exception that represents a transaction failure caused by heuristics.
- * @author Rod, Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @since 17-Mar-2003
  * @version $Revision$
  */
 public class HeuristicCompletionException extends TransactionException {
 
+	/**
+	 * Values for the outcome state of a heuristically completed transaction.
+	 */
 	public static final int STATE_UNKNOWN = 0;
 	public static final int STATE_COMMITTED = 1;
 	public static final int STATE_ROLLED_BACK = 2;
@@ -44,5 +48,5 @@ public class HeuristicCompletionException extends TransactionException {
 	public int getOutcomeState() {
 		return outcomeState;
 	}
-}
 
+}

@@ -1,34 +1,37 @@
 package com.interface21.orm.hibernate;
 
-import java.beans.PropertyEditorManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.JDBCException;
+import net.sf.hibernate.ObjectDeletedException;
+import net.sf.hibernate.PersistentObjectException;
+import net.sf.hibernate.QueryException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.QueryException;
 import net.sf.hibernate.StaleObjectStateException;
-import net.sf.hibernate.PersistentObjectException;
 import net.sf.hibernate.TransientObjectException;
-import net.sf.hibernate.ObjectDeletedException;
 import net.sf.hibernate.cfg.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.dao.CleanupFailureDataAccessException;
+import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
+import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.dao.InvalidDataAccessResourceUsageException;
 import com.interface21.dao.OptimisticLockingFailureException;
-import com.interface21.dao.InvalidDataAccessApiUsageException;
-import com.interface21.dao.DataAccessException;
-import com.interface21.jndi.JndiObjectEditor;
+import com.interface21.transaction.support.TransactionSynchronization;
+import com.interface21.transaction.support.TransactionSynchronizationManager;
 import com.interface21.util.ThreadObjectManager;
 
 /**
- * Helper class featuring methods for Hibernate session handling.
- * Used by HibernateTemplate, HibernateTransactionManager, etc.
+ * Helper class featuring methods for Hibernate session handling,
+ * allowing for reuse of Hibernate Session instances within transactions.
+ * Supports synchronization with JTA transactions via JtaTransactionManager,
+ * to allow for proper transactional handling of the JVM-level cache.
+ * Used by HibernateTemplate and HibernateTransactionManager.
  *
  * <p>Note: This class, like all of Spring's Hibernate support, requires
  * Hibernate 2.0 (initially developed with RC1).
@@ -37,15 +40,11 @@ import com.interface21.util.ThreadObjectManager;
  * @since 02.05.2003
  * @see HibernateTemplate
  * @see HibernateTransactionManager
+ * @see com.interface21.transaction.jta.JtaTransactionManager
  */
 public abstract class SessionFactoryUtils {
 
 	private static final Log logger = LogFactory.getLog(SessionFactoryUtils.class);
-
-	static {
-		// register editor to be able to set a JNDI name to a SessionFactory property
-		PropertyEditorManager.registerEditor(SessionFactory.class, JndiObjectEditor.class);
-	}
 
 	/**
 	 * Per-thread mappings: SessionFactory -> SessionHolder
@@ -53,19 +52,7 @@ public abstract class SessionFactoryUtils {
 	private static final ThreadObjectManager threadObjectManager = new ThreadObjectManager();
 
 	/**
-	 * Return if the given Connection is bound to the current thread,
-	 * for the given DataSource.
-	 * @param session Session that should be checked
-	 * @param sessionFactory SessionFactory that the Session was created with
-	 * @return if the Session is bound for the SessionFactory
-	 */
-	public static boolean isSessionBoundToThread(Session session, SessionFactory sessionFactory) {
-		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
-		return (sessionHolder != null && session == sessionHolder.getSession());
-	}
-
-	/**
-	 * Return the thread object manager for Hibernate session, keeping a
+	 * Return the thread object manager for Hibernate sessions, keeping a
 	 * SessionFactory/SessionHolder map per thread for Hibernate transactions.
 	 * @return the thread object manager
 	 * @see #openSession
@@ -73,6 +60,18 @@ public abstract class SessionFactoryUtils {
 	 */
 	public static ThreadObjectManager getThreadObjectManager() {
 		return threadObjectManager;
+	}
+
+	/**
+	 * Return if the given Session is bound to the current thread,
+	 * for the given SessionFactory.
+	 * @param session Session that should be checked
+	 * @param sessionFactory SessionFactory that the Session was created with
+	 * @return if the Session is bound for the SessionFactory
+	 */
+	public static boolean isSessionBoundToThread(Session session, SessionFactory sessionFactory) {
+		SessionHolder sessionHolder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
+		return (sessionHolder != null && session == sessionHolder.getSession());
 	}
 
 	/**
@@ -114,7 +113,7 @@ public abstract class SessionFactoryUtils {
 
 	/**
 	 * Open a Hibernate session via the given factory.
-	 * <p>Is aware of a respective session bound to the current thread,
+	 * Is aware of a respective session bound to the current thread,
 	 * for example when using HibernateTransactionManager.
 	 * @param sessionFactory Hibernate SessionFactory to create the session with
 	 * @return the Hibernate Session
@@ -132,10 +131,10 @@ public abstract class SessionFactoryUtils {
 		}
 		catch (JDBCException ex) {
 			// SQLException underneath
-			throw new DataAccessResourceFailureException("Cannot not open Hibernate Session", ex.getSQLException());
+			throw new DataAccessResourceFailureException("Cannot not open Hibernate session", ex.getSQLException());
 		}
 		catch (HibernateException ex) {
-			throw new DataAccessResourceFailureException("Cannot not open Hibernate Session", ex);
+			throw new DataAccessResourceFailureException("Cannot not open Hibernate session", ex);
 		}
 	}
 
@@ -170,28 +169,64 @@ public abstract class SessionFactoryUtils {
 	}
 
 	/**
-	 * Close the given session, created via the given factory and a Hibernate-retrieved
-	 * underlying connection.
+	 * Close the given session, created via the given factory,
+	 * if it isn't bound to the thread.
 	 * @param session Session to close
 	 * @param sessionFactory Hibernate SessionFactory that the Session was created with
 	 * @throws DataAccessResourceFailureException if the Session couldn't be closed
 	 */
 	public static void closeSessionIfNecessary(Session session, SessionFactory sessionFactory)
-	    throws DataAccessResourceFailureException {
-		if (session == null)
+	    throws CleanupFailureDataAccessException {
+		if (session == null || isSessionBoundToThread(session, sessionFactory)) {
 			return;
-		if (!isSessionBoundToThread(session, sessionFactory)) {
-			logger.debug("Closing Hibernate session");
-			try {
-				session.close();
-			}
-			catch (JDBCException ex) {
-				// SQLException underneath
-				throw new CleanupFailureDataAccessException("Cannot close Hibernate Session", ex.getSQLException());
-			}
-			catch (HibernateException ex) {
-				throw new CleanupFailureDataAccessException("Cannot close Hibernate Session", ex);
-			}
+		}
+		if (TransactionSynchronizationManager.isActive()) {
+			logger.debug("Registering JTA synchronization for Hibernate session");
+			TransactionSynchronizationManager.register(new SessionSynchronization(session, sessionFactory));
+			// use same Session for further Hibernate actions within the transaction
+			// to save resources (thread object will get remoed by synchronization)
+			threadObjectManager.bindThreadObject(sessionFactory, new SessionHolder(session));
+		}
+		else {
+			doCloseSession(session);
+		}
+	}
+
+	/**
+	 * Actually perform close on the given Session.
+	 */
+	private static void doCloseSession(Session session) throws CleanupFailureDataAccessException {
+		logger.debug("Closing Hibernate session");
+		try {
+			session.close();
+		}
+		catch (JDBCException ex) {
+			// SQLException underneath
+			throw new CleanupFailureDataAccessException("Cannot close Hibernate session", ex.getSQLException());
+		}
+		catch (HibernateException ex) {
+			throw new CleanupFailureDataAccessException("Cannot close Hibernate session", ex);
+		}
+	}
+
+
+	/**
+	 * Callback for resource cleanup at the end of a non-Hibernate transaction
+	 * (e.g. when participating in a JTA transaction).
+	 */
+	private static class SessionSynchronization implements TransactionSynchronization {
+
+		private Session session;
+		private SessionFactory sessionFactory;
+
+		private SessionSynchronization(Session session, SessionFactory sessionFactory) {
+			this.session = session;
+			this.sessionFactory = sessionFactory;
+		}
+
+		public void afterCompletion(int status) {
+			threadObjectManager.removeThreadObject(this.sessionFactory);
+			doCloseSession(this.session);
 		}
 	}
 
