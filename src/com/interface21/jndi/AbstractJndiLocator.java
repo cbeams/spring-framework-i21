@@ -38,7 +38,7 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 	* Create a logging category that is available
 	* to subclasses. 
 	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Logger logger = Logger.getLogger(getClass());
 	
 	/** JNDI prefix used in J2EE applications */
 	private static String PREFIX = "java:comp/env/";
@@ -121,7 +121,7 @@ public abstract class AbstractJndiLocator implements InitializingBean {
 		logger.info("Looking up object with jndiName '" + jndiName + "'");
 		
 		// This helper will close JNDI context
-		Object o = new JndiServices().lookup(jndiName);
+		Object o = JndiServices.lookup(jndiName);
 		
 		logger.debug("Looked up objet with jndiName '" + jndiName + "' OK: [" + o + "]");
 		return o;
