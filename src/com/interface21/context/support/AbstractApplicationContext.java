@@ -9,6 +9,11 @@
 
 package com.interface21.context.support;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -176,7 +181,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 				logger.warn("No MessageSource defined in WebApplicationContext and no parent");
 		}
 		if ((this.messageSource instanceof NestingMessageSource) && this.parent != null) {
-			( (NestingMessageSource) messageSource).setParent(this.parent);
+			((NestingMessageSource) this.messageSource).setParent(this.parent);
 		}
 
 		refreshListeners();
@@ -288,7 +293,22 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	protected void addListener(ApplicationListener l) {
 		eventMulticaster.addApplicationListener(l);
 	}
-	
+
+	/**
+	 * This implementation only supports fully qualified URLs.
+	 * @see com.interface21.context.ApplicationContext 
+	 */
+	public InputStream getResourceAsStream(String path) throws IOException {
+		try {
+			// try URL
+			URL url = new URL(path);
+			return url.openStream();
+		} catch (MalformedURLException ex) {
+			// no URL -> file path
+			return new FileInputStream(path);
+		}
+	}
+
 	//---------------------------------------------------------------------
 	// Implementation of MessageSource
 	//---------------------------------------------------------------------
