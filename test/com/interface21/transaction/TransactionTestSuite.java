@@ -1,8 +1,18 @@
 package com.interface21.transaction;
 
-import junit.framework.TestCase;
+import javax.sql.DataSource;
 
+import com.mockobjects.sql.MockConnection;
+import junit.framework.TestCase;
+import org.easymock.EasyMock;
+import org.easymock.MockControl;
+
+import com.interface21.jdbc.core.JdbcTemplate;
+import com.interface21.jdbc.core.MockConnectionFactory;
+import com.interface21.jdbc.datasource.DataSourceUtils;
+import com.interface21.jdbc.datasource.SingleConnectionDataSource;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
+import com.interface21.transaction.support.DataSourceTransactionManager;
 import com.interface21.transaction.support.TransactionCallbackWithoutResult;
 
 /**
@@ -179,6 +189,151 @@ public class TransactionTestSuite extends TestCase {
 			assertTrue("no commit", !tm.commit);
 			assertTrue("triggered rollback", tm.rollback);
 			assertTrue("no rollbackOnly", !tm.rollbackOnly);
+		}
+	}
+
+	public void testDataSourceTransactionManager() throws Exception {
+		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
+
+		final MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		final DataSource ds = (DataSource) dsControl.getMock();
+		final int rowsAffected = 33;
+
+		// It's because Integers aren't canonical
+		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
+		con.setExpectedCloseCalls(1);
+
+		ds.getConnection();
+		dsControl.setReturnValue(con);
+		dsControl.activate();
+
+		PlatformTransactionManager tm = new DataSourceTransactionManager(ds);
+		TransactionTemplate tt = new TransactionTemplate(tm);
+		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+
+		tt.execute(new TransactionCallbackWithoutResult() {
+			protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+				dsControl.verify();
+				assertTrue("Has thread connection", DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+				JdbcTemplate template = new JdbcTemplate(ds);
+				int actualRowsAffected = template.update(sql);
+				assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
+			}
+		});
+
+		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+		con.verify();
+	}
+
+	public void testDataSourceTransactionManagerWithSingleConnection() throws Exception {
+		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
+		final int rowsAffected = 33;
+
+		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
+		con.setExpectedCloseCalls(0);
+		con.setExpectedCommitCalls(1);
+		con.setExpectedRollbackCalls(0);
+		final DataSource ds = new SingleConnectionDataSource(con, true);
+
+		PlatformTransactionManager tm = new DataSourceTransactionManager(ds) {
+			protected boolean isExistingTransaction(Object transaction) {
+				return false;
+			}
+		};
+
+		TransactionTemplate tt = new TransactionTemplate(tm);
+		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+
+		tt.execute(new TransactionCallbackWithoutResult() {
+			protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+				assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+				JdbcTemplate template = new JdbcTemplate(ds);
+				int actualRowsAffected = template.update(sql);
+				assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
+			}
+		});
+
+		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+		con.verify();
+	}
+
+	public void testDataSourceTransactionManagerWithRollback() throws Exception {
+		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
+		final int rowsAffected = 33;
+
+		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
+		con.setExpectedCloseCalls(0);
+		con.setExpectedCommitCalls(0);
+		con.setExpectedRollbackCalls(1);
+		final DataSource ds = new SingleConnectionDataSource(con, true);
+
+		PlatformTransactionManager tm = new DataSourceTransactionManager(ds) {
+			protected boolean isExistingTransaction(Object transaction) {
+				return false;
+			}
+		};
+
+		TransactionTemplate tt = new TransactionTemplate(tm);
+		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+
+		final RuntimeException ex = new RuntimeException("Application exception");
+		try {
+			tt.execute(new TransactionCallbackWithoutResult() {
+				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+					assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+					JdbcTemplate template = new JdbcTemplate(ds);
+					int actualRowsAffected = template.update(sql);
+					assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
+					throw ex;
+				}
+			});
+			fail("Should have thrown RuntimeException");
+		}
+		catch (RuntimeException ex2) {
+			// expected
+			assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+			assertTrue("Correct exception thrown", ex2.equals(ex));
+			con.verify();
+		}
+	}
+
+	public void testDataSourceTransactionManagerWithRollbackOnly() throws Exception {
+		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
+		final int rowsAffected = 33;
+
+		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
+		con.setExpectedCloseCalls(0);
+		con.setExpectedCommitCalls(0);
+		con.setExpectedRollbackCalls(0);
+		final DataSource ds = new SingleConnectionDataSource(con, true);
+
+		PlatformTransactionManager tm = new DataSourceTransactionManager(ds) {
+			protected boolean isExistingTransaction(Object transaction) {
+				return true;
+			}
+		};
+
+		TransactionTemplate tt = new TransactionTemplate(tm);
+		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+
+		final RuntimeException ex = new RuntimeException("Application exception");
+		try {
+			tt.execute(new TransactionCallbackWithoutResult() {
+				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+					assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+					JdbcTemplate template = new JdbcTemplate(ds);
+					int actualRowsAffected = template.update(sql);
+					assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
+					throw ex;
+				}
+			});
+			fail("Should have thrown RuntimeException");
+		}
+		catch (RuntimeException ex2) {
+			// expected
+			assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
+			assertTrue("Correct exception thrown", ex2.equals(ex));
+			con.verify();
 		}
 	}
 
