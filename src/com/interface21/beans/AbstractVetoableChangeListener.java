@@ -128,10 +128,4 @@ public abstract class AbstractVetoableChangeListener implements VetoableChangeLi
 		}
 	}	// vetoableChange
 	
-	
-	/** Private convenience method used in this class */
-	private static String capitalize(String propertyName) {
-		return propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
-	}
-	
 }	// class AbstractVetoableChangeListener
