@@ -27,6 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 public interface ThemeResolver {
 
   /**
+   * Name of the request attribute that holds the theme name.
+   */
+	public static final String THEME_REQUEST_ATTRIBUTE_NAME = "com.interface21.web.servlet.THEME";
+	
+  /**
    * Resolve the current theme name via the given request.
    * Should return a default theme as fallback in any case.
    * @param request request to be used for resolution
@@ -41,5 +46,12 @@ public interface ThemeResolver {
    * @param themeName the new theme name
    */
 	void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName);
+	
+  /**
+   * Make the current theme name available to the view.
+   * @param request request to be used for theme name availability
+   * @param response response to be used for theme name availability
+   */
+	void makeThemeNameAvailable(HttpServletRequest request, HttpServletResponse response);
 	
 }

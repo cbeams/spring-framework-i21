@@ -1,11 +1,15 @@
 package com.interface21.web.servlet.theme;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.interface21.web.servlet.ThemeResolver;
 
 /**
  * Abstract base class for ThemeResolver implementations.
  * Provides support for a default theme name.
  * @author Juergen Hoeller
+ * @author Jean-Pierre Pawlak
  * @since 17.06.2003
  */
 public abstract class AbstractThemeResolver implements ThemeResolver {
@@ -28,6 +32,13 @@ public abstract class AbstractThemeResolver implements ThemeResolver {
 	 */
 	public String getDefaultThemeName() {
 		return defaultThemeName;
+	}
+
+	/**
+	 * Make the theme name available for the view.
+	 */
+	public void makeThemeNameAvailable(HttpServletRequest request, HttpServletResponse response) {
+		setThemeName(request, response, resolveThemeName(request));
 	}
 
 }

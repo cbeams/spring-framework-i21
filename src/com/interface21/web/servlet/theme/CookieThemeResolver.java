@@ -20,8 +20,6 @@ import com.interface21.web.util.WebUtils;
  */
 public class CookieThemeResolver extends AbstractThemeResolver {
 
-	public static final String THEME_REQUEST_ATTRIBUTE_NAME = CookieThemeResolver.class.getName() + ".THEME";
-
 	public static final String DEFAULT_COOKIE_NAME = CookieThemeResolver.class.getName() + ".THEME";
 
 	public static final int DEFAULT_COOKIE_MAX_AGE = Integer.MAX_VALUE;

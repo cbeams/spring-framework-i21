@@ -29,6 +29,7 @@ public class SessionThemeResolver extends AbstractThemeResolver {
 
 	public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
 		WebUtils.setSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME, themeName);
+		request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, themeName);
 	}
 
 }
