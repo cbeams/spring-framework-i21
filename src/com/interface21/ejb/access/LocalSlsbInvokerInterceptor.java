@@ -30,7 +30,7 @@ public class LocalSlsbInvokerInterceptor extends AbstractSlsbInvokerInterceptor 
 
 	/**
 	 * This is the last invoker in the chain
-	 * @see org.aopalliance.MethodInterceptor#invoke(org.aopalliance.Invocation)
+	 * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
 	 */
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		EJBLocalObject ejb = newSessionBeanInstance();

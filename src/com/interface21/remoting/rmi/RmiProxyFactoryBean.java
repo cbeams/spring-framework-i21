@@ -7,8 +7,8 @@ import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import org.aopalliance.intercept.MethodInvocation;
 import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.remoting.RemoteAccessException;
@@ -35,8 +35,6 @@ import com.interface21.remoting.support.RemoteProxyFactoryBean;
  * @author Juergen Hoeller
  * @since 13.05.2003
  * @see RmiServiceExporter
- * @see RemoteInvocationHandler
- * @see RemoteInvocationWrapper
  */
 public class RmiProxyFactoryBean extends RemoteProxyFactoryBean {
 

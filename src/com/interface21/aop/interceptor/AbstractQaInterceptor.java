@@ -6,7 +6,7 @@ import org.aopalliance.intercept.MethodInvocation;
 public abstract class AbstractQaInterceptor implements MethodInterceptor {
 
 	/**
-	 * @see Interceptor#invoke(Invocation)
+	 * @see org.aopalliance.intercept.MethodInterceptor#invoke(MethodInvocation)
 	 */
 	public Object invokeInternal(MethodInvocation invocation) throws Throwable {
 		Object result = invocation.proceed();

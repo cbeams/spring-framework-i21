@@ -6,20 +6,21 @@ import java.util.Calendar;
 import java.net.URL;
 
 /**
- * <P>A class that implements java.sql.ResultSet which is used in the 
- * JdbcTemplateclass. This is the ResultSet instance which is passed as a 
- * parameter to the extract() callback method of the 
+ * A class that implements java.sql.ResultSet which is used in the
+ * JdbcTemplate class. This is the ResultSet instance which is passed 
+ * as a parameter to the extract() callback method of the
  * ManualExtractionSqlQueryWithParameters and ManualExtractionSqlQuery classes.
- * The objective is to be able to control that the user does not break the 
+ *
+ * <p>The objective is to be able to control that the user does not break the
  * extraction mechanism by calling methods that disturb for instance the 
  * positioning of the cursor, such as next() or first(), or any other setter 
  * method. If such a call is made anyway, an InvalidDataAccessApiUsageException 
- * exception is thrown.</P>
+ * exception is thrown.
  * 
- * <P>Overall, the class acts as a proxy to the actual ResultSet and filters 
+ * <p>Overall, the class acts as a proxy to the actual ResultSet and filters
  * out faulty calls to unauthorised methods behind the scenes. For that very
  * reason, the wrapped methods are not documented here. Please refer to the 
- * official ResultSet Javadoc for more information.</P>
+ * official ResultSet Javadoc for more information.
  * 
  * @author Yann Caroff
  */
@@ -729,7 +730,7 @@ public class ReadOnlyResultSet implements ResultSet {
   /**
    * Not authorised.
    * @throws InvalidResultSetMethodInvocationException
-   * @see java.sql.ResultSet#(int, java.io.InputStream, int)
+   * @see java.sql.ResultSet#updateBinaryStream(int, java.io.InputStream, int)
    */
   public void updateBinaryStream(int columnIndex, java.io.InputStream x, int length) throws SQLException {
     throw new InvalidResultSetMethodInvocationException("updateBinaryStream");

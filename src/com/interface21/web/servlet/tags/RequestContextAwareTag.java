@@ -32,7 +32,7 @@ public abstract class RequestContextAwareTag extends TagSupport {
 	private RequestContext requestContext;
 
 	/**
-	 * Set HTML escaping for this tag, overriding the default
+	 * Sets HTML escaping for this tag, overriding the default
 	 * HTML escaping setting for the current page.
 	 * @see HtmlEscapeTag#setDefaultHtmlEscape
 	 */
@@ -41,9 +41,8 @@ public abstract class RequestContextAwareTag extends TagSupport {
 	}
 
 	/**
-	 * Return the HTML escaping setting for this tag,
+	 * Returns the HTML escaping setting for this tag,
 	 * or the default setting if not overridden.
-	 * @return
 	 */
 	protected final boolean isHtmlEscape() {
 		return (this.htmlEscape != null ? this.htmlEscape.booleanValue() :

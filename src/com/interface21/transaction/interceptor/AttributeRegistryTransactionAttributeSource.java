@@ -19,9 +19,6 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public class AttributeRegistryTransactionAttributeSource implements TransactionAttributeSource {
 
-	/**
-	 * @see com.interface21.transaction.interceptor.TransactionAttributeSource#getTransactionAttribute(java.lang.Class, java.lang.reflect.Method)
-	 */
 	public TransactionAttribute getTransactionAttribute(MethodInvocation mi) {
 		Class targetClass = mi.getMethod().getDeclaringClass();
 		if (mi.getThis() != null) {

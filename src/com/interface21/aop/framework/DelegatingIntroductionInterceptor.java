@@ -85,19 +85,14 @@ public class DelegatingIntroductionInterceptor implements IntroductionIntercepto
 		this.publishedInterfaces.remove(intf);
 	}
 
-	/**
-	 * @see com.interface21.aop.framework.AspectInterfaceInterceptor#getAspectInterfaces()
-	 */
 	public Class[] getIntroducedInterfaces() {
 		return (Class[]) this.publishedInterfaces.toArray(new Class[this.publishedInterfaces.size()]);
 	}
 
 	/**
-	 * Subclasses may need to override this if they want to 
-	 * perform custom behaviour in around advice. However, subclasses should invoke
-	 * this method, which handles introduced interfaces and forwarding
-	 * to the target.
-	 * @see com.interface21.aop.Interceptor#invoke(Invocation)
+	 * Subclasses may need to override this if they want to  perform custom
+	 * behaviour in around advice. However, subclasses should invoke this
+	 * method, which handles introduced interfaces and forwarding to the target.
 	 */
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		

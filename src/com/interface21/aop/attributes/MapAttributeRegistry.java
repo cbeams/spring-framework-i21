@@ -29,14 +29,14 @@ public class MapAttributeRegistry implements AttributeRegistry {
 	}
 
 	/**
-	 * @see org.aopalliance.AttributeRegistry#getAttributes(java.lang.reflect.AccessibleObject)
+	 * @see org.aopalliance.intercept.AttributeRegistry#getAttributes(java.lang.reflect.AccessibleObject)
 	 */
 	public Object[] getAttributes(AccessibleObject ao) {
 		return (Object[]) this.attributeMap.get(ao);
 	}
 
 	/**
-	 * @see org.aopalliance.AttributeRegistry#getAttributes(java.lang.Class)
+	 * @see org.aopalliance.intercept.AttributeRegistry#getAttributes(java.lang.Class)
 	 */
 	public Object[] getAttributes(Class clazz) {
 		throw new UnsupportedOperationException("getAttributes");

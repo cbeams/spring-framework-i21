@@ -9,7 +9,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import com.interface21.ejb.access.AbstractRemoteSlsbInvokerInterceptor;
 
-
 /**
  * Basic remote invoker for EJBs.
  * "Creates" a new EJB instance for each invocation.
@@ -27,7 +26,7 @@ public class SimpleRemoteSlsbInvokerInterceptor extends AbstractRemoteSlsbInvoke
 	 * Convenient constructor for programmatic use.
 	 * @param jndiName
 	 * @param inContainer
-	 * @throws org.aopalliance.AspectException
+	 * @throws org.aopalliance.intercept.AspectException
 	 */
 	public SimpleRemoteSlsbInvokerInterceptor(String jndiName, boolean inContainer) throws AspectException {
 		setJndiName(jndiName);
@@ -42,7 +41,7 @@ public class SimpleRemoteSlsbInvokerInterceptor extends AbstractRemoteSlsbInvoke
 	
 	/**
 	 * This is the last invoker in the chain
-	 * @see org.aopalliance.MethodInterceptor#invoke(org.aopalliance.Invocation)
+	 * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
 	 */
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		EJBObject ejb = newSessionBeanInstance();

@@ -30,15 +30,12 @@ public class InvokerInterceptor implements MethodInterceptor, ProxyInterceptor {
 		this.target = target;
 	}
 	
-	/**
-	 * @see org.aopalliance.ProxyInterceptor#getTarget()
-	 */
 	public Object getTarget() {
 		return this.target;
 	}
 
 	/**
-	 * @see Interceptor#invoke(Invocation)
+	 * @see org.aopalliance.intercept.MethodInterceptor#invoke(MethodInvocation)
 	 */
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		

@@ -1,10 +1,10 @@
 /**
- * Generic framework code included with 
+ * Generic framework code included with
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
+ * by Rod Johnson (Wrox, 2002).
  * This code is free to use and modify. However, please
  * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
+ * class using or derived from this code.
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
@@ -30,35 +30,34 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * Superclass for object abstractions of RDBMS stored procedures.
  * This class is abstract and its execute methods are protected, preventing use other than through
  * a subclass that offers tighter typing.
- * <br>The inherited sql property is the name of the stored procedure in the RDBMS.
+ *
+ * <p>The inherited sql property is the name of the stored procedure in the RDBMS.
  * Note that JDBC 3.0 introduces named parameters, although the other features provided
  * by this class are still necessary in JDBC 3.0.
+ *
  * @author Rod Johnson
  * @version $Id$
  */
 public abstract class StoredProcedure extends RdbmsOperation {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/** 
+	/**
 	 * Call string as defined in java.sql.CallableStatement.
-	 * String of form {call add_invoice(?, ?, ?)} 
-	 * or {? = call get_invoice_count(?)} if isFunction is set to true 
+	 * String of form {call add_invoice(?, ?, ?)}
+	 * or {? = call get_invoice_count(?)} if isFunction is set to true
 	 * Updated after each parameter is added.
 	 */
 	private String callString;
 
-	/** 
-	 * Flag used to indicate that this call is for a function and to 
-	 * use the {? = call get_invoice_count(?)} syntax. 
-	 */ 
+	/**
+	 * Flag used to indicate that this call is for a function and to
+	 * use the {? = call get_invoice_count(?)} syntax.
+	 */
 	private boolean isFunction = false;
-	
+
 	/** Helper to translate SQL exceptions to DataAccessExceptions */
 	private SQLExceptionTranslater exceptionTranslater;
-	
-	
+
+
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
@@ -104,6 +103,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	//---------------------------------------------------------------------
 	// Overriden methods
 	//---------------------------------------------------------------------
+
 	/**
 	 * Overridden method.
 	 * Add a parameter.
@@ -121,7 +121,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 
 
 	/**
-	 * Override of NOP RdbmsOperation.compileInternal() to 
+	 * Override of NOP RdbmsOperation.compileInternal() to
 	 * ensure that the call string is up to date before invoking
 	 * the RDBMS stored procedure.
 	 */
@@ -131,7 +131,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		if (isFunction) {
 			callString = "{? = call " + getSql() + "(";
 			firstParameter = 1;
-		} 
+		}
 		else {
 			callString = "{call " + getSql() + "(";
 		}
@@ -143,12 +143,13 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		callString += ")}";
 		logger.info("Compiled stored procedure. Call string is [" + callString + "]");
 	}
-	
-	
+
+
 	//---------------------------------------------------------------------
 	// Public methods
 	//---------------------------------------------------------------------
-	/** 
+
+	/**
 	 * Execute the stored procedure. Subclasses should define a strongly typed
 	 * execute method (with a meaningful name) that invokes this method, populating
 	 * the input map and extracting typed values from the output map. Subclass
@@ -159,7 +160,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	 * It is legal for map entries to be null, and this will produce the correct
 	 * behavior using a NULL argument to the stored procedure.
 	 * @return map of output params, keyed by name as in parameter declarations.
-	 * Output parameters will appear here, with their values after the 
+	 * Output parameters will appear here, with their values after the
 	 * stored procedure has been called.
 	 */
 	protected Map execute(final Map inParams) {
@@ -169,7 +170,6 @@ public abstract class StoredProcedure extends RdbmsOperation {
 			}
 		});
 	}
-
 
 	/**
 	 * Execute the stored procedure. All parameters
@@ -190,7 +190,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	protected Map execute(ParameterMapper mapper) throws InvalidDataAccessApiUsageException {
 		if (!isCompiled())
 			throw new InvalidDataAccessApiUsageException("Stored procedure must be compiled before execution");
-		
+
 		DataSource ds = getDataSource();
 		Connection con = DataSourceUtils.getConnection(ds);
 		try {
@@ -215,9 +215,8 @@ public abstract class StoredProcedure extends RdbmsOperation {
 			DataSourceUtils.closeConnectionIfNecessary(con, ds);
 		}
 	}
-	
 
-	/** 
+	/**
 	 * Set and register input parameters
 	 * @param inParams parameters (including output parameters) to the stored procedure
 	 * @param call CallableStatement representing the stored procedure
@@ -227,13 +226,13 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		List parameters = getDeclaredParameters();
 		for (int i = 0; i < parameters.size(); i++) {
 			SqlParameter p = (SqlParameter) parameters.get(i);
-			if (!inParams.containsKey(p.getName()) && !(p instanceof OutputParameter) )
+			if (!inParams.containsKey(p.getName()) && !(p instanceof OutputParameter))
 				throw new InvalidDataAccessApiUsageException("Required input parameter '" + p.getName() + "' is missing");
 			// The value may still be null
 			Object in = inParams.get(p.getName());
 			if (!(p instanceof OutputParameter)) {
 				// Input parameters must be supplied
-				if (in != null)					
+				if (in != null)
 					call.setObject(i + 1, in, p.getSqlType());
 				else
 					call.setNull(i + 1, p.getSqlType());
@@ -247,8 +246,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 				}
 			}
 		}
-	}	// processInputParameters
-	
+	}
 
 	/**
 	 * Extract output parameters from the completed stored procedure.
@@ -267,20 +265,20 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		}
 		return outParams;
 	}
-	
-	
+
+
 	//---------------------------------------------------------------------
 	// Inner classes
 	//---------------------------------------------------------------------
 
 	/**
-	 * Implement this interface when parameters need to be customized based 
+	 * Implement this interface when parameters need to be customized based
 	 * on the connection. We might need to do this to make
 	 * use of proprietary features, available only with a specific
 	 * Connection type.
 	 */
 	protected interface ParameterMapper {
-		
+
 		/**
 		 * @param con JDBC connection. This is useful (and the purpose
 		 * of this interface) if we need to do something RDBMS-specific
@@ -293,7 +291,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	}
 
 
-	/** 
+	/**
 	 * Subclass of SqlParameter to represent an output parameter.
 	 * No additional properties: instanceof will be used to check
 	 * for such types.
@@ -301,7 +299,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	 * must have names.
 	 **/
 	public static class OutputParameter extends SqlParameter {
-		
+
 		/**
 		 * Create a new OutputParameter, supplying name and SQL type
 		 * @param name name of the parameter, as used in input and
@@ -312,21 +310,6 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		public OutputParameter(String name, int type) {
 			super(name, type);
 		}
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public boolean isFunction() {
-		return isFunction;
-	}
-
-	/**
-	 * Sets the isFunction.
-	 * @param isFunction The isFunction to set
-	 */
-	public void setFunction(boolean isFunction) {
-		this.isFunction = isFunction;
 	}
 
 }

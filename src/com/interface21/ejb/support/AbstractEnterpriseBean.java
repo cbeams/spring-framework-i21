@@ -10,18 +10,14 @@ import javax.ejb.EnterpriseBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
-/** 
- * Superclass for all EJBs.
- * Provides logging support.
- * As javax.ejb.EnterpriseBean is a tag interface, there
- * are no EJB methods to implement.
- * <br>Subclasses will often want to create an object of type
- * JndiEnvironmentBeanFactory, to provide a BeanFactory view
- * of their JNDI environment variables. However, as they may
- * also choose to use another BeanFactory strategy (or not require
- * a bean factory) this class no longer creates a BeanFactory.
- * @see JndiEnvironmentBeanFactory
+/**
+ * Superclass for all EJBs. Provides logging support.
+ * As javax.ejb.EnterpriseBean is a tag interface,
+ * there are no EJB methods to implement.
+ *
+ * <p>Subclasses will often want to create a BeanFactory
+ * via a classpath resource for accessing preconfigured beans.
+ *
  * @author Rod Johnson
  * @version $Id$
  */

@@ -63,19 +63,11 @@ public class MethodInvocationImpl implements MethodInvocation {
 	
 	
 	/**
-	 * Method Invocation.
-	 * @param proxy
-	 * @param target may be null
-	 * @param m
-	 * @param arguments
-	 * @param pointcuts list of MethodPointCut
-	 * @param attList
 	 * TODO take interceptor chain as well?
 	 */
 	public MethodInvocationImpl(Object proxy, Object target, 
 					Class targetInterface, Method m, Object[] arguments,
-					List pointcuts,
-					AttributeRegistry attributeRegistry) {
+					List pointcuts, AttributeRegistry attributeRegistry) {
 		if (pointcuts == null || pointcuts.size() == 0) 
 			throw new AopConfigException("Must provide pointcuts");				
 						
@@ -146,7 +138,8 @@ public class MethodInvocationImpl implements MethodInvocation {
 		 
 		s += (this.target == null) ? "target is null": 
 				"target is of class " + target.getClass().getName();
-		return s;				
+		return s;
+				
 	}
 
 
@@ -178,53 +171,39 @@ public class MethodInvocationImpl implements MethodInvocation {
 	}
 	
 	/**
-	 * @see org.aopalliance.MethodInvocation#getArgument(int)
+	 * @see org.aopalliance.intercept.MethodInvocation#getArgument(int)
 	 */
 	public Object getArgument(int i) {
 		return this.arguments[i];
 	}
 
 	/**
-	 * @see org.aopalliance.MethodInvocation#getArgumentCount()
+	 * @see org.aopalliance.intercept.MethodInvocation#getArgumentCount()
 	 */
 	public int getArgumentCount() {
 		return (this.arguments != null) ? this.arguments.length : 0;
 	}
 
-	/**
-	 * @see org.aopalliance.MethodInvocation#getCurrentInterceptorIndex()
-	 */
 	public int getCurrentInterceptorIndex() {
 		return this.currentInterceptor;
 	}
 
-	/**
-	 * @see org.aopalliance.MethodInvocation#getInterceptor(int)
-	 */
 	public Interceptor getInterceptor(int index) {
 		if (index > getNumberOfInterceptors() - 1)
 			throw new AspectException("Index " + index + " out of bounds: only " + getNumberOfInterceptors() + " interceptors");
 		return (Interceptor) this.interceptors.get(index);
 	}
 	
-	
-
-	/**
-	 * @see org.aopalliance.MethodInvocation#getNumberOfInterceptors()
-	 */
 	public int getNumberOfInterceptors() {
 		return this.interceptors.size();
 	}
 
-	/**
-	 * @see org.aopalliance.MethodInvocation#getTargetInterface()
-	 */
 	public Class getTargetInterface() {
 		return this.targetInterface;
 	}
 
 	/**
-	 * @see org.aopalliance.Invocation#invokeNext()
+	 * @see org.aopalliance.intercept.Invocation#proceed
 	 */
 	public Object proceed() throws Throwable {
 		if (this.currentInterceptor >= this.interceptors.size() - 1)
@@ -238,30 +217,25 @@ public class MethodInvocationImpl implements MethodInvocation {
 	}
 
 	/**
-	 * @see org.aopalliance.Invocation#detach()
+	 * @see org.aopalliance.intercept.Invocation#cloneInstance
 	 */
 	public Invocation cloneInstance() {
 		return this;
 	}
 
 	/**
-	 * @see org.aopalliance.Invocation#getAttributeRegistry()
+	 * @see org.aopalliance.intercept.Invocation#getAttributeRegistry()
 	 */
 	public AttributeRegistry getAttributeRegistry() {
 		return this.attributeRegistry;
 	}
 
-
-	/**
-	 * @param object
-	 */
 	public void setTarget(Object object) {
 		this.target = object;
 	}
 
-
 	/**
-	 * @see org.aopalliance.MethodInvocation#setArgument(int, java.lang.Object)
+	 * @see org.aopalliance.intercept.MethodInvocation#setArgument(int, java.lang.Object)
 	 */
 	public void setArgument(int index, Object argument) {
 		throw new UnsupportedOperationException("setArgument");
@@ -269,10 +243,10 @@ public class MethodInvocationImpl implements MethodInvocation {
 
 
 	/**
-	 * @see org.aopalliance.Invocation#getInvokedObject()
+	 * @see org.aopalliance.intercept.Invocation#getThis
 	 */
 	public Object getThis() {
 		return this.target;
 	}
 
-}	// class MethodInvocationImpl
+}

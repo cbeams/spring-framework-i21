@@ -1,10 +1,10 @@
 /**
- * Generic framework code included with 
+ * Generic framework code included with
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
+ * by Rod Johnson (Wrox, 2002).
  * This code is free to use and modify. However, please
  * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
+ * class using or derived from this code.
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
@@ -23,7 +23,7 @@ import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.SqlParameter;
 
-/** 
+/**
  * Root of the JDBC object hierarchy, as described in Chapter 9 of
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">
  * Expert One-On-One J2EE Design and Development</a> by Rod Johnson (Wrox, 2002).
@@ -47,32 +47,32 @@ import com.interface21.jdbc.core.SqlParameter;
  * @version $Id$
  */
 public abstract class RdbmsOperation implements InitializingBean {
-	
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * DataSource to use to obtain connections.
 	 */
 	private DataSource dataSource;
-	
+
 	/**
 	 * List of SqlParameter objects
 	 */
 	private List declaredParameters = new LinkedList();
-	
+
 	/**
 	 * SQL statement
 	 */
 	private String sql;
-	
+
 	/**
 	 * Has this operation been compiled? Compilation means at
 	 * least checking that a DataSource and sql have been provided,
 	 * but subclasses may also implement their own custom validation.
 	 */
 	private boolean compiled;
-	
-	
+
+
 	/**
 	 * Create a new RdbmsOperation.
 	 */
@@ -87,6 +87,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 	public final void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
+
 	/**
 	 * Gets the DataSource used to obtain connections.
 	 * @return the DataSource used to obtain connections
@@ -135,7 +136,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 	protected List getDeclaredParameters() {
 		return declaredParameters;
 	}
-	
+
 	/**
 	 * Set the SQL executed by this operation
 	 * @param sql the SQL executed by this operation
@@ -153,15 +154,15 @@ public abstract class RdbmsOperation implements InitializingBean {
 		return sql;
 	}
 
-	
+
 	/**
 	 * Ensures compilation if used in a bean factory.
 	 */
-	public void afterPropertiesSet()  {
+	public void afterPropertiesSet() {
 		compile();
 	}
-	
-	
+
+
 	/**
 	 * Is this operation "compiled"? Compilation, as in JDO,
 	 * means that the operation is fully configured, and ready to use.
@@ -179,7 +180,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 	 * been correctly initialized, for example if no DataSource has been provided.
 	 */
 	public final void compile() throws InvalidDataAccessApiUsageException {
-		if (!isCompiled()) { 
+		if (!isCompiled()) {
 			if (this.sql == null)
 				throw new InvalidDataAccessApiUsageException("Sql must be set in class " + getClass().getName());
 			if (this.dataSource == null)
@@ -210,7 +211,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 	protected final void validateParameters(Object[] parameters) throws InvalidDataAccessApiUsageException {
 		if (!compiled)
 			throw new InvalidDataAccessApiUsageException("SQL operation must be compiled before execution");
-			
+
 		if (parameters != null) {
 			if (declaredParameters == null)
 				throw new InvalidDataAccessApiUsageException("Didn't expect any parameters: none was declared");

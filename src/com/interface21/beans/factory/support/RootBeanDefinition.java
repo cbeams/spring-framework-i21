@@ -15,14 +15,11 @@ import com.interface21.beans.PropertyValues;
 */
 public class RootBeanDefinition extends AbstractBeanDefinition {
 
-	/**
-	 * Class of the wrapped object
-	 */
+	/** Class of the wrapped object */
 	private Class clazz;
 	
 	private String initMethodName;
 
-	/** Creates new AbstractRootBeanDefinition */
 	public RootBeanDefinition(Class clazz, PropertyValues pvs, boolean singleton, String initMethodName) {
 		super(pvs, singleton);
 		this.clazz = clazz;
@@ -34,8 +31,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	}
 	
 	/**
-	 * Deep copy constructor
-	 * @param other
+	 * Deep copy constructor.
 	 */
 	public RootBeanDefinition(RootBeanDefinition other) {
 		super(new MutablePropertyValues(other.getPropertyValues()), other.isSingleton());
@@ -44,34 +40,28 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	}
 	
 	/**
-	 * Return the name of the initializer method. The default is null in which case there
-	 * is no initializer method.
-	 * @return
+	 * Returns the name of the initializer method. The default is null
+	 * in which case there is no initializer method.
 	 */
 	public String getInitMethodName() {
 		return this.initMethodName;
 	}
 
-
 	/**
-	 * @return the class of the wrapped bean
+	 * Returns the class of the wrapped bean.
 	 */
 	public final Class getBeanClass() {
 		return this.clazz;
 	}
 
-
-	public String toString() {
-		return "RootBeanDefinition: class is " + getBeanClass();
-	}
-	
-	/**
-	 * @see Object#equals(Object)
-	 */
 	public boolean equals(Object arg0) {
 		if (!(arg0 instanceof RootBeanDefinition))
 			return false;
 		return super.equals(arg0) && ((RootBeanDefinition) arg0).getBeanClass().equals(this.getBeanClass());
 	}
 
-} // class RootBeanDefinition
+	public String toString() {
+		return "RootBeanDefinition: class is " + getBeanClass();
+	}
+
+}

@@ -20,7 +20,7 @@ public class DebugInterceptor implements MethodInterceptor {
 	private int count;
 
 	/**
-	 * @see Interceptor#invoke(Invocation)
+	 * @see org.aopalliance.intercept.MethodInterceptor#invoke(MethodInvocation)
 	 */
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		++count;

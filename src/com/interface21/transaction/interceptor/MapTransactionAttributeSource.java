@@ -39,7 +39,7 @@ public class MapTransactionAttributeSource implements TransactionAttributeSource
 	}
 	
 	/**
-	 * @see com.interface21.transaction.interceptor.TransactionAttributeSource#getTransactionAttribute(org.aopalliance.MethodInvocation)
+	 * @see com.interface21.transaction.interceptor.TransactionAttributeSource#getTransactionAttribute(org.aopalliance.intercept.MethodInvocation)
 	 */
 	public TransactionAttribute getTransactionAttribute(MethodInvocation invocation) {
 		TransactionAttribute ta = (TransactionAttribute) this.methodMap.get(invocation.getMethod());

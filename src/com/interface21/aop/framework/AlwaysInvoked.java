@@ -24,7 +24,7 @@ public class AlwaysInvoked extends AbstractMethodPointcut implements StaticMetho
 	}
 
 	/**
-	 * @see com.interface21.aop.framework.StaticMethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[], AttributeRegistry)
+	 * @see com.interface21.aop.framework.StaticMethodPointcut#applies(java.lang.reflect.Method, AttributeRegistry)
 	 */
 	public boolean applies(Method m, AttributeRegistry ar) {
 		return true;
