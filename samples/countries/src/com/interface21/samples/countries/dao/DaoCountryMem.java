@@ -24,7 +24,7 @@ public class DaoCountryMem implements IDaoCountry, InitializingBean {
 	private Map countriesMaps = new HashMap();
 
 	/**
-	 * @see com.interface21.samples.pagedlist.dao.IDaoCountry#getAllCountries(java.util.Locale)
+	 * @see com.interface21.samples.countries.dao.IDaoCountry#getAllCountries(java.util.Locale)
 	 */
 	public List getAllCountries(Locale inLocale) {
 		String lang = getLang(inLocale);
@@ -36,7 +36,7 @@ public class DaoCountryMem implements IDaoCountry, InitializingBean {
 	}
 
 	/**
-	 * @see com.interface21.samples.pagedlist.dao.IDaoCountry#getFilteredCountries(java.lang.String, java.lang.String, java.util.Locale)
+	 * @see com.interface21.samples.countries.dao.IDaoCountry#getFilteredCountries(java.lang.String, java.lang.String, java.util.Locale)
 	 */
 	public List getFilteredCountries(String name, String code, Locale locale) {
 		List allCountries = getAllCountries(locale);
@@ -54,7 +54,7 @@ public class DaoCountryMem implements IDaoCountry, InitializingBean {
 	}
 
 	/**
-	 * @see com.interface21.samples.pagedlist.dao.IDaoCountry#getCountry(java.lang.String, java.util.Locale)
+	 * @see com.interface21.samples.countries.dao.IDaoCountry#getCountry(java.lang.String, java.util.Locale)
 	 */
 	public ICountry getCountry(String code, Locale locale) {
 		return (ICountry) ((Map) countriesMaps.get(this.getLang(locale))).get(code);
@@ -96,6 +96,20 @@ public class DaoCountryMem implements IDaoCountry, InitializingBean {
 			countriesLists.put(lang, list);
 			countriesMaps.put(lang, map);
 		}
+	}
+
+	/**
+	 * @see com.interface21.samples.countries.dao.IDaoCountry#initBase()
+	 */
+	public void initBase() {
+		// Do nothing in this implementation
+	}
+
+	/**
+	 * @see com.interface21.samples.countries.dao.IDaoCountry#saveCountries(java.util.List, java.util.Locale)
+	 */
+	public void saveCountries(List countries, Locale locale) {
+		// Do nothing in this implementation
 	}
 
 }

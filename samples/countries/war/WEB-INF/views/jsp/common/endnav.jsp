@@ -14,5 +14,5 @@
 </c:if>
 <c:if test="${not (rc.locale.language == 'en')}">
   <fmt:message key="img.en" var="img"/>
-  <li><a href="<c:url value=""><c:param name="locale" value="en_GB"/></c:url>"><img src="<c:url value="/${img}"/>" alt="<fmt:message key="nav.lang.en"/>"><span> <fmt:message key="nav.lang.en.info"/></span></a></li> 
+  <li><a href="<c:url value=""><c:param name="locale" value="en_US"/></c:url>"><img src="<c:url value="/${img}"/>" alt="<fmt:message key="nav.lang.en"/>"><span> <fmt:message key="nav.lang.en.info"/></span></a></li> 
 </c:if>

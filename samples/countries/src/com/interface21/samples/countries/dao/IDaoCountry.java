@@ -16,4 +16,8 @@ public interface IDaoCountry {
 
 	public ICountry getCountry(String code, Locale locale);
 
+	public void saveCountries(List countries, Locale locale);
+
+	public void initBase();
+	
 }

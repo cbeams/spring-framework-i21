@@ -24,6 +24,7 @@ public class CountriesController extends MultiActionController {
 	static final private String COUNTRIES_ATTR = "countries";
 
 	private IDaoCountry daoCountry;
+	private IDaoCountry secondDaoCountry;
 
 	// handlers
     
@@ -38,7 +39,7 @@ public class CountriesController extends MultiActionController {
 	}
 
 	/**
-	 * Custom handler for countries
+	 * Custom handler for countries main paged list
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @return a ModelAndView to render the response
@@ -58,15 +59,75 @@ public class CountriesController extends MultiActionController {
 		return new ModelAndView("countries_mainView", ex.getModel());
 	}
 
+	/**
+	 * Custom handler for countries detail page
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @return a ModelAndView to render the response
+	 */
 	public ModelAndView handleDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		Locale locale = RequestContextUtils.getLocale(request);
 		ICountry country = daoCountry.getCountry(request.getParameter("code"), locale);
 		return new ModelAndView("countries_detailView", "country", country);
 	}
 
+	/**
+	 * Custom handler for countries Excel document
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @return a ModelAndView to render the response
+	 */
+	public ModelAndView handleExcel(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+		RefreshablePagedListHolder listHolder = (RefreshablePagedListHolder) request.getSession(true).getAttribute(COUNTRIES_ATTR);
+		if (null == listHolder) {
+			return handleMain(request, response);
+		}
+		return new ModelAndView("countries_excelView", "countries", listHolder);
+	}
+
+	/**
+	 * Custom handler for countries PDF document
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @return a ModelAndView to render the response
+	 */
+	public ModelAndView handlePdf(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+		RefreshablePagedListHolder listHolder = (RefreshablePagedListHolder) request.getSession(true).getAttribute(COUNTRIES_ATTR);
+		if (null == listHolder) {
+			return handleMain(request, response);
+		}
+		return new ModelAndView("countries_pdfView", "countries", listHolder);
+	}
+
+	/**
+	 * Custom handler for copy countries from memory to database
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @return a ModelAndView to render the response
+	 */
+	public ModelAndView handleCopy(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+		boolean copyMade = false;
+		try {
+			if (null != secondDaoCountry) {
+				secondDaoCountry.initBase(); 
+				Locale locs[] = {Locale.US, Locale.FRANCE, Locale.GERMANY};
+				for (int i = 0; i < locs.length; i++ ) {
+					secondDaoCountry.saveCountries(daoCountry.getAllCountries(locs[i]), locs[i]);
+				}
+				copyMade = true;
+			}
+		} finally {
+			return new ModelAndView("copyView", "copyMade", Boolean.valueOf(copyMade));
+		}
+	}
+
 	// Accessors
 	public void setDaoCountry(IDaoCountry daoCountry) {
 		this.daoCountry = daoCountry;
+	}
+
+	public void setSecondDaoCountry(IDaoCountry country) {
+		secondDaoCountry = country;
 	}
 
 	// Embedded classes

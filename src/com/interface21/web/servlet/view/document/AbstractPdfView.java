@@ -87,7 +87,7 @@ public abstract class AbstractPdfView extends AbstractView {
 			// **TODO: could expose these preferences as bean properties also
 			writer.setViewerPreferences(PdfWriter.AllowPrinting | PdfWriter.PageLayoutSinglePage);
 			document.open();
-			buildPdfDocument(model, document, request, response);
+			buildPdfDocument(model, document, writer, request, response);
 			document.close();
 
 			response.setContentLength(baos.size());
@@ -107,6 +107,6 @@ public abstract class AbstractPdfView extends AbstractView {
 	 * @param request in case we need locale etc. Shouldn't look at attributes
 	 * @param response in case we need to set cookies. Shouldn't write to it.
 	 */
-	protected abstract void buildPdfDocument(Map model, Document pdfDoc, HttpServletRequest request, HttpServletResponse response) throws DocumentException;
+	protected abstract void buildPdfDocument(Map model, Document pdfDoc, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws DocumentException;
 
 }

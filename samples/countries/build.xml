@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="sirene" basedir="." default="usage">
+<project name="countries" basedir="." default="usage">
 
 	<property name="name" value="countries"/>
 
@@ -19,9 +19,10 @@
 	<property name="testreports.dir" value="${test.dir}/reports"/>
 	<property name="testhtml.dir" value="${testreports.dir}/html"/>
 
-	<property name="spring.root" value="../.."/>
+	<property name="spring.root" value="../spring-new"/>
 
 	<property file="build.properties"/>
+	<property name="deploy.dir" value="F:\work\jboss-3.2.0\server\sirene\deploy"/>
 
 
 	<path id="master-classpath">
@@ -38,6 +39,12 @@
 		</fileset>
 		<fileset dir="${spring.root}/dist">
 			<include name="spring-full*.jar"/>
+		</fileset>
+		<fileset dir="${spring.root}/lib/itext-pdf">
+			<include name="iText.jar"/>
+		</fileset>
+		<fileset dir="${spring.root}/lib/poi">
+			<include name="*.jar"/>
 		</fileset>
 
 	</path>
@@ -87,7 +94,7 @@
 
 		<mkdir dir="${weblib.dir}"/>
 
-		<jar jarfile="${weblib.dir}/sirene.jar" compress="true" basedir="${build.dir}"/>
+		<jar jarfile="${weblib.dir}/countries.jar" compress="true" basedir="${build.dir}"/>
 
 		<copy todir="${weblib.dir}" preservelastmodified="true">
 			<fileset dir="${spring.root}/lib/jstl">
@@ -100,6 +107,12 @@
 			</fileset>
 			<fileset dir="${spring.root}/dist">
 				<include name="spring-full*.jar"/>
+			</fileset>
+			<fileset dir="${spring.root}/lib/itext-pdf">
+				<include name="iText.jar"/>
+			</fileset>
+			<fileset dir="${spring.root}/lib/poi">
+				<include name="*.jar"/>
 			</fileset>
 		</copy>
 
@@ -145,6 +158,7 @@
 			</fileset>
 		</copy>
 		-->
+		
 	</target>
 
 
