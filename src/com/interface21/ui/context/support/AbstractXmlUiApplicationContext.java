@@ -14,7 +14,8 @@ import com.interface21.context.support.AbstractXmlApplicationContext;
 import com.interface21.ui.context.ThemeSource;
 
 /**
- * @author jpp
+ * Adds theme capabilities for UI contexts
+ * @author Jean-Pierre Pawlak
  */
 public abstract class AbstractXmlUiApplicationContext
 	extends AbstractXmlApplicationContext implements ThemeSource {
@@ -23,13 +24,14 @@ public abstract class AbstractXmlUiApplicationContext
 	private ThemeSource themeSource = new ConcreteThemeSource();
 
 	/**
-	 * 
+	 * Standard constructor 
 	 */
 	public AbstractXmlUiApplicationContext() {
 		super();
 	}
 
 	/**
+	 * Constructor with parent Context
 	 * @param parent
 	 */
 	public AbstractXmlUiApplicationContext(ApplicationContext parent) {
@@ -37,6 +39,7 @@ public abstract class AbstractXmlUiApplicationContext
 	}
 
 	/**
+	 * Subclass this method for initializing the theme capabilities
 	 * @see com.interface21.context.support.AbstractApplicationContext#afterRefresh()
 	 */
 	protected void afterRefresh() throws ApplicationContextException {
@@ -67,6 +70,7 @@ public abstract class AbstractXmlUiApplicationContext
 	}
 
 	/**
+	 * Does nothing. Has no use in this context.
 	 * @see com.interface21.ui.context.ThemeSource#refresh(com.interface21.beans.factory.ListableBeanFactory, com.interface21.context.ApplicationContext)
 	 */
 	public void refresh(ListableBeanFactory beanFactory, ApplicationContext parent)

@@ -1,6 +1,3 @@
-/*
- * Créé le 17 juin 2003
- */
 package com.interface21.ui.context.support;
 
 import java.util.Locale;
@@ -15,7 +12,8 @@ import com.interface21.context.support.StaticApplicationContext;
 import com.interface21.ui.context.ThemeSource;
 
 /**
- * @author jpp
+ * Adds theme capabilities for UI contexts
+ * @author Jean-Pierre Pawlak
  */
 public class StaticUiApplicationContext extends StaticApplicationContext implements ThemeSource {
 
@@ -23,6 +21,7 @@ public class StaticUiApplicationContext extends StaticApplicationContext impleme
 	private ThemeSource themeSource = new ConcreteThemeSource();
 
 	/**
+	 * Standard constructor
 	 * @throws BeansException
 	 * @throws ApplicationContextException
 	 */
@@ -32,7 +31,8 @@ public class StaticUiApplicationContext extends StaticApplicationContext impleme
 	}
 
 	/**
-	 * @param parent
+	 * Constructor with parent context.
+	 * @param parent The parent Context
 	 * @throws BeansException
 	 * @throws ApplicationContextException
 	 */
@@ -42,6 +42,7 @@ public class StaticUiApplicationContext extends StaticApplicationContext impleme
 	}
 
 	/**
+	 * Subclass this method for initializing the theme capabilities
 	 * @see com.interface21.context.support.AbstractApplicationContext#afterRefresh()
 	 */
 	protected void afterRefresh() throws ApplicationContextException {
@@ -72,6 +73,7 @@ public class StaticUiApplicationContext extends StaticApplicationContext impleme
 	}
 
 	/**
+	 * Does nothing. Has no use in this context.
 	 * @see com.interface21.ui.context.ThemeSource#refresh(com.interface21.beans.factory.ListableBeanFactory, com.interface21.context.ApplicationContext)
 	 */
 	public void refresh(ListableBeanFactory beanFactory, ApplicationContext parent)

@@ -18,14 +18,15 @@ import com.interface21.context.MessageSourceResolvable;
 import com.interface21.context.NoSuchMessageException;
 
 /**
- * Interface to be implemented by objects that can resolve messages.
- * This enables parameterization and internationalization of messages.
+ * Interface to be implemented by objects that can resolve theme messages.
+ * This enables parameterization and internationalization of messages for a given theme.
  * @author Rod Johnson
+ * @author Jean-Pierre Pawlak
  */
 public interface ThemeSource {
 
 	/**
-	 * Try to resolve the message.Return default message if no message
+	 * Try to resolve the message for the given theme. Return default message if no message
 	 * was found.
 	 * @param code code to lookup up, such as 'calculator.noRateSet'.
 	 * Users of this class are encouraged to base message names
@@ -43,7 +44,7 @@ public interface ThemeSource {
 	String getTheme(String theme, String code, Object args[], String defaultMessage, Locale locale);
 
 	/**
-	 * Try to resolve the message. Treat as an error if the message can't
+	 * Try to resolve the message for the given theme. Treat as an error if the message can't
 	 * be found.
 	 * @param code code to lookup up, such as 'calculator.noRateSet'
 	 * @param args Array of arguments that will be filled in for params within
@@ -59,7 +60,7 @@ public interface ThemeSource {
 	/**
 	 * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
 	 * arg that was passed in (except for the <code>locale</code> attribute)</b>,
-	 * try to resolve the message from the <code>MessageSource</code> contained within the <code>Context</code>.<p>
+	 * try to resolve the message from the given theme.<p>
 	 * NOTE: We must throw a <code>NoSuchMessageException</code> on this method since
 	 * at the time of calling this method we aren't able to determine if the <code>defaultMessage</code>
 	 * attribute is null or not.
@@ -71,6 +72,12 @@ public interface ThemeSource {
 	 */
 	String getTheme(String theme, MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException;
 	
+	/**
+	 * Initialisation method to allowing the others methods to work.
+	 * @param beanFactory the bean factory in which the theme is used
+	 * @param parent The parent context to possibly search further messages
+	 * @throws ApplicationContextException
+	 */
 	public void refresh(ListableBeanFactory beanFactory, ApplicationContext parent) throws ApplicationContextException;
 
 }

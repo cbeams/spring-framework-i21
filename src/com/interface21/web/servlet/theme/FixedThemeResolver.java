@@ -5,14 +5,14 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Implementation of LocaleResolver that simply uses the primary locale
- * specified in the "accept-language" header of the HTTP request
- * (i.e., the locale sent by the client browser, normally that of the client's OS).
+ * Implementation of ThemeResolver that simply uses a fixed theme which name is done by
+ * default by <code>DEFAULT_THEME>/code>. the fixed name can be defined in the configuration file.
  *
- * <p>Note: Does not support setLocale, because the accept header cannot be changed.
+ * <p>Note: Does not support setTheme, because no theme change code is provided.
  *
+ * @author Jean-Pierre Pawlak
  * @author Juergen Hoeller
- * @since 27.02.2003
+ * @since 17.06.2003
  */
 public class FixedThemeResolver implements ThemeResolver {
 
@@ -20,23 +20,32 @@ public class FixedThemeResolver implements ThemeResolver {
 
 	private String defaultTheme = DEFAULT_THEME;
 
+	/**
+	 * Gets the theme used in this request.
+	 * @see com.interface21.web.servlet.theme.ThemeResolver#resolveTheme(javax.servlet.http.HttpServletRequest)
+	 */
 	public String resolveTheme(HttpServletRequest request) {
 		return defaultTheme;
 	}
 
+	/**
+	 * Sets the theme to use with this user. NOT AVAILABLE IN THIS IMPMLEMENTATION.
+	 * @see com.interface21.web.servlet.theme.ThemeResolver#setTheme(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
+	 */
 	public void setTheme(HttpServletRequest request, HttpServletResponse response, String theme) {
 		throw new IllegalArgumentException("cannot change theme - use a different theme resolution strategy");
 	}
 
 	/**
-	 * @return
+	 * @return the default theme name
 	 */
 	public String getDefaultTheme() {
 		return defaultTheme;
 	}
 
 	/**
-	 * @param string
+	 * Sets the default theme name.
+	 * @param defaultTheme The new default theme name
 	 */
 	public void setDefaultTheme(String defaultTheme) {
 		this.defaultTheme = defaultTheme;

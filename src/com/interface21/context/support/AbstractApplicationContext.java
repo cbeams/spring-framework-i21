@@ -238,6 +238,10 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		afterRefresh();
 	}
 
+	/**
+	 * Method which can be subclassed to add works on the refresh call.
+	 * @throws ApplicationContextException
+	 */
 	protected void afterRefresh() throws ApplicationContextException {
 		// For subclasses
 		// Do nothing by default

@@ -7,15 +7,16 @@ import javax.servlet.http.Cookie;
 import com.interface21.web.util.WebUtils;
 
 /**
- * Implementation of LocaleResolver that uses a cookie sent back to the user
- * in case of a custom setting, with a fallback to the accept header locale.
+ * Implementation of ThemeResolver that uses a cookie sent back to the user
+ * in case of a custom setting, with a fallback to the fixed locale.
  * This is especially useful for stateless applications without user sessions.
  *
- * <p>Custom controllers can thus override the user's locale by calling setLocale,
- * e.g. responding to a certain locale change request.
+ * <p>Custom controllers can thus override the user's theme by calling setTheme,
+ * e.g. responding to a certain theme change request.
  *
+ * @author Jean-Pierre Pawlak
  * @author Juergen Hoeller
- * @since 27.02.2003
+ * @since 17.06.2003
  */
 public class CookieThemeResolver implements ThemeResolver {
 
@@ -54,6 +55,10 @@ public class CookieThemeResolver implements ThemeResolver {
 		return cookieMaxAge;
 	}
 
+	/**
+	 * Gets the theme used in this request.
+	 * @see com.interface21.web.servlet.theme.ThemeResolver#resolveTheme(javax.servlet.http.HttpServletRequest)
+	 */
 	public String resolveTheme(HttpServletRequest request) {
 		// check locale for preparsed resp. preset locale
 		String theme = (String) request.getAttribute(THEME_ATTRIBUTE_NAME);
@@ -71,6 +76,10 @@ public class CookieThemeResolver implements ThemeResolver {
 		return defaultTheme;
 	}
 
+	/**
+	 * Sets the theme to use with this user.
+	 * @see com.interface21.web.servlet.theme.ThemeResolver#setTheme(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
+	 */
 	public void setTheme(HttpServletRequest request, HttpServletResponse response, String theme) {
 		Cookie cookie = null;
 		if (theme != null) {
@@ -89,14 +98,15 @@ public class CookieThemeResolver implements ThemeResolver {
 	}
 	
 	/**
-	 * @return
+	 * @return the default theme name
 	 */
 	public String getDefaultTheme() {
 		return defaultTheme;
 	}
 
 	/**
-	 * @param string
+	 * Sets the default theme name
+	 * @param defaultTheme The new default theme name
 	 */
 	public void setDefaultTheme(String defaultTheme) {
 		this.defaultTheme = defaultTheme;

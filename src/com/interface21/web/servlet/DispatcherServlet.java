@@ -71,6 +71,7 @@ import com.interface21.web.util.WebUtils;
  * @see com.interface21.web.context.ContextLoaderListener
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author Jean-Pierre Pawlak
  * @version $Revision$
  */
 public class DispatcherServlet extends FrameworkServlet {
