@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.interface21.context.ApplicationContext;
-import com.interface21.context.ApplicationEvent;
 import com.interface21.web.context.RequestHandledEvent;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.context.support.WebApplicationContextUtils;
@@ -38,7 +37,6 @@ import com.interface21.web.context.support.XmlWebApplicationContext;
  * if not overridden via the namespace property.
  * <li>Publishes events on request processing, whether or not a request is
  * successfully handled.
- * <li>Debug capabilities.
  * </ul>
  *
  * <p>Subclasses must implement doService() to handle requests. Because this extends
@@ -57,7 +55,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 * given the name 'test' in a context, the namespace used by the servlet will
 	 * resolve to 'test-servlet'.
 	 */
-	private static final String DEFAULT_NAMESPACE_SUFFIX = "-servlet";
+	public static final String DEFAULT_NAMESPACE_SUFFIX = "-servlet";
 
 	/**
 	 * Prefix for the ServletContext attribute for the web application context.
@@ -65,28 +63,6 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 */
 	public static final String SERVLET_CONTEXT_PREFIX = FrameworkServlet.class.getName() + ".CONTEXT.";
 
-	/**
-	 * Will be added to a request before processing begins:
-	 * the name of the FrameworkServlet that handled the request.
-	 */
-	public static final String SERVLET_NAME_REQUEST_ATTRIBUTE = FrameworkServlet.class.getName() + ".SERVLET_NAME";
-
-	/**
-	 * Will be added to a request before processing begins if we're in debug mode
-	 * (a Boolean.TRUE instance).
-	 * */
-	public static final String DEBUG_REQUEST_ATTRIBUTE = FrameworkServlet.class.getName() + ".DEBUG";
-
-	/**
-	 * Request parameter that will enable debug mode. This isn't a security hole:
-	 * it's only set when the debuggable property is true.
-	 */
-	public static final String DEBUG_PARAMETER = "_debug";
-
-
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
 
 	/** Namespace for this servlet */
 	private String namespace;
@@ -99,34 +75,9 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 */
 	private boolean publishContext = true;
 
-	/** Holder for debug property */
-	private boolean debug = false;
-
-	/** Can request debugging be enabled? */
-	private boolean debuggable = false;
-
 	/** WebApplicationContext for this servlet */
 	private WebApplicationContext webApplicationContext;
 
-	/**
-	 * Any fatal exception encountered on startup.
-	 * Thrown on each request.
-	 */
-	private ServletException startupException;
-
-
-	/**
-	 * Convenient method to allow other classes to check whether
-	 * this is a debug request.
-	 */
-	public static boolean isDebugMode(HttpServletRequest request) {
-		return request.getAttribute(DEBUG_REQUEST_ATTRIBUTE) != null;
-	}
-
-
-	//---------------------------------------------------------------------
-	// Bean properties
-	//---------------------------------------------------------------------
 
 	/**
 	 * Set a custom namespace for this servlet.
@@ -145,8 +96,8 @@ public abstract class FrameworkServlet extends HttpServletBean {
 
 	/**
 	 * Set a custom context class name. This class must be of type WebApplicationContext,
-	 * and must implement a constructor taking two arguments: a parent WebApplicationContext
-	 * (the root), and the current namespace as String.
+	 * and must implement a constructor taking two arguments:
+	 * a parent WebApplicationContext (the root), and the current namespace as String.
 	 * @param className name of custom context class to use
 	 */
 	public final void setContextClass(String className) {
@@ -167,161 +118,85 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	}
 
 	/**
-	 * If debug is enabled, a debug attribute is set on every request
-	 * handled. Default is false.
-	 * Cooperating classes can use this to output debug information
-	 * in any way they choose.
-	 */
-	public final void setDebug(boolean debug) {
-		this.debug = debug;
-		logger.info("Debug property set by bean property to " + this.debug);
-	}
-
-	/**
-	 * Return the value of the debug property.
-	 */
-	public final boolean getDebug() {
-		return debug;
-	}
-
-	/**
-	 * If debuggable is enabled, a debug attribute will be set on every request
-	 * that contains a special parameter, regardless of whether debug mode is
-	 * permanently enabled. Default is false.
-	 * <p>Cooperating classes can use this to output debug information in any
-	 * way they choose.
-	 */
-	public final void setDebuggable(boolean debuggable) {
-		this.debuggable = debuggable;
-		logger.info("Debuggable property set by bean property to " + this.debuggable);
-	}
-
-	/**
-	 * Return the value of the debuggable property.
-	 */
-	public final boolean getDebuggable() {
-		return debuggable;
-	}
-
-	/**
-	 * Return the WebApplicationContext in which this servlet runs
+	 * Return this servlet's WebApplicationContext.
 	 */
 	public final WebApplicationContext getWebApplicationContext() {
 		return webApplicationContext;
 	}
 
 	/**
-	 * Return the ServletContext attribute name for this servlet.
+	 * Return the ServletContext attribute name for this servlet's
+	 * WebApplicationContext.
 	 */
 	public String getServletContextAttributeName() {
 		return SERVLET_CONTEXT_PREFIX + getServletName();
 	}
 
 
-	//---------------------------------------------------------------------
-	// Overridden methods of HttpServletBean
-	//---------------------------------------------------------------------
-
 	/**
 	 * Overridden method of HttpServletBean, invoked after any bean properties
-	 * have been set.
-	 * <br/>Locate the WebApplicationContext,
-	 * load URL mappings and find the CommandProcessor (if any)
+	 * have been set. Creates this servlet's WebApplicationContext.
 	 */
 	protected final void initServletBean() throws ServletException {
-
 		long startTime = System.currentTimeMillis();
 		logger.info("Framework servlet '" + getServletName() + "' init");
-
 		this.webApplicationContext = createWebApplicationContext();
-
-		try {
-			// invoke subclass init
-			initFrameworkServlet();
-		}
-		catch (Exception ex) {
-			String msg = "Servlet with name '" + getServletName() + "' failed to initialize";
-			logger.error(msg, ex);
-			this.startupException = new ServletException(msg + ", with exception " + ex, ex);
-			throw startupException;
-		}
-
+		initFrameworkServlet();
 		long elapsedTime = System.currentTimeMillis() - startTime;
 		logger.info("Framework servlet '" + getServletName() + "' init completed in " + elapsedTime + " ms");
 	}
 
 	/**
-	 * Create the WebApplicationContext for this web app
-	 * Go with default if can't find child
-	 * @return the WebApplicationContext for this web app
+	 * Create the WebApplicationContext for this web app.
 	 * @throws ServletException if the context object can't be found
 	 */
 	private WebApplicationContext createWebApplicationContext() throws ServletException {
 		ServletContext sc = getServletConfig().getServletContext();
 		WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(sc);
-
 		String namespace = getNamespace();
-		try {
-			WebApplicationContext waca = (this.contextClass != null) ?
-					instantiateCustomWebApplicationContext(this.contextClass, parent, namespace) :
-				 	new XmlWebApplicationContext(parent, namespace);
-			waca.setServletContext(sc);
-			logger.info("Servlet with name '" + getServletName() + "' loaded child context " + waca);
-			if (this.publishContext) {
-				// Publish the context as a servlet context attribute
-				String attName = getServletContextAttributeName();
-				sc.setAttribute(attName, waca);
-				logger.info("Bound servlet's context in global ServletContext with name '" + attName + "'");
-			}
-			return waca;
+		WebApplicationContext waca = (this.contextClass != null) ?
+				instantiateCustomWebApplicationContext(this.contextClass, parent, namespace) :
+				new XmlWebApplicationContext(parent, namespace);
+		waca.setServletContext(sc);
+		logger.info("Servlet with name '" + getServletName() + "' loaded child context " + waca);
+		if (this.publishContext) {
+			// Publish the context as a servlet context attribute
+			String attName = getServletContextAttributeName();
+			sc.setAttribute(attName, waca);
+			logger.info("Bound servlet's context in global ServletContext with name '" + attName + "'");
 		}
-		catch (ServletException ex) {
-			String mesg = "Can't load namespace '" + namespace + "': " + ex;
-			this.startupException = new ServletException(mesg, ex);
-			logger.error(mesg, ex);
-			throw startupException;
-		}
+		return waca;
 	}
 
 	/**
 	 * Try to instantiate a custom web application context, allowing parameterization
-	 * of the classname.
+	 * of the class name.
 	 */
-	private WebApplicationContext instantiateCustomWebApplicationContext(String classname, WebApplicationContext parent, String namespace) throws ServletException {
-		logger.info("Servlet with name '" + getServletName() + "' will try to create custom WebApplicationContext context of class '" + classname + "'");
+	private WebApplicationContext instantiateCustomWebApplicationContext(String className, WebApplicationContext parent, String namespace) throws ServletException {
+		logger.info("Servlet with name '" + getServletName() + "' will try to create custom WebApplicationContext context of class '" + className + "'");
 		try {
-			Class clazz = Class.forName(classname);
+			Class clazz = Class.forName(className);
 			if (!WebApplicationContext.class.isAssignableFrom(clazz))
-				throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + classname + "' must implement WebApplicationContext");
+				throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + className + "' must implement WebApplicationContext");
 			Constructor constructor = clazz.getConstructor( new Class[] { ApplicationContext.class, String.class} );
 			return (WebApplicationContext) constructor.newInstance(new Object[] { parent, namespace} );
 		}
 		catch (ClassNotFoundException ex) {
-			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': can't load custom WebApplicationContext class '" + classname + "'", ex);
+			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': can't load custom WebApplicationContext class '" + className + "'", ex);
 		}
 		catch (NoSuchMethodException ex) {
-			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + classname + "' must define a constructor taking ApplicationContext (parent) and String (namespace)", ex);
+			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + className + "' must define a constructor taking ApplicationContext (parent) and String (namespace)", ex);
 		}
 		catch (InvocationTargetException ex) {
-			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + classname + "' : constructor threw exception", ex);
+			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + className + "' : constructor threw exception", ex);
 		}
 		catch (IllegalAccessException ex) {
-			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + classname + "' : no permission to invoke constructor", ex);
+			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + className + "' : no permission to invoke constructor", ex);
 		}
 		catch (InstantiationException ex) {
-			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + classname + "' : failed to instantiate", ex);
+			throw new ServletException("Fatal initialization error in servlet with name '" + getServletName() + "': custom WebApplicationContext class '" + className + "' : failed to instantiate", ex);
 		}
 	}
-
-	/**
-	 * Subclasses must implement this method to perform any initialization they require.
-	 * The implementation may be empty. This method will be invoked after any bean properties
-	 * have been set and WebApplicationContext and BeanFactory have been loaded.
-	 * @throws Exception any exception
-	 */
-	protected void initFrameworkServlet() throws Exception {
-	}
-
 
 	/**
 	 * It's up to each subclass to decide whether or not it supports a request method.
@@ -344,79 +219,60 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	/**
 	 * Handle this request, publishing an event regardless of the outcome.
 	 * The actually event handling is performed by the abstract doService() method.
-	 * Both doGet() and doPost() are handled by this method
+	 * Both doGet() and doPost() are handled by this method.
 	 */
 	private void serviceWrapper(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-		// Throw an exception if we failed to start up with a fatal error
-		if (this.startupException != null)
-			throw startupException;
-
-		boolean debugMode = this.debug || (this.debuggable && request.getParameter(DEBUG_PARAMETER) != null);
-
-		if (debugMode) {
-			// Set the debug attribute in the request, which will be used
-			// by other components to render content
-			request.setAttribute(DEBUG_REQUEST_ATTRIBUTE, Boolean.TRUE);
-
-			// Show the name of this servlet
-			request.setAttribute(SERVLET_NAME_REQUEST_ATTRIBUTE, getServletName());
-		}
-
 		long startTime = System.currentTimeMillis();
-		Throwable failureCause = null;
-
+		Exception failureCause = null;
 		try {
-			// Invoke the subclass's service method
-			doService(request, response, debugMode);
+			doService(request, response);
 		}
 		catch (ServletException ex) {
 			failureCause = ex;
-			logger.error("Servlet failed to handle request: ServletException", ex);
 			throw ex;
 		}
 		catch (IOException ex) {
 			failureCause = ex;
-			logger.error("Servlet failed to handle request: IOException", ex);
 			throw ex;
 		}
 		catch (RuntimeException ex) {
 			failureCause = ex;
-			String mesg = "Unexpected runtime exception";
-			logger.error(mesg, ex);
-			throw new ServletException(mesg, ex);
+			throw new ServletException("Unexpected runtime exception", ex);
 		}
 		finally {
 			long processingTime = System.currentTimeMillis() - startTime;
-
-			/*
-			if (debugMode && failureCause != null) {
-				// Output verbose information about failure, showing
-				// how far we got (some of the variables output will be null
-				logger.error("url='" + request.getServletPath() + "': Failure (" + failureCause + "); " +
-				"handler=[" + mappedHandler + "]; handlerAdapter=[" + ha + "]", failureCause);
-			}
-			*/
-
 			// Whether or not we succeeded, publish an event
-			ApplicationEvent e = (failureCause == null) ?
-				new RequestHandledEvent(this, request.getRequestURI(), processingTime, request.getRemoteAddr(), request.getMethod(), getServletConfig().getServletName()) :
-				new RequestHandledEvent(this, request.getRequestURI(), processingTime, request.getRemoteAddr(), request.getMethod(), getServletConfig().getServletName(), failureCause);
-				webApplicationContext.publishEvent(e);
+			if (failureCause != null) {
+				logger.error("Could not complete request", failureCause);
+				this.webApplicationContext.publishEvent(
+				    new RequestHandledEvent(this, request.getRequestURI(), processingTime, request.getRemoteAddr(),
+				                            request.getMethod(), getServletConfig().getServletName(), failureCause));
+			}
+			else {
+				logger.debug("Successfully completed request");
+				this.webApplicationContext.publishEvent(
+				    new RequestHandledEvent(this, request.getRequestURI(), processingTime, request.getRemoteAddr(),
+				                            request.getMethod(), getServletConfig().getServletName()));
+			}
 		}
 	}
+
+
+	/**
+	 * Subclasses must implement this method to perform any initialization they require.
+	 * The implementation may be empty. This method will be invoked after any bean properties
+	 * have been set and WebApplicationContext and BeanFactory have been loaded.
+	 * @throws ServletException in case of an initialization exception
+	 */
+	protected abstract void initFrameworkServlet() throws ServletException;
 
 	/**
 	 * Subclasses must implement this method to do the work of request handling.
 	 * The contract is the same as that for the doGet() or doPost() method of HttpServlet.
 	 * This class intercepts calls to ensure that event publication takes place.
-	 * @param request HttpServletRequest
-	 * @param response HttpServletResponse
-	 * @param debugMode whether or not we are in debug mode. Subclasses may emit
-	 * additional log output in debug mode, or add debug attributes to the request
-	 * being processed. If this parameter is true, this class will already have added
-	 * a debug attribute to the request.
+	 * @see javax.servlet.http.HttpServlet#doGet
 	 */
-	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, boolean debugMode) throws ServletException, IOException;
+	protected abstract void doService(HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException;
 
 }
