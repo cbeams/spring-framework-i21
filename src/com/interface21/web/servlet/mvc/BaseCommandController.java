@@ -68,14 +68,6 @@ public abstract class BaseCommandController extends AbstractController {
 		return this.commandClass;
 	}
 
-	public final void setCommandClassName(String name) throws ClassNotFoundException {
-		this.commandClass = Class.forName(name);
-	}
-	
-	protected final String getCommandClassName() {
-		return (this.commandClass != null ? this.commandClass.getName() : null);
-	}
-
 	/**
 	 * Set the validator for this controller.
 	 * @param validator validator for this controller.

@@ -42,14 +42,6 @@ public class InternalResourceViewResolver extends AbstractCachingViewResolver {
 	}
 
 	/**
-	 * Set the name of the view class that should be used to create views in loadView.
-	 * @param viewClassName name of a class that is assignable to InternalResourceView
-	 */
-	public void setViewClassName(String viewClassName) throws ClassNotFoundException {
-		this.viewClass = Class.forName(viewClassName);
-	}
-
-	/**
 	 * Set the prefix that gets applied to view names when building a URL.
 	 * @param prefix view name prefix
 	 */

@@ -26,9 +26,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.interface21.beans.propertyeditors.ClassEditor;
+import com.interface21.beans.propertyeditors.PropertiesEditor;
+import com.interface21.beans.propertyeditors.PropertyValuesEditor;
 import com.interface21.beans.propertyeditors.StringArrayPropertyEditor;
 
 /**
@@ -55,9 +59,11 @@ public class BeanWrapperImpl implements BeanWrapper {
 
 	// Install default property editors
 	static {
-		//PropertyEditorManager.registerEditor(Properties.class, PropertiesEditor.class);
 		PropertyEditorManager.registerEditor(String[].class, StringArrayPropertyEditor.class);
-		
+		PropertyEditorManager.registerEditor(PropertyValues.class, PropertyValuesEditor.class);
+		PropertyEditorManager.registerEditor(Properties.class, PropertiesEditor.class);
+		PropertyEditorManager.registerEditor(Class.class, ClassEditor.class);
+
 		// Register all editors in our standard package
 		PropertyEditorManager.setEditorSearchPath(new String[] {
 			"sun.beans.editors",

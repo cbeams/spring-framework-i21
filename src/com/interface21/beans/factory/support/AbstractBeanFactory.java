@@ -125,7 +125,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * Return whether this name is a factory dereference (beginning
 	 * with the factory dereference prefix)
 	 */
-	private boolean isFactoryDerefence(String name) {
+	private boolean isFactoryDereference(String name) {
 		return name.startsWith(FACTORY_BEAN_PREFIX);
 	}
 
@@ -154,7 +154,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
 		// Don't let calling code try to dereference the
 		// bean factory if the bean isn't a factory
-		if (isFactoryDerefence(pname) && !(beanInstance instanceof FactoryBean)) {
+		if (isFactoryDereference(pname) && !(beanInstance instanceof FactoryBean)) {
 			throw new BeanIsNotAFactoryException(name, beanInstance);
 		}
 
@@ -163,7 +163,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		// create a bean instance, unless the caller actually wants
 		// a reference to the factory.
 		if (beanInstance instanceof FactoryBean) {
-			if (!isFactoryDerefence(pname)) {
+			if (!isFactoryDereference(pname)) {
 				// Configure and return new bean instance from factory
 				FactoryBean factory = (FactoryBean) beanInstance;
 				logger.debug("Bean with name '" + name + "' is a factory bean");
@@ -206,7 +206,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 				return this.parentBeanFactory.getBean(name);
 			throw ex;
 		}
-	}	// getBean
+	}
 
 
 	/**
