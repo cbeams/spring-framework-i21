@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import junit.framework.TestCase;
 
 import com.interface21.beans.TestBean;
-import com.interface21.web.mock.MockHttpRequest;
-import com.interface21.web.mock.MockHttpResponse;
+import com.interface21.web.mock.MockHttpServletRequest;
+import com.interface21.web.mock.MockHttpServletResponse;
 import com.interface21.web.servlet.ModelAndView;
 import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.validation.Errors;
@@ -149,7 +149,7 @@ public class WizardFormControllerTestSuite extends TestCase {
 
 	private HttpSession performRequest(Controller wizard, HttpSession session, Properties params,
 	                                   int target, String name, int age, String pageAttr) {
-		MockHttpRequest request = new MockHttpRequest(null, (params != null ? "POST" : "GET"), "/wizard");
+		MockHttpServletRequest request = new MockHttpServletRequest(null, (params != null ? "POST" : "GET"), "/wizard");
 		if (params != null) {
 			for (Iterator it = params.keySet().iterator(); it.hasNext();) {
 				String param = (String) it.next();
@@ -157,7 +157,7 @@ public class WizardFormControllerTestSuite extends TestCase {
 			}
 		}
 		request.setSession(session);
-		MockHttpResponse response = new MockHttpResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			ModelAndView mv = wizard.handleRequest(request, response);
 			if (target >= 0) {

@@ -8,15 +8,13 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.mock.MockHttpResponse;
+import com.interface21.web.mock.MockHttpServletResponse;
 import com.interface21.web.mock.MockRequestDispatcher;
-import com.interface21.web.servlet.ControllerServlet;
 
 /**
  * @author Rod Johnson
@@ -69,16 +67,12 @@ public class InternalResourceViewTests extends TestCase {
 			reqControl.setVoidCallable(1);
 		}
 		
-		// Will check for this
-		request.getAttribute(ControllerServlet.DEBUG_REQUEST_ATTRIBUTE);
-		reqControl.setReturnValue(null);
-		
 		request.getRequestDispatcher(url);
 		reqControl.setReturnValue(new MockRequestDispatcher(url));
 		reqControl.activate();
 		
 		// unused
-		MockHttpResponse response = new MockHttpResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 		
 		InternalResourceView v = new InternalResourceView();
 		v.setUrl(url);
@@ -106,11 +100,11 @@ public class InternalResourceViewTests extends TestCase {
 			
 		String url = "forward-to";
 			
-		MockHttpRequest request = new MockHttpRequest(new MockServletContext(), "GET", "some-url");
+		MockHttpServletRequest request = new MockHttpServletRequest(new MockServletContext(), "GET", "some-url");
 			
 			
 		// unused
-		MockHttpResponse response = new MockHttpResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 			
 		InternalResourceView v = new InternalResourceView();
 		v.setUrl(url);

@@ -5,8 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.interface21.web.servlet.ModelAndView;
 
 import junit.framework.TestCase;
-import com.interface21.web.mock.MockHttpRequest;
-import com.interface21.web.mock.MockHttpResponse;
+import com.interface21.web.mock.MockHttpServletRequest;
+import com.interface21.web.mock.MockHttpServletResponse;
 
 /**
  *
@@ -31,8 +31,8 @@ public class DemoControllerTestSuite extends TestCase {
 	}
 	
 	public void testNoName() throws Exception {
-		MockHttpRequest request = new MockHttpRequest(null, "GET", "test.html");
-		HttpServletResponse response = new MockHttpResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "test.html");
+		HttpServletResponse response = new MockHttpServletResponse();
 		ModelAndView mv = this.testController.handleRequest(request, response);
 		assertTrue("View is correct", mv.getViewName().equals(DemoController.ENTER_NAME_VIEW));
 		assertTrue("no name parameter", request.getParameter("name") == null);
@@ -40,9 +40,9 @@ public class DemoControllerTestSuite extends TestCase {
 	
 	public void testValidName() throws Exception {
 		String name = "Tony";
-		MockHttpRequest request = new MockHttpRequest(null, "GET", "test.html");
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "test.html");
 		request.addParameter("name", name);
-		HttpServletResponse response = new MockHttpResponse();
+		HttpServletResponse response = new MockHttpServletResponse();
 		ModelAndView mv = this.testController.handleRequest(request, response);
 		assertTrue("View is correct", mv.getViewName().equals(DemoController.VALID_NAME_VIEW));
 		assertTrue("name parameter matches", request.getParameter("name").equals(name));
@@ -50,15 +50,13 @@ public class DemoControllerTestSuite extends TestCase {
 	
 	public void testInvalidName() throws Exception {
 		String name = "Tony--";
-		MockHttpRequest request = new MockHttpRequest(null, "GET", "test.html");
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "test.html");
 		request.addParameter("name", name);
-		HttpServletResponse response = new MockHttpResponse();
+		HttpServletResponse response = new MockHttpServletResponse();
 		ModelAndView mv = this.testController.handleRequest(request, response);
 		assertTrue("View is correct: expected '" + DemoController.INVALID_NAME_VIEW + "' not '" + mv.getViewName() + "'",
 			mv.getViewName().equals(DemoController.INVALID_NAME_VIEW));
 		assertTrue("name parameter matches", request.getParameter("name").equals(name));
 	}
 	
-	
 }
-

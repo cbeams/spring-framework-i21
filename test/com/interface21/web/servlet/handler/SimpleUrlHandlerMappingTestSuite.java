@@ -1,7 +1,7 @@
 package com.interface21.web.servlet.handler;
 
 import junit.framework.TestCase;
-import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpServletRequest;
 import com.interface21.web.servlet.HandlerMapping;
 
 import com.interface21.context.ApplicationContext;
@@ -37,17 +37,17 @@ public class SimpleUrlHandlerMappingTestSuite extends TestCase {
 	public void testRequestsWithHandlers() throws Exception {
 		Object bean = ac.getBean("mainController");
 		
-		MockHttpRequest req = new MockHttpRequest(null, "GET", "/welcome.html");
+		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/welcome.html");
 		Object h = hm.getHandler(req);
 		assertTrue("handler is null", h != null);
 		assertTrue("Handler is correct bean", h == bean);
 		
-		req = new MockHttpRequest(null, "GET", "/show.html");
+		req = new MockHttpServletRequest(null, "GET", "/show.html");
 		h = hm.getHandler(req);
 		assertTrue("handler isn't null", h != null);
 		assertTrue("Handler is correct bean", h == bean);
 		
-		req = new MockHttpRequest(null, "GET", "/bookseats.html");
+		req = new MockHttpServletRequest(null, "GET", "/bookseats.html");
 		h = hm.getHandler(req);
 		assertTrue("handler isn't null", h != null);
 		assertTrue("Handler is correct bean", h == bean);
@@ -56,7 +56,7 @@ public class SimpleUrlHandlerMappingTestSuite extends TestCase {
 	public void testDefaultMapping() throws Exception {
 		Object bean = ac.getBean("starController");
 		
-		MockHttpRequest req = new MockHttpRequest(null, "GET", "/goggog.html");
+		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/goggog.html");
 		Object h = hm.getHandler(req);
 		assertTrue("handler is null", h != null);
 		assertTrue("Handler is correct bean", h ==bean);
@@ -64,11 +64,11 @@ public class SimpleUrlHandlerMappingTestSuite extends TestCase {
 	
 // This test broken by default mapping
 //	public void testRequestsWithoutHandlers() throws Exception {
-//		MockHttpRequest req = new MockHttpRequest(null, "GET", "/nonsense.html");
+//		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/nonsense.html");
 //		Object h = hm.getHandler(req);
 //		assertTrue("Handler is null", h == null);
 //		
-//		req = new MockHttpRequest(null, "GET", "/foo/bar/baz.html");
+//		req = new MockHttpServletRequest(null, "GET", "/foo/bar/baz.html");
 //		h = hm.getHandler(req);
 //		assertTrue("Handler is null", h == null);
 //	}

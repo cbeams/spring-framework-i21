@@ -4,8 +4,8 @@ import java.util.Locale;
 
 import junit.framework.TestCase;
 
-import com.interface21.web.mock.MockHttpResponse;
-import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpServletResponse;
+import com.interface21.web.mock.MockHttpServletRequest;
 import com.interface21.web.mock.MockServletContext;
 import com.interface21.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import com.interface21.web.servlet.i18n.CookieLocaleResolver;
@@ -24,9 +24,9 @@ public class LocaleResolverTestSuite extends TestCase {
 	private void internalTest(LocaleResolver localeResolver, boolean shouldSet) {
 		// create mocks
 		MockServletContext context = new MockServletContext();
-		MockHttpRequest request = new MockHttpRequest(context, "GET", "/test");
+		MockHttpServletRequest request = new MockHttpServletRequest(context, "GET", "/test");
 		request.addPreferredLocale(Locale.UK);
-		MockHttpResponse response = new MockHttpResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 		// check original locale
 		Locale locale = localeResolver.resolveLocale(request);
 		assertEquals(locale, Locale.UK);

@@ -1,7 +1,7 @@
 package com.interface21.web.servlet.handler;
 
 import junit.framework.TestCase;
-import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpServletRequest;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.support.ClassPathXmlApplicationContext;
@@ -48,25 +48,25 @@ public class BeanNameUrlHandlerMappingTestSuite extends TestCase {
 	public void testRequestsWithHandlers() throws Exception {
 		Object bean = ac.getBean("/welcome.html /show.html /bookseats.html /reservation.html /payment.html /confirmation.html");
 
-		MockHttpRequest req = new MockHttpRequest(null, "GET", "/welcome.html");
+		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/welcome.html");
 		Object h = hm.getHandler(req);
 		assertTrue("Handler is correct bean", h == bean);
 		
-		req = new MockHttpRequest(null, "GET", "/show.html");
+		req = new MockHttpServletRequest(null, "GET", "/show.html");
 		h = hm.getHandler(req);
 		assertTrue("Handler is correct bean", h == bean);
 		
-		req = new MockHttpRequest(null, "GET", "/bookseats.html");
+		req = new MockHttpServletRequest(null, "GET", "/bookseats.html");
 		h = hm.getHandler(req);
 		assertTrue("Handler is correct bean", h == bean);
 	}
 	
 	public void testRequestsWithoutHandlers() throws Exception {
-		MockHttpRequest req = new MockHttpRequest(null, "GET", "/nonsense.html");
+		MockHttpServletRequest req = new MockHttpServletRequest(null, "GET", "/nonsense.html");
 		Object h = hm.getHandler(req);
 		assertTrue("Handler is null", h == null);
 		
-		req = new MockHttpRequest(null, "GET", "/foo/bar/baz.html");
+		req = new MockHttpServletRequest(null, "GET", "/foo/bar/baz.html");
 		h = hm.getHandler(req);
 		assertTrue("Handler is null", h == null);
 	}

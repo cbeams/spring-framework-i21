@@ -16,7 +16,7 @@ import org.easymock.MockControl;
 
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.mock.MockHttpResponse;
+import com.interface21.web.mock.MockHttpServletResponse;
 import com.mockobjects.servlet.MockHttpServletRequest;
 
 import junit.framework.TestCase;
@@ -41,7 +41,7 @@ public class BaseViewTests extends TestCase {
 		WebApplicationContext wac = (WebApplicationContext) mc.getMock();
 		mc.activate();
 		HttpServletRequest request = new MockHttpServletRequest();
-		HttpServletResponse response = new MockHttpResponse();
+		HttpServletResponse response = new MockHttpServletResponse();
 		TestView tv = new TestView(request, response, wac);
 		
 		// Check superclass handles duplicate init
@@ -69,7 +69,7 @@ public class BaseViewTests extends TestCase {
 		WebApplicationContext wac = (WebApplicationContext) mc.getMock();
 		mc.activate();
 		HttpServletRequest request = new MockHttpServletRequest();
-		HttpServletResponse response = new MockHttpResponse();
+		HttpServletResponse response = new MockHttpServletResponse();
 		TestView tv = new TestView(request, response, wac);
 	
 		tv.setApplicationContext(wac);
@@ -97,7 +97,7 @@ public class BaseViewTests extends TestCase {
 		WebApplicationContext wac = (WebApplicationContext) mc.getMock();
 		mc.activate();
 		HttpServletRequest request = new MockHttpServletRequest();
-		HttpServletResponse response = new MockHttpResponse();
+		HttpServletResponse response = new MockHttpServletResponse();
 		TestView tv = new TestView(request, response, wac);
 
 		tv.setApplicationContext(wac);
