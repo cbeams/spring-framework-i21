@@ -74,24 +74,12 @@ public class DataBinder extends BindException {
 	}
 
 	/**
-	 * Find a custom property editor for the given type and property.
-	 * @param requiredType type of the property, can be null if a property is
-	 * given but should be specified in any case for consistency checking
-	 * @param field name of the field (can also be a nested path), or
-	 * null if registering an editor for all fields of the given type
-	 * @return the registered editor, or null if none
-	 */
-	protected PropertyEditor findCustomEditor(Class requiredType, String field) {
-		return getBeanWrapper().findCustomEditor(requiredType, field);
-	}
-
-	/**
 	 * Render the field value with a custom editor, if applicable.
 	 */
 	public Object getFieldValue(String field) {
 		Object value = super.getFieldValue(field);
 		if (value != null && !hasFieldErrors(field)) {
-			PropertyEditor customEditor = findCustomEditor(value.getClass(), field);
+			PropertyEditor customEditor = getBeanWrapper().findCustomEditor(null, field);
 			if (customEditor != null) {
 				customEditor.setValue(value);
 				return customEditor.getAsText();
