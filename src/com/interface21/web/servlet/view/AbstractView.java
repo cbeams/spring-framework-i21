@@ -43,12 +43,12 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	/** Map of static attributes, keyed by attribute name (String) */
 	private Map	staticAttributes = new HashMap();
 
-	/** Default content type. Overridable as bean property. */
-	private String contentType = "text/html; charset=ISO-8859-1";
-	
 	/** Name of request context attribute, or null if not needed */
 	private String requestContextAttribute;
 
+	/** Default content type. Overridable as bean property. */
+	private String contentType = "text/html; charset=ISO-8859-1";
+	
 	/** The name by which this View is known */
 	private String name;
 
@@ -109,17 +109,22 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	}
 
 	/**
-	 * Set the content type for this view.
-	 * May be ignored by subclasses if the view itself is assumed
-	 * to set the content type, e.g. in case of JSPs.
-	 * @param contentType content type for this view
+	 * Add static data to this view, exposed in each view.
+	 * <p>Must be invoked before any calls to render().
+	 * @param name name of attribute to expose
+	 * @param o object to expose
 	 */
-	public final void setContentType(String contentType) {
-		this.contentType = contentType;
+	public final void addStaticAttribute(String name, Object o) {
+		this.staticAttributes.put(name, o);
 	}
-	
-	protected final String getContentType() {
-		return this.contentType;
+
+	/**
+	 * Handy for testing. Return the static attributes
+	 * held in this view.
+	 * @return the static attributes in this view
+	 */
+	public final Map getStaticAttributes() {
+		return Collections.unmodifiableMap(this.staticAttributes);
 	}
 
 	/**
@@ -131,24 +136,22 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 		this.requestContextAttribute = requestContextAttribute;
 	}
 
-
 	/**
-	 * Add static data to this view, exposed in each view.
-	 * <br/>Must be invoked before any calls to render().
-	 * @param name name of attribute to expose
-	 * @param o object to expose
+	 * Set the content type for this view.
+	 * May be ignored by subclasses if the view itself is assumed
+	 * to set the content type, e.g. in case of JSPs.
+	 * @param contentType content type for this view
 	 */
-	public final void addStaticAttribute(String name, Object o) {
-		this.staticAttributes.put(name, o);
+	public final void setContentType(String contentType) {
+		this.contentType = contentType;
 	}
 
-	/** 
-	 * Handy for testing. Return the static attributes
-	 * held in this view.
-	 * @return the static attributes in this view
+	/**
+	 * Return the content type for this view.
+	 * @return content type for this view
 	 */
-	public final Map getStaticAttributes() {
-		return Collections.unmodifiableMap(this.staticAttributes);
+	protected final String getContentType() {
+		return this.contentType;
 	}
 
 	/**
@@ -183,8 +186,8 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 				" and static attributes=" + this.staticAttributes);
 		
 		// Consolidate static and dynamic model attributes
-		Map mergedModel = new HashMap(model);
-		mergedModel.putAll(this.staticAttributes);
+		Map mergedModel = new HashMap(this.staticAttributes);
+		mergedModel.putAll(model);
 
 		// expose request context?
 		if (this.requestContextAttribute != null) {
