@@ -85,11 +85,24 @@ public class MethodInvocationImpl implements MethodInvocation {
 		this.arguments = arguments;
 		
 		// TODO make more efficient. Could just hold indices in an int array
+		// Could cache static pointcut decisions
 		this.interceptors = new LinkedList();
 		for (Iterator iter = pointcuts.iterator(); iter.hasNext();) {
-			DynamicMethodPointcut pc = (DynamicMethodPointcut) iter.next();
-			if (pc.applies(m, arguments, attributeRegistry)) {
-				this.interceptors.add(pc.getInterceptor());
+			Object pc = iter.next();
+			if (pc instanceof DynamicMethodPointcut) {
+				DynamicMethodPointcut dpc = (DynamicMethodPointcut) pc;
+				if (dpc.applies(m, arguments, attributeRegistry)) {
+					this.interceptors.add(dpc.getInterceptor());
+				}
+			}
+			else if (pc instanceof StaticMethodPointcut) {
+				StaticMethodPointcut spc = (StaticMethodPointcut) pc;
+				if (spc.applies(m, attributeRegistry)) {
+					this.interceptors.add(spc.getInterceptor());
+				}
+			}
+			else {
+				throw new AspectException("Unknown pointcut type: " + pc.getClass());
 			}
 		}
 		

@@ -15,26 +15,18 @@ import org.aopalliance.MethodInterceptor;
  * Interceptor that should always run.
  * @author Rod Johnson
  * @since 04-Apr-2003
- * @version $Revision$
+ * @version $Id$
  */
-public class AlwaysInvoked implements DynamicMethodPointcut {
-
-	private final MethodInterceptor interceptor;
+public class AlwaysInvoked extends AbstractMethodPointcut implements StaticMethodPointcut {
 	
 	public AlwaysInvoked(MethodInterceptor interceptor) {
-		this.interceptor = interceptor;
-	}
-	/**
-	 * @see com.interface21.aop.framework.MethodPointcut#getInterceptor()
-	 */
-	public MethodInterceptor getInterceptor() {
-		return this.interceptor;
+		super(interceptor);
 	}
 
 	/**
-	 * @see com.interface21.aop.framework.MethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[], AttributeRegistry)
+	 * @see com.interface21.aop.framework.StaticMethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[], AttributeRegistry)
 	 */
-	public boolean applies(Method m, Object[] args, AttributeRegistry ar) {
+	public boolean applies(Method m, AttributeRegistry ar) {
 		return true;
 	}
 

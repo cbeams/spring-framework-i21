@@ -51,13 +51,13 @@ public interface ProxyConfig {
 	 * Add a pointcut
 	 * @param pc
 	 */
-	void addMethodPointcut(DynamicMethodPointcut pc);
+	void addMethodPointcut(MethodPointcut pc);
 	
 	/**
 	 * Add a pointcut
 	 * @param pc
 	 */
-	void addMethodPointcut(int pos, DynamicMethodPointcut pc);
+	void addMethodPointcut(int pos, MethodPointcut pc);
 	
 	/**
 	 * Remove the interceptor

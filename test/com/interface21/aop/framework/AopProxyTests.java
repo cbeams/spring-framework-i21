@@ -12,6 +12,7 @@ import java.lang.reflect.Proxy;
 import junit.framework.TestCase;
 
 import org.aopalliance.AspectException;
+import org.aopalliance.AttributeRegistry;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 import org.easymock.EasyMock;
@@ -328,6 +329,74 @@ public class AopProxyTests extends TestCase {
 	
 	
 	
+	public void testDynamicMethodPointcut() throws Throwable {
+		TestBean tb = new TestBean();
+		ProxyFactory pc = new ProxyFactory(new Class[] { ITestBean.class });
+		TestDynamicPointcut dp = new TestDynamicPointcut(new DebugInterceptor(), "getAge");
+		pc.addMethodPointcut(dp);
+		pc.addInterceptor(new InvokerInterceptor(tb));
+		ITestBean it = (ITestBean) pc.getProxy();
+		assertEquals(dp.count, 0);
+		int age = it.getAge();
+		assertEquals(dp.count, 1);
+		it.setAge(11);
+		assertEquals(it.getAge(), 11);
+		assertEquals(dp.count, 2);
+	}
+	
+	public void testStaticMethodPointcut() throws Throwable {
+		TestBean tb = new TestBean();
+		ProxyFactory pc = new ProxyFactory(new Class[] { ITestBean.class });
+		TestStaticPointcut sp = new TestStaticPointcut(new DebugInterceptor(), "getAge");
+		pc.addMethodPointcut(sp);
+		pc.addInterceptor(new InvokerInterceptor(tb));
+		ITestBean it = (ITestBean) pc.getProxy();
+		assertEquals(sp.count, 0);
+		int age = it.getAge();
+		assertEquals(sp.count, 1);
+		it.setAge(11);
+		assertEquals(it.getAge(), 11);
+		assertEquals(sp.count, 2);
+	}
+	
+	// TODO AlwaysInvoked is static
+	
+	private static class TestDynamicPointcut extends AbstractMethodPointcut implements DynamicMethodPointcut {
+		
+		private String pattern;
+		private int count;
+		
+		public TestDynamicPointcut(MethodInterceptor mi, String pattern) {
+			super(mi);
+			this.pattern = pattern;
+		}
+		/**
+		 * @see com.interface21.aop.framework.DynamicMethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[], org.aopalliance.AttributeRegistry)
+		 */
+		public boolean applies(Method m, Object[] args, AttributeRegistry attributeRegistry) {
+			boolean run = m.getName().indexOf(pattern) != -1;
+			if (run) ++count;
+			return run;
+		}
+
+	}
+	
+	private static class TestStaticPointcut extends AbstractMethodPointcut implements StaticMethodPointcut {
+		
+		private String pattern;
+		private int count;
+	
+		public TestStaticPointcut(MethodInterceptor mi, String pattern) {
+			super(mi);
+			this.pattern = pattern;
+		}
+		public boolean applies(Method m, AttributeRegistry attributeRegistry) {
+			boolean run = m.getName().indexOf(pattern) != -1;
+			if (run) ++count;
+			return run;
+		}
+
+	}
 
 
 	private static class TrapInvocationInterceptor implements MethodInterceptor {
