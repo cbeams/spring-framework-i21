@@ -21,7 +21,6 @@ import org.apache.velocity.app.Velocity;
 
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.support.WebApplicationObjectSupport;
-import com.interface21.web.util.WebUtils;
 
 /**
  * JavaBean to configure Velocity, by setting the location of the Velocity properties
@@ -35,14 +34,10 @@ import com.interface21.web.util.WebUtils;
  */
 public class VelocityConfigurer extends WebApplicationObjectSupport {
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
 	/**
-	* Create a logging category that is available
-	* to subclasses. 
-	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	 * Create a logging category that is available to subclasses.
+	 */
+	protected final Logger logger = Logger.getLogger(getClass());
 
 	public static final String DEFAULT_VELOCITY_PROPERTIES = "/WEB-INF/velocity.properties";
 
@@ -64,7 +59,7 @@ public class VelocityConfigurer extends WebApplicationObjectSupport {
 	 *  initialization of the singelton takes place, or to 
 	 *  initialize the singleton in other ways.
 	 */
-	protected void init() throws ApplicationContextException {
+	protected void initApplicationContext() throws ApplicationContextException {
 		try {
 			Properties p = new Properties();
 			logger.info("Loading Velocity properties from [" + this.path + "]");
