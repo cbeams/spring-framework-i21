@@ -55,6 +55,9 @@ public class ContextLoader {
 			webApplicationContext.setServletContext(servletContext);
 			return webApplicationContext;
 
+		} catch (ApplicationContextException ex) {
+			throw ex;
+
 		} catch (ClassNotFoundException ex) {
 			handleException("Failed to load config class '" + contextClass + "'", ex);
 
