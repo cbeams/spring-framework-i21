@@ -196,8 +196,8 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			}
 		}
 	}
-
-	/** 
+	
+	/**
 	 * Register valid bean definitions in a properties file.
 	 * Ignore ineligible properties
 	 * @param m Map name -> property (String or Object). Property values
@@ -397,7 +397,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 
 
 	public String toString() {
-		return getClass() + ": defined beans [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
+		return getClass().getName() + " with defined beans [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
 	}
 	
 }
