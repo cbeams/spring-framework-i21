@@ -26,9 +26,11 @@ import com.interface21.util.StringUtils;
 /**
  * Concrete implementation of ListableBeanFactory.
  * Includes convenient methods to populate the factory from a Map
- * and a ResourceBundle and to add bean defintions one by one. 
- * Can be used as a standalone bean factory,
+ * and a ResourceBundle, and to add bean defintions one by one.
+ *
+ * <p>Can be used as a standalone bean factory,
  * or as a superclass for custom bean factories.
+ *
  * @author Rod Johnson
  * @since 16 April 2001
  * @version $Id$
@@ -41,21 +43,18 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	public static final String DEFAULT_PREFIX = "beans.";
 	
 	/**
-	 * Prefix for the class property of a root bean
-	 * definition.
+	 * Prefix for the class property of a root bean definition.
 	 */
 	public static final String CLASS_KEY = "class";
 	
 	/** 
-	 * Special string added to distinguish 
-	 * owner.(singleton)=true 
-	 * default is true
+	 * Special string added to distinguish owner.(singleton)=true
+	 * Default is true.
 	 */
 	public static final String SINGLETON_KEY = "(singleton)";
 	
 	/**
-	 * Reserved "property" to indicate the parent of a 
-	 * child bean definition.
+	 * Reserved "property" to indicate the parent of a child bean definition.
 	 */
 	public static final String PARENT_KEY = "parent";
 	
@@ -87,45 +86,20 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * Map of BeanDefinition objects, keyed by prototype name
 	 */
 	private Map beanDefinitionHash = new HashMap();
-	
-	/**
-	 * ClassLoader to use. May be null, in which case
-	 * we rely on the default behavior of Class.forName()
-	 */
-	private ClassLoader	classLoader;
 
 
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
 
-	/** Creates new ListableBeanFactoryImpl */
+	/** Creates a new ListableBeanFactoryImpl */
 	public ListableBeanFactoryImpl() {
 		super();
 	}
 	
+	/** Creates a new ListableBeanFactoryImpl with the given parent */
 	public ListableBeanFactoryImpl(BeanFactory parentBeanFactory) {
 		super(parentBeanFactory);
-	}
-
-	/**
-	 * Create a new ListableBeanFactoryImpl that uses the
-	 * ClassLoader of the caller to load classes.
-	 * Why would we need to do this? Imagine we're using this class
-	 * from a WAR, but that this class is also used within an EJB Jar
-	 * in the same EAR. In many application servers, such as
-	 * Orion/Oracle and WebLogic, this class will have been loaded by the EJB
-	 * class loader, and will be unable to load classes within the WAR.
-	 * The solution is to provide the ability to pass in a ClassLoader.
-	 * <p/><b>Do not use this constructor within the EJB tier</b>.
-	 * Obtaining the class loader is illegal on behalf of an EJB.
-	 * @param caller object from which we should take the class loader
-	 * used to load classes. Normally this is the object that
-	 * is using this class.
-	 */
-	public ListableBeanFactoryImpl(Object caller) {
-		if (caller != null)
-			this.classLoader = caller.getClass().getClassLoader();
 	}
 
 	/**
@@ -296,8 +270,8 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * @param prefix prefix of each entry, which will be stripped
 	 */
 	private void registerBeanDefinition(String beanName, Map m, String prefix) throws BeansException {
-		String	classname = null;
-		String	parent = null;
+		String className = null;
+		String parent = null;
 		boolean singleton = true;
 		
 		MutablePropertyValues pvs = new MutablePropertyValues();
@@ -308,7 +282,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			if (key.startsWith(prefix + SEPARATOR)) {
 				String property = key.substring(prefix.length() + SEPARATOR.length());
 				if (property.equals(CLASS_KEY)) {
-					classname = (String) m.get(key);
+					className = (String) m.get(key);
 				}
 				else if (property.equals(SINGLETON_KEY)) {
 					String val = (String) m.get(key);
@@ -356,17 +330,16 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		if (parent == null)
 			parent = defaultParentBean;
 
-		if (classname == null && parent == null)
+		if (className == null && parent == null)
 			throw new FatalBeanException("Invalid bean definition. Classname or parent must be supplied for bean with name '" + beanName + "'", null);
 		
 		try {
 			
 			AbstractBeanDefinition beanDefinition = null;
-			if (classname != null) {
+			if (className != null) {
 				// Load the class using a special class loader if one is available.
 				// Otherwise rely on the thread context classloader.
-				ClassLoader cl = (this.classLoader != null) ? this.classLoader : Thread.currentThread().getContextClassLoader();
-				Class clazz = Class.forName(classname, true, cl);
+				Class clazz = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
 				beanDefinition = new RootBeanDefinition(clazz, pvs, singleton);
 			}
 			else {
@@ -375,7 +348,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			registerBeanDefinition(beanName, beanDefinition);
 		}
 		catch (ClassNotFoundException ex) {
-			throw new FatalBeanException("Cannot find class '" + classname + "' for bean with name '" + beanName + "'", ex);
+			throw new FatalBeanException("Cannot find class '" + className + "' for bean with name '" + beanName + "'", ex);
 		}
 	}
 	
@@ -401,6 +374,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	//---------------------------------------------------------------------
 	// Implementation of superclass protected abstract methods
 	//---------------------------------------------------------------------
+
 	/**
 	 * @see AbstractBeanFactory#getBeanDefinition(String)
 	 */
