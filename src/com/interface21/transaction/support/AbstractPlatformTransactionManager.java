@@ -129,7 +129,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	protected abstract boolean isExistingTransaction(Object transaction) throws TransactionException;
 
 	/**
-	 * Begin a new transaction with the given isolation level
+	 * Begin a new transaction with the given isolation level.
 	 * @param transaction transaction object returned by doGetTransaction()
 	 * @param isolationLevel desired isolation level
 	 * @throws TransactionException in case of creation or system errors
@@ -153,7 +153,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	protected abstract void doRollback(TransactionStatus status) throws TransactionException;
 
 	/**
-	 * Set the given transaction rollback-only.
+	 * Set the given transaction rollback-only. Only called on rollback
+	 * if the current transaction takes part in an existing one.
 	 * @param status status representation of the transaction
 	 * @throws TransactionException in case of system errors
 	 */
