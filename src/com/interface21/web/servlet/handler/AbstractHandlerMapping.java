@@ -1,5 +1,8 @@
 package com.interface21.web.servlet.handler;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -11,22 +14,21 @@ import com.interface21.web.servlet.LocaleResolverAware;
 
 /**
  * Abstract base class for HandlerMapping implementations.
- * Provides the basic infrastructure and a handler initialization
- * method that cares about LocaleResolver.
+ * Provides the basic infrastructure and a handler initialization method that
+ * cares about LocaleResolver. Supports a default handler.
  * @author Juergen Hoeller
  * @since 07.04.2003
+ * @see #getHandlerInternal
  */
 public abstract class AbstractHandlerMapping extends ApplicationObjectSupport implements HandlerMapping, Ordered {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private LocaleResolver localeResolver;
-
 	private int order = Integer.MAX_VALUE;  // default: same as non-Ordered
 
-	public void setLocaleResolver(LocaleResolver localeResolver) {
-		this.localeResolver = localeResolver;
-	}
+	private LocaleResolver localeResolver;
+
+	private Object defaultHandler = null;
 
 	public void setOrder(int order) {
 	  this.order = order;
@@ -34,6 +36,19 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 
 	public int getOrder() {
 	  return order;
+	}
+
+	public void setLocaleResolver(LocaleResolver localeResolver) {
+		this.localeResolver = localeResolver;
+	}
+
+	/**
+	 * Set the default handler.
+	 * @param defaultHandler default handler instance, or null.
+	 */
+	public void setDefaultHandler(Object defaultHandler) {
+		this.defaultHandler = defaultHandler;
+		logger.info("Default mapping is to controller [" + this.defaultHandler + "]");
 	}
 
 	/**
@@ -46,5 +61,25 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 			((LocaleResolverAware) handler).setLocaleResolver(this.localeResolver);
 		}
 	}
+
+	/**
+	 * Lookup a handler for the given request, falling back to the default
+	 * handler if no specific one is found.
+	 * @param request current HTTP request
+	 * @return the looked up handler instance, or the default handler
+	 */
+	public final Object getHandler(HttpServletRequest request) throws ServletException {
+		Object handler = getHandlerInternal(request);
+		return (handler != null ? handler : this.defaultHandler);
+	}
+
+	/**
+	 * Lookup a handler for the given request, returning null if no specific
+	 * one is found. This method is evaluated by getHandler, a null return
+	 * value will lead to the default handler, if one is set.
+	 * @param request current HTTP request
+	 * @return the looked up handler instance, or null
+	 */
+	protected abstract Object getHandlerInternal(HttpServletRequest request);
 
 }

@@ -11,33 +11,18 @@ import com.interface21.beans.BeansException;
 
 /**
  * Abstract base class for url-mapped HandlerMapping implementations.
- * Provides infrastructure for mapping handlers to URLs, support
- * for a default handler, and configurable URL lookup.
- * For information on the latter, see alwaysUseFullPath property.
+ * Provides infrastructure for mapping handlers to URLs and configurable
+ * URL lookup. For information on the latter, see alwaysUseFullPath property.
  * @author Juergen Hoeller
  * @since 16.04.2003
  * @see #setAlwaysUseFullPath
+ * @see #setDefaultHandler
  */
 public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
-	private Map handlerMap = new HashMap();
-
-	private Object defaultHandler = null;
-
 	private boolean alwaysUseFullPath = false;
 
-	/**
-	 * Set the default handler.
-	 * @param defaultHandler  default handler instance, or null.
-	 */
-	public void setDefaultHandler(Object defaultHandler) {
-		this.defaultHandler = defaultHandler;
-		logger.info("Default mapping is to controller [" + this.defaultHandler + "]");
-	}
-
-	protected Object getDefaultHandler() {
-		return defaultHandler;
-	}
+	private Map handlerMap = new HashMap();
 
 	/**
 	 * Set if URL lookup should always use full path within current servlet
@@ -49,26 +34,40 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 		this.alwaysUseFullPath = alwaysUseFullPath;
 	}
 
-	protected void registerHandler(String url, Object handler) {
-		this.handlerMap.put(url, handler);
-		logger.info("Mapped url [" + url + "] onto handler [" + handler + "]");
+	/**
+	 * Register the given handler instance for the given URL path.
+	 * @param urlPath URL the bean is mapped to
+	 * @param handler the handler instance
+	 */
+	protected void registerHandler(String urlPath, Object handler) {
+		this.handlerMap.put(urlPath, handler);
+		logger.info("Mapped URL path [" + urlPath + "] onto handler [" + handler + "]");
+	}
+
+	/**
+	 * Lookup a handler instance for the given URL path.
+	 * @param urlPath URL the bean is mapped to
+	 * @return the associated handler instance, or null if not found
+	 */
+	protected Object lookupHandler(String urlPath) {
+		return this.handlerMap.get(urlPath);
 	}
 
 	/**
 	 * Initialize the handler object with the given name in the bean factory.
 	 * This includes setting the LocaleResolver and mapped URL if aware.
-	 * @param beanName  the name of the bean in the application cntext
-	 * @param url  the URL the bean is mapped to
+	 * @param beanName name of the bean in the application context
+	 * @param urlPath URL the bean is mapped to
 	 * @return the initialized handler instance
 	 * @throws ApplicationContextException if the bean wasn't found in the context
 	 */
-	protected Object initHandler(String beanName, String url) throws ApplicationContextException {
+	protected Object initHandler(String beanName, String urlPath) throws ApplicationContextException {
 		try {
 			Object handler = getApplicationContext().getBean(beanName);
-			logger.debug("Initializing handler [" + handler + "] for url [" + url + "]");
+			logger.debug("Initializing handler [" + handler + "] for URL path [" + urlPath + "]");
 			initHandler(handler);
 			if (handler instanceof UrlAwareHandler) {
-				((UrlAwareHandler) handler).setUrlMapping(url);
+				((UrlAwareHandler) handler).setUrlMapping(urlPath);
 			}
 			return handler;
 		}
@@ -79,11 +78,15 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 		}
 	}
 
-	public Object getHandler(HttpServletRequest request) {
+	/**
+	 * Lookup a handler for the URL path of the given request.
+	 * @param request current HTTP request
+	 * @return the looked up handler instance, or null
+	 */
+	protected Object getHandlerInternal(HttpServletRequest request) {
 		String lookupPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
 		logger.debug("Looking up handler for: " + lookupPath);
-		Object handler = this.handlerMap.get(lookupPath);
-		return (handler != null ? handler : this.defaultHandler);
+		return lookupHandler(lookupPath);
 	}
 
 }
