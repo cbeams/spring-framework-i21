@@ -14,20 +14,17 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Convenient implementation of the IntroductionInterceptor interface.
- *
- * <p>Subclasses merely need to extend this class and implement the
- * interfaces to be introduced themselves. In this case the delegate is
- * the subclass instance itself. Alternatively a separate delegate may
- * implement the interface, and be set via the delegate bean property.
- *
- * <p>Delegates or subclasses may implement any number of interfaces.
- * All interfaces except IntroductionInterceptor are picked up from the
- * subclass or delegate by default.
- *
- * <p>The suppressInterface() method can be used to suppress interfaces
- * implemented by the delegate but which should not be introduced to the
- * owning AOP proxy.
- *
+ * <br/>Subclasses merely need to extend this class and
+ * implement the interfaces to be introduced themselves.
+ * In this case the delegate is the subclass instance itself.
+ * Alternatively a separate delegate may implement the interface,
+ * and be set via the delegate bean property.
+ * Delegates or subclasses may implement any number of interfaces.
+ * All interfaces except IntroductionInterceptor are picked up 
+ * from the subclass or delegate by default.<br>
+ * The suppressInterface() method can be used to suppress interfaces implemented
+ * by the delegate but which should not be introduced to the owning
+ * AOP proxy.
  * @author Rod Johnson
  * @version $Id$
  */
@@ -97,20 +94,15 @@ public class DelegatingIntroductionInterceptor implements IntroductionIntercepto
 	 * behaviour in around advice. However, subclasses should invoke this
 	 * method, which handles introduced interfaces and forwarding to the target.
 	 */
-	public Object invoke(MethodInvocation invocation) throws Throwable {
-		
-		// We want this for getArguments() method
-		// TODO this class is not portable outside Spring AOP framework
-		MethodInvocationImpl mi = (MethodInvocationImpl) invocation;
-		
+	public Object invoke(MethodInvocation mi) throws Throwable {
 		if (this.publishedInterfaces.contains(mi.getMethod().getDeclaringClass())) {
 			if (logger.isDebugEnabled())
-				logger.debug("invoking self on invocation [" + invocation + "]; breaking interceptor chain");
+				logger.debug("invoking self on invocation [" + mi + "]; breaking interceptor chain");
 			return mi.getMethod().invoke(this.delegate, mi.getArguments());
 		}
 		
 		// If we get here, just pass the invocation on
-		return invocation.proceed();
+		return mi.proceed();
 	}
 
 }
