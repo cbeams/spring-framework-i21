@@ -53,7 +53,8 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 */
 	public static final String PARENT_KEY = "parent";
 	
-	/** Separator between bean name and property name.
+	/**
+	 * Separator between bean name and property name.
 	 * We follow normal Java conventions.
 	 */
 	public static final String SEPARATOR = ".";
@@ -65,14 +66,19 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * will depend on the definition of the target bean.
 	 */
 	public static final String REF_SUFFIX = "(ref)";
-	
+
+
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
-	/** Map of BeanDefinition objects, keyed by prototype name */
-	private Map     beanDefinitionHash = new HashMap();
+
+	/**
+	 * Map of BeanDefinition objects, keyed by prototype name
+	 */
+	private Map beanDefinitionHash = new HashMap();
 	
-	/** ClassLoader to use. May be null, in which case
+	/**
+	 * ClassLoader to use. May be null, in which case
 	 * we rely on the default behavior of Class.forName()
 	 */
 	private ClassLoader	classLoader;
@@ -81,6 +87,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
+
 	/** Creates new ListableBeanFactoryImpl */
 	public ListableBeanFactoryImpl() {
 		super();
@@ -90,8 +97,9 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		super(parentBeanFactory);
 	}
 
-	/** Create a new ListableBeanFactoryImpl that takes
-	 * uses the ClassLoader of the caller to load classes.
+	/**
+	 * Create a new ListableBeanFactoryImpl that uses the
+	 * ClassLoader of the caller to load classes.
 	 * Why would we need to do this? Imagine we're using this class
 	 * from a WAR, but that this class is also used within an EJB Jar
 	 * in the same EAR. In many application servers, such as
@@ -109,10 +117,30 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			this.classLoader = caller.getClass().getClassLoader();
 	}
 
+	/**
+	 * Set the default parent bean for this bean factory.
+	 * If a child bean definition (i.e. a definition without class
+	 * attribute) handled by this factory doesn't provide a parent
+	 * attribute, this default value gets used.
+	 * <p>Can be used e.g. for view definition files, to define a
+	 * parent with common attributes for all views.
+	 */
+	public void setDefaultParentBean(String defaultParentBean) {
+		this.defaultParentBean = defaultParentBean;
+	}
+
+	/**
+	 * Return the default parent bean for this bean factory.
+	 */
+	public String getDefaultParentBean() {
+		return defaultParentBean;
+	}
+
 
 	//---------------------------------------------------------------------
 	// Implementation of ListableBeanFactory
 	//---------------------------------------------------------------------
+
 	/**
 	 * @see ListableBeanFactory#getBeanDefinitionCount()
 	 */
@@ -133,7 +161,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			names[i++] = (String) itr.next();
 		}
 		return names;
-	}	// getBeanDefinitionNames
+	}
 	
 	
 	/**
@@ -152,12 +180,13 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			}
 		}
 		return (String[]) matches.toArray(new String[matches.size()]);
-	}	// getBeanDefinitionNames(Class)
+	}
 	
 	
 	//---------------------------------------------------------------------
 	// Public methods
 	//---------------------------------------------------------------------
+
 	/**
 	 * Subclasses or users should call this method to register new bean definitions
 	 * with this class. All other registration methods in this class use this method.
@@ -245,7 +274,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		}	// while there are more keys
 		
 		return beanCount;
-	}	// registerBeanDefinition
+	}
 	
 	
 	/**
@@ -256,8 +285,6 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * @param prefix prefix of each entry, which will be stripped
 	 */
 	private void registerBeanDefinition(String beanName, Map m, String prefix) throws BeansException {
-		//System.out.println("registerBeanDefinitions for beanName '" + beanName + "' with prefix='" + prefix + "'");
-		
 		String	classname = null;
 		String	parent = null;
 		boolean singleton = true;
@@ -324,7 +351,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		catch (ClassNotFoundException ex) {
 			throw new FatalBeanException("Cannot find class '" + classname + "' for bean with name '" + beanName + "'", ex);
 		}
-	}	// registerBeanDefinition
+	}
 	
 	
 	/** 
@@ -363,4 +390,4 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		return getClass() + ": defined prototypes [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
 	}
 	
-}	// class ListableBeanFactoryImpl
+}
