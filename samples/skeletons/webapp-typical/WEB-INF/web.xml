@@ -93,11 +93,11 @@
 
 	<!--
 	  - Defines the Spring tag library.
-    - JSPs can import it like this: <%@ taglib uri="/i21" prefix="i21" %>
+    - JSPs can import it like this: <%@ taglib uri="/spring" prefix="spring" %>
 	  -->
 	<taglib>
-		<taglib-uri>/i21</taglib-uri>
-		<taglib-location>/WEB-INF/i21.tld</taglib-location>
+		<taglib-uri>/spring</taglib-uri>
+		<taglib-location>/WEB-INF/spring.tld</taglib-location>
 	</taglib>
 
 	<!--

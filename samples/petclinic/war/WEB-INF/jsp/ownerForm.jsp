@@ -2,11 +2,11 @@
 
 <P>
 <H2><c:if test="${command.id == 0}">New </c:if>Owner:</H2>
-<i21:bind path="command">
+<spring:bind path="command">
   <FONT color="red">
     <B><c:out value="${status.errorMessage}"/></B>
   </FONT>
-</i21:bind>
+</spring:bind>
 <P>
 <FORM method="POST">
   <jsp:include page="/WEB-INF/jsp/fields/firstName.jsp"/>

@@ -2,11 +2,11 @@
 
 <P>
 <H2><c:if test="${command.id == 0}">New </c:if>Visit:</H2>
-<i21:bind path="command">
+<spring:bind path="command">
   <FONT color="red">
     <B><c:out value="${status.errorMessage}"/></B><BR>
   </FONT>
-</i21:bind>
+</spring:bind>
 <P>
 <B>Pet:</B>
 <TABLE border="true">
@@ -21,21 +21,21 @@
 <P>
 <FORM method="POST">
   <B>Date:</B>
-  <i21:bind path="command.date">
+  <spring:bind path="command.date">
     <FONT color="red">
       <B><c:out value="${status.errorMessage}"/></B>
     </FONT>
     <BR><INPUT type="text" maxlength="10" size="10" name="date" value="<c:out value="${status.value}"/>" />
-  </i21:bind>
+  </spring:bind>
   <BR>(yyyy-mm-dd)
   <P>
   <B>Description:</B>
-  <i21:bind path="command.description">
+  <spring:bind path="command.description">
     <FONT color="red">
       <B><c:out value="${status.errorMessage}"/></B>
     </FONT>
     <BR><TEXTAREA rows="10" cols="25" name="description" value="<c:out value="${status.value}"/>" ></TEXTAREA>
-  </i21:bind>
+  </spring:bind>
   <P>
   <INPUT type="hidden" name="petId" value="<c:out value="${command.pet.id}"/>"/>
   <INPUT type = "submit" value="Add Visit"  />

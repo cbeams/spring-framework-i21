@@ -2,34 +2,34 @@
 
 <P>
 <H2><c:if test="${command.id == 0}">New </c:if>Pet</H2>
-<i21:bind path="command">
+<spring:bind path="command">
   <FONT color="red">
     <B><c:out value="${status.errorMessage}"/></B>
   </FONT>
-</i21:bind>
+</spring:bind>
 <P>
 <B>Owner:</B> <c:out value="${command.owner.firstName}"/> <c:out value="${command.owner.lastName}"/>
 <P>
 <FORM method="POST">
   <B>Name:</B>
-  <i21:bind path="command.name">
+  <spring:bind path="command.name">
     <FONT color="red">
       <B><c:out value="${status.errorMessage}"/></B>
     </FONT>
     <BR><INPUT type="text" maxlength="30" size="30" name="name" value="<c:out value="${status.value}"/>" >
-  </i21:bind>
+  </spring:bind>
   <P>
   <B>Birth Date:</B>
-  <i21:bind path="command.birthDate">
+  <spring:bind path="command.birthDate">
     <FONT color="red">
       <B><c:out value="${status.errorMessage}"/></B>
     </FONT>
     <BR><INPUT type="text" maxlength="10" size="10" name="birthDate" value="<c:out value="${status.value}"/>" />
-  </i21:bind>
+  </spring:bind>
   <BR>(yyyy-mm-dd)
   <P>
   <B>Type:</B>
-  <i21:bind path="command.typeId">
+  <spring:bind path="command.typeId">
     <FONT color="red">
       <B><c:out value="${status.errorMessage}"/></B>
     </FONT>
@@ -44,7 +44,7 @@
         </c:if>
       </c:forEach>
     </SELECT>
-  </i21:bind>
+  </spring:bind>
   <P>
   <INPUT type="hidden" name="ownerId" value="<c:out value="${command.owner.id}"/>"/>
   <c:if test="${command.id == 0}">

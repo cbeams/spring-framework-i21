@@ -118,18 +118,8 @@
 	  - Defines the Spring tag library.
 	  -->
   <taglib>
-		<taglib-uri>/i21</taglib-uri>
-		<taglib-location>/WEB-INF/tld/i21.tld</taglib-location>
-  </taglib>
-
-  <taglib>
-    <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
-    <taglib-location>/WEB-INF/tld/c.tld</taglib-location>
-  </taglib>
-
-  <taglib>
-    <taglib-uri>http://java.sun.com/jstl/fmt</taglib-uri>
-    <taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
+		<taglib-uri>/spring</taglib-uri>
+		<taglib-location>/WEB-INF/views/spring.tld</taglib-location>
   </taglib>
 
   <resource-ref>
