@@ -139,7 +139,11 @@ public class PagedListHolder {
 	 * Page numbering starts with 0.
 	 */
 	public void setPage(int page) {
-		this.page = page;
+		if (page >= this.getNrOfPages() ) {
+			this.page = this.getNrOfPages() - 1;
+		} else {
+			this.page = page;
+		}
 	}
 
 	/**
