@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
+
+<!--
+  - Web app deployment descriptor that just loads an "example" DispatcherServlet
+  - with a specific context.
+  -
+  - Depends on the following libraries in WEB-INF/lib:
+  - * spring-full-x.x jar
+  - * commons-logging.jar
+  -->
+
+<web-app>
+
+  <!--
+    - Servlet that dispatches request to registered handlers (Controller implementations).
+    - Has its own application context, by default defined in "{servlet-name}-servlet.xml",
+    - i.e. "example-servlet.xml".
+    -
+    - A web app can contain any number of such servlets.
+    - Note that this web app does not have a shared root application context,
+    - therefore the DispatcherServlet contexts do not have a common parent.
+    -->
+	<servlet>
+		<servlet-name>example</servlet-name>
+		<servlet-class>com.interface21.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <!--
+    - Maps the example dispatcher to /example/*. All handler mappings in
+    - example-servlet.xml will by default be applied to this subpath.
+    - If a mapping isn't a /* subpath, the handler mappings are considered
+    - relative to the web app root.
+    -
+    - A single dispatcher could get mapped to multiple paths, like any servlet.
+    -->
+	<servlet-mapping>
+    <servlet-name>example</servlet-name>
+    <url-pattern>/example/*</url-pattern>
+  </servlet-mapping>
+
+</web-app>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context definition for "example" DispatcherServlet.
+  -->
+
+<beans>
+
+	<!--
+	  - Due to the dispatcher mapping in web.xml and the default BeanNameUrlHandlerMapping
+	  - in this context, "http://localhost/example/test1" will trigger this controller.
+	  -
+	  - Due to the default InternalResourceViewResolver, returned view names get treated
+	  - as internal resources, e.g. JSPs: "/test.jsp" or "/WEB-INF/jsp/test.jsp" will
+	  - render the respective file. So with the default resolver, controllers have to
+	  - specify the whole resource path as view name (see below for an alternative).
+	  -
+	  - HandlerMapping and ViewResolver are simple interfaces: Choose one of Spring's
+	  - provided implementations, or write your own one.
+	  -
+	  - A very simple Controller implementation could look as follows:
+	  -
+	  -   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) {
+	  -     return new ModelAndView("/test.jsp");
+	  -   }
+	  -
+	  - Or for writing the response directly:
+	  -
+	  -   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) {
+	  -     response.getWriter().write("This is a test");
+	  -     return null;
+	  -   }
+    -->
+	<bean id="exampleController" name="/test1" class="example.ExampleController"/>
+
+	<!--
+	  - Optional: Explicit InternalResourceViewResolver definition,
+	  - specifying view class, name prefix, and name suffix.
+	  -
+	  - Specifying the JstlView class instead of the default InternalResourceView
+	  - exports Spring's message source and the current user locale as standard
+	  - JSTL attributes, to be leveraged by JSTL fmt tags.
+	  -
+	  - A prefix/suffix combination allows for symbolic view names to be returned
+	  - by controllers, still getting straightly mapped to internal resources.
+	  - Example: view name "test" -> resource "/WEB-INF/jsp/test.jsp".
+	  -
+	  - For more sophisticated mappings, consider ResourceBundleViewResolver
+	  - (see "webapp-typical" skeleton) or XmlViewResolver.
+	  -->
+	<!--
+	<bean id="viewResolver" class="com.interface21.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"><value>com.interface21.web.servlet.view.JstlView</value></property>
+		<property name="prefix"><value>/WEB-INF/jsp/</value></property>
+		<property name="suffix"><value>.jsp</value></property>
+	</bean>
+	-->
+
+</beans>

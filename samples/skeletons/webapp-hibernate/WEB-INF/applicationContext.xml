@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context definition for a web app that uses Hibernate.
+  -
+  - Does not depend on web infrastructure or any web-specific classes!
+  - Assumes running in a J2EE environment in the "dataSource" definition, as
+  - it looks for a "java:comp/env/jdbc/myds" JNDI DataSource, just like Hibernate
+  - does according to hibernate.cfg.xml.
+  -
+  - Such a context definition and its Hibernate configuration can be reused in
+  - test environments or standalone applications if leveraging the mock JNDI
+  - environment in com.interface21.jndi.mock, binding a DataSource instance like
+  - DriverManagerDataSource or a Commons DBCP BasicDataSource to the expected
+  - JNDI location.
+  -->
+
+<beans>
+
+	<!-- ========================= GENERAL DEFINITIONS ========================= -->
+
+	<!--
+	  - The message source for this context, loaded from localized "messages_xx" files
+	  - in the classpath, i.e. "/WEB-INF/classes/messages.properties" or
+	  - "/WEB-INF/classes/messages_de.properties".
+	  -
+	  - "getMessage" calls to this context will use this source.
+	  - Child contexts can have their own message sources, inheriting all messages from this
+	  - source, being able to define new messages and override ones defined in this source.
+	  -->
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">
+		<property name="basename"><value>messages</value></property>
+	</bean>
+
+
+	<!-- ========================= PERSISTENCE DEFINITIONS ========================= -->
+
+	<!--
+	  - Builds a Hibernate SessionFactory and makes it available as bean reference.
+	  - By default, uses hibernate.cfg.xml in the root of the classpath for configuration.
+	  -
+	  - This SessionFactory will use the JDBC DataSource specified in its configuration.
+	  - To be able to share transactions with plain JDBC access code, that DataSource
+	  - should match the one defined for data access objects in this application context.
+	  -
+	  - This definition can be replaced by a JndiObjectFactoryBean definition for fetching
+	  - a JNDI-bound SessionFactory, but this only makes sense when using Hibernate's
+	  - JCA Connector (not recommended for most types of applications).
+	  -->
+	<bean id="sessionFactory" class="com.interface21.orm.hibernate.LocalSessionFactoryBean"/>
+
+	<!--
+	  - Optional: DataSource definition that matches the one that Hibernate uses,
+	  - as specified in the SessionFactory's configuration file, to be able to share
+	  - transactions with plain JDBC access code.
+	  -
+	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
+	  - By default, "java:comp/env/" will be prepended if not already specified.
+	  -->
+	<!--
+	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+	  <property name="jndiName"><value>jdbc/myds</value></property>
+	</bean>
+	-->
+
+	<!--
+	  - Defines a transaction manager for usage in business or data access objects.
+	  -
+	  - No special treatment by the context, just a bean instance available as reference
+	  - for business objects that want to handle transactions, e.g. via TransactionTemplate.
+	  -->
+	<bean id="transactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
+
+	<!--
+	  - Alternative transaction manager for usage in business or data access objects.
+	  - Can be used as drop-in replacement for JtaTransactionManager if just performing
+	  - transactions on a single Hibernate SessionFactory. Does not depend on JTA!
+	  -
+	  - Needs a SessionFactory reference that it should handle transactions for.
+	  - Can optionally take a DataSource reference that it should export Hibernate
+	  - transactions for, to be able to share transactions with plain JDBC access code.
+	  -->
+	<!--
+	<bean id="transactionManager" class="com.interface21.orm.hibernate.HibernateTransactionManager">
+		<property name="sessionFactory"><ref bean="sessionFactory"/></property>
+		<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
+	-->
+
+
+	<!-- ========================= BUSINESS DEFINITIONS ========================= -->
+
+	<!--
+	  - Example data access object, to be used higher-level objects in this context
+	  - as <ref bean="exampleDataAccessObject") bean reference.
+	  -
+	  - Can also be used by web controllers or any other clients of this context,
+	  - either via context.getBean("exampleDataAccessObject") or as
+	  - <ref external="exampleDataAccessObject") bean reference -
+	  - but shouldn't for the sake of clear application layering.
+	  -
+	  - Is assumed to use the SessionFactory reference, handed to it via a
+	  - "setSessionFactory" bean property setter, probably with HibernateTemplate.
+    -->
+	<bean id="exampleDataAccessObject" class="example.ExampleDataAccessObject">
+		<property name="sessionFactory"><ref bean="sessionFactory"/></property>
+	  <property name="exampleParam"><value>someValue</value></property>
+	</bean>
+
+	<!--
+	  - Example business object, to be used by web controllers or any other clients
+	  - of this context, either via context.getBean("exampleBusinessObject") or as
+	  - <ref external="exampleBusinessObject") bean reference.
+	  -
+	  - Is assumed to use the transaction manager bean, probably with TransactionTemplate
+	  - for programmatic transaction demarcation, and the above data access object.
+	  - The references get handed to "setTransactionManager" resp. "setDataAccessObject"
+	  - bean property setters.
+	  -
+	  - Note: Does not need to be aware that it works with a Hibernate data access object!
+	  -->
+	<bean id="exampleBusinessObject" class="example.ExampleBusinessObject">
+		<property name="transactionManager"><ref bean="transactionManager"/></property>
+		<property name="dataAccessObject"><ref bean="exampleDataAccessObject"/></property>
+	  <property name="exampleParam"><value>someOtherValue</value></property>
+	</bean>
+
+</beans>

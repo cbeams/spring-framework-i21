@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context definition for "example" DispatcherServlet.
+  -
+  - Heavily depended on web infrastructure, naturally.
+  -->
+
+<beans>
+
+	<!-- ========================= GENERAL DEFINITIONS ========================= -->
+
+	<!--
+	  - The message source for this servlet, loaded from localized "example-messages_xx"
+	  - classpath files, i.e. "/WEB-INF/classes/example-messages.properties".
+	  -
+	  - "getMessage" calls to this context will use this source first, falling back to
+	  - the root context's. This means that this child context inherits all messages
+	  - from the parent's source, but is able to define new messages and override ones
+	  - defined in the parent's source.
+	  -->
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource" >
+		<property name="basename"><value>example-messages</value></property>
+	</bean>
+
+	<!--
+	  - Locale resolution via cookie instead of evaluating the browser locale.
+	  - Locale changes will send a new cookie to the client.
+	  -->
+	<bean id="localeResolver" class="com.interface21.web.servlet.i18n.CookieLocaleResolver"/>
+
+	<!--
+	  - Theme resolution via cookie instead of the fixed one named "theme".
+	  - Theme changes will send a new cookie to the client.
+	  -->
+	<bean id="themeResolver" class="com.interface21.web.servlet.theme.CookieThemeResolver"/>
+
+
+	<!-- ========================= MAPPING DEFINITIONS ========================= -->
+
+	<!--
+	 - Explicit URL handler mapping instead of default BeanNameUrlHandlerMapping.
+	 -->
+	<bean id="urlMapping" class="com.interface21.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<value>
+				/mytest1=/exampleController
+				/myform=/exampleFormController
+				/mymulti*/exampleMultiController
+			</value>
+		</property>
+	</bean>
+
+	<!--
+	  - Explicit view mappings in bundle instead of default InternalResourceViewResolver.
+	  - Fetches the view mappings from localized "views_xx" classpath files, i.e.
+	  - "/WEB-INF/classes/views.properties" or "/WEB-INF/classes/views_de.properties".
+	  -
+	  - Symbolic view names returned by controllers will be resolved in the respective
+	  - properties file, allowing for arbitrary mappings between names and resources.
+	  -->
+	<bean id="viewResolver" class="com.interface21.web.servlet.view.ResourceBundleViewResolver">
+		<property name="basename"><value>views</value></property>
+	</bean>
+
+	<!--
+	  - Alternative view resolver, fetching the view mappings from an XML bean
+	  - definition file (with <bean ...> syntax) instead of a properties file.
+	  - Does not support localized view resolution.
+	  -->
+	<!--
+	<bean id="viewResolver" class="com.interface21.web.servlet.view.XmlViewResolver">
+		<property name="location"><value>/WEB-INF/views.xml</value></property>
+	</bean>
+	-->
+
+
+	<!-- ========================= CONTROLLER DEFINITIONS ========================= -->
+
+	<!--
+	  - Simple Controller implementation, available at /example/mytest1
+	  - (according to the URL handler mapping definition above).
+	  - Uses the ExampleBusinessObject defined in the root application context.
+	  -->
+	<bean id="exampleController" class="example.ExampleController">
+		<property name="businessObject"><ref external="exampleBusinessObject"/></property>
+	</bean>
+
+	<!--
+	  - Validator for ExampleFormBean, implementing Spring's Validator interface.
+	  - Could also be defined in the root application context, if generic enough.
+	  -->
+	<bean id="exampleValidator" class="example.ExampleFormBeanValidator"/>
+
+	<!--
+	  - SimpleFormController definition, available at /example/myform
+	  - (according to the URL handler mapping definition above).
+	  - Uses the ExampleFormBeanValidator defined above.
+	  -->
+	<bean id="exampleFormController" class="com.interface21.web.servlet.mvc.FormControllerTestSuite">
+		<property name="beanName"><value>exampleFormBean</value></property>
+		<property name="commandClass"><value>example.ExampleFormBean</value></property>
+		<property name="validator"><ref bean="exampleValidator"/></property>
+		<property name="formView"><value>example1</value></property>
+		<property name="successView"><value>example2</value></property>
+	</bean>
+
+	<!--
+	  - Method name resolver definition for MultiActionControllers,
+	  - mapping certain URLs to certain methods of the controller class.
+	  -->
+	<bean id="exampleMultiMethodNameResolver" class="com.interface21.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<value>
+				/mymulti/mycommand1=exampleHandlerMethod
+				/mymulti/mycommand2=anotherExampleHandlerMethod
+      </value>
+		</property>
+	</bean>
+
+	<!--
+	  - MultiActionController implementation, available at /example/mymulti*
+	  - (according to the URL handler mapping definition above).
+	  - Uses the MethodNameResolver definition defined above.
+	  -->
+	<bean id="exampleMultiController" class="werk3.example.ExampleMultiController">
+		<property name="methodNameResolver"><ref bean="exampleMultiMethodNameResolver"/></property>
+	</bean>
+
+</beans>

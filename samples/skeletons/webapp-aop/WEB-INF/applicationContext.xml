@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Root application context definition for a web app that leverages AOP.
+  -
+  - Does not depend on web infrastructure or any web-specific classes!
+  - Assumes running in a J2EE environment in the "dataSource" definition, as
+  - it looks for a "java:comp/env/jdbc/myds" JNDI DataSource, but that can be
+  - replaced easily (as noted). Such a context definition can thus be reused
+  - in test environments or standalone applications without any hassle.
+  -->
+
+<beans>
+
+	<!-- ========================= GENERAL DEFINITIONS ========================= -->
+
+	<!--
+	  - The message source for this context, loaded from localized "messages_xx" files
+	  - in the classpath, i.e. "/WEB-INF/classes/messages.properties" or
+	  - "/WEB-INF/classes/messages_de.properties".
+	  -
+	  - "getMessage" calls to this context will use this source.
+	  - Child contexts can have their own message sources, inheriting all messages from this
+	  - source, being able to define new messages and override ones defined in this source.
+	  -->
+	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">
+		<property name="basename"><value>messages</value></property>
+	</bean>
+
+
+	<!-- ========================= PERSISTENCE DEFINITIONS ========================= -->
+
+	<!--
+	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
+	  - By default, "java:comp/env/" will be prepended if not already specified.
+	  -->
+	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+	  <property name="jndiName"><value>jdbc/myds</value></property>
+	</bean>
+
+	<!--
+	  - Alternative DataSource for non-J2EE environments.
+	  - Can be used as a drop-in replacement for JNDI DataSource definitions, as all
+	  - objects that depend on it will still get their expected DataSource reference,
+	  - just a different one from a different source.
+	  -
+	  - DriverManagerDataSource simply creates a new Connection on each getConnection
+	  - call, it doesn't pool. Consider Apache's Jakarta Commons DBCP for a real pool,
+	  - defining a org.apache.commons.dbcp.BasicDataSource here, with same parameters.
+	  -->
+	<!--
+	<bean id="dataSource" class="com.interface21.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
+		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
+		<property name="username"><value>sa</value></property>
+		<property name="password"><value></value></property>
+	</bean>
+	-->
+
+	<!--
+	  - Defines a transaction manager for usage in business or data access objects.
+	  -
+	  - No special treatment by the context, just a bean instance available as reference
+	  - for business objects that want to handle transactions, e.g. via TransactionTemplate.
+	  -->
+	<bean id="transactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
+
+	<!--
+	  - Alternative transaction manager for usage in business or data access objects.
+	  - Can be used as drop-in replacement for JtaTransactionManager if just performing
+	  - transactions on a single JDBC DataSource. Does not depend on JTA availability!
+	  -
+	  - Needs a DataSource reference that it should handle transactions for.
+	  -->
+	<!--
+	<bean id="transactionManager" class="com.interface21.transaction.datasource.DataSourceTransactionManager">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
+	-->
+
+
+	<!-- ========================= BUSINESS DEFINITIONS ========================= -->
+
+	<!--
+	  - Example data access object, to be used higher-level objects in this context
+	  - as <ref bean="exampleDataAccessObject") bean reference.
+	  -
+	  - Can also be used by web controllers or any other clients of this context,
+	  - either via context.getBean("exampleDataAccessObject") or as
+	  - <ref external="exampleDataAccessObject") bean reference -
+	  - but shouldn't for the sake of clear application layering.
+	  -
+	  - Is assumed to use the DataSource reference, handed to it via a "setDataSource"
+	  - bean property setter, probably with JdbcTemplate. The parameter value for
+	  - "exampleParam" is also applied via a "setExampleParam" method. Thus, this object
+	  - can be a standard JavaBean that does not have to be aware of the Spring context!
+    -->
+	<bean id="exampleDataAccessObject" class="example.ExampleDataAccessObject">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+	  <property name="exampleParam"><value>someValue</value></property>
+	</bean>
+
+	<!--
+	  - Example business object target, not meant to be used directly.
+	  - Instead, the AOP proxy named "exampleBusinessObject" serves as public facade.
+	  -
+	  - Is assumed to use the transaction manager bean, probably with TransactionTemplate
+	  - for programmatic transaction demarcation, and the above data access object.
+	  - The references get handed to "setTransactionManager" resp. "setDataAccessObject"
+	  - bean property setters. The parameter value for "exampleParam" is also applied
+	  - via a "setExampleParam" method. Thus, this object can be a standard JavaBean
+	  - that does not have to be aware of the Spring application context!
+	  -
+	  - Note: Does not need to be aware that it works with a JDBC data access object!
+	  -->
+	<bean id="exampleBusinessObjectTarget" class="example.ExampleBusinessObject">
+		<property name="transactionManager"><ref bean="transactionManager"/></property>
+		<property name="dataAccessObject"><ref bean="exampleDataAccessObject"/></property>
+	  <property name="exampleParam"><value>someOtherValue</value></property>
+	</bean>
+
+	<!--
+	  - Transaction interceptor definition that specifies a required transaction for
+	  - 2 of ExampleBusinessObject's methods. Needs to be registered with an AOP proxy
+	  - to actually get applied.
+	  -->
+	<bean id="exampleTransactionInterceptor" class="com.interface21.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager"><ref bean="transactionManager"/></property>
+		<property name="transactionAttributeSource">
+			<value>
+				example.ExampleBusinessObject.exampleMethod=PROPAGATION_REQUIRED
+				example.ExampleBusinessObject.anotherExampleMethod=PROPAGATION_REQUIRED
+      </value>
+		</property>
+	</bean>
+
+	<!--
+		- Proxy for the example business object, to be used by web controllers or any
+		- other clients of this context, either via context.getBean("exampleBusinessObject")
+		- or as <ref external="exampleBusinessObject") bean reference.
+		-
+		- Wraps "exampleBusinessObjectTarget", applying "transactionInterceptor" on
+		- method calls. According to the interceptor configuration, ExampleBusinessObject's
+		- "exampleMethod" and "anotherExampleMethod" methods will automatically get
+		- executed within a transaction.
+		-
+		- See "webapp-typical" skeleton for a non-AOP transaction pattern.
+		-->
+	<bean id="exampleBusinessObject" class="com.interface21.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces"><value>example.ExampleBusinessInterface</value></property>
+		<property name="interceptorNames">
+			<list>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

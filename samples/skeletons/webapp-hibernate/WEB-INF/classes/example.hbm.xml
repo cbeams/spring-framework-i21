@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!--
+  - Sample Hibernate mapping file.
+  -->
+
+<hibernate-mapping>
+
+	<!--
+	  - Mapping for class ExamplePersistentObject.
+	  - Full JVM-level caching via Apache JCS activated.
+	  -->
+
+	<class name="example.ExamplePersistentObject" table="example">
+
+		<jcs-cache usage="read-write"/>
+
+	  <id name="id" column="example_id" type="int" unsaved-value="-1"/>
+
+		<property name="name" column="name"/>
+
+		<many-to-one name="parentExample" column="parent_example_id" class="example.ExamplePersistentObject" outer-join="false"/>
+
+	</class>
+
+</hibernate-mapping>

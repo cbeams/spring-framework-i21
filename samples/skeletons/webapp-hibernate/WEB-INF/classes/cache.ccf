@@ -1,0 +1,14 @@
+# Sample Apache JCS configuration for Hibernate
+
+# DEFAULT CACHE REGION (memory cache)
+jcs.default=DC
+jcs.default.cacheattributes=org.apache.jcs.engine.CompositeCacheAttributes
+jcs.default.cacheattributes.MaxObjects=2000
+jcs.default.cacheattributes.MemoryCacheName=org.apache.jcs.engine.memory.lru.LRUMemoryCache
+jcs.default.elementattributes=org.apache.jcs.engine.ElementAttributes
+jcs.default.elementattributes.IsEternal=false
+jcs.default.elementattributes.MaxLifeSeconds=24000
+jcs.default.elementattributes.IdleTime=180000
+jcs.default.elementattributes.IsSpool=false
+jcs.default.elementattributes.IsRemote=false
+jcs.default.elementattributes.IsLateral=false
