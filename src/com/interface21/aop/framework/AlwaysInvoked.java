@@ -17,7 +17,7 @@ import org.aopalliance.MethodInterceptor;
  * @since 04-Apr-2003
  * @version $Revision$
  */
-public class AlwaysInvoked implements MethodPointcut {
+public class AlwaysInvoked implements DynamicMethodPointcut {
 
 	private final MethodInterceptor interceptor;
 	

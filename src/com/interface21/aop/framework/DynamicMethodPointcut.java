@@ -14,11 +14,17 @@ import org.aopalliance.MethodInterceptor;
  * Interface to be implemented by objects that can cause
  * conditional invocation of an Interceptor depending on
  * the method, arguments and attributes passed.
+ * This differs from a <i>static</i> pointcut, which depends only
+ * on the static part of the joinpoint, and cannot involve arguments.
+ * Static pointcuts can be expected to outperform dynamic pointcuts,
+ * as it's possible to determine whether or not to apply the
+ * pointcut before processing individual method calls, meaning that
+ * a regular expression or the like may need to be evaluated only once.
  * @author Rod Johnson
  * @since 03-Apr-2003
- * @version $Revision$
+ * @version $Id$
  */
-public interface MethodPointcut {
+public interface DynamicMethodPointcut {
 
 	/**
 	 * Return the interceptor to run conditionally

@@ -172,16 +172,16 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	private void refreshInterceptorChain() {
 		List pointcuts = getMethodPointcuts();
 		for (Iterator iter = pointcuts.iterator(); iter.hasNext();) {
-			MethodPointcut pc = (MethodPointcut) iter.next();
+			DynamicMethodPointcut pc = (DynamicMethodPointcut) iter.next();
 			String beanName = (String) this.sourceMap.get(pc);
 			if (beanName != null) {
 				logger.info("Refreshing bean named '" + beanName + "'");
 			
 				Object bean = this.beanFactory.getBean(beanName);
-				MethodPointcut pc2 = null;
+				DynamicMethodPointcut pc2 = null;
 				// Bean may be a MethodPointcut or a target to wrap
-				if (bean instanceof MethodPointcut) {
-					pc2 = (MethodPointcut) bean;
+				if (bean instanceof DynamicMethodPointcut) {
+					pc2 = (DynamicMethodPointcut) bean;
 				}
 				else {
 					// The special case when the object was a target
@@ -202,7 +202,7 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	 * Add all global interceptors and pointcuts.
 	 */
 	private void addGlobalInterceptorsAndPointcuts(ListableBeanFactory beanFactory, String prefix) {
-		Collection globalPointcutNames = BeanFactoryUtils.beanNamesIncludingAncestors(MethodPointcut.class, beanFactory);
+		Collection globalPointcutNames = BeanFactoryUtils.beanNamesIncludingAncestors(DynamicMethodPointcut.class, beanFactory);
 		Collection globalInterceptorNames = BeanFactoryUtils.beanNamesIncludingAncestors(Interceptor.class, beanFactory);
 		List beans = new ArrayList(globalPointcutNames.size() + globalInterceptorNames.size());
 		Map names = new HashMap();
@@ -239,8 +239,8 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	 */
 	private void addPointcutOrInterceptor(Object next, String name) {
 		logger.debug("Adding pointcut or interceptor [" + next + "] with name [" + name + "]");
-		if (next instanceof MethodPointcut) {
-			addMethodPointcut((MethodPointcut) next);
+		if (next instanceof DynamicMethodPointcut) {
+			addMethodPointcut((DynamicMethodPointcut) next);
 		}
 		else if (next instanceof Interceptor) {
 			addInterceptor((Interceptor) next);

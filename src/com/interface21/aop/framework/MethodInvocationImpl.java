@@ -87,7 +87,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 		// TODO make more efficient. Could just hold indices in an int array
 		this.interceptors = new LinkedList();
 		for (Iterator iter = pointcuts.iterator(); iter.hasNext();) {
-			MethodPointcut pc = (MethodPointcut) iter.next();
+			DynamicMethodPointcut pc = (DynamicMethodPointcut) iter.next();
 			if (pc.applies(m, arguments, attributeRegistry)) {
 				this.interceptors.add(pc.getInterceptor());
 			}

@@ -255,7 +255,7 @@ public class ProxyFactoryBeanTests extends TestCase {
 	/**
 	 * Fires only on void methods. Saves list of methods intercepted.
 	 */
-	public static class PointcutForVoid implements MethodPointcut {
+	public static class PointcutForVoid implements DynamicMethodPointcut {
 		
 		public static List methodNames = new LinkedList();
 		

@@ -137,7 +137,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		this.target = null;
 		
 		for (int i = 0; i < this.pointcuts.size(); i++) {
-			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			DynamicMethodPointcut pc = (DynamicMethodPointcut) this.pointcuts.get(i);
 			if (pc.getInterceptor() instanceof ProxyInterceptor) {
 				if (i < pointcuts.size() -1) {
 					//System.out.println("HaCK: commented out");
@@ -159,7 +159,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	public final boolean removeInterceptor(Interceptor interceptor) {
 		boolean removed = false;
 		for (int i = 0; i < this.pointcuts.size() && !removed; i++) {
-			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			DynamicMethodPointcut pc = (DynamicMethodPointcut) this.pointcuts.get(i);
 			if (pc.getInterceptor() == interceptor) {
 				this.pointcuts.remove(i);
 				removed = true;
@@ -260,7 +260,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	/**
 	 * @see com.interface21.aop.framework.ProxyConfig#addMethodPointcut(int, com.interface21.aop.framework.MethodPointcut)
 	 */
-	public void addMethodPointcut(int pos, MethodPointcut pc) {
+	public void addMethodPointcut(int pos, DynamicMethodPointcut pc) {
 		this.pointcuts.add(pos, pc);
 		// If we added it to the end of the list, we may need to update target
 		try {
@@ -278,7 +278,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	/**
 	 * @see com.interface21.aop.framework.ProxyConfig#addMethodPointcut(com.interface21.aop.framework.MethodPointcut)
 	 */
-	public void addMethodPointcut(MethodPointcut pc) {
+	public void addMethodPointcut(DynamicMethodPointcut pc) {
 		int pos = (this.pointcuts != null) ? this.pointcuts.size() : 0;
 		addMethodPointcut(pos, pc);
 	}
@@ -299,7 +299,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * wasn't found in the list of pointcuts, this method
 	 * returns false and does nothing.
 	 */
-	public final boolean replaceMethodPointcut(MethodPointcut pc1, MethodPointcut pc2) {
+	public final boolean replaceMethodPointcut(DynamicMethodPointcut pc1, DynamicMethodPointcut pc2) {
 		if (!this.pointcuts.contains(pc1))
 			return false;
 		this.pointcuts.set(this.pointcuts.indexOf(pc1), pc2);
@@ -316,7 +316,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		if (this.pointcuts.size() == 0)
 			return false;
 		for (int i = 0; i < this.pointcuts.size(); i++) {
-			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			DynamicMethodPointcut pc = (DynamicMethodPointcut) this.pointcuts.get(i);
 			if (pc.getInterceptor() == mi) 
 				return true;
 		}
@@ -334,7 +334,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 			return 0;
 		int count = 0;
 		for (int i = 0; i < this.pointcuts.size(); i++) {
-			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			DynamicMethodPointcut pc = (DynamicMethodPointcut) this.pointcuts.get(i);
 			if (interceptorClass.isAssignableFrom(pc.getInterceptor().getClass())) 
 				++count;
 		}
