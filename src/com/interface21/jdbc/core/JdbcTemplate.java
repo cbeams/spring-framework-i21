@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.Statement;
 
 import javax.sql.DataSource;
 
@@ -56,11 +57,24 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
  */
 public class JdbcTemplate {
 	
+	/**
+	 * Constant for use as a parameter to query methods to force use of a PreparedStatement
+	 * rather than a Statement, even when there are no bind parameters.
+	 * For example, query(sql, JdbcTemplate.PREPARE_STATEMENT, callbackHandler)
+	 * will force the use of a JDBC PreparedStatement even if the SQL
+	 * passed in has no bind parameters.
+	 */
+	public static final PreparedStatementSetter PREPARE_STATEMENT = new PreparedStatementSetter() {
+		public void setValues(PreparedStatement ps) throws SQLException {
+			// do nothing
+		}
+	};
+	
     //-------------------------------------------------------------------------
     // Instance data
     //-------------------------------------------------------------------------
     /**
-     * Create a Java 1.4-style logging category.
+     * Create a Log4j logging category.
      */
     protected final Logger logger = Logger.getLogger(getClass());
 
@@ -147,57 +161,70 @@ public class JdbcTemplate {
     //-------------------------------------------------------------------------
     /**
      * Execute a query given static SQL.
-     * Still uses a prepared statement.
+     * Uses a JDBC Statement, not a PreparedStatement. If you want to execute
+     * a static query with a PreparedStatement, use the overloaded query method
+     * with a the PREPARE_STATEMENT PreparedStatementSetter constant as a parameter.
+     * <br>
+     * In most cases the query() method should be preferred to the parallel
+     * doWithResultSetXXXX() method. The doWithResultSetXXXX() methods
+     * are included to allow full control over the extraction of data
+     * from ResultSets and to facilitate integration with third-party
+     * software.
      * @param sql SQL query to execute
      * @param callbackHandler object that will extract results
      * @throws DataAccessException if there is any problem executing
      * the query
      */
     public void query(String sql, RowCallbackHandler callbackHandler) throws DataAccessException {
-		if (sql == null) 
-			throw new InvalidDataAccessApiUsageException("SQL may not be null"); 
-        
-	Connection con = null;
-	PreparedStatement ps = null;
-	ResultSet rs = null;
-	ReadOnlyResultSet rors = null;
-	try {
-	    con = DataSourceUtils.getConnection(this.dataSource);
-	    ps = con.prepareStatement(sql);
-	    rs = ps.executeQuery();
-	    rors = new ReadOnlyResultSet(rs);
+    	doWithResultSetFromStaticQuery(sql, new RowCallbackHandlerResultSetExtracter(callbackHandler));
+    }
+    
+	/**
+	* Execute a query given static SQL.
+	* Uses a JDBC Statement, not a PreparedStatement. If you want to execute
+	* a static query with a PreparedStatement, use the overloaded query method
+	* with a NOP PreparedStatement setter as a parameter.
+	* @param sql SQL query to execute
+	* @param rse object that will extract all rows of results
+	* @throws DataAccessException if there is any problem executing
+	* the query
+	*/
+   public void doWithResultSetFromStaticQuery(String sql, ResultSetExtracter rse) throws DataAccessException {
+		if (sql == null)
+			throw new InvalidDataAccessApiUsageException("SQL may not be null");
+		if (containsBindVariables(sql))
+			throw new InvalidDataAccessApiUsageException("Cannot execute '" + sql + "' as a static query: it contains bind variables");
 			
-	    if (logger.isInfoEnabled())
-		logger.info("Executing static SQL query '" + sql + "'");
-
-	    while (rs.next()) {
-		callbackHandler.processRow(rors);
-	    }
+		Connection con = null;
+		Statement s = null;
+		ResultSet rs = null;
+		try {
+			con = DataSourceUtils.getConnection(this.dataSource);
+			s = con.createStatement();
+			rs = s.executeQuery(sql);
+		
+			if (logger.isInfoEnabled())
+				logger.info("Executing static SQL query '" + sql + "' using a java.sql.Statement");
 			
-	    SQLWarning warning = ps.getWarnings();
-	    rs.close();
+			rse.extractData(rs);
 			
-	    // Since rors is a wrapper around rs, calling the close() method is 
-	    // forbidden. Since rs is already closed, we only need to make it 
-	    // null.
-	    rors = null;
-			
-	    ps.close();
-			
-	    throwExceptionOnWarningIfNotIgnoringWarnings(warning);
-	}
-	catch (SQLException ex) {
-	    throw this.exceptionTranslater.translate("JdbcTemplate.query(sql)", sql, ex);
-	}
-	finally {
-	    DataSourceUtils.closeConnectionIfNecessary(this.dataSource, con);
-	}
-    } 	// query
+			SQLWarning warning = s.getWarnings();
+			rs.close();
+			s.close();
+		
+			throwExceptionOnWarningIfNotIgnoringWarnings(warning);
+		}
+		catch (SQLException ex) {
+			throw this.exceptionTranslater.translate("JdbcTemplate.query(sql)", sql, ex);
+		}
+		finally {
+			DataSourceUtils.closeConnectionIfNecessary(this.dataSource, con);
+		}
+	} 	// doWithResultSetFromStaticQuery
 	
 
     /**
-     * Query using a prepared statement. Most other query methods use
-     * this method.
+     * Query using a prepared statement.
      * @param psc Callback handler that can create a PreparedStatement
      * given a Connection
      * @param callbackHandler object that will extract results,
@@ -205,31 +232,32 @@ public class JdbcTemplate {
      * @throws DataAccessException if there is any problem
      */
     public void query(PreparedStatementCreator psc, RowCallbackHandler callbackHandler) throws DataAccessException {
+		doWithResultSetFromPreparedQuery(psc, new RowCallbackHandlerResultSetExtracter(callbackHandler));
+    }
+    
+    
+	/**
+	 * Query using a prepared statement. Most other query methods use
+	 * this method.
+	 * @param psc Callback handler that can create a PreparedStatement
+	 * given a Connection
+	 * @param rse object that will extract results.
+	 * @throws DataAccessException if there is any problem
+	 */	
+	public void doWithResultSetFromPreparedQuery(PreparedStatementCreator psc, ResultSetExtracter rse) throws DataAccessException {
 	Connection con = null;
 	ResultSet rs = null;
-	ReadOnlyResultSet rors = null;
 	try {
 	    con = DataSourceUtils.getConnection(this.dataSource);
 	    PreparedStatement ps = psc.createPreparedStatement(con);
 	    if (logger.isInfoEnabled())
 		logger.info("Executing SQL query using PreparedStatement: [" + psc + "]");
 	    rs = ps.executeQuery();
-	    rors = new ReadOnlyResultSet(rs);
-
-	    while (rs.next()) {
-		if (logger.isDebugEnabled())
-		    logger.debug("Processing row of ResultSet");
-		callbackHandler.processRow(rors);
-	    }
+	    
+		rse.extractData(rs);
 			
 	    SQLWarning warning = ps.getWarnings();
 	    rs.close();
-			
-	    // Since rors is a wrapper around rs, calling the close() method is 
-	    // forbidden. Since rs is already closed, we only need to make it 
-	    // null.
-	    rors = null;
-
 	    ps.close();
 	    throwExceptionOnWarningIfNotIgnoringWarnings(warning);
 	}
@@ -239,7 +267,7 @@ public class JdbcTemplate {
 	finally {
 	    DataSourceUtils.closeConnectionIfNecessary(this.dataSource, con);
 	}
-    } 	// query
+    } 	// doWithResultSetFromPreparedQuery
     
     
 	/** 
@@ -260,7 +288,7 @@ public class JdbcTemplate {
         
 	   if (pss == null) { 
 		  	// Check there are no bind parameters, in which case pss could not be null 
-			if (sql.indexOf("?") != -1) 
+			if (containsBindVariables(sql))
 				   throw new InvalidDataAccessApiUsageException("SQL '" + sql + "' requires at least one bind variable, but PreparedStatementSetter parameter was null");
 		   query(sql, callbackHandler); 
 	   } 
@@ -277,6 +305,13 @@ public class JdbcTemplate {
 				   } 
 		   }, callbackHandler); 
 	   } 
+	}
+	
+	/**
+	 * Return whether the given SQL String contains bind variables
+	 */
+	private boolean containsBindVariables(String sql) {
+		return sql.indexOf("?") != -1; 
 	}
 
 
@@ -585,5 +620,42 @@ public class JdbcTemplate {
 	    }
 	}
     }
+    
+    
+	/**
+	 * Adapter to enable use of a RowCallbackHandler inside a 
+	 * ResultSetExtracter. Uses a ReadOnlyResultSet to
+	 * ensure that the underlying ResultSet isn't used illegally
+	 * (for example, for navigation).
+	 */
+	private final class RowCallbackHandlerResultSetExtracter implements ResultSetExtracter {
+	
+		/**
+		 * RowCallbackHandler to use to extract data
+		 */
+		private RowCallbackHandler callbackHandler;
+
+		/**
+		 * Construct a new ResultSetExtracter that will use the given
+		 * RowCallbackHandler to process each row.
+		 */
+		public RowCallbackHandlerResultSetExtracter(RowCallbackHandler callbackHandler) {
+			this.callbackHandler = callbackHandler;
+		}
+
+		/**
+		 * @see com.interface21.jdbc.core.ResultSetExtracter#extractData(java.sql.ResultSet)
+		 */
+		public void extractData(ResultSet rs) throws SQLException {
+			ReadOnlyResultSet rors = new ReadOnlyResultSet(rs);
+			while (rs.next()) {
+				callbackHandler.processRow(rors);
+			}
+			//	Since rors is a wrapper around rs, calling the close() method is 
+			 // forbidden. Since rs is already closed, we only need to make it 
+			 // null.
+			 rors = null;
+		}
+	}	// class RowCallbackHandlerResultSetExtracter
 
 } 	// class JdbcTemplate
