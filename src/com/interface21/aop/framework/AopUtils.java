@@ -1,10 +1,15 @@
 
 package com.interface21.aop.framework;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.aopalliance.Invocation;
 
 /**
- * @author rod.johnson
+ * Utility methods used by the AOP framework.
+ * @author Rod Johnson
+ * @version $Id$
  */
 public class AopUtils {
 	
@@ -14,6 +19,24 @@ public class AopUtils {
 	public static Object[] getArguments(Invocation invocation) {
 		// TODO make portable
 		return ((MethodInvocationImpl) invocation).getArguments();
+	}
+
+	/**
+	 * Get all implemented interfaces, even those implemented by superclasses.
+	 * @param clazz
+	 * @return Set
+	 */
+	public static Set findAllImplementedInterfaces(Class clazz) {
+		Set s = new HashSet();
+		Class[] interfaces = clazz.getInterfaces();
+		for (int i = 0; i < interfaces.length; i++) {
+			s.add(interfaces[i]);
+		}
+		Class superclass = clazz.getSuperclass();
+		if (superclass != null) {
+			s.addAll(findAllImplementedInterfaces(superclass));
+		}
+		return s;
 	}
 
 }

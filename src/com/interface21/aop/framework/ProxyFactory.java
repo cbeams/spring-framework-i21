@@ -5,7 +5,6 @@
  
 package com.interface21.aop.framework;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -15,9 +14,9 @@ import java.util.Set;
  * than via a bean factory.
  * This class provides a simple way of obtaining and configuring
  * AOP proxies in code.
- * @author Rod Johnson
  * @since 14-Mar-2003
- * @version $Revision$
+ * @author Rod Johnson
+ * @version $Id$
  */
 public class ProxyFactory extends DefaultProxyConfig {
 	
@@ -29,7 +28,7 @@ public class ProxyFactory extends DefaultProxyConfig {
 		if (target == null)
 			throw new AopConfigException("Can't proxy null object");
 						
-		Set s = findAllImplementedInterfaces(target.getClass());
+		Set s = AopUtils.findAllImplementedInterfaces(target.getClass());
 		
 		if (s.size() == 0)
 			throw new AopConfigException("Can't proxy class " + target.getClass() + 
@@ -54,24 +53,6 @@ public class ProxyFactory extends DefaultProxyConfig {
 			addInterface(interfaces[i]);
 		}
 		// Must add interceptors
-	}
-	
-	/**
-	 * Get all implemented interfaces, even those implemented by superclasses.
-	 * @param clazz
-	 * @return Set
-	 */
-	private static Set findAllImplementedInterfaces(Class clazz) {
-		Set s = new HashSet();
-		Class[] interfaces = clazz.getInterfaces();
-		for (int i = 0; i < interfaces.length; i++) {
-			s.add(interfaces[i]);
-		}
-		Class superclass = clazz.getSuperclass();
-		if (superclass != null) {
-			s.addAll(findAllImplementedInterfaces(superclass));
-		}
-		return s;
 	}
 	
 	/**
