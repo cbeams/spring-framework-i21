@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,23 +26,23 @@ import com.interface21.transaction.interceptor.TransactionAttributeEditor;
  * PropertyEditor implementation. Can convert from Strings to TransactionAttributeSource.
  * Strings are in property syntax, with the form
  * FQN.methodName=&lt;transaction attribute string&gt;
- * For example:
+ *
+ * <p>For example:
  * com.mycompany.mycode.MyClass.myMethod=PROPAGATION_MANDATORY,ISOLATION_DEFAULT
- * The transaction attribute string must be parseable by the
- * TransactionAttributePropertyEditor in this package.
+ * <p>The transaction attribute string must be parseable by the
+ * TransactionAttributeEditor in this package.
+ *
  * TODO address method overloading and * or regexp syntax
+ *
+ * @author Rod Johnson
  * @since 26-Apr-2003
  * @version $Id$
- * @see com.interface21.transaction.interceptor.TransactionAttributeSourceEditor
- * @author Rod Johnson
+ * @see com.interface21.transaction.interceptor.TransactionAttributeEditor
  */
 public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 	
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/**
-	 * @see java.beans.PropertyEditor#setAsText(java.lang.String)
-	 */
 	public void setAsText(String s) throws IllegalArgumentException {
 		MapTransactionAttributeSource mtas = new MapTransactionAttributeSource();
 		if (s == null || "".equals(s)) {
@@ -62,7 +64,7 @@ public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 		}
 		
 		setValue(mtas);
-	}	// setAsText
+	}
 	
 	/**
 	 * Handle a given property describing one transactional method.
@@ -83,40 +85,53 @@ public class TransactionAttributeSourceEditor extends PropertyEditorSupport {
 		try {
 			Class clazz = Class.forName(className);
 			
-			// TODO address method overloading?
-			// at present this will just match the first method
-			// consider EJB syntax (int, String) etc.?
+			// TODO address method overloading? At present this will
+			// simply match all methods that have the given name.
+			// Consider EJB syntax (int, String) etc.?
 			Method[] methods = clazz.getDeclaredMethods();
-			Method m = null;
-			for (int i = 0; i < methods.length && m == null; i++) {
-				if (methods[i].getName().equals(methodName)) {
-					m = methods[i];
+			List matchingMethods = new ArrayList();
+			for (int i = 0; i < methods.length; i++) {
+				if (isMatch(methods[i].getName(), methodName)) {
+					matchingMethods.add(methods[i]);
 				}
 			}
-			if (m == null) 
+			if (matchingMethods.isEmpty())
 				throw new TransactionUsageException("Couldn't find method '" + methodName + "' on " + clazz);
 				
-			// Convert value to a transaction attribute
-			
-			// TODO could keep this as in instance variable? Threading implications?
-			TransactionAttributeEditor pe = transactionAttributePropertyEditor();
+			// convert value to a transaction attribute
+			TransactionAttributeEditor pe = newTransactionAttributeEditor();
 			pe.setAsText(value);
 			TransactionAttribute ta = (TransactionAttribute) pe.getValue();
-			
-			tasi.addTransactionalMethod(m, ta);
+
+			// register all matching methods
+			for (Iterator it = matchingMethods.iterator(); it.hasNext();) {
+				tasi.addTransactionalMethod((Method) it.next(), ta);
+			}
 		}
 		catch (ClassNotFoundException ex) {
 			throw new TransactionUsageException("Class '" + className + "' not found");
 		}
-	}	// handleOneProperty
-	
-	
+	}
+
 	/**
-	 * Getting a TransactionAttributePropertyEditor is in a separate
-	 * protected method to allow for effective unit testing. 
-	 * @return TransactionAttributePropertyEditor
+	 * Return if the given method name matches the mapped name.
+	 * The default implementation checks for direct and "xxx*" matches.
+	 * Can be overridden in subclasses.
+	 * @param methodName the method name of the class
+	 * @param mappedName the name in the descriptor
+	 * @return if the names match
 	 */
-	protected TransactionAttributeEditor transactionAttributePropertyEditor() {
+	protected boolean isMatch(String methodName, String mappedName) {
+		return methodName.equals(mappedName) ||
+		    (mappedName.endsWith("*") && methodName.startsWith(mappedName.substring(0, mappedName.length()-1)));
+	}
+
+	/**
+	 * Getting a TransactionAttributeEditor is in a separate
+	 * protected method to allow for effective unit testing. 
+	 * @return a new TransactionAttributeEditor instance
+	 */
+	protected TransactionAttributeEditor newTransactionAttributeEditor() {
 		return new TransactionAttributeEditor();
 	}
 	
