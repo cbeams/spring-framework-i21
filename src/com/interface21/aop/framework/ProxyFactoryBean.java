@@ -6,60 +6,48 @@
 package com.interface21.aop.framework;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.AspectException;
-import org.aopalliance.AttributeRegistry;
 import org.aopalliance.Interceptor;
 
-import com.interface21.aop.attributes.Attrib4jAttributeRegistry;
 import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.Lifecycle;
 import com.interface21.beans.factory.ListableBeanFactory;
-import com.interface21.util.StringUtils;
+import com.interface21.core.OrderComparator;
 
 /** 
-* FactoryBean implementation for use to source
-* AOP proxies from a Spring BeanFactory. 
-* <br>
-* Interceptors are identified by a CSV list of bean names in the current 
-* bean factory. These beans should be of type Interceptor or MethodPointcut.
-* The last entry in the list can be the name of any bean in the factory.
-* If it's neither an Interceptor or a MethodPointcut, a new InvokerInterceptor
-* is added to wrap it.
-* <br>
-* Global pointcuts can be added at factory level. These are expanded in
-* a CSV interceptor list where a * is included in the list.
-* An interceptor name list may not conclude with a *, as global interceptors
-* cannot invoke targets.
-* <br>
-* TODO there is presently no support for ordering global interceptors,
-* although an ordering mechanism, as for UrlMappings, will probably be added in future.
-* @author Rod Johnson
-* @version $Id$
-*/
+ * FactoryBean implementation for use to source AOP proxies from a Spring BeanFactory.
+ *
+ * <p>Interceptors are identified by a list of bean names in the current bean factory.
+ * These beans should be of type Interceptor or MethodPointcut. The last entry in
+ * the list can be the name of any bean in the factory. If it's neither an Interceptor
+ * or a MethodPointcut, a new InvokerInterceptor is added to wrap it.
+ *
+ * <p>Global interceptors can be added at the factory level. The specified ones are
+ * expanded in an interceptor list where an "xxx*" entry is included in the list,
+ * matching the given prefix with the bean names (e.g. "global*" would match both
+ * "globalBean1" and "globalBean2", "*" all defined interceptors). The matching
+ * interceptors get applied according to their returned order value, if they
+ * implement the Ordered interface. An interceptor name list may not conclude
+ * with a global "xxx*" pattern, as global interceptors cannot invoke targets.
+ *
+ * @author Rod Johnson
+ * @version $Id$
+ */
 public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean, Lifecycle {
 
 	/**
-	 * Bean name prefix identifying a global interceptor or pointcut.
-	 * We need a way to identify globals to avoid interceptor/pointcut beans
-	 * referenced specifically erroneously being treated as globals.
+	 * This suffix in a value in an interceptor list indicates to expand globals.
 	 */
-	public static final String GLOBAL_PREFIX = "g_";
-
-	/**
-	 * This value in an interceptor list indicates to expand globals.
-	 */
-	public static final String GLOBALS = "*";
-
-	private AttributeRegistry attributeRegistry;
+	public static final String GLOBAL_SUFFIX = "*";
 
 	private boolean singleton = true;
 	
@@ -103,14 +91,12 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		setInterfaces(interfaces);
 	}
 
-
 	/**
-	 * Set the CSV list of Interceptor/MethodPointcut bean names. This must
+	 * Set the list of Interceptor/MethodPointcut bean names. This must
 	 * always be set to use this factory bean in a bean factory.
-	 * @param csv
 	 */
-	public void setInterceptorNames(String csv) {
-		this.interceptorNames = StringUtils.commaDelimitedListToStringArray(csv);
+	public void setInterceptorNames(String[] interceptorNames) {
+		this.interceptorNames = interceptorNames;
 	}
 	
 	/**
@@ -120,20 +106,14 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		
 		this.beanFactory = beanFactory;
 			
-		// TODO
-		// configure attribute registry from bean factory
-		// if well-known bean...
-		this.attributeRegistry = new Attrib4jAttributeRegistry();
-		
 		logger.info("Set BeanFactory. Will configure interceptor beans...");
-		
 		createInterceptorChain();
 		
 		// Eagerly create singleton proxy instance if necessary
 		if (isSingleton()) {
 			this.singletonInstance = createInstance();
 		}
-	}	// setBeanFactory
+	}
 
 
 	/**
@@ -149,19 +129,22 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 			throw new AopConfigException("Interceptor names are required");
 			
 		// Globals can't be last
-		if (this.interceptorNames[this.interceptorNames.length - 1].equals(GLOBALS))
+		if (this.interceptorNames[this.interceptorNames.length - 1].endsWith(GLOBAL_SUFFIX)) {
 			throw new AopConfigException("Target required after globals");
-			
+		}
+
 		// Materialize interceptor chain from bean names
 		for (int i = 0; i < this.interceptorNames.length; i++) {
-			logger.debug("Configuring interceptor '" + this.interceptorNames[i] + "'");
+			String name = this.interceptorNames[i];
+			logger.debug("Configuring interceptor '" + name + "'");
 			
-			if (this.interceptorNames[i].equals(GLOBALS)) {
+			if (name.endsWith(GLOBAL_SUFFIX)) {
 				if (!(this.beanFactory instanceof ListableBeanFactory)) {
 					throw new AopConfigException("Can only use global pointcuts or interceptors with a ListableBeanFactory");
 				}
 				else {
-					addGlobalInterceptorsAndPointcuts((ListableBeanFactory) beanFactory);
+					addGlobalInterceptorsAndPointcuts((ListableBeanFactory) this.beanFactory,
+					                                  name.substring(0, name.length() - GLOBAL_SUFFIX.length()));
 				}
 			}
 			else {
@@ -169,9 +152,8 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 				addPointcutOrInterceptor(this.beanFactory.getBean(this.interceptorNames[i]), this.interceptorNames[i]);
 			}
 		}
-	}	// setBeanFactory
-	
-	
+	}
+
 	/**
 	 * Refresh named beans from the interceptor chain.
 	 * We need to do this every time a new prototype instance is
@@ -207,22 +189,32 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		}
 	}
 
-
 	/**
-	 * Add all global interceptors and pointcuts
+	 * Add all global interceptors and pointcuts.
 	 */
-	private void addGlobalInterceptorsAndPointcuts(ListableBeanFactory beanFactory) {
+	private void addGlobalInterceptorsAndPointcuts(ListableBeanFactory beanFactory, String prefix) {
 		String[] globalPointcutNames = beanFactory.getBeanDefinitionNames(MethodPointcut.class);
 		String[] globalInterceptorNames = beanFactory.getBeanDefinitionNames(Interceptor.class);
-		List l = new ArrayList(globalPointcutNames.length + globalInterceptorNames.length);
-		l.addAll(Arrays.asList(globalPointcutNames));
-		l.addAll(Arrays.asList(globalInterceptorNames));
-		// TODO sort using Ordered
-		
-		for (Iterator iter = l.iterator(); iter.hasNext();) {
-			String name = (String) iter.next();
-			if (name.startsWith(GLOBAL_PREFIX)) {
-				addPointcutOrInterceptor(beanFactory.getBean(name), name);
+		List beans = new ArrayList(globalPointcutNames.length + globalInterceptorNames.length);
+		Map names = new HashMap();
+		for (int i = 0; i < globalPointcutNames.length; i++) {
+			String name = globalPointcutNames[i];
+			Object bean = beanFactory.getBean(name);
+			beans.add(bean);
+			names.put(bean, name);
+		}
+		for (int i = 0; i < globalInterceptorNames.length; i++) {
+			String name = globalInterceptorNames[i];
+			Object bean = beanFactory.getBean(name);
+			beans.add(bean);
+			names.put(bean, name);
+		}
+		Collections.sort(beans, new OrderComparator());
+		for (Iterator it = beans.iterator(); it.hasNext();) {
+			Object bean = it.next();
+			String name = (String) names.get(bean);
+			if (name.startsWith(prefix)) {
+				addPointcutOrInterceptor(bean, name);
 			}
 		}
 	}
@@ -237,6 +229,7 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 	 * bean factory.
 	 */
 	private void addPointcutOrInterceptor(Object next, String name) {
+		logger.debug("Adding pointcut or interceptor [" + next + "] with name [" + name + "]");
 		if (next instanceof MethodPointcut) {
 			addMethodPointcut((MethodPointcut) next);
 		}
@@ -258,7 +251,7 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		// prototype instance wouldn't be truly independent, because it might reference
 		// the original instances of prototype interceptors.
 		this.sourceMap.put(next, name);
-	} 	// addPointcutOrInterceptor
+	}
 
 	/**
 	 * Return a proxy. Invoked when clients obtain beans
@@ -318,4 +311,4 @@ public class ProxyFactoryBean extends DefaultProxyConfig implements FactoryBean,
 		this.singleton = singleton;
 	}
 	
-}	// ProxyFactoryBean
+}

@@ -46,7 +46,7 @@
 			Note that "test" is a target. An InvokerInterceptor
 			will be added automatically.
 		-->
-		<property name="interceptorNames"><value>*,test</value></property>		
+		<property name="interceptorNames"><value>global*,test</value></property>
 		
 	</bean>
 	
@@ -116,7 +116,7 @@
 			class="com.interface21.aop.framework.ProxyFactoryBean"
 	>	
 		<property name="proxyInterfaces"><value>com.interface21.beans.ITestBean</value></property>			
-		<property name="interceptorNames"><value>*</value></property>
+		<property name="interceptorNames"><value>global*</value></property>
 	</bean>
 	
 	
@@ -125,20 +125,20 @@
 			class="com.interface21.aop.framework.ProxyFactoryBean"
 	>	
 		<property name="proxyInterfaces"><value>com.interface21.context.ApplicationListener</value></property>			
-		<property name="interceptorNames"><value>debugInterceptor,*,target2</value></property>
+		<property name="interceptorNames"><value>debugInterceptor,global*,target2</value></property>
 	</bean>
 	
 	<!--
 		Global debug interceptor
 	-->
-	<bean id="g_debug"
+	<bean id="global_debug"
 		class="com.interface21.aop.interceptor.DebugInterceptor">
 	</bean>
 	
 	<!--
 		Will add aspect interface to all beans exposing globals
 	-->
-	<bean id="g_aspectInterface"
+	<bean id="global_aspectInterface"
 		class="com.interface21.aop.framework.ProxyFactoryBeanTests$GlobalAspectInterfaceInterceptor">
 	</bean>
 	

@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import org.aopalliance.AspectException;
 import org.aopalliance.AttributeRegistry;
 import org.aopalliance.MethodInterceptor;
