@@ -272,7 +272,6 @@
 			>
 			<src path="${test.dir}"/>
 
-			<exclude name="com/interface21/jdbc/object/**"/>
 			<exclude name="**/jta/**"/>
 
 			<!-- Will pull in dependencies as required  -->
