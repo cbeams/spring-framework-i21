@@ -7,7 +7,6 @@
  * for commercial support.
  */
 
-
 package com.interface21.context;
 
 import java.util.Locale;
@@ -21,14 +20,15 @@ public interface MessageSource {
 
 	/**
 	 * Try to resolve the message.Return default message if no message
-	 * was found
+	 * was found.
 	 * @param code code to lookup up, such as 'calculator.noRateSet'.
 	 * Users of this class are encouraged to base message names
 	 * on the relevant fully qualified class name, thus avoiding
 	 * conflict and ensuring maximum clarity.
-	 * @param locale Locale in which to do lookup
 	 * @param args Array of arguments that will be filled in for params within
-	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
+	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message),
+	 * or null if none.
+	 * @param locale Locale in which to do lookup
 	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a>
 	 * @param defaultMessage String to return if the lookup fails
 	 * @return a resolved message if the lookup is successful;
@@ -40,9 +40,10 @@ public interface MessageSource {
 	 * Try to resolve the message. Treat as an error if the message can't
 	 * be found.
 	 * @param code code to lookup up, such as 'calculator.noRateSet'
-	 * @param locale Locale in which to do lookup
 	 * @param args Array of arguments that will be filled in for params within
-	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
+	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message),
+	 * or null if none.
+	 * @param locale Locale in which to do lookup
 	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a>
 	 * @return message
 	 * @throws NoSuchMessageException not found in any locale
@@ -53,7 +54,6 @@ public interface MessageSource {
 	 * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
 	 * arg that was passed in (except for the <code>locale</code> attribute)</b>,
 	 * try to resolve the message from the <code>MessageSource</code> contained within the <code>Context</code>.<p>
-	 *
 	 * NOTE: We must throw a <code>NoSuchMessageException</code> on this method since
 	 * at the time of calling this method we aren't able to determine if the <code>defaultMessage</code>
 	 * attribute is null or not.
