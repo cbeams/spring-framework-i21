@@ -38,7 +38,7 @@ public class EditOwnerForm extends AbstractClinicForm {
     }
     
     protected Object formBackingObject(HttpServletRequest request) throws ServletException {
-        Owner owner = getClinic().findOwner(RequestUtils.getIntParameter(request, "owner", 0));
+        Owner owner = getClinic().findOwner(RequestUtils.getIntParameter(request, "ownerId", 0));
         if(owner == null) {
             throw new ServletException("ownerId missing from request on " + getClass());
         }

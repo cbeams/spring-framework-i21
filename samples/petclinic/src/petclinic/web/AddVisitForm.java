@@ -32,7 +32,7 @@ public class AddVisitForm extends AbstractClinicForm {
     
     /** Method creates a new <code>Visit</code> */
     protected Object formBackingObject(HttpServletRequest request) throws ServletException {
-        Pet pet =  getClinic().findPet(RequestUtils.getIntParameter(request, "pet", 0));
+        Pet pet =  getClinic().findPet(RequestUtils.getIntParameter(request, "petId", 0));
         if(pet == null)
             throw new ServletException("petId missing from request on " + getClass());
         Visit visit = new Visit();

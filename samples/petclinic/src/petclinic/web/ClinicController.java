@@ -72,7 +72,7 @@ public class ClinicController extends MultiActionController implements Initializ
      * @return a ModelAndView to render the response
      */
     public ModelAndView ownerHandler(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        Owner owner = clinic.findOwner(RequestUtils.getIntParameter(request, "owner", 0));
+        Owner owner = clinic.findOwner(RequestUtils.getIntParameter(request, "ownerId", 0));
         if(owner == null) {
             return new ModelAndView("findOwnersRedirect");
         }
