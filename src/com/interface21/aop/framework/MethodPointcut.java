@@ -5,7 +5,7 @@
  
 package com.interface21.aop.framework;
 
-import org.aopalliance.MethodInterceptor;
+import org.aopalliance.intercept.MethodInterceptor;
 
 /**
  * Interface to be implemented by objects that can cause

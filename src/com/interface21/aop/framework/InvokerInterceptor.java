@@ -3,10 +3,9 @@ package com.interface21.aop.framework;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.aopalliance.AspectException;
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
-import org.aopalliance.ProxyInterceptor;
+import org.aopalliance.intercept.AspectException;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * Implementation of Interceptor interface that 
@@ -50,7 +49,7 @@ public class InvokerInterceptor implements MethodInterceptor, ProxyInterceptor {
 		
 		// Use reflection to invoke the method
 		try {
-			Object rval = invocation.getMethod().invoke(this.target, AopUtils.getArguments(invocation));
+			Object rval = invocation.getMethod().invoke(this.target, invocation.getArguments());
 //			if (rval == null OR VOID OR this
 			return rval;
 		}

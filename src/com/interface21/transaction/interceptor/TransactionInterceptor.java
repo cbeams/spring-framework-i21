@@ -5,8 +5,8 @@
 
 package com.interface21.transaction.interceptor;
 
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -108,7 +108,7 @@ public class TransactionInterceptor implements MethodInterceptor {
 			status = this.transactionManager.getTransaction(transAtt);
 			
 			// Make the TransactionStatus available to callees
-			invocation.setResource(TRANSACTION_STATUS_ATTACHMENT_NAME, status);
+			invocation.addAttachment(TRANSACTION_STATUS_ATTACHMENT_NAME, status);
 		}
 		else {
 			// It isn't a transactional method
@@ -122,7 +122,7 @@ public class TransactionInterceptor implements MethodInterceptor {
 		// Invoke the next interceptor in the chain.
 		// This will normally result in a target object being invoked.
 		try {
-			Object retVal = invocation.invokeNext();
+			Object retVal = invocation.proceed();
 			if (status != null) {
 				logger.info("COMMITING transaction on method '" + invocation.getMethod().getName() + "'");
 				this.transactionManager.commit(status);
@@ -147,7 +147,7 @@ public class TransactionInterceptor implements MethodInterceptor {
 		}
 		finally {
 			if (transAtt != null) {
-				invocation.setResource(TRANSACTION_STATUS_ATTACHMENT_NAME, null);
+				invocation.addAttachment(TRANSACTION_STATUS_ATTACHMENT_NAME, null);
 			}
 		}
 	}

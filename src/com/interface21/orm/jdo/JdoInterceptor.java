@@ -2,8 +2,8 @@ package com.interface21.orm.jdo;
 
 import javax.jdo.PersistenceManagerFactory;
 
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -81,7 +81,7 @@ public class JdoInterceptor implements MethodInterceptor {
 			logger.debug("Found thread-bound PersistenceManager for JDO interceptor");
 		}
 		try {
-			return methodInvocation.invokeNext();
+			return methodInvocation.proceed();
 		}
 		finally {
 			if (pmHolder != null) {

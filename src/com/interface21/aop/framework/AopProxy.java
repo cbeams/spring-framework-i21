@@ -98,8 +98,8 @@ public class AopProxy implements InvocationHandler {
 				return invocation.getMethod().invoke(this, invocation.getArguments());
 			}
 			
-			Object retVal = invocation.invokeNext();
-			if (retVal != null && retVal == invocation.getInvokedObject()) {
+			Object retVal = invocation.proceed();
+			if (retVal != null && retVal == invocation.getThis()) {
 				// Special case: it returned this
 				// Note that we can't help if the target sets
 				// a reference to itself in another returned object

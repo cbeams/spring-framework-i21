@@ -5,18 +5,19 @@
  
 package com.interface21.aop.framework;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.aopalliance.AspectException;
-import org.aopalliance.AttributeRegistry;
-import org.aopalliance.Interceptor;
-import org.aopalliance.Invocation;
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.AspectException;
+import org.aopalliance.intercept.AttributeRegistry;
+import org.aopalliance.intercept.Interceptor;
+import org.aopalliance.intercept.Invocation;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 
 /**
@@ -91,7 +92,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 			Object pc = iter.next();
 			if (pc instanceof DynamicMethodPointcut) {
 				DynamicMethodPointcut dpc = (DynamicMethodPointcut) pc;
-				if (dpc.applies(m, arguments, attributeRegistry)) {
+				if (dpc.applies(this)) {
 					this.interceptors.add(dpc.getInterceptor());
 				}
 			}
@@ -120,6 +121,10 @@ public class MethodInvocationImpl implements MethodInvocation {
 		return this.method;
 	}
 	
+	public AccessibleObject getStaticPart() {
+		return this.method;
+	}
+	
 	/**
 	 * Return the proxy that this interception was made through
 	 * @return Object
@@ -145,7 +150,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	}
 
 
-	public Object setResource(String key, Object resource) {
+	public Object addAttachment(String key, Object resource) {
 		// Invocations are single-threaded, so we can lazily
 		// instantiate the resource map if we have to
 		if (this.resources == null) {
@@ -159,7 +164,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/**
 	 * @return the resource or null
 	 */
-	public Object getResource(String key) {
+	public Object getAttachment(String key) {
 		// Resource map may be null if it hasn't been instantiated
 		return (this.resources == null) ? null : this.resources.get(key);
 	}
@@ -197,8 +202,8 @@ public class MethodInvocationImpl implements MethodInvocation {
 	 * @see org.aopalliance.MethodInvocation#getInterceptor(int)
 	 */
 	public Interceptor getInterceptor(int index) {
-		if (index > getInterceptorCount() - 1)
-			throw new AspectException("Index " + index + " out of bounds: only " + getInterceptorCount() + " interceptors");
+		if (index > getNumberOfInterceptors() - 1)
+			throw new AspectException("Index " + index + " out of bounds: only " + getNumberOfInterceptors() + " interceptors");
 		return (Interceptor) this.interceptors.get(index);
 	}
 	
@@ -207,7 +212,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/**
 	 * @see org.aopalliance.MethodInvocation#getNumberOfInterceptors()
 	 */
-	public int getInterceptorCount() {
+	public int getNumberOfInterceptors() {
 		return this.interceptors.size();
 	}
 
@@ -221,7 +226,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/**
 	 * @see org.aopalliance.Invocation#invokeNext()
 	 */
-	public Object invokeNext() throws Throwable {
+	public Object proceed() throws Throwable {
 		if (this.currentInterceptor >= this.interceptors.size() - 1)
 			throw new AspectException("All interceptors have already been invoked");
 		
@@ -235,7 +240,7 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/**
 	 * @see org.aopalliance.Invocation#detach()
 	 */
-	public Invocation detach() {
+	public Invocation cloneInstance() {
 		return this;
 	}
 
@@ -266,16 +271,8 @@ public class MethodInvocationImpl implements MethodInvocation {
 	/**
 	 * @see org.aopalliance.Invocation#getInvokedObject()
 	 */
-	public Object getInvokedObject() {
+	public Object getThis() {
 		return this.target;
-	}
-
-
-	/**
-	 * @see org.aopalliance.Invocation#cloneInstance()
-	 */
-	public Invocation cloneInstance() {
-		return this;
 	}
 
 }	// class MethodInvocationImpl

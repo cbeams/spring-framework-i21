@@ -7,8 +7,8 @@ package com.interface21.aop.framework;
 
 import java.util.List;
 
-import org.aopalliance.AttributeRegistry;
-import org.aopalliance.Interceptor;
+import org.aopalliance.intercept.AttributeRegistry;
+import org.aopalliance.intercept.Interceptor;
 
 /**
  * Interface to be implemented by classes that hold the configuration

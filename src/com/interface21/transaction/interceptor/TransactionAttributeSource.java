@@ -5,7 +5,7 @@
  
 package com.interface21.transaction.interceptor;
 
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.MethodInvocation;
 
 import com.interface21.transaction.interceptor.TransactionAttribute;
 

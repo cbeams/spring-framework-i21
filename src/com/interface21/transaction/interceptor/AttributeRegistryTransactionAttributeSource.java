@@ -8,7 +8,7 @@ package com.interface21.transaction.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * Implementation of TransactionAttributeSource that uses
@@ -24,8 +24,8 @@ public class AttributeRegistryTransactionAttributeSource implements TransactionA
 	 */
 	public TransactionAttribute getTransactionAttribute(MethodInvocation mi) {
 		Class targetClass = mi.getMethod().getDeclaringClass();
-		if (mi.getInvokedObject() != null) {
-			targetClass = mi.getInvokedObject().getClass();
+		if (mi.getThis() != null) {
+			targetClass = mi.getThis().getClass();
 		}
 
 		// TODO add knowledge about target class

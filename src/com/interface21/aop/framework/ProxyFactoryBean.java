@@ -13,8 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.aopalliance.AspectException;
-import org.aopalliance.Interceptor;
+import org.aopalliance.intercept.AspectException;
+import org.aopalliance.intercept.Interceptor;
 
 import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;

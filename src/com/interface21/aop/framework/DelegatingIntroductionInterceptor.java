@@ -8,7 +8,7 @@ package com.interface21.aop.framework;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -112,7 +112,7 @@ public class DelegatingIntroductionInterceptor implements IntroductionIntercepto
 		}
 		
 		// If we get here, just pass the invocation on
-		return invocation.invokeNext();
+		return invocation.proceed();
 	}
 
 }

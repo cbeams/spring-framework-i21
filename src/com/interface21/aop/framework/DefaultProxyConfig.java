@@ -11,10 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.aopalliance.AttributeRegistry;
-import org.aopalliance.Interceptor;
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.ProxyInterceptor;
+import org.aopalliance.intercept.AttributeRegistry;
+import org.aopalliance.intercept.Interceptor;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
