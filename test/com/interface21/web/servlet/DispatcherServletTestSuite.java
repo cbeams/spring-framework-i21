@@ -132,7 +132,7 @@ public class DispatcherServletTestSuite extends TestCase {
 	}
 
 	public void testAnotherFormRequest() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/form.do");
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/form.do;jsessionid=xxx");
 		request.addPreferredLocale(Locale.CANADA);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
@@ -173,7 +173,7 @@ public class DispatcherServletTestSuite extends TestCase {
 	}
 
 	public void testAnotherLocaleRequest() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do;abc=def");
 		request.addPreferredLocale(Locale.CANADA);
 		request.addRole("role1");
 		MockHttpServletResponse response = new MockHttpServletResponse();

@@ -1,9 +1,8 @@
 package com.interface21.web.util;
 
 import java.util.Enumeration;
-import java.util.Map;
-import java.util.Properties;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
@@ -40,7 +39,7 @@ public abstract class WebUtils {
 	public static final String SUBMIT_IMAGE_SUFFIX = ".x";
 
 	/**
-	 * Set a system property to the web application root directory.
+	 * Sets a system property to the web application root directory.
 	 * The key of the system property can be defined with the
 	 * "webAppRootKey" init parameter at the servlet context level
 	 * (i.e. web.xml), the default key is "webapp.root".
@@ -69,7 +68,7 @@ public abstract class WebUtils {
 	}
 
 	/**
-	 * Check the given request for a session attribute of the given name.
+	 * Checks the given request for a session attribute of the given name.
 	 * Returns null if there is no session or if the session has no such attribute.
 	 * Does not create a new session if none has existed before!
 	 * @param request current HTTP request
@@ -82,7 +81,7 @@ public abstract class WebUtils {
 	}
 
 	/**
-	 * Set the session attribute with the given name to the given value.
+	 * Sets the session attribute with the given name to the given value.
 	 * Removes the session attribute if value is null, if a session existed at all.
 	 * Does not create a new session on remove if none has existed before!
 	 * @param request current HTTP request
@@ -101,9 +100,8 @@ public abstract class WebUtils {
 	}
 
 	/**
-	 * Retrieve the first cookie with the given name.
-	 * Note that multiple cookies can have the same name
-	 * but different paths or domains.
+	 * Retrieves the first cookie with the given name. Note that multiple
+	 * cookies can have the same name but different paths or domains.
 	 * @param name cookie name
 	 * @return the first cookie with the given name, or null if none is found
 	 */
@@ -119,7 +117,7 @@ public abstract class WebUtils {
 	}
 
 	/**
-	 * Return the URL of the root of the current application.
+	 * Returns the URL of the root of the current application.
 	 * @param request current HTTP request
 	 */
 	public static String getUrlToApplication(HttpServletRequest request) {
@@ -127,16 +125,30 @@ public abstract class WebUtils {
 	}
 
 	/**
-	 * Return the path within the web application for the given request.
+	 * Return the correct request URI for the given request.
+	 * <p>The URI that the web container resolves <i>should</i> be correct, but some
+	 * containers like JBoss/Jetty incorrectly include ";" strings like ";jsessionid"
+	 * in the URI. This method cuts off such incorrect appendices.
+	 * @param request current HTTP request
+	 * @return the correct request URI
+	 */
+	public static String getRequestUri(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		int semicolonIndex = uri.indexOf(';');
+		return (semicolonIndex != -1 ? uri.substring(0, semicolonIndex) : uri);
+	}
+
+	/**
+	 * Returns the path within the web application for the given request.
 	 * @param request current HTTP request
 	 * @return the path within the web application
 	 */
 	public static String getPathWithinApplication(HttpServletRequest request) {
-		return request.getRequestURI().substring(request.getContextPath().length());
+		return getRequestUri(request).substring(request.getContextPath().length());
 	}
 
 	/**
-	 * Return the path within the servlet mapping for the given request,
+	 * Returns the path within the servlet mapping for the given request,
 	 * i.e. the part of the request's URL beyond the part that called the servlet,
 	 * or "" if the whole URL has been used to identify the servlet.
 	 * <p>E.g.: servlet mapping = "/test/*"; request URI = "/test/a" -> "/a".
@@ -146,12 +158,13 @@ public abstract class WebUtils {
 	 * @return the path within the servlet mapping, or ""
 	 */
 	public static String getPathWithinServletMapping(HttpServletRequest request) {
-		int servletIndex = request.getRequestURI().indexOf(request.getServletPath());
-		return request.getRequestURI().substring(servletIndex + request.getServletPath().length());
+		String uri = getRequestUri(request);
+		int servletIndex = uri.indexOf(request.getServletPath());
+		return uri.substring(servletIndex + request.getServletPath().length());
 	}
 
 	/**
-	 * Return the mapping lookup path for the given request,
+	 * Returns the mapping lookup path for the given request,
 	 * within the current servlet mapping if applicable,
 	 * else within the web application context.
 	 * @param request current HTTP request
@@ -215,7 +228,7 @@ public abstract class WebUtils {
 	}
 
 	/**
-	 * Check if a specific input type="submit" parameter was sent in the request,
+	 * Checks if a specific input type="submit" parameter was sent in the request,
 	 * either via a button (directly with name) or via an image (name + ".x").
 	 * @param request current HTTP request
 	 * @param name name of the parameter

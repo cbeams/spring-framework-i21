@@ -25,6 +25,7 @@ import com.interface21.web.context.RequestHandledEvent;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.context.support.WebApplicationContextUtils;
 import com.interface21.web.context.support.XmlWebApplicationContext;
+import com.interface21.web.util.WebUtils;
 
 /**
  * Base servlet for servlets within the Interface21 framework. Allows integration
@@ -245,13 +246,13 @@ public abstract class FrameworkServlet extends HttpServletBean {
 			if (failureCause != null) {
 				logger.error("Could not complete request", failureCause);
 				this.webApplicationContext.publishEvent(
-				    new RequestHandledEvent(this, request.getRequestURI(), processingTime, request.getRemoteAddr(),
+				    new RequestHandledEvent(this, WebUtils.getRequestUri(request), processingTime, request.getRemoteAddr(),
 				                            request.getMethod(), getServletConfig().getServletName(), failureCause));
 			}
 			else {
 				logger.debug("Successfully completed request");
 				this.webApplicationContext.publishEvent(
-				    new RequestHandledEvent(this, request.getRequestURI(), processingTime, request.getRemoteAddr(),
+				    new RequestHandledEvent(this, WebUtils.getRequestUri(request), processingTime, request.getRemoteAddr(),
 				                            request.getMethod(), getServletConfig().getServletName()));
 			}
 		}

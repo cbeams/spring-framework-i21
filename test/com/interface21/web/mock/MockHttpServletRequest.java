@@ -139,7 +139,7 @@ public class MockHttpServletRequest implements HttpServletRequest, Serializable 
 	}
 
 	public String getServletPath() {
-		return servletPath;
+		return "";
 	}
 
 	public HttpSession getSession(boolean create) {

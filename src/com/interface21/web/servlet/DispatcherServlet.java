@@ -40,9 +40,8 @@ import com.interface21.web.util.WebUtils;
  * by Rod Johnson (Wrox, 2002).
  *
  * <p>This servlet is very flexible: It can be used with just about any workflow,
- * with the installation of the appropriate adapter classes.
- *
- * <p>It offers the following functionality that distinguishes it from other MVC frameworks:
+ * with the installation of the appropriate adapter classes. It offers the
+ * following functionality that distinguishes it from other MVC frameworks:
  * <ul>
  * <li>It is based around a JavaBeans configuration mechanism.
  * <li>It can use any HandlerMapping implementation - whether standard, or provided
@@ -58,7 +57,7 @@ import com.interface21.web.util.WebUtils;
  * Standard implementations work via HTTP accept header, cookie, or session.
  * </ul>
  *
- * <p>A web application can use any number of controller servlets.
+ * <p>A web application can use any number of dispatcher servlets.
  * Each servlet will operate in its own namespace. Only the default name space,
  * and any config objects set for the application as a whole, will be shared.
  *
@@ -343,7 +342,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	protected void doService(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException {
 
-		logger.debug("DispatcherServlet with name '" + getServletName() + "' received request for [" + request.getRequestURI() + "]");
+		logger.debug("DispatcherServlet with name '" + getServletName() + "' received request for [" + WebUtils.getRequestUri(request) + "]");
 
 		// Make web application context available
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
@@ -358,7 +357,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		if (mappedHandler == null || mappedHandler.getHandler() == null) {
 			// If we didn't find a handler
-			logger.error("No mapping for [" + request.getRequestURI() + "] in DispatcherServlet with name '" + getServletName() + "'");
+			logger.error("No mapping for [" + WebUtils.getRequestUri(request) + "] in DispatcherServlet with name '" + getServletName() + "'");
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
