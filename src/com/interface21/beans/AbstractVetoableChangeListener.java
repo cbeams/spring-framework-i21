@@ -74,7 +74,7 @@ public abstract class AbstractVetoableChangeListener implements VetoableChangeLi
 					methods[i].setAccessible(true);
 					String propertyName = Introspector.decapitalize(methods[i].getName().substring(VALIDATE_METHOD_PREFIX.length()));
 					validationMethodHash.put(propertyName, methods[i]);
-					System.out.println(methods[i] + " is validator for property " + propertyName);
+					//System.out.println(methods[i] + " is validator for property " + propertyName);
 				}
 				else {
 					//System.out.println("invalid validator");

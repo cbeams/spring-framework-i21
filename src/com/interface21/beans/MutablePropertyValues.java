@@ -133,12 +133,12 @@ public class MutablePropertyValues implements PropertyValues {
 			// If there wasn't an old one, add it
 			PropertyValue pvOld = old.getPropertyValue(newPv.getName());
 			if (pvOld == null) {
-				System.out.println("No old pv for " + newPv.getName());
+				//System.out.println("No old pv for " + newPv.getName());
 				changes.addPropertyValue(newPv);
 			}
 			else if (!pvOld.equals(newPv)) {
 				// It's changed
-				System.out.println("pv changed for " + newPv.getName());
+				//System.out.println("pv changed for " + newPv.getName());
 				changes.addPropertyValue(newPv);
 			}
 		}
