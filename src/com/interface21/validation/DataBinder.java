@@ -1,6 +1,7 @@
 package com.interface21.validation;
 
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditor;
 import java.beans.VetoableChangeListener;
 import java.util.Map;
 
@@ -10,37 +11,38 @@ import com.interface21.beans.ErrorCodedPropertyVetoException;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.PropertyVetoExceptionsException;
-
 import com.interface21.util.ObjectArrayUtils;
+
 /**
- * To servlet requests what BeanWrapper is to beans
- * Slightly unusual, as it _is_ an exception
- * Supports property change listeners and vetoable change listeners
+ * Binder that allows for binding property values to a target object.
+ * Slightly unusual, as it _is_ an exception.
+ * Supports property change listeners and vetoable change listeners.
  * @author Rod Johnson
  * @version 1.0
  */
 public class DataBinder extends BindException {
 
-	public static final String MISSING_FIELD_ERRORCODE_SUFFIX = "Required";
+	public static final String MISSING_FIELD_ERROR_CODE = "required";
 
-	/**
-	* Create a logging category
-	*/
-	protected static final Logger logger = Logger.getLogger(DataBinder.class.getName());
+	protected static final Logger logger = Logger.getLogger(DataBinder.class);
 
+	private String[] requiredFields;
 
 	public DataBinder(Object target, String objName) {
 		super(target, objName);
 	}
 
+	public void setRequiredFields(String[] requiredFields) {
+		this.requiredFields = requiredFields;
+	}
 
+	protected String[] getRequiredFields() {
+		return requiredFields;
+	}
 
-	/**
-	 * Adds to last bean wrapper
-	 */
-	public void addVetoableChangeListener(VetoableChangeListener vtl) {
+	public void addVetoableChangeListener(VetoableChangeListener vcl) {
 		getBeanWrapper().setEventPropagationEnabled(true);
-		getBeanWrapper().addVetoableChangeListener(vtl);
+		getBeanWrapper().addVetoableChangeListener(vcl);
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {
@@ -48,46 +50,76 @@ public class DataBinder extends BindException {
 		getBeanWrapper().addPropertyChangeListener(pcl);
 	}
 
-	// MULTIPLE ERRORS on same field?!?
+	/**
+	 * Register the given custom property editor for the given type and
+	 * field, or for all fields of the given type.
+	 * @param requiredType type of the property, can be null if a field is
+	 * given but should be specified in any case for consistency checking
+	 * @param field name of the field (can also be a nested path), or
+	 * null if registering an editor for all fields of the given type
+	 * @param propertyEditor editor to register
+	 */
+	public void registerCustomEditor(Class requiredType, String field, PropertyEditor propertyEditor) {
+		getBeanWrapper().registerCustomEditor(requiredType, field, propertyEditor);
+	}
 
 	/**
-	 * Binds to current
+	 * Register the given custom property editor for all properties
+	 * of the given type.
+	 * @param requiredType type of the property
+	 * @param propertyEditor editor to register
 	 */
-	public void bind(PropertyValues pvs, String[] requiredFields) {
+	public void registerCustomEditor(Class requiredType, PropertyEditor propertyEditor) {
+		registerCustomEditor(requiredType, null, propertyEditor);
+	}
+
+	/**
+	 * Find a custom property editor for the given type and property.
+	 * @param requiredType type of the property, can be null if a property is
+	 * given but should be specified in any case for consistency checking
+	 * @param field name of the field (can also be a nested path), or
+	 * null if registering an editor for all fields of the given type
+	 * @return the registered editor, or null if none
+	 */
+	protected PropertyEditor findCustomEditor(Class requiredType, String field) {
+		return getBeanWrapper().findCustomEditor(requiredType, field);
+	}
+
+	/**
+	 * Render the field value with a custom editor, if applicable.
+	 */
+	public Object getFieldValue(String field) {
+		Object value = super.getFieldValue(field);
+		if (value != null && !hasFieldErrors(field)) {
+			PropertyEditor customEditor = findCustomEditor(value.getClass(), field);
+			if (customEditor != null) {
+				customEditor.setValue(value);
+				return customEditor.getAsText();
+			}
+		}
+		return value;
+	}
+
+	/**
+	 * Bind the given property values to this binder's target.
+	 * This call can create field errors, representing basic binding
+	 * errors like a required field (code "required"), or type mismatch
+	 * between value and bean property (code "typeMismatch").
+	 * @param pvs property values to bind
+	 */
+	public void bind(PropertyValues pvs) {
 		// Check for missing fields
 		if (requiredFields != null) {
 			for (int i = 0; i < requiredFields.length; i++) {
 				PropertyValue pv = pvs.getPropertyValue(requiredFields[i]);
 				if (pv == null || "".equals(pv.getValue())) {
 					logger.debug("Required field '" + requiredFields[i] + "' is missing or empty");
-					addFieldError(new FieldError(getObjectName(),requiredFields[i], "", requiredFields[i] + MISSING_FIELD_ERRORCODE_SUFFIX, ObjectArrayUtils.toArray(requiredFields[i]), "Field '" + requiredFields[i] + "' is required"));
+					// create field error with code "required"
+					addFieldError(new FieldError(getObjectName(), requiredFields[i], "", MISSING_FIELD_ERROR_CODE, ObjectArrayUtils.toArray(requiredFields[i]), "Field '" + requiredFields[i] + "' is required"));
 				}
 			}
 		}
-		bind(pvs);
-	}
-
-
-	// WHAT ABOUT FILTER METHOD?
-
-	/**
-	 * Create a new command object. Invoked on each incoming request, before
-	 * either the handleCommand() or handleInvalidRequest() method is invoked (depending on the
-	 * result of the binding operation). The incoming request is passed to this method
-	 * in case values in the request (such as session data) should cause prepopulation of
-	 * the new command object. Otherwise, a new instance of the commandClass object can
-	 * simply be instantiated.
-	 * @param request incoming request in case we want to look at its state
-	 * @return a CommandWrapper object containing the command object and necessary information
-	 * about how the framework should process it (such as whether the framework should
-	 * attempt to bind request parameters onto it)
-	 * @throws ServletException if
-	 */
-	public void bind(PropertyValues pvs) {
 		try {
-			// Set 0 or more vetoable change listeners
-			//addVetoableChangeListeners(bw);
-
 			// Bind request parameters onto params
 			// We ignore unknown properties
 			getBeanWrapper().setPropertyValues(pvs, true, null);
@@ -95,16 +127,16 @@ public class DataBinder extends BindException {
 		catch (PropertyVetoExceptionsException ex) {
 			ErrorCodedPropertyVetoException[] exs = ex.getPropertyVetoExceptions();
 			for (int i = 0; i < exs.length; i++) {
-				addFieldError(new FieldError(getObjectName(), exs[i].getPropertyChangeEvent().getPropertyName(), exs[i].getPropertyChangeEvent().getNewValue(), exs[i].getErrorCode(), exs[i].getLocalizedMessage()));
+				// create field with the exceptions's code, e.g. "typeMismatch"
+				addFieldError(new FieldError(getObjectName(), exs[i].getPropertyChangeEvent().getPropertyName(), exs[i].getPropertyChangeEvent().getNewValue(), exs[i].getErrorCode(), null, exs[i].getLocalizedMessage()));
 			}
 		}
 	}
 
-
 	/**
 	 * Close this DataBinder, which may result in throwing
 	 * a BindException if it encountered any errors
-	 * @throws BindException if there were any errors in the bind opeeration
+	 * @throws BindException if there were any errors in the bind operation
 	 */
 	public Map close() throws BindException {
 		if (hasErrors()) {
