@@ -5,8 +5,8 @@
 
     $Id$
 
-    See page 594 of "Expert One-on-One J2EE" for a description of
-    the JAR files produced by this build script, and how
+    See page 594 of "Expert One-on-One J2EE" for a description
+    of the JAR files produced by this build script, and how
     they can be deployed in applications.
 
     This script requires a /lib
@@ -86,6 +86,8 @@
 
 	<target name="full" depends="build,initdist" description="Build one big jar file containing main source tree class files.">
 
+		<delete file="${dist.dir}/${spring-full.jar}"/>
+
 		<jar jarfile="${dist.dir}/${spring-full.jar}">
 
 			<fileset dir="${build.dir}">
@@ -100,7 +102,8 @@
 
 	<target name="core" depends="build,initdist" description="Create the core JAR file. JDBC and other JAR files depend on this.">
 
-		<!-- We inherit this property from calling ant script -->
+		<delete file="${dist.dir}/${spring-core.jar}"/>
+
 		<jar jarfile="${dist.dir}/${spring-core.jar}">
 
 			<fileset dir="${build.dir}">
@@ -133,7 +136,8 @@
 
 	<target name="xmlbean" depends="build,initdist" description="Create the XML Bean implementation JAR file.">
 
-		<!-- We inherit this property from calling ant script -->
+		<delete file="${dist.dir}/${spring-xmlbean.jar}"/>
+
 		<jar jarfile="${dist.dir}/${spring-xmlbean.jar}">
 
 			<fileset dir="${build.dir}">
@@ -151,7 +155,8 @@
 	-->
 	<target name="jdbc" depends="build,initdist" description="Create the JDBC distribution JAR file.">
 
-		<!-- We inherit the spring-jdbc property from calling ant script -->
+		<delete file="${dist.dir}/${spring-jdbc.jar}"/>
+
 		<jar jarfile="${dist.dir}/${spring-jdbc.jar}">
 
 			<fileset dir="${build.dir}">
@@ -167,7 +172,8 @@
 
 	<target name="ejbimpl" depends="build,initdist" description="Create the EJB distribution JAR file.">
 
-		<!-- We inherit this property from calling ant script -->
+		<delete file="${dist.dir}/${spring-ejbimpl.jar}"/>
+
 		<jar jarfile="${dist.dir}/${spring-ejbimpl.jar}">
 
 			<fileset dir="${build.dir}">
@@ -191,10 +197,9 @@
 	-->
 	<target name="web" depends="build,initdist" description="Create the web distribution JAR file (runtime requires use of core JAR file).">
 
-		<!-- We inherit this property from calling ant script -->
-		<jar jarfile="${dist.dir}/${spring-web.jar}">
+		<delete file="${dist.dir}/${spring-web.jar}"/>
 
-			<!-- manifest="framework/webmanifest" -->
+		<jar jarfile="${dist.dir}/${spring-web.jar}">
 
 			<fileset dir="${build.dir}">
 
@@ -217,6 +222,8 @@
 
 	<target name="srczip" depends="initdist" description="Create source ZIP file (containing all Java sources).">
 
+		<delete file="${dist.dir}/${spring-src.zip}"/>
+
 		<zip zipfile="${dist.dir}/${spring-src.zip}">
 
 			<fileset dir="${src.dir}">
@@ -237,6 +244,7 @@
 	<target name="javadoc" description="Generate framework Javadocs.">
 
 		<delete dir="${docs.dir}"/>
+
 		<mkdir dir="${docs.dir}"/>
 
 		<javadoc packagenames="com.interface21.*"
