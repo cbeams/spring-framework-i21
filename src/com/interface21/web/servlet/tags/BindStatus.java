@@ -28,8 +28,10 @@ public class BindStatus {
 	/**
 	 * Create a new BindStatus instance,
 	 * representing a field or object status.
-	 * @param expression expression suitable for HTML input name
-	 * @param value current field value
+	 * @param expression expression suitable for HTML input name,
+	 * or null if not field-specific
+	 * @param value current field value,
+	 * or null if not field-specific
 	 * @param errorCodes error codes for the field or object
 	 * @param errorMessages resolved error messages for the field or object
 	 */
@@ -41,9 +43,8 @@ public class BindStatus {
 	}
 
 	/**
-	 * Return a bind expression that can be used in HTML forms
-	 * as input name for the respective field.
-	 *
+	 * Return a bind expression that can be used in HTML forms as input name
+	 * for the respective field, or null if not field-specific.
 	 * <p>Returns a bind path appropriate for resubmission, e.g. "address.street".
 	 * Note that the complete bind path as required by the bind tag is
 	 * "customer.address.street", if bound to a "customer" bean.
@@ -53,16 +54,16 @@ public class BindStatus {
 	}
 
 	/**
-	 * Return the current value of the field,
-	 * either the property value or a rejected update.
+	 * Return the current value of the field, i.e. either the property value
+	 * or a rejected update, or null if not field-specific.
 	 */
 	public Object getValue() {
 		return value;
 	}
 
 	/**
-	 * Return a suitable display value for the field,
-	 * i.e. empty string instead of a null value.
+	 * Return a suitable display value for the field, i.e. empty string
+	 * instead of a null value, or null if not field-specific.
 	 */
 	public String getDisplayValue() {
 		return (value != null) ? value.toString() : "";
