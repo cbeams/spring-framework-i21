@@ -8,8 +8,8 @@
 	</bean>
 	
 	
-	<bean id="counterAttributeScanner"
-		 class="com.interface21.aop.auto.CounterAttributeScanner">	
+	<bean id="demoController"
+		 class="com.interface21.web.servlet.mvc.DemoController">	
 	
 	</bean>
 	
