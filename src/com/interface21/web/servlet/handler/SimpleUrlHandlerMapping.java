@@ -49,7 +49,7 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 		logger.debug("Set properties to [" + mappings + "]");
 	}
 
-	public void initHandlerMapping() {
+	public void initApplicationContext() {
 		if (!this.mappings.isEmpty()) {
 			Iterator itr = mappings.keySet().iterator();
 			while (itr.hasNext()) {

@@ -42,6 +42,7 @@ public abstract class RequestContextUtils {
 	 * @param servletContext current servlet context
 	 * @return the request-specific or global web application context if no request-specific
 	 * context has been set
+	 * @throws ServletException if neither a servlet-specific nor global context has been found
 	 */
 	public static WebApplicationContext getWebApplicationContext(ServletRequest request, ServletContext servletContext)
 	    throws ServletException {
@@ -60,14 +61,42 @@ public abstract class RequestContextUtils {
 	}
 
 	/**
+	 * Return the LocaleResolver that has been bound to the request by the DispatcherServlet.
+	 * @param request current HTTP request
+	 * @return the current LocaleResolver
+	 * @throws ServletException if no LocaleResolver has been found
+	 */
+	public static LocaleResolver getLocaleResolver(HttpServletRequest request) throws ServletException {
+		LocaleResolver localeResolver = (LocaleResolver) request.getAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE);
+		if (localeResolver == null) {
+			throw new ServletException("No LocaleResolver found: not in a DispatcherServlet request?");
+		}
+		return localeResolver;
+	}
+
+	/**
 	 * Retrieves the current locale from the given request,
 	 * using the LocaleResolver bound to the request by the DispatcherServlet.
 	 * @param request current HTTP request
 	 * @return the current locale
+	 * @throws ServletException if no LocaleResolver has been found
 	 */
-	public static Locale getLocale(HttpServletRequest request) {
-		LocaleResolver localeResolver = (LocaleResolver) request.getAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE);
-		return localeResolver.resolveLocale(request);
+	public static Locale getLocale(HttpServletRequest request) throws ServletException {
+		return getLocaleResolver(request).resolveLocale(request);
+	}
+
+	/**
+	 * Return the ThemeResolver that has been bound to the request by the DispatcherServlet.
+	 * @param request current HTTP request
+	 * @return the current ThemeResolver
+	 * @throws ServletException if no ThemeResolver has been found
+	 */
+	public static ThemeResolver getThemeResolver(HttpServletRequest request) throws ServletException {
+		ThemeResolver themeResolver = (ThemeResolver) request.getAttribute(DispatcherServlet.THEME_RESOLVER_ATTRIBUTE);
+		if (themeResolver == null) {
+			throw new ServletException("No ThemeResolver found: not in a DispatcherServlet request?");
+		}
+		return themeResolver;
 	}
 
 	/**
@@ -76,11 +105,11 @@ public abstract class RequestContextUtils {
 	 * and the current WebApplicationContext.
 	 * @param request current HTTP request
 	 * @return the current theme
+	 * @throws ServletException if no ThemeResolver has been found
 	 */
 	public static Theme getTheme(HttpServletRequest request) throws ServletException {
 		WebApplicationContext context = getWebApplicationContext(request);
-		ThemeResolver themeResolver = (ThemeResolver) request.getAttribute(DispatcherServlet.THEME_RESOLVER_ATTRIBUTE);
-		String themeName = themeResolver.resolveThemeName(request);
+		String themeName = getThemeResolver(request).resolveThemeName(request);
 		return context.getTheme(themeName);
 	}
 

@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.jstl.core.Config;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
+import javax.servlet.ServletException;
 
 import com.interface21.context.support.MessageSourceResourceBundle;
 import com.interface21.web.servlet.support.RequestContextUtils;
@@ -26,7 +27,7 @@ public class JstlView extends InternalResourceView {
 
 	public static final String REQUEST_SCOPE_PREFIX = ".request";
 
-	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) {
+	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) throws ServletException {
 		super.exposeModelsAsRequestAttributes(model, request);
 
 		// add JSTL locale and LocalizationContext request attributes

@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author Juergen Hoeller
  * @since 27.02.2003
  * @see com.interface21.web.servlet.i18n.AcceptHeaderLocaleResolver
- * @see LocaleResolverAware
  */
 public interface LocaleResolver {
 

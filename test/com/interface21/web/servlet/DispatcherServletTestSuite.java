@@ -88,7 +88,7 @@ public class DispatcherServletTestSuite extends TestCase {
 			assertTrue("hasn't RequestContext attribute", request.getAttribute("rc") == null);
 			assertTrue("Correct WebApplicationContext", RequestContextUtils.getWebApplicationContext(request) instanceof SimpleWebApplicationContext);
 			assertTrue("Correct Locale", Locale.CANADA.equals(RequestContextUtils.getLocale(request)));
-			assertTrue("Correct Theme", AbstractThemeResolver.DEFAULT_THEME.equals(RequestContextUtils.getTheme(request).getName()));
+			assertTrue("Correct Theme", AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME.equals(RequestContextUtils.getTheme(request).getName()));
 			assertTrue("Correct message", "Canadian & test message".equals(rc.getMessage("test", null)));
 
 			assertTrue("Correct Errors", !(rc.getErrors(BaseCommandController.DEFAULT_BEAN_NAME) instanceof EscapedErrors));
@@ -175,10 +175,88 @@ public class DispatcherServletTestSuite extends TestCase {
 	public void testAnotherLocaleRequest() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
 		request.addPreferredLocale(Locale.CANADA);
+		request.addRole("role1");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			complexControllerServlet.doGet(request, response);
 			assertTrue("not forwarded", response.forwarded == null);
+		}
+		catch (ServletException ex) {
+			fail("Should not have thrown ServletException: " + ex.getMessage());
+		}
+	}
+
+	public void testLocaleChangeInterceptor1() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.GERMAN);
+		request.addRole("role2");
+		request.addParameter("locale", "en");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+			fail("Should have thrown ServletException");
+		}
+		catch (ServletException ex) {
+			// expected
+		}
+	}
+
+	public void testLocaleChangeInterceptor2() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.GERMAN);
+		request.addRole("role2");
+		request.addParameter("locale", "en");
+		request.addParameter("locale2", "en_CA");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+		}
+		catch (ServletException ex) {
+			fail("Should not have thrown ServletException: " + ex.getMessage());
+		}
+	}
+
+	public void testThemeChangeInterceptor1() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.CANADA);
+		request.addRole("role1");
+		request.addParameter("theme", "mytheme");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+			fail("Should have thrown ServletException");
+		}
+		catch (ServletException ex) {
+			// expected
+		}
+	}
+
+	public void testThemeChangeInterceptor2() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.CANADA);
+		request.addRole("role3");
+		request.addParameter("theme", "mytheme");
+		request.addParameter("theme2", "theme");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("not forwarded", response.forwarded == null);
+		}
+		catch (ServletException ex) {
+			fail("Should not have thrown ServletException: " + ex.getMessage());
+		}
+	}
+
+	public void testNotAuthorized() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
+		request.addPreferredLocale(Locale.CANADA);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		try {
+			complexControllerServlet.doGet(request, response);
+			assertTrue("Correct response", response.getStatusCode() == HttpServletResponse.SC_FORBIDDEN);
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());

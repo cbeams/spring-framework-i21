@@ -238,7 +238,7 @@ public class ResourceBundleMessageSourceTestSuite
 
 	public void testThemeSourceNesting() throws NoSuchMessageException {
 		String overriddenMsg = getThemeMessage("theme.example2", null, null, Locale.UK);
-		String originalMsg = root.getTheme(AbstractThemeResolver.DEFAULT_THEME).getMessageSource().getMessage("theme.example2", null, Locale.UK);
+		String originalMsg = root.getTheme(AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME).getMessageSource().getMessage("theme.example2", null, Locale.UK);
     assertTrue("correct overridden msg", "test-message2".equals(overriddenMsg));
 		assertTrue("correct original msg", "message2".equals(originalMsg));
 	}
@@ -268,9 +268,9 @@ public class ResourceBundleMessageSourceTestSuite
 
 		wac.setServletContext(sc);
 
-		Theme theme = wac.getTheme(AbstractThemeResolver.DEFAULT_THEME);
+		Theme theme = wac.getTheme(AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME);
 		assertNotNull(theme);
-		assertTrue("Theme name has to be the default theme name", AbstractThemeResolver.DEFAULT_THEME.equals(theme.getName()));
+		assertTrue("Theme name has to be the default theme name", AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME.equals(theme.getName()));
 		themeMsgSource = theme.getMessageSource();
 		assertNotNull(themeMsgSource);
 

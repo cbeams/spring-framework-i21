@@ -26,7 +26,7 @@ public class BeanNameUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	/** Delimiter between multiple URLs in mappings */
 	public static final String MULTI_URL_DELIMITER = " ";
 
-	public void initHandlerMapping() {
+	public void initApplicationContext() {
 		logger.debug("Looking for URL mappings...");
 		String[] urlMaps = getApplicationContext().getBeanDefinitionNames();
 

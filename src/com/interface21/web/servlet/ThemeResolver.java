@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author Juergen Hoeller
  * @since 17.06.2003
  * @see com.interface21.web.servlet.theme.FixedThemeResolver
- * @see ThemeResolverAware
  * @see com.interface21.ui.context.Theme
  * @see com.interface21.ui.context.ThemeSource
  */

@@ -98,7 +98,7 @@ public class InternalResourceView extends AbstractView {
 	 * @param model Map of models to expose
 	 * @param request HttpServletRequest to preprocess.
 	 */
-	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) {
+	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) throws ServletException {
 		if (model != null) {
 			Set keys = model.keySet();
 			Iterator itr = keys.iterator();

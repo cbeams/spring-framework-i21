@@ -1,7 +1,10 @@
 package com.interface21.web.servlet.handler;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,10 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import com.interface21.context.support.ApplicationObjectSupport;
 import com.interface21.core.Ordered;
 import com.interface21.web.servlet.HandlerMapping;
-import com.interface21.web.servlet.LocaleResolver;
-import com.interface21.web.servlet.LocaleResolverAware;
-import com.interface21.web.servlet.ThemeResolver;
-import com.interface21.web.servlet.ThemeResolverAware;
+import com.interface21.web.servlet.HandlerExecutionChain;
+import com.interface21.web.servlet.HandlerInterceptor;
 
 /**
  * Abstract base class for HandlerMapping implementations.
@@ -28,11 +29,9 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 
 	private int order = Integer.MAX_VALUE;  // default: same as non-Ordered
 
-	private LocaleResolver localeResolver;
-
-	private ThemeResolver themeResolver;
-
 	private Object defaultHandler = null;
+
+	private List interceptors;
 
 	public void setOrder(int order) {
 	  this.order = order;
@@ -40,14 +39,6 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 
 	public int getOrder() {
 	  return order;
-	}
-
-	public void setLocaleResolver(LocaleResolver localeResolver) {
-		this.localeResolver = localeResolver;
-	}
-
-	public void setThemeResolver(ThemeResolver themeResolver) {
-		this.themeResolver = themeResolver;
 	}
 
 	/**
@@ -67,18 +58,8 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 		return defaultHandler;
 	}
 
-	/**
-	 * Initialize the given handler instance, i.e. set the
-	 * LocaleResolver if aware. To be used by subclasses.
-	 * @param handler the handler instance
-	 */
-	protected void initHandler(Object handler) {
-		if (handler instanceof LocaleResolverAware) {
-			((LocaleResolverAware) handler).setLocaleResolver(this.localeResolver);
-		}
-		if (handler instanceof ThemeResolverAware) {
-			((ThemeResolverAware) handler).setThemeResolver(this.themeResolver);
-		}
+	public void setInterceptors(List interceptors) {
+		this.interceptors = interceptors;
 	}
 
 	/**
@@ -87,9 +68,19 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 	 * @param request current HTTP request
 	 * @return the looked up handler instance, or the default handler
 	 */
-	public final Object getHandler(HttpServletRequest request) throws ServletException {
+	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws ServletException {
 		Object handler = getHandlerInternal(request);
-		return (handler != null ? handler : this.defaultHandler);
+		if (handler == null) {
+			handler = this.defaultHandler;
+		}
+		if (handler == null) {
+			return null;
+		}
+		HandlerInterceptor[] interceptorArray = null;
+		if (this.interceptors != null) {
+			interceptorArray = (HandlerInterceptor[]) this.interceptors.toArray(new HandlerInterceptor[this.interceptors.size()]);
+		}
+		return new HandlerExecutionChain(handler, interceptorArray);
 	}
 
 	/**
@@ -99,6 +90,6 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 	 * @param request current HTTP request
 	 * @return the looked up handler instance, or null
 	 */
-	protected abstract Object getHandlerInternal(HttpServletRequest request);
+	protected abstract Object getHandlerInternal(HttpServletRequest request) throws ServletException;
 
 }

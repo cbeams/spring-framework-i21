@@ -12,11 +12,7 @@
 package com.interface21.web.servlet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -219,9 +215,6 @@ public class DispatcherServlet extends FrameworkServlet {
 	private void initHandlerMapping(String beanName) throws ServletException {
 		try {
 			HandlerMapping hm = (HandlerMapping) getWebApplicationContext().getBean(beanName);
-			hm.setLocaleResolver(this.localeResolver);
-			hm.setThemeResolver(this.themeResolver);
-			hm.initHandlerMapping();
 			this.handlerMappings.add(hm);
 		}
 		catch (ApplicationContextException ex) {
@@ -239,9 +232,6 @@ public class DispatcherServlet extends FrameworkServlet {
 		try {
 			HandlerMapping hm = new BeanNameUrlHandlerMapping();
 			hm.setApplicationContext(getWebApplicationContext());
-			hm.setLocaleResolver(this.localeResolver);
-			hm.setThemeResolver(this.themeResolver);
-			hm.initHandlerMapping();
 			this.handlerMappings.add(hm);
 		}
 		catch (ApplicationContextException ex) {
@@ -361,23 +351,32 @@ public class DispatcherServlet extends FrameworkServlet {
 		// Make theme resolver available */
 		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
 
-		Object mappedHandler = getHandler(request);
+		HandlerExecutionChain mappedHandler = getHandler(request);
 
-		if (mappedHandler == null) {
+		if (mappedHandler == null || mappedHandler.getHandler() == null) {
 			// If we didn't find a handler
 			logger.error("No mapping for [" + request.getRequestURI() + "] in DispatcherServlet with name '" + getServletName() + "'");
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
-		// This will throw an exception if no handler is found
-		HandlerAdapter ha = getHandlerAdapter(mappedHandler);
+		if (mappedHandler.getInterceptors() != null) {
+			for (int i = 0; i < mappedHandler.getInterceptors().length; i++) {
+				HandlerInterceptor interceptor = mappedHandler.getInterceptors()[i];
+				if (!interceptor.preHandle(request, response, mappedHandler.getHandler())) {
+					return;
+				}
+			}
+		}
 
-		if (wasRevalidated(request, response, ha, mappedHandler)) {
+		// This will throw an exception if no handler is found
+		HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
+
+		if (wasRevalidated(request, response, ha, mappedHandler.getHandler())) {
 			return;
 		}
 
-		ModelAndView mv = ha.handle(request, response, mappedHandler);
+		ModelAndView mv = ha.handle(request, response, mappedHandler.getHandler());
 		if (mv != null) {
 			logger.debug("Will render model in DispatcherServlet with name '" + getServletName() + "'");
 			Locale locale = this.localeResolver.resolveLocale(request);
@@ -447,15 +446,14 @@ public class DispatcherServlet extends FrameworkServlet {
 	/**
 	 * Return the handler for this request.
 	 * Try all handler mappings in order.
-	 * @return null if no handler could be found
-	 * @throws ServletException
+	 * @return the handelr, or null if no handler could be found
 	 */
-	private Object getHandler(HttpServletRequest request) throws ServletException {
+	private HandlerExecutionChain getHandler(HttpServletRequest request) throws ServletException {
 		Iterator itr = this.handlerMappings.iterator();
 		while (itr.hasNext()) {
 			HandlerMapping hm = (HandlerMapping) itr.next();
 			logger.debug("Testing handler map [" + hm  + "] in DispatcherServlet with name '" + getServletName() + "'");
-			Object handler = hm.getHandler(request);
+			HandlerExecutionChain handler = hm.getHandler(request);
 			if (handler != null)
 				return handler;
 		}

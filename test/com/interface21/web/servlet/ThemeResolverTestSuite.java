@@ -50,15 +50,15 @@ public class ThemeResolverTestSuite extends TestCase {
 	}
 
 	public void testFixedThemeResolver() {
-		internalTest(new FixedThemeResolver(), false, AbstractThemeResolver.DEFAULT_THEME);
+		internalTest(new FixedThemeResolver(), false, AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME);
 	}
 
 	public void testCookieThemeResolver() {
-		internalTest(new CookieThemeResolver(), true, AbstractThemeResolver.DEFAULT_THEME);
+		internalTest(new CookieThemeResolver(), true, AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME);
 	}
 
 	public void testSessionThemeResolver() {
-		internalTest(new SessionThemeResolver(), true,AbstractThemeResolver.DEFAULT_THEME);
+		internalTest(new SessionThemeResolver(), true,AbstractThemeResolver.ORIGINAL_DEFAULT_THEME_NAME);
 	}
 
 	public void testSessionThemeResolverWithDefault() {

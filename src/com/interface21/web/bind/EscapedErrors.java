@@ -12,7 +12,7 @@ import com.interface21.web.util.HtmlUtils;
 /**
  * Errors wrapper that adds automatic HTML escaping to the wrapped instance,
  * for convenient usage in HTML views. Can be retrieved easily via
- * RequestContext's resp. RequestContextUtils' getErrors method.
+ * RequestContext's getErrors method.
  *
  * <p>Note that BindTag does not use this class to avoid unnecessary creation
  * of ObjectError instances. It just escapes the messages and values that get
@@ -21,7 +21,7 @@ import com.interface21.web.util.HtmlUtils;
  * @author Juergen Hoeller
  * @since 01.03.2003
  * @see com.interface21.web.servlet.support.RequestContext#getErrors
- * @see com.interface21.web.tags.BindTag
+ * @see com.interface21.web.servlet.tags.BindTag
  */
 public class EscapedErrors implements Errors {
 
