@@ -1,12 +1,6 @@
 /*
- * Generic framework code included with 
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
- * This code is free to use and modify. However, please
- * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
 
 package com.interface21.web.servlet.view;
@@ -43,6 +37,7 @@ import com.interface21.web.servlet.support.RequestContext;
  * to disable this class's caching, which is useful during development.
  * <br/>Also provides a logging category.
  * @author  Rod Johnson
+ * @version $Id$
  */
 public abstract class AbstractView extends ApplicationObjectSupport implements View {
 
@@ -70,13 +65,20 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	 * <br>Format is attname0={value1},attname1={value1}
 	 */
 	public final void setAttributesCSV(String s) throws IllegalArgumentException {
+		if (s == null) 
+			// Leave static attributes unchanged
+			return;
+			
 		StringTokenizer st = new StringTokenizer(s, ",");
 		while (st.hasMoreTokens()) {
 			String tok = st.nextToken();
 			int eqindx = tok.indexOf("=");
 			if (eqindx == -1)
 				throw new IllegalArgumentException("Expected = in View string '" + s + "'");
-			// LENGTH CHECKS
+			
+			if (eqindx >= tok.length() - 2)
+				throw new IllegalArgumentException("At least 2 characters ([]) required in View string '" + s + "'");
+				
 			String name = tok.substring(0, eqindx);
 			String val = tok.substring(eqindx + 1);
 			
@@ -89,7 +91,8 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 			}
 			addStaticAttribute(name, val);
 		}
-	}
+	}	// setAttributesCSV
+	
 	
 	/**
 	 * Set static attributes from a java.util.Properties object. This is
