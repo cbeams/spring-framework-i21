@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.interface21.validation.ValidationUtils;
 import com.interface21.validation.Validator;
+import com.interface21.validation.BindException;
 import com.interface21.web.bind.ServletRequestDataBinder;
 
 /**
@@ -204,11 +205,12 @@ public abstract class BaseCommandController extends AbstractController {
 	 * and before error evaluation.
 	 * @param request current HTTP request
 	 * @param command bound command
-	 * @param errors ServletRequestDataBinder for additional custom validation
+	 * @param errors binder for additional custom validation
 	 * @throws ServletException in case of invalid state or arguments
 	 * @see #bindAndValidate
 	 */
-	protected void onBindAndValidate(HttpServletRequest request, Object command, ServletRequestDataBinder errors) throws ServletException {
+	protected void onBindAndValidate(HttpServletRequest request, Object command, BindException errors)
+	    throws ServletException {
 	}
 
 }

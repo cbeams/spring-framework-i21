@@ -1,13 +1,14 @@
 package com.interface21.web.servlet.mvc;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.interface21.validation.BindException;
-import com.interface21.web.bind.ServletRequestDataBinder;
+import com.interface21.validation.Errors;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
@@ -76,13 +77,44 @@ public class SimpleFormController extends AbstractFormController {
 	}
 
 	/**
+	 * Create a reference data map for the given request, command, and errors,
+	 * consisting of bean name/bean instance pairs as expected by ModelAndView.
+	 * <p>Default implementation delegates to referenceData(request).
+	 * Subclasses can override this to set reference data used in the view.
+	 * @param request current HTTP request
+	 * @param command form object with request parameters bound onto it
+	 * @param errors binder containing current errors, if any
+	 * @return a Map with reference data entries, or null if none
+	 * @throws ServletException in case of invalid state or arguments
+	 * @see ModelAndView
+	 */
+	protected Map referenceData(HttpServletRequest request, Object command, Errors errors)
+	    throws ServletException {
+		return referenceData(request);
+	}
+
+	/**
+	 * Create a reference data map for the given request.
+	 * Called by referenceData version with all parameters.
+	 * <p>Default implementation returns null.
+	 * Subclasses can override this to set reference data used in the view.
+	 * @param request current HTTP request
+	 * @return a Map with reference data entries, or null if none
+	 * @throws ServletException in case of invalid state or arguments
+	 * @see ModelAndView
+	 */
+	protected Map referenceData(HttpServletRequest request) throws ServletException {
+		return null;
+	}
+
+	/**
 	 * This implementation shows the configured form view.
 	 * Can be called within onSubmit implementations, to redirect back to the form
 	 * in case of custom validation errors (i.e. not determined by the validator).
 	 * @see #setFormView
 	 */
-	protected final ModelAndView showForm(HttpServletRequest request, HttpServletResponse response, BindException errors)
-	    throws ServletException {
+	protected final ModelAndView showForm(HttpServletRequest request, HttpServletResponse response,
+	                                      BindException errors) throws ServletException {
 		return showForm(request, errors, getFormView());
 	}
 
@@ -92,10 +124,10 @@ public class SimpleFormController extends AbstractFormController {
 	 * <p>This should only be overridden to check for an action that should
 	 * be executed without respect to binding errors, like a cancel action.
 	 * @see #showForm
-	 * @see #onSubmit(HttpServletRequest,HttpServletResponse,Object,ServletRequestDataBinder)
+	 * @see #onSubmit(HttpServletRequest,HttpServletResponse,Object,BindException)
 	 */
 	protected ModelAndView processSubmit(HttpServletRequest request, HttpServletResponse response,
-	                                     Object command, ServletRequestDataBinder errors)
+	                                     Object command, BindException errors)
 	    throws ServletException, IOException {
 		if (errors.hasErrors()) {
 			logger.debug("Data binding errors: " + errors.getErrorCount());
@@ -121,35 +153,18 @@ public class SimpleFormController extends AbstractFormController {
 	 * @return the prepared model and view, or null
 	 * @throws ServletException in case of invalid state or arguments
 	 * @throws IOException in case of I/O errors
-	 * @see #onSubmit(Object, BindException)
+	 * @see #onSubmit(Object)
 	 * @see #showForm
 	 */
 	protected ModelAndView onSubmit(HttpServletRequest request,	HttpServletResponse response,
-																	Object command,	ServletRequestDataBinder errors)
+																	Object command,	BindException errors)
 			throws ServletException, IOException {
-		return onSubmit(command, errors);
-	}
-
-	/**
-	 * Submit callback with command and errors. Called by the default implementation
-	 * of the onSubmit version with all parameters.
-	 * <p>Default implementation delegates to onSubmit(command).
-	 * Subclasses can override this to provide custom submission handling
-	 * like triggering a custom action. They can also provide custom validation
-	 * and call showForm/super.onSubmit accordingly.
-	 * @param command form object with request parameters bound onto it
-	 * @param errors binder without errors (subclass can add errors if it wants to)
-	 * @return the prepared model and view, or null
-	 * @throws ServletException in case of invalid state or arguments
-	 * @see #onSubmit(Object)
-	 */
-	protected ModelAndView onSubmit(Object command, BindException errors) throws ServletException {
 		return onSubmit(command);
 	}
 
 	/**
 	 * Simplest onSubmit version. Called by the default implementation of
-	 * onSubmit(Object, BindException).
+	 * the onSubmit version with all parameters.
 	 * <p>Default implementation prepares success view.
 	 * @param command form object with request parameters bound onto it
 	 * @return the prepared model and view, or null

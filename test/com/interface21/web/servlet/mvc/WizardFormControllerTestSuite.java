@@ -17,6 +17,7 @@ import com.interface21.web.mock.MockHttpResponse;
 import com.interface21.web.servlet.ModelAndView;
 import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.validation.Errors;
+import com.interface21.validation.BindException;
 
 /**
  * @author Juergen Hoeller
@@ -218,13 +219,13 @@ public class WizardFormControllerTestSuite extends TestCase {
 		}
 
 		protected ModelAndView processFinish(HttpServletRequest request, HttpServletResponse response,
-		                                     Object command, ServletRequestDataBinder errors)
+		                                     Object command, BindException errors)
 		    throws ServletException, IOException {
 			return new ModelAndView("success", getBeanName(), command);
 		}
 
 		protected ModelAndView processCancel(HttpServletRequest request, HttpServletResponse response,
-		                                    Object command, ServletRequestDataBinder errors)
+		                                    Object command, BindException errors)
 		    throws ServletException, IOException {
 			return new ModelAndView("abort", getBeanName(), command);
 		}

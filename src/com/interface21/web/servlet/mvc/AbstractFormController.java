@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.interface21.validation.BindException;
+import com.interface21.validation.Errors;
 import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.web.servlet.ModelAndView;
 
@@ -222,7 +223,7 @@ public abstract class AbstractFormController extends BaseCommandController {
 		if (isSessionForm()) {
 			request.getSession().setAttribute(getFormSessionAttributeName(), errors.getTarget());
 		}
-		Map model = referenceData(request);
+		Map model = referenceData(request, errors.getTarget(), errors);
 		if (model == null) {
 			model = new HashMap();
 		}
@@ -239,11 +240,14 @@ public abstract class AbstractFormController extends BaseCommandController {
 	 * <p>Default implementation returns null.
 	 * Subclasses can override this to set reference data used in the view.
 	 * @param request current HTTP request
+	 * @param command form object with request parameters bound onto it
+	 * @param errors binder containing current errors, if any
 	 * @return a Map with reference data entries, or null if none
 	 * @throws ServletException in case of invalid state or arguments
 	 * @see ModelAndView
 	 */
-	protected Map referenceData(HttpServletRequest request) throws ServletException {
+	protected Map referenceData(HttpServletRequest request, Object command, Errors errors)
+	    throws ServletException {
 		return null;
 	}
 
@@ -286,7 +290,7 @@ public abstract class AbstractFormController extends BaseCommandController {
 	 * @see #showForm
 	 */
 	protected abstract ModelAndView processSubmit(HttpServletRequest request,	HttpServletResponse response,
-	                                              Object command, ServletRequestDataBinder errors)
+	                                              Object command, BindException errors)
 			throws ServletException, IOException;
 
 }

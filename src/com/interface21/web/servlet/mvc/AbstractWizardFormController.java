@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.interface21.validation.BindException;
 import com.interface21.validation.Errors;
-import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
@@ -131,70 +130,53 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 	}
 
 	/**
-	 * Return the name of the session attribute that holds
-	 * the page object for this controller.
-	 * @return the name of the page session attribute
+	 * Call page-specific onBindAndValidate method.
 	 */
-	protected final String getPageSessionAttributeName() {
-		return getClass() + ".page." + getBeanName();
+	protected final void onBindAndValidate(HttpServletRequest request, Object command, BindException errors)
+	    throws ServletException {
+		super.onBindAndValidate(request, command, errors);
+		onBindAndValidate(request, command, errors, getCurrentPage(request));
 	}
 
 	/**
-	 * Return the current page number.
-	 * Mainly useful for page-specific onBindAndValidate implementations,
-	 * as methods like validatePage explicitly feature a page parameter.
-	 * @throws IllegalStateException if the page attribute isn't in the session
-	 * anymore, i.e. when called after processSubmit.
+	 * Callback for custom postprocessing in terms of binding and validation.
+	 * Called on each submit, after standard binding and validation,
+	 * and before error evaluation.
+	 * @param request current HTTP request
+	 * @param command bound command
+	 * @param errors binder for additional custom validation
+	 * @param page current wizard page
+	 * @throws ServletException in case of invalid state or arguments
+	 * @see #bindAndValidate
 	 */
-	protected final int getCurrentPage(HttpServletRequest request) throws IllegalStateException {
-		Integer pageAttr = (Integer) request.getSession().getAttribute(getPageSessionAttributeName());
-		if (pageAttr == null) {
-			throw new IllegalStateException("Page attribute isn't in session anymore - called after processSubmit?");
-		}
-		return pageAttr.intValue();
+	protected void onBindAndValidate(HttpServletRequest request, Object command, BindException errors, int page)
+	    throws ServletException {
 	}
 
 	/**
-	 * Apply wizard workflow: finish, cancel, page change.
+	 * Call page-specific referenceData method.
 	 */
-	protected final ModelAndView processSubmit(HttpServletRequest request, HttpServletResponse response,
-	                                           Object command, ServletRequestDataBinder errors)
-	    throws ServletException, IOException {
+	protected final Map referenceData(HttpServletRequest request, Object command, Errors errors)
+	    throws ServletException {
+		return referenceData(request, command, errors, getCurrentPage(request));
+	}
 
-		int page = getCurrentPage(request);
-		request.getSession().removeAttribute(getPageSessionAttributeName());
-
-		// cancel?
-		if (request.getParameter(PARAM_CANCEL) != null) {
-			logger.debug("Cancelling wizard (form bean: " + getBeanName() + ")");
-			return processCancel(request, response, command, errors);
-		}
-
-		// finish?
-		if (request.getParameter(PARAM_FINISH) != null) {
-			logger.debug("Finishing wizard (form bean: " + getBeanName() + ")");
-			return validatePagesAndFinish(request, response, command, errors);
-		}
-
-		// normal submit: validate current page and show specified target page
-		logger.debug("Validating wizard page " + page + " (form bean: " + getBeanName() + ")");
-		validatePage(command, errors, page);
-
-		Enumeration paramNames = request.getParameterNames();
-		while (paramNames.hasMoreElements()) {
-			String paramName = (String) paramNames.nextElement();
-			if (paramName.startsWith(PARAM_TARGET)) {
-				int target = Integer.parseInt(paramName.substring(PARAM_TARGET.length()));
-				if (!errors.hasErrors() || (this.allowDirtyBack && target < page) ||
-				    (this.allowDirtyForward && target > page)) {
-					// allowed to go to target page
-					return showPage(request, errors, target);
-				}
-			}
-		}
-
-		// showing current page again
-		return showPage(request, errors, page);
+	/**
+	 * Create a reference data map for the given request, consisting of
+	 * bean name/bean instance pairs as expected by ModelAndView.
+	 * <p>Default implementation returns null.
+	 * Subclasses can override this to set reference data used in the view.
+	 * @param request current HTTP request
+	 * @param command form object with request parameters bound onto it
+	 * @param errors binder containing current errors, if any
+	 * @param page current wizard page
+	 * @return a Map with reference data entries, or null if none
+	 * @throws ServletException in case of invalid state or arguments
+	 * @see ModelAndView
+	 */
+	protected Map referenceData(HttpServletRequest request, Object command, Errors errors, int page)
+	    throws ServletException {
+		return null;
 	}
 
 	/**
@@ -234,11 +216,78 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 	}
 
 	/**
+	 * Return the name of the session attribute that holds
+	 * the page object for this controller.
+	 * @return the name of the page session attribute
+	 */
+	protected final String getPageSessionAttributeName() {
+		return getClass() + ".page." + getBeanName();
+	}
+
+	/**
+	 * Return the current page number.
+	 * Mainly useful for page-specific onBindAndValidate implementations,
+	 * as methods like validatePage explicitly feature a page parameter.
+	 * @throws IllegalStateException if the page attribute isn't in the session
+	 * anymore, i.e. when called after processSubmit.
+	 */
+	protected final int getCurrentPage(HttpServletRequest request) throws IllegalStateException {
+		Integer pageAttr = (Integer) request.getSession().getAttribute(getPageSessionAttributeName());
+		if (pageAttr == null) {
+			throw new IllegalStateException("Page attribute isn't in session anymore - called after processSubmit?");
+		}
+		return pageAttr.intValue();
+	}
+
+	/**
+	 * Apply wizard workflow: finish, cancel, page change.
+	 */
+	protected final ModelAndView processSubmit(HttpServletRequest request, HttpServletResponse response,
+	                                           Object command, BindException errors)
+	    throws ServletException, IOException {
+
+		int page = getCurrentPage(request);
+		request.getSession().removeAttribute(getPageSessionAttributeName());
+
+		// cancel?
+		if (request.getParameter(PARAM_CANCEL) != null) {
+			logger.debug("Cancelling wizard (form bean: " + getBeanName() + ")");
+			return processCancel(request, response, command, errors);
+		}
+
+		// finish?
+		if (request.getParameter(PARAM_FINISH) != null) {
+			logger.debug("Finishing wizard (form bean: " + getBeanName() + ")");
+			return validatePagesAndFinish(request, response, command, errors);
+		}
+
+		// normal submit: validate current page and show specified target page
+		logger.debug("Validating wizard page " + page + " (form bean: " + getBeanName() + ")");
+		validatePage(command, errors, page);
+
+		Enumeration paramNames = request.getParameterNames();
+		while (paramNames.hasMoreElements()) {
+			String paramName = (String) paramNames.nextElement();
+			if (paramName.startsWith(PARAM_TARGET)) {
+				int target = Integer.parseInt(paramName.substring(PARAM_TARGET.length()));
+				if (!errors.hasErrors() || (this.allowDirtyBack && target < page) ||
+				    (this.allowDirtyForward && target > page)) {
+					// allowed to go to target page
+					return showPage(request, errors, target);
+				}
+			}
+		}
+
+		// showing current page again
+		return showPage(request, errors, page);
+	}
+
+	/**
 	 * Validate all pages and process finish.
 	 * If there are page validation errors, show the respective view page.
 	 */
 	private ModelAndView validatePagesAndFinish(HttpServletRequest request, HttpServletResponse response,
-	                                            Object command, ServletRequestDataBinder errors)
+	                                            Object command, BindException errors)
 	    throws ServletException, IOException {
 		for (int page = 0; page < pages.length; page++) {
 			validatePage(command, errors, page);
@@ -273,7 +322,7 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 	 * @throws ServletException in case of invalid state or arguments
 	 */
 	protected abstract ModelAndView processFinish(HttpServletRequest request, HttpServletResponse response,
-	                                              Object command, ServletRequestDataBinder errors)
+	                                              Object command, BindException errors)
 	    throws ServletException, IOException;
 
 	/**
@@ -286,7 +335,7 @@ public abstract class AbstractWizardFormController extends AbstractFormControlle
 	 * @throws ServletException in case of invalid state or arguments
 	 */
 	protected abstract ModelAndView processCancel(HttpServletRequest request, HttpServletResponse response,
-	                                              Object command, ServletRequestDataBinder errors)
+	                                              Object command, BindException errors)
 	    throws ServletException, IOException;
 
 }
