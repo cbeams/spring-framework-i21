@@ -284,14 +284,15 @@ public class FormControllerTestSuite extends TestCase {
 	};
 
 	
-	private static class TestController extends FormController {
+	private static class TestController extends SimpleFormController {
 		
 		public static String BEAN_NAME = "person";
 		
 		public static int DEFAULT_AGE = 52;
 		
 		public TestController() {
-			super(TestBean.class, BEAN_NAME);
+			setCommandClass(TestBean.class);
+			setBeanName(BEAN_NAME);
 		}
 		
 		protected Object formBackingObject(HttpServletRequest request) throws ServletException {
@@ -302,7 +303,7 @@ public class FormControllerTestSuite extends TestCase {
 	}
 	
 	
-	private static class RefController extends FormController {
+	private static class RefController extends SimpleFormController {
 		
 		final String NUMBERS_ATT = "NUMBERS";
 		
@@ -311,7 +312,7 @@ public class FormControllerTestSuite extends TestCase {
 		int refDataCount;
 		
 		public RefController() {
-			super(TestBean.class);
+			setCommandClass(TestBean.class);
 		}
 		
 		protected Map referenceData(HttpServletRequest request) {
@@ -323,14 +324,16 @@ public class FormControllerTestSuite extends TestCase {
 	}
 
 
-  private static class TestSessionController extends SessionFormController {
+  private static class TestSessionController extends SimpleFormController {
 
 	  public static String BEAN_NAME = "person";
 
 	  public static int DEFAULT_AGE = 52;
 
 	  public TestSessionController() {
-		  super(TestBean.class, BEAN_NAME);
+		  setCommandClass(TestBean.class);
+		  setBeanName(BEAN_NAME);
+		  setSessionForm(true);
 	  }
 
 	  protected Object formBackingObject(HttpServletRequest request) throws ServletException {

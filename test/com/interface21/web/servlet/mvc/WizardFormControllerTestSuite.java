@@ -6,6 +6,8 @@ import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
@@ -13,6 +15,7 @@ import com.interface21.beans.TestBean;
 import com.interface21.web.mock.MockHttpRequest;
 import com.interface21.web.mock.MockHttpResponse;
 import com.interface21.web.servlet.ModelAndView;
+import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.validation.Errors;
 
 /**
@@ -26,122 +29,120 @@ public class WizardFormControllerTestSuite extends TestCase {
 	}
 
 	public void testNoDirtyPageChange() {
-		WizardFormController wizard = createWizard();
+		AbstractWizardFormController wizard = createWizard();
 		wizard.setAllowDirtyBack(false);
 		wizard.setAllowDirtyForward(false);
 		wizard.setPageAttribute("currentPage");
 		HttpSession session = performRequest(wizard, null, null, 0, null, 0, "currentPage");
 
 		Properties params = new Properties();
-		params.setProperty(WizardFormController.PARAM_TARGET + "1", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "1", "value");
 		performRequest(wizard, session, null, 0, null, 0, "currentPage");
 		// not allowed to go to 1
 
 		params.clear();
 		params.setProperty("name", "myname");
-		params.setProperty(WizardFormController.PARAM_TARGET + "1", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "1", "value");
 		performRequest(wizard, session, params, 1, "myname", 0, "currentPage");
 		// name set -> now allowed to go to 1
 
 		params.clear();
-		params.setProperty(WizardFormController.PARAM_TARGET + "0", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "0", "value");
 		performRequest(wizard, session, params, 1, "myname", 0, "currentPage");
 		// not allowed to go to 0
 
 		params.clear();
 		params.setProperty("age", "32");
-		params.setProperty(WizardFormController.PARAM_TARGET + "0", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "0", "value");
 		performRequest(wizard, session, params, 0, "myname", 32, "currentPage");
 		// age set -> now allowed to go to 0
 
 		params.clear();
-		params.setProperty(WizardFormController.PARAM_FINISH, "value");
+		params.setProperty(AbstractWizardFormController.PARAM_FINISH, "value");
 		performRequest(wizard, session, params, -1, "myname", 32, null);
 	}
 
 	public void testDirtyBack() {
-		WizardFormController wizard = createWizard();
+		AbstractWizardFormController wizard = createWizard();
 		wizard.setAllowDirtyBack(true);
 		wizard.setAllowDirtyForward(false);
 		HttpSession session = performRequest(wizard, null, null, 0, null, 0, null);
 
 		Properties params = new Properties();
-		params.setProperty(WizardFormController.PARAM_TARGET + "1", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "1", "value");
 		performRequest(wizard, session, params, 0, null, 0, null);
 		// not allowed to go to 1
 
 		params.clear();
 		params.setProperty("name", "myname");
-		params.setProperty(WizardFormController.PARAM_TARGET + "1", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "1", "value");
 		performRequest(wizard, session, params, 1, "myname", 0, null);
 		// name set -> now allowed to go to 1
 
 		params.clear();
-		params.setProperty(WizardFormController.PARAM_TARGET + "0", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "0", "value");
 		performRequest(wizard, session, params, 0, "myname", 0, null);
 		// dirty back -> allowed to go to 0
 
 		params.clear();
-		params.setProperty(WizardFormController.PARAM_FINISH, "value");
+		params.setProperty(AbstractWizardFormController.PARAM_FINISH, "value");
 		performRequest(wizard, session, params, 1, "myname", 0, null);
 		// finish while dirty -> show dirty page (1)
 
 		params.clear();
 		params.setProperty("age", "32");
-		params.setProperty(WizardFormController.PARAM_FINISH, "value");
+		params.setProperty(AbstractWizardFormController.PARAM_FINISH, "value");
 		performRequest(wizard, session, params, -1, "myname", 32, null);
 		// age set -> now allowed to finish
 	}
 
 	public void testDirtyForward() {
-		WizardFormController wizard = createWizard();
+		AbstractWizardFormController wizard = createWizard();
 		wizard.setAllowDirtyBack(false);
 		wizard.setAllowDirtyForward(true);
 		HttpSession session = performRequest(wizard, null, null, 0, null, 0, null);
 
 		Properties params = new Properties();
-		params.setProperty(WizardFormController.PARAM_TARGET + "1", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "1", "value");
 		performRequest(wizard, session, params, 1, null, 0, null);
 		// dirty forward -> allowed to go to 1
 
 		params.clear();
-		params.setProperty(WizardFormController.PARAM_TARGET + "0", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "0", "value");
 		performRequest(wizard, session, params, 1, null, 0, null);
 		// not allowed to go to 0
 
 		params.clear();
 		params.setProperty("age", "32");
-		params.setProperty(WizardFormController.PARAM_TARGET + "0", "value");
+		params.setProperty(AbstractWizardFormController.PARAM_TARGET + "0", "value");
 		performRequest(wizard, session, params, 0, null, 32, null);
 		// age set -> now allowed to go to 0
 
 		params.clear();
-		params.setProperty(WizardFormController.PARAM_FINISH, "value");
+		params.setProperty(AbstractWizardFormController.PARAM_FINISH, "value");
 		performRequest(wizard, session, params, 0, null, 32, null);
 		// finish while dirty -> show dirty page (0)
 
 		params.clear();
 		params.setProperty("name", "myname");
-		params.setProperty(WizardFormController.PARAM_FINISH, "value");
+		params.setProperty(AbstractWizardFormController.PARAM_FINISH, "value");
 		performRequest(wizard, session, params, -1, "myname", 32, null);
 		// name set -> now allowed to finish
 	}
 
 	public void testAbort() {
-		WizardFormController wizard = createWizard();
+		AbstractWizardFormController wizard = createWizard();
 		HttpSession session = performRequest(wizard, null, null, 0, null, 0, null);
 
 		Properties params = new Properties();
-		params.setProperty(WizardFormController.PARAM_ABORT, "value");
+		params.setProperty(AbstractWizardFormController.PARAM_CANCEL, "value");
 		performRequest(wizard, session, params, -2, null, 0, null);
 	}
 
 
-	private WizardFormController createWizard() {
-		WizardFormController wizard = new TestWizardController(TestBean.class, "tb");
+	private AbstractWizardFormController createWizard() {
+		AbstractWizardFormController wizard = new TestWizardController(TestBean.class, "tb");
 		wizard.setPages(new String[] {"page0", "page1"});
-		wizard.setSuccessView("success");
-		wizard.setAbortView("abort");
 		return wizard;
 	}
 
@@ -191,10 +192,11 @@ public class WizardFormControllerTestSuite extends TestCase {
 	}
 
 
-	private static class TestWizardController extends WizardFormController {
+	private static class TestWizardController extends AbstractWizardFormController {
 
 		public TestWizardController(Class commandClass, String beanName) {
-			super(commandClass, beanName);
+			setCommandClass(commandClass);
+			setBeanName(beanName);
 		}
 
 		protected void validatePage(Object command, Errors errors, int page) {
@@ -213,6 +215,18 @@ public class WizardFormControllerTestSuite extends TestCase {
 			  default:
 					throw new IllegalArgumentException("Invalid page number");
 			}
+		}
+
+		protected ModelAndView processFinish(HttpServletRequest request, HttpServletResponse response,
+		                                     Object command, ServletRequestDataBinder errors)
+		    throws ServletException, IOException {
+			return new ModelAndView("success", getBeanName(), command);
+		}
+
+		protected ModelAndView processCancel(HttpServletRequest request, HttpServletResponse response,
+		                                    Object command, ServletRequestDataBinder errors)
+		    throws ServletException, IOException {
+			return new ModelAndView("abort", getBeanName(), command);
 		}
 	}
 
