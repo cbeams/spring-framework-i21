@@ -48,6 +48,8 @@
 
 		<delete dir="${build.dir}"/>
 		<delete dir="${dist.dir}"/>
+		<delete dir="${docs.dir}"/>
+		<delete dir="${release.dir}"/>
 		<delete dir="${testbuild.dir}"/>
 		<delete dir="${livetestbuild.dir}"/>
 		<delete dir="${clover.build.dir}"/>
@@ -206,8 +208,6 @@
 
 	<target name="javadoc" description="Generate framework Javadocs.">
 
-		<delete dir="${docs.dir}"/>
-
 		<mkdir dir="${docs.dir}"/>
 
 		<javadoc packagenames="com.interface21.*"	sourcepath="src" defaultexcludes="yes"
@@ -232,12 +232,12 @@
 	</target>
 
 
-	<target name="release" depends="alljars" description="Generate release zip file">
+	<target name="release" depends="alljars,javadoc" description="Generate release zip file">
 
-		<delete file="${release.zip}"/>
+		<mkdir dir="${release.dir}"/>
 
-		<zip zipfile="${release.zip}">
-			<fileset dir=".">
+		<zip zipfile="${release.dir}/${release.zip}">
+			<zipfileset dir="." prefix="${release.path}">
 				<include name="dist/*.jar"/>
 				<include name="docs/**"/>
 				<include name="src/**"/>
@@ -246,7 +246,8 @@
 				<include name="lib/junit/**"/>
 				<include name="lib/log4j/**"/>
 				<include name="samples/**"/>
-			</fileset>
+				<include name="*.txt"/>
+			</zipfileset>
 		</zip>
 
 	</target>
