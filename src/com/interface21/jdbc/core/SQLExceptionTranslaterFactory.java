@@ -108,29 +108,31 @@ public class SQLExceptionTranslaterFactory {
 	public SQLExceptionTranslater getDefaultTranslater(DataSource ds) {
 		logger.info("Initializing default SQL exception translater");
 		Connection con = DataSourceUtils.getConnection(ds);
-		try {
-			DatabaseMetaData dbmd = con.getMetaData();
-			if (dbmd != null) {
-				String dbName = dbmd.getDatabaseProductName();
-				// special check for DB2
-				if (dbName != null && dbName.startsWith("DB2/"))
-					dbName = "DB2";
-				if (dbName != null) {
-					SQLErrorCodes sec = (SQLErrorCodes) rdbmsErrorCodes.get(dbName);
-					if (sec != null)
-						return new SQLErrorCodeSQLExceptionTranslater(sec);
+		if (con != null) {
+			// should always be the case outside of test environments
+			try {
+				DatabaseMetaData dbmd = con.getMetaData();
+				if (dbmd != null) {
+					String dbName = dbmd.getDatabaseProductName();
+					// special check for DB2
+					if (dbName != null && dbName.startsWith("DB2/"))
+						dbName = "DB2";
+					if (dbName != null) {
+						SQLErrorCodes sec = (SQLErrorCodes) rdbmsErrorCodes.get(dbName);
+						if (sec != null)
+							return new SQLErrorCodeSQLExceptionTranslater(sec);
+					}
 				}
+				// could not find the database among the defined ones
 			}
-			// could not find the database among the defined ones
-			return new SQLStateSQLExceptionTranslater();
+			catch (SQLException se) {
+				// this is bad - we probably lost the connection
+			}
+			finally {
+				DataSourceUtils.closeConnectionIfNecessary(con, ds);
+			}
 		}
-		catch (SQLException se) {
-			// this is bad - we probably lost the connection
-			return new SQLStateSQLExceptionTranslater();
-		}
-		finally {
-			DataSourceUtils.closeConnectionIfNecessary(con, ds);
-		}
+		return new SQLStateSQLExceptionTranslater();
 	}
 
 	/**
