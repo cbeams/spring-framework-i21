@@ -18,21 +18,23 @@ import org.apache.log4j.Logger;
 import com.interface21.beans.factory.InitializingBean;
 
 /** 
-* Superclass for dynamic proxies.
-* Example:
-* we set the bean class name which will be exposed,
-* and then take another property to be the concrete
-* class we'll construct and proxy to.
-* 
-* TODO should we be able to add interceptors/pointcuts positionally, or just at end?
+* Superclass for AOP Proxy configuration objects.
+* Subclasses are normally factories from which AOP proxy instances
+* are obtained directly.
+* Implements InitializingBean interface. If using outside
+* a BeanFactory (which will call this lifecycle method automatically)
+* invoke the afterPropertiesSet() method before using an object of this class,
+* but after setting its JavaBean properties.
+* <br>
+* This class frees subclasses of the housekeeping of interceptors and pointcuts.
+* @author Rod Johnson
+* @version $Id$
 */
 public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
-
 
 	private AttributeRegistry attributeRegistry;
 
 	protected final Logger logger = Logger.getLogger(getClass().getName());
-	
 
 	/** List of MethodPointcut */
 	private List pointcuts = new LinkedList();
@@ -45,6 +47,12 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 */
 	private Object target;
 
+	/**
+	 * Should proxies obtained from this configuration expose
+	 * Invocation for the AopContext class to retrieve for targets?
+	 * The default is false, as enabling this property may
+	 * impair performance.
+	 */
 	private boolean exposeInvocation;
 	
 	/**
@@ -70,7 +78,9 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	}
 
 	/**
-	 * Sets the exposeInvocation.
+	 * Sets the exposeInvocation property, governing
+	 * whether the AopContext class will be usable
+	 * by target objects.
 	 * @param exposeInvocation The exposeInvocation to set
 	 */
 	public final void setExposeInvocation(boolean exposeInvocation) {
@@ -79,7 +89,6 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 
 
 	/** 
-	 * Can only be called once up and running
 	 * @see com.interface21.aop.ProxyConfig#addInterceptor(org.aopalliance.Interceptor)
 	 */
 	public final void addInterceptor(Interceptor interceptor) {
@@ -112,6 +121,11 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		addMethodPointcut(pos, new AlwaysInvoked((MethodInterceptor) interceptor));
 	}
 
+	/**
+	 * We're going to add the given interceptor. Add any aspect interfaces it
+	 * means we'll additionally proxy.
+	 * @param interceptor
+	 */
 	public void addAspectInterfacesIfNecessary(Interceptor interceptor) {
 		 if (interceptor instanceof AspectInterfaceInterceptor) {
 		 	System.out.println("Added new aspect interface");
@@ -174,6 +188,10 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		return removed;
 	}
 	
+	/**
+	 * Add a new proxied interface
+	 * @param newInterface
+	 */
 	protected final void addInterface(Class newInterface) {
 		List l = arrayToList(this.interfaces);
 		l.add(newInterface);
@@ -182,7 +200,8 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	
 	
 	/**
-	 * Does nothing if it isn't there
+	 * Remove a proxied interface.
+	 * Does nothing if it isn't proxied.
 	 * @param intf
 	 * @return boolean
 	 */
@@ -230,6 +249,8 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	}
 
 	/**
+	 * Lifecycle method. This implementation merely checks
+	 * that configuration is complete: it doesn't do anything.
 	 * @see com.interface21.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
 	public void afterPropertiesSet() throws Exception {
@@ -244,6 +265,9 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		return this.target;
 	}
 
+	/**
+	 * @see com.interface21.aop.framework.ProxyConfig#addMethodPointcut(int, com.interface21.aop.framework.MethodPointcut)
+	 */
 	public void addMethodPointcut(int pos, MethodPointcut pc) {
 		this.pointcuts.add(pos, pc);
 		// If we added it to the end of the list, we may need to update target
@@ -271,7 +295,23 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * @see com.interface21.aop.framework.ProxyConfig#getInterceptors()
 	 */
 	public List getMethodPointcuts() {
-		// unmodifiable!?
+		// TODO make this list unmodifiable?
 		return this.pointcuts;
 	}
-}
+	
+	/**
+	 * Replace the given pointcut
+	 * @param pc1 pointcut to replace
+	 * @param pc2 pointcut to replace it with
+	 * @return boolean whether it was replaced. If the pointcut
+	 * wasn't found in the list of pointcuts, this method
+	 * returns false and does nothing.
+	 */
+	public boolean replaceMethodPointcut(MethodPointcut pc1, MethodPointcut pc2) {
+		if (!this.pointcuts.contains(pc1))
+			return false;
+		this.pointcuts.set(this.pointcuts.indexOf(pc1), pc2);
+		return true;
+	}
+	
+}	// DefaultProxyConfig
