@@ -70,8 +70,8 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 		assertTrue("Correct default content type", jv.getContentType().equals("text/html; charset=ISO-8859-1"));
 		
 		// Test default content type
-		assertTrue("WebAppContext was set on view", jv.getWebApplicationContext() != null);
-		assertTrue("WebAppContext was sticky", jv.getWebApplicationContext().equals(wac));
+		assertTrue("WebAppContext was set on view", jv.getApplicationContext() != null);
+		assertTrue("WebAppContext was sticky", jv.getApplicationContext().equals(wac));
 	}
 
 	public void testDebugViewFrench() throws Exception {
@@ -103,7 +103,7 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 		protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		}
 		
-		protected void onSetContext() {
+		protected void initApplicationContext() {
 			++initCount;
 		}
 		
