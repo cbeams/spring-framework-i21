@@ -39,7 +39,7 @@ public abstract class SessionFactoryUtils {
 
 	/**
 	 * Return the thread object manager for Hibernate session, keeping a
-	 * DataSource/Session map per thread for Hibernate transactions.
+	 * SessionFactory/SessionHolder map per thread for Hibernate transactions.
 	 * @return the thread object manager
 	 * @see #openSession
 	 * @see HibernateTransactionManager
@@ -52,8 +52,10 @@ public abstract class SessionFactoryUtils {
 	 * Look up the specified SessionFactory in JNDI, using a default JndiTemplate.
  	 * @param name name of the SessionFactory
 	 * @return the SessionFactory
+	 * @throws DataAccessResourceFailureException if the SessionFactory wasn't found
 	 */
-	public static SessionFactory getSessionFactoryFromJndi(String name) {
+	public static SessionFactory getSessionFactoryFromJndi(String name)
+	    throws DataAccessResourceFailureException {
 		return getSessionFactoryFromJndi(name, new JndiTemplate());
 	}
 
@@ -62,8 +64,10 @@ public abstract class SessionFactoryUtils {
  	 * @param name name of the SessionFactory
 	 * @param jndiTemplate template instance to use for lookup, or null for default
 	 * @return the SessionFactory
+	 * @throws DataAccessResourceFailureException if the SessionFactory wasn't found
 	 */
-	protected static SessionFactory getSessionFactoryFromJndi(String name, JndiTemplate jndiTemplate) {
+	protected static SessionFactory getSessionFactoryFromJndi(String name, JndiTemplate jndiTemplate)
+	    throws DataAccessResourceFailureException {
 		if (jndiTemplate == null) {
 			jndiTemplate = new JndiTemplate();
 		}
@@ -78,8 +82,7 @@ public abstract class SessionFactoryUtils {
 	/**
 	 * Create a Hibernate SessionFactory using the default config file.
 	 * @return the new SessionFactory instance
-	 * @throws DataAccessResourceFailureException if the SessionFactory
-	 * could not be created
+	 * @throws DataAccessResourceFailureException if the SessionFactory could not be created
 	 */
 	public static SessionFactory createSessionFactory()
 	    throws DataAccessResourceFailureException {
@@ -89,11 +92,10 @@ public abstract class SessionFactoryUtils {
 
 	/**
 	 * Create a Hibernate SessionFactory with the given config file.
-	 * @param configLocation location of the config file (can be a URL
-	 * or a classpath resource), or null if default
+	 * @param configLocation location of the config file (can be a URl or a
+	 * classpath resource), or null if default
 	 * @return the new SessionFactory instance
-	 * @throws DataAccessResourceFailureException if the SessionFactory
-	 * could not be created
+	 * @throws DataAccessResourceFailureException if the SessionFactory could not be created
 	 */
 	public static SessionFactory createSessionFactory(String configLocation)
 	    throws DataAccessResourceFailureException {
@@ -131,8 +133,10 @@ public abstract class SessionFactoryUtils {
 	 * for example when using HibernateTransactionManager.
 	 * @param sessionFactory Hibernate SessionFactory to create the session with
 	 * @return the Hibernate Session
+	 * @throws DataAccessResourceFailureException if the Session couldn't be created
 	 */
-	public static Session openSession(SessionFactory sessionFactory) {
+	public static Session openSession(SessionFactory sessionFactory)
+	    throws DataAccessResourceFailureException {
 		SessionHolder holder = (SessionHolder) threadObjectManager.getThreadObject(sessionFactory);
 		if (holder != null) {
 			return holder.getSession();
@@ -155,8 +159,10 @@ public abstract class SessionFactoryUtils {
 	 * underlying connection.
 	 * @param session Session to close
 	 * @param sessionFactory Hibernate SessionFactory that the Session was created with
+	 * @throws DataAccessResourceFailureException if the Session couldn't be closed
 	 */
-	public static void closeSessionIfNecessary(Session session, SessionFactory sessionFactory) {
+	public static void closeSessionIfNecessary(Session session, SessionFactory sessionFactory)
+	    throws DataAccessResourceFailureException {
 		if (session == null)
 			return;
 		// only close if it isn't thread-bound

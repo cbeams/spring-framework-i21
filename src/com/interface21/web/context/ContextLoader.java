@@ -1,22 +1,24 @@
 package com.interface21.web.context;
 
-import com.interface21.web.context.support.XmlWebApplicationContext;
-import com.interface21.context.ApplicationContextException;
+import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
-import javax.servlet.ServletContext;
+import com.interface21.context.ApplicationContextException;
+import com.interface21.web.context.support.XmlWebApplicationContext;
 
 /**
- * Performs the actual initialization work.
- * Called by both ContextLoaderServlet and ContextLoaderListener,
- * and implictly by FrameworkServlet in case of no preloaded context.
+ * Performs the actual initialization work for the root application context.
+ * Called by both ContextLoaderServlet and ContextLoaderListener.
  *
- * Regards a "contextClass" parameter at the servlet context resp. web.xml root level,
+ * <p>Regards a "contextClass" parameter at the servlet cpontext resp. web.xml root level,
  * falling back to the default context class (XmlWebApplicationContext) if not found.
  *
  * @author Juergen Hoeller
  * @since 17.02.2003
+ * @see ContextLoaderServlet
+ * @see ContextLoaderListener
+ * @see XmlWebApplicationContext
  */
 public class ContextLoader {
 

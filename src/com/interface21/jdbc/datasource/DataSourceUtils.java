@@ -27,7 +27,7 @@ import com.interface21.util.ThreadObjectManager;
 /**
  * Class containing static methods to obtain connections from JNDI and close
  * connections if necessary. Has support for thread-bound connections,
- * for example when using DataSourceTransactionManager.
+ * for example for using DataSourceTransactionManager.
  * 
  * @version $Id$
  * @author Rod Johnson
@@ -43,7 +43,7 @@ public abstract class DataSourceUtils {
 
 	/**
 	 * Return the thread object manager for data sources, keeping a
-	 * DataSource/Connection map per thread for JDBC transactions.
+	 * DataSource/ConnectionHolder map per thread for JDBC transactions.
 	 * @return the thread object manager
 	 * @see #getConnection
 	 * @see com.interface21.transaction.datasource.DataSourceTransactionManager
@@ -150,10 +150,9 @@ public abstract class DataSourceUtils {
 	}
 
 	/**
-	 * Wrap the given connection with a proxy that delegates every method call
-	 * to it but suppresses close calls. This is useful for allowing application
-	 * code to handle a special framework connection just like an ordinary
-	 * DataSource connection.
+	 * Wrap the given connection with a proxy that delegates every method call to it
+	 * but suppresses close calls. This is useful for allowing application code to
+	 * handle a special framework connection just like an ordinary DataSource connection.
 	 * @param source original connection
 	 * @return the wrapped connection
 	 * @see com.interface21.jdbc.datasource.SingleConnectionDataSource
