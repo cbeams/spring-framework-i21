@@ -84,11 +84,11 @@
 
 	<!--
 	  - Example data access object, to be used higher-level objects in this context
-	  - as <ref bean="exampleDataAccessObject") bean reference.
+	  - as <ref bean="exampleDataAccessObject"/> bean reference.
 	  -
 	  - Can also be used by web controllers or any other clients of this context,
 	  - either via context.getBean("exampleDataAccessObject") or as
-	  - <ref external="exampleDataAccessObject") bean reference -
+	  - <ref external="exampleDataAccessObject"/> bean reference -
 	  - but shouldn't for the sake of clear application layering.
 	  -
 	  - Is assumed to use the DataSource reference, handed to it via a "setDataSource"
@@ -137,7 +137,7 @@
 	<!--
 		- Proxy for the example business object, to be used by web controllers or any
 		- other clients of this context, either via context.getBean("exampleBusinessObject")
-		- or as <ref external="exampleBusinessObject") bean reference.
+		- or as <ref external="exampleBusinessObject"/> bean reference.
 		-
 		- Wraps "exampleBusinessObjectTarget", applying "transactionInterceptor" on
 		- method calls. According to the interceptor configuration, ExampleBusinessObject's
@@ -150,7 +150,7 @@
 		<property name="proxyInterfaces"><value>example.ExampleBusinessInterface</value></property>
 		<property name="interceptorNames">
 			<list>
-				<value>transactionInterceptor</value>
+				<value>exampleTransactionInterceptor</value>
 			</list>
 		</property>
 	</bean>

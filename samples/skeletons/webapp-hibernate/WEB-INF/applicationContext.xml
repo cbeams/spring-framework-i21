@@ -115,11 +115,11 @@
 
 	<!--
 	  - Example data access object, to be used higher-level objects in this context
-	  - as <ref bean="exampleDataAccessObject") bean reference.
+	  - as <ref bean="exampleDataAccessObject"/> bean reference.
 	  -
 	  - Can also be used by web controllers or any other clients of this context,
 	  - either via context.getBean("exampleDataAccessObject") or as
-	  - <ref external="exampleDataAccessObject") bean reference -
+	  - <ref external="exampleDataAccessObject"/> bean reference -
 	  - but shouldn't for the sake of clear application layering.
 	  -
 	  - Is assumed to use the SessionFactory reference, passed to it via a
@@ -133,7 +133,7 @@
 	<!--
 	  - Example business object, to be used by web controllers or any other clients
 	  - of this context, either via context.getBean("exampleBusinessObject") or as
-	  - <ref external="exampleBusinessObject") bean reference.
+	  - <ref external="exampleBusinessObject"/> bean reference.
 	  -
 	  - Is assumed to use the transaction manager bean, probably with TransactionTemplate
 	  - for programmatic transaction demarcation, and the above data access object.
