@@ -3,9 +3,9 @@
 
 <!--
   - Root application context definition for a web app that uses JDBC.
-  -
   - Does not depend on web infrastructure or any web-specific classes!
-  - Assumes running in a J2EE environment in the "dataSource" definition, as
+  -
+  - Assumes running in a J2EE environment in the "myDataSource" definition, as
   - it looks for a "java:comp/env/jdbc/myds" JNDI DataSource, but that can be
   - replaced easily (as noted). Such a context definition can thus be reused
   - in test environments or standalone applications without any hassle.
@@ -60,7 +60,6 @@
 
 	<!--
 	  - Defines a transaction manager for usage in business or data access objects.
-	  -
 	  - No special treatment by the context, just a bean instance available as reference
 	  - for business objects that want to handle transactions, e.g. via TransactionTemplate.
 	  -->
