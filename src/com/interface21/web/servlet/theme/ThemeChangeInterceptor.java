@@ -17,26 +17,26 @@ import com.interface21.web.servlet.support.RequestContextUtils;
  */
 public class ThemeChangeInterceptor implements HandlerInterceptor {
 
-	public static final String DEFAULT_PARAMETER_NAME = "theme";
+	public static final String DEFAULT_PARAM_NAME = "theme";
 
-	private String parameterName = DEFAULT_PARAMETER_NAME;
+	private String paramName = DEFAULT_PARAM_NAME;
 
 	/**
 	 * Set the name of the parameter that contains a theme specification
-	 * in a locale change request.
-	 * Default is "theme".
+	 * in a theme change request. Default is "theme".
 	 */
-	public void setParameterName(String parameterName) {
-		this.parameterName = parameterName;
+	public void setParamName(String paramName) {
+		this.paramName = paramName;
 	}
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws ServletException {
 		ThemeResolver themeResolver = RequestContextUtils.getThemeResolver(request);
-		String newTheme = request.getParameter(this.parameterName);
+		String newTheme = request.getParameter(this.paramName);
 		if (newTheme != null) {
 			themeResolver.setThemeName(request, response, newTheme);
 		}
+		// proceed in any case
 		return true;
 	}
 

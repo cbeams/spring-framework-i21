@@ -6,10 +6,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.interface21.beans.propertyeditors.LocaleEditor;
 import com.interface21.web.servlet.HandlerInterceptor;
 import com.interface21.web.servlet.LocaleResolver;
 import com.interface21.web.servlet.support.RequestContextUtils;
-import com.interface21.beans.propertyeditors.LocaleEditor;
 
 /**
  * Interceptor that allows for changing the current locale on every request,
@@ -20,28 +20,28 @@ import com.interface21.beans.propertyeditors.LocaleEditor;
  */
 public class LocaleChangeInterceptor implements HandlerInterceptor {
 
-	public static final String DEFAULT_PARAMETER_NAME = "locale";
+	public static final String DEFAULT_PARAM_NAME = "locale";
 
-	private String parameterName = DEFAULT_PARAMETER_NAME;
+	private String paramName = DEFAULT_PARAM_NAME;
 
 	/**
 	 * Set the name of the parameter that contains a locale specification
-	 * in a locale change request.
-	 * Default is "locale".
+	 * in a locale change request. Default is "locale".
 	 */
-	public void setParameterName(String parameterName) {
-		this.parameterName = parameterName;
+	public void setParamName(String paramName) {
+		this.paramName = paramName;
 	}
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws ServletException {
 		LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
-		String newLocale = request.getParameter(this.parameterName);
+		String newLocale = request.getParameter(this.paramName);
 		if (newLocale != null) {
 			LocaleEditor localeEditor = new LocaleEditor();
 			localeEditor.setAsText(newLocale);
 			localeResolver.setLocale(request, response, (Locale) localeEditor.getValue());
 		}
+		// proceed in any case
 		return true;
 	}
 

@@ -81,10 +81,10 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 		SimpleUrlHandlerMapping myUrlMapping1 = (SimpleUrlHandlerMapping) getBean("myUrlMapping1");
 		LocaleChangeInterceptor interceptor1 = new LocaleChangeInterceptor();
 		LocaleChangeInterceptor interceptor2 = new LocaleChangeInterceptor();
-		interceptor2.setParameterName("locale2");
+		interceptor2.setParamName("locale2");
 		ThemeChangeInterceptor interceptor3 = new ThemeChangeInterceptor();
 		ThemeChangeInterceptor interceptor4 = new ThemeChangeInterceptor();
-		interceptor4.setParameterName("theme2");
+		interceptor4.setParamName("theme2");
 		UserRoleAuthorizationInterceptor interceptor5 = new UserRoleAuthorizationInterceptor();
 		interceptor5.setAuthorizedRoles(new String[] {"role1", "role2"});
 		List interceptors = new ArrayList();
