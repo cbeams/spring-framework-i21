@@ -169,8 +169,9 @@ public class ValidationTestSuite extends TestCase {
 		assertEquals("AGE_NOT_ODD", ((FieldError) errors.getFieldErrors("age").get(1)).getCode());
 		assertEquals(1, errors.getFieldErrorCount("name"));
 		assertEquals("NOT_ROD", errors.getFieldError("name").getCode());
-		assertEquals("NOT_ROD.name", errors.getFieldError("name").getCodes()[0]);
-		assertEquals("NOT_ROD", errors.getFieldError("name").getCodes()[1]);
+		assertEquals("NOT_ROD.tb.name", errors.getFieldError("name").getCodes()[0]);
+		assertEquals("NOT_ROD.name", errors.getFieldError("name").getCodes()[1]);
+		assertEquals("NOT_ROD", errors.getFieldError("name").getCodes()[2]);
 		assertEquals("name", ((FieldError) errors.getFieldErrors("name").get(0)).getField());
 		assertEquals(null, ((FieldError) errors.getFieldErrors("name").get(0)).getRejectedValue());
 		assertEquals(1, errors.getFieldErrorCount("spouse.age"));
@@ -178,6 +179,7 @@ public class ValidationTestSuite extends TestCase {
 		assertEquals("tb", ((FieldError) errors.getFieldErrors("spouse.age").get(0)).getObjectName());
 		assertEquals(new Integer(0), ((FieldError) errors.getFieldErrors("spouse.age").get(0)).getRejectedValue());
 	}
+
 
 	private static class TestBeanValidator implements Validator {
 
