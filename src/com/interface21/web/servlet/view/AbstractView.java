@@ -80,7 +80,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 			val = val.substring(0, val.length() - 1);
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Set static attribute with name '" + name + "' and value [" + val + "] on view");
+				logger.info("Set static attribute with name '" + name + "' and value [" + val + "] on view");
 			}
 			addStaticAttribute(name, val);
 		}
@@ -127,7 +127,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	 * or null if not needed.
 	 * @param requestContextAttribute name of the RequestContext attribute
 	 */
-	public void setRequestContextAttribute(String requestContextAttribute) {
+	public final void setRequestContextAttribute(String requestContextAttribute) {
 		this.requestContextAttribute = requestContextAttribute;
 	}
 
@@ -179,12 +179,12 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	public final void render(Map model, HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException {
 		if (logger.isDebugEnabled())
-			logger.debug("Rendering view with name '" + this.name + " with mergedModel={" + model +
-				"} and static attributes={" + this.staticAttributes + "}");
+			logger.debug("Rendering view with name '" + this.name + "' with model=" + model +
+				" and static attributes=" + this.staticAttributes);
 		
 		// Consolidate static and dynamic model attributes
-		Map mergedModel = new HashMap(this.staticAttributes);
-		mergedModel.putAll(model);
+		Map mergedModel = new HashMap(model);
+		mergedModel.putAll(this.staticAttributes);
 
 		// expose request context?
 		if (this.requestContextAttribute != null) {
@@ -202,9 +202,9 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 	 * taking precedence over static attributes
 	 * @param request current HTTP request
 	 * @param response current HTTP response
+	 * @throws ServletException if there is any other error
 	 * @throws IOException if there is an IO exception trying to obtain
 	 * or render the view
-	 * @throws ServletException if there is any other error
 	 */
 	protected abstract void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException;

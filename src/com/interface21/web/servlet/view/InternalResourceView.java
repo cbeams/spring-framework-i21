@@ -8,7 +8,6 @@ package com.interface21.web.servlet.view;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -31,14 +30,14 @@ public class InternalResourceView extends AbstractView {
 	private String url;
 
 	/**
-	 * Constructor for use as a bean
+	 * Constructor for use as a bean.
 	 */
 	public InternalResourceView() {
 	}
 	 
 	/**
 	 * Create a new InternalResourceView with the given URL.
-	 * @param url url to forward to
+	 * @param url the URL to forward to
 	 */
 	public InternalResourceView(String url) {
 		setUrl(url);
@@ -52,13 +51,16 @@ public class InternalResourceView extends AbstractView {
 		this.url = url;
 	}
 
+	/**
+	 * Return the resource URL that this view forwards to.
+	 * @return the URL of the resource this view forwards to
+	 */
 	protected String getUrl() {
 		return url;
 	}
 
 	/**
-	 * Overridden lifecycle method to check that URL property is set
-	 * @see com.interface21.context.support.ApplicationObjectSupport#initApplicationContext()
+	 * Overridden lifecycle method to check that URL property is set.
 	 */
 	protected void initApplicationContext() throws ApplicationContextException {
 		if (this.url == null) 
@@ -69,8 +71,9 @@ public class InternalResourceView extends AbstractView {
 	 * Render the internal resource given the specified model.
 	 * This includes setting the model as request attributes.
 	 */
-	protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws ServletException {
-			
+	protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
+
 		if (this.url == null)
 			throw new ServletException("InternalResourceView is not configured: URL cannot be null");
 			
@@ -78,17 +81,12 @@ public class InternalResourceView extends AbstractView {
 
 		// Let the target resource set the content type
 				
-		try {
-			// Simply forward to the JSP
-			RequestDispatcher rd = request.getRequestDispatcher(this.url);
-			if (rd == null)
-				throw new ServletException("Can't get RequestDispatcher for '" + this.url + "': check that this file exists within your WAR");
-			rd.forward(request, response);
-			logger.debug("Forwarded OK to resource within current application with url '" + this.url + "' in InternalResource view with name '" + getName() + "'");
-		}
-		catch (IOException ex) {
-			throw new ServletException("Couldn't dispatch to JSP with url '" + this.url + "' in InternalResourceView with name '" + getName() + "'", ex);
-		}
+		// Simply forward to the JSP
+		RequestDispatcher rd = request.getRequestDispatcher(this.url);
+		if (rd == null)
+			throw new ServletException("Can't get RequestDispatcher for '" + this.url + "': check that this file exists within your WAR");
+		rd.forward(request, response);
+		logger.debug("Forwarded OK to resource within current application with url '" + this.url + "' in InternalResource view with name '" + getName() + "'");
 	}
 
 	/**
@@ -100,17 +98,16 @@ public class InternalResourceView extends AbstractView {
 	 */
 	protected void exposeModelsAsRequestAttributes(Map model, HttpServletRequest request) throws ServletException {
 		if (model != null) {
-			Set keys = model.keySet();
-			Iterator itr = keys.iterator();
+			Iterator itr = model.keySet().iterator();
 			while (itr.hasNext()) {
-				String modelname = (String) itr.next();
-				Object val = model.get(modelname);
+				String modelName = (String) itr.next();
+				Object modelValue = model.get(modelName);
 				if (logger.isDebugEnabled()) {
-					String msg = "Added model with name '" + modelname + "' to request in InternalResourceView with name '" + getName() + "' ";
-					msg += (val != null) ? "and class " + val.getClass() : "(null)";
+					String msg = "Added model with name '" + modelName + "' to request in InternalResourceView with name '" + getName() + "' ";
+					msg += (modelValue != null) ? "and class " + modelValue.getClass() : "(null)";
 					logger.debug(msg);
 				}
-				request.setAttribute(modelname, val);
+				request.setAttribute(modelName, modelValue);
 			}
 		}
 		else {
