@@ -31,11 +31,15 @@ public class CookieThemeResolver extends AbstractThemeResolver {
 
 	public static final String DEFAULT_COOKIE_NAME = CookieThemeResolver.class.getName() + ".THEME";
 
+	public static final String DEFAULT_COOKIE_PATH = "/";
+
 	public static final int DEFAULT_COOKIE_MAX_AGE = Integer.MAX_VALUE;
 
 	private String cookieName = DEFAULT_COOKIE_NAME;
 
 	private int cookieMaxAge = DEFAULT_COOKIE_MAX_AGE;
+
+	private String cookiePath = DEFAULT_COOKIE_PATH;
 	
 	/**
 	 * Use the given name for theme cookies, containing the theme name.
@@ -46,6 +50,18 @@ public class CookieThemeResolver extends AbstractThemeResolver {
 
 	public String getCookieName() {
 		return cookieName;
+	}
+
+	/**
+	 * Use the given path for theme cookies.
+	 * The cookie is only visible for URLs in the path and below. 
+	 */
+	public String getCookiePath() {
+		return cookiePath;
+	}
+
+	public void setCookiePath(String cookiePath) {
+		this.cookiePath = cookiePath;
 	}
 
 	/**
@@ -84,12 +100,14 @@ public class CookieThemeResolver extends AbstractThemeResolver {
 			request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, themeName);
 			cookie = new Cookie(getCookieName(), themeName);
 			cookie.setMaxAge(getCookieMaxAge());
+			cookie.setPath(cookiePath);
 		}
 		else {
 			// set request attribute to fallback theme and remove cookie
 			request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, getDefaultThemeName());
 			cookie = new Cookie(getCookieName(), "");
 			cookie.setMaxAge(0);
+			cookie.setPath(cookiePath);
 		}
 		response.addCookie(cookie);
 	}

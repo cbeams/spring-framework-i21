@@ -19,6 +19,7 @@ import com.interface21.web.util.WebUtils;
  * e.g. responding to a certain locale change request.
  *
  * @author Juergen Hoeller
+ * @author Jean-Pierre Pawlak
  * @since 27.02.2003
  */
 public class CookieLocaleResolver implements LocaleResolver {
@@ -34,9 +35,13 @@ public class CookieLocaleResolver implements LocaleResolver {
 
 	public static final String DEFAULT_COOKIE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";
 
+	public static final String DEFAULT_COOKIE_PATH = "/";
+
 	public static final int DEFAULT_COOKIE_MAX_AGE = Integer.MAX_VALUE;
 
 	private String cookieName = DEFAULT_COOKIE_NAME;
+
+	private String cookiePath = DEFAULT_COOKIE_PATH;
 
 	private int cookieMaxAge = DEFAULT_COOKIE_MAX_AGE;
 
@@ -49,6 +54,18 @@ public class CookieLocaleResolver implements LocaleResolver {
 
 	public String getCookieName() {
 		return cookieName;
+	}
+
+	/**
+	 * Use the given path for theme cookies.
+	 * The cookie is only visible for URLs in the path and below. 
+	 */
+	public String getCookiePath() {
+		return cookiePath;
+	}
+
+	public void setCookiePath(String cookiePath) {
+		this.cookiePath = cookiePath;
 	}
 
 	/**
@@ -105,12 +122,14 @@ public class CookieLocaleResolver implements LocaleResolver {
 			request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, locale);
 			cookie = new Cookie(getCookieName(), locale.getLanguage() + " " + locale.getCountry() + " " + locale.getVariant());
 			cookie.setMaxAge(getCookieMaxAge());
+			cookie.setPath(cookiePath);
 		}
 		else {
 			// set request attribute to fallback locale and remove cookie
 			request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, request.getLocale());
 			cookie = new Cookie(getCookieName(), "");
 			cookie.setMaxAge(0);
+			cookie.setPath(cookiePath);
 		}
 		response.addCookie(cookie);
 	}
