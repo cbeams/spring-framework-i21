@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -40,6 +41,7 @@ import com.interface21.jdbc.core.ResultReader;
  * and a DataSource. SQL will often vary between subclasses.
  * @author Rod Johnson
  * @author Thomas Risberg
+ * @author Jean-Pierre Pawlak
  * @see com.interface21.jdbc.object.MappingSqlQuery
  * @see com.interface21.jdbc.object.SqlQuery
  */
@@ -70,8 +72,8 @@ public abstract class MappingSqlQueryWithParameters extends SqlQuery {
 	 * Implementation of protected abstract method. This invokes the subclass's
 	 * implementation of the mapRow() method.
 	 */
-	protected final ResultReader newResultReader(int rowsExpected, Object[] parameters) {
-		return new ResultReaderImpl(rowsExpected, parameters);
+	protected final ResultReader newResultReader(int rowsExpected, Object[] parameters, Map context) {
+		return new ResultReaderImpl(rowsExpected, parameters, context);
 	}
 
 	/**
@@ -86,8 +88,9 @@ public abstract class MappingSqlQueryWithParameters extends SqlQuery {
 	 * @param parameters to the query (passed to the execute() method). 
 	 * Subclasses are rarely interested in these.
 	 * It can be null if there are no parameters.
+	 * @param context passed to the execute() method. It can be null if no contextual information is need. 
 	 */
-	protected abstract Object mapRow(ResultSet rs, int rownum, Object[] parameters) throws SQLException;
+	protected abstract Object mapRow(ResultSet rs, int rownum, Object[] parameters, Map context) throws SQLException;
 
 
 	//-------------------------------------------------------------------------
@@ -103,20 +106,21 @@ public abstract class MappingSqlQueryWithParameters extends SqlQuery {
 		private List l; 
 		
 		private Object[] params;
-		
+		private Map context;
 		private int rowNum = 0;
 		
 		/** Use an array list. More efficient if we know how many
 		 * results to expect
 		 */
-		public ResultReaderImpl(int rowsExpected, Object[] parameters) {
+		public ResultReaderImpl(int rowsExpected, Object[] parameters, Map context) {
 			// Use the more efficient collection if we know how many rows to expect
 			this.l = (rowsExpected > 0) ? (List) new ArrayList(rowsExpected) : (List) new LinkedList();
 			this.params = parameters;
+			this.context = context;
 		}
  
 		public void processRow(ResultSet rs) throws SQLException {
-			l.add(mapRow(rs, rowNum++, params));
+			l.add(mapRow(rs, rowNum++, params, context));
 		}
 
 		/**
