@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.DataAccessException;
 import com.interface21.jdbc.core.DataFieldMaxValueIncrementer;
+import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**
  * Implementation of {@link com.interface21.jdbc.core.DataFieldMaxValueIncrementer}
@@ -22,13 +23,14 @@ import com.interface21.jdbc.core.DataFieldMaxValueIncrementer;
  * @version $Id$
  *
  */
-public abstract class AbstractDataFieldMaxValueIncrementer 
-	implements DataFieldMaxValueIncrementer, InitializingBean  {
+public abstract class AbstractDataFieldMaxValueIncrementer implements DataFieldMaxValueIncrementer, InitializingBean {
 
 	//-----------------------------------------------------------------
 	// Instance data
 	//-----------------------------------------------------------------
 	private DataSource dataSource;
+
+	private String dsName;
 
 	/** The name of the sequence/table containing the sequence */
 	private String incrementerName;
@@ -42,11 +44,11 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	/** Flag if dirty definition */
 	private boolean dirty = true;
 
-    /** Gets the state of the dirty flag */
-    public boolean isDirty() {
-        return this.dirty;
-    }
-    
+	/** Gets the state of the dirty flag */
+	public boolean isDirty() {
+		return this.dirty;
+	}
+
 	/**
 	 * Default constructor
 	 **/
@@ -124,6 +126,23 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	}
 
 	/**
+	 * Gets the data source name
+	 * @return the data source name
+	 */
+	public String getDsName() {
+		return dsName;
+	}
+
+	/**
+	 * Sets dsName
+	 * @param dsName
+	 */
+	public void setDsName(String dsName) {
+		this.dsName = dsName;
+		this.dataSource = DataSourceUtils.getDataSourceFromJndi(this.dsName);
+	}
+
+	/**
 	 * Gets the incrementerName.
 	 * @return incrementerName The incrementerName to return
 	 */
@@ -181,7 +200,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	public final int nextIntValue() throws DataAccessException {
 		return incrementIntValue();
 	}
-	
+
 	/**
 	 * Template method
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextLongValue
@@ -197,7 +216,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	public final double nextDoubleValue() throws DataAccessException {
 		return incrementDoubleValue();
 	}
-	
+
 	/**
 	 * Template method
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextStringValue()
@@ -211,14 +230,11 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextValue(java.lang.Class)
 	 */
 	public final Object nextValue(Class keyClass) throws DataAccessException {
-		if (int.class.getName().equals(keyClass.getName()) || 
-			Integer.class.getName().equals(keyClass.getName()))
+		if (int.class.getName().equals(keyClass.getName()) || Integer.class.getName().equals(keyClass.getName()))
 			return new Integer(incrementIntValue());
-		else if (long.class.getName().equals(keyClass.getName()) || 
-			Long.class.getName().equals(keyClass.getName()))
+		else if (long.class.getName().equals(keyClass.getName()) || Long.class.getName().equals(keyClass.getName()))
 			return new Long(incrementLongValue());
-		else if (double.class.getName().equals(keyClass.getName()) || 
-			Double.class.getName().equals(keyClass.getName()))
+		else if (double.class.getName().equals(keyClass.getName()) || Double.class.getName().equals(keyClass.getName()))
 			return new Double(incrementDoubleValue());
 		else if (String.class.getName().equals(keyClass.getName()))
 			return incrementStringValue();
@@ -231,7 +247,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see #nextIntValue
 	 */
 	protected abstract int incrementIntValue() throws DataAccessException;
-	
+
 	/**
 	 * Template method implementation to be provided by concrete subclasses
 	 * @see #nextLongValue
@@ -243,13 +259,13 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	 * @see #nextDoubleValue
 	 */
 	protected abstract double incrementDoubleValue() throws DataAccessException;
-	
+
 	/**
 	 * Template method implementation to be provided by concrete subclasses
 	 * @see #nextStringValue
 	 */
 	protected abstract String incrementStringValue() throws DataAccessException;
-	
+
 	/**
 	 * @see com.interface21.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
@@ -257,6 +273,4 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 		if (this.dataSource == null)
 			throw new InvalidMaxValueIncrementerApiUsageException("DataSource property must be set on " + getClass().getName());
 	}
-
 }
-	
