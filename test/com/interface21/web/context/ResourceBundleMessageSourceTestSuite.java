@@ -72,9 +72,9 @@ public class ResourceBundleMessageSourceTestSuite
      * @see com.interface21.beans.factory.AbstractListableBeanFactoryTests#testCount()
      */
     public void testCount() {
-        assertTrue("should have 14 beans, not " +
+        assertTrue("should have 15 beans, not " +
                    this.applicationContext.getBeanDefinitionCount(),
-                   this.applicationContext.getBeanDefinitionCount() == 14);
+                   this.applicationContext.getBeanDefinitionCount() == 16);
     }
 
     /**

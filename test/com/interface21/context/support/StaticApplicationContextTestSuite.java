@@ -60,7 +60,7 @@ public class StaticApplicationContextTestSuite extends AbstractApplicationContex
 
 	/** Overridden */
 	public void testCount() throws Exception {
-		assertCount(14);
+		assertCount(16);
 	}
 
 	protected void tearDown() {

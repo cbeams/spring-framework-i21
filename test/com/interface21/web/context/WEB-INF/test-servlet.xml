@@ -61,6 +61,18 @@
 			name=passThrough
 		</property>
 	</bean>
+	
+	<!--
+			Tests of lifecycle callbacks
+		-->
+		<bean name="mustBeInitialized"
+			class="com.interface21.beans.factory.MustBeInitialized">
+		</bean>
+		
+		<bean name="lifecycle"
+			class="com.interface21.beans.factory.LifecycleBean">
+		</bean>
+
 
 	<!--
 	 <bean name="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener" />

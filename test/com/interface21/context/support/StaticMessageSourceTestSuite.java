@@ -55,7 +55,7 @@ public class StaticMessageSourceTestSuite
 	/** Overridden */
 	public void testCount() throws Exception {
 		// These are only checked for current Ctx (not parent ctx)
-		assertCount(14);
+		assertCount(16);
 	}
 
 	public void testMessageSource() throws NoSuchMessageException {
