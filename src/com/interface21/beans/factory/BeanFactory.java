@@ -19,20 +19,23 @@ import com.interface21.beans.BeansException;
  * (a superior alternative to the Singleton design pattern). Which type of instance
  * will be returned depends on the bean factory configuration--the API is
  * the same. The Singleton approach is much more useful and more common in practice.
- * <p/>The point of this approach is that the BeanFactory is a central
+ *
+ * <p>The point of this approach is that the BeanFactory is a central
  * registry of application components, and centralizes the configuring
  * of application components (no more do individual objects need to
  * read properties files, for example). See chapters 4 and 11 of "Expert One-on-One
  * J2EE" for a discussion of the benefits of this approach.
- * <br/>Normally the BeanFactory will load bean definitions stored in
+ *
+ * <p>Normally the BeanFactory will load bean definitions stored in
  * a configuration source (such as an XML document),
  * and uses the com.interface21.beans package to configure the beans. However,
  * an implementation could simply return Java objects it creates as
  * necessary directly in Java code.
  * There are no constraints on how the definitions could be stored: LDAP, RDBMS, XML,
  * properties file etc. Implementations are encouraged to support
- * references amongst beans, to either Singlet5ons or Prototypes.
- * @author  Rod Johnson
+ * references amongst beans, to either Singletons or Prototypes.
+ *
+ * @author Rod Johnson
  * @since 13 April 2001
  * @version $RevisionId$
  */
@@ -42,7 +45,7 @@ public interface BeanFactory {
 	 * Return an instance (possibly shared or independent) of the given bean name.
 	 * This method allows a bean factory to be used as a replacement for
 	 * the Singleton or Prototype design pattern.
-	 * <br/>Note that callers should retain references to returned objects. There is
+	 * <p>Note that callers should retain references to returned objects. There is
 	 * no guarantee that this method will be implemented to be efficient. For example,
 	 * it may be synchronized, or may need to run an RDBMS query.
 	 * @param name name of the bean to return
@@ -57,7 +60,7 @@ public interface BeanFactory {
 	 * of the required type.
 	 * This method allows a bean factory to be used as a replacement for
 	 * the Singleton or Prototype design pattern.
-	 * <br/>Note that callers should retain references to returned objects. There is
+	 * <p>Note that callers should retain references to returned objects. There is
 	 * no guarantee that this method will be implemented to be efficient. For example,
 	 * it may be synchronized, or may need to run an RDBMS query.
 	 * @param name name of the bean to return

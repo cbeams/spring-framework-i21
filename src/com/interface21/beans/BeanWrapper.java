@@ -20,22 +20,27 @@ import java.util.Map;
 
 /**
  * The central interface of the Interface21 JavaBeans infrastructure.
- * Interface to be implemented by classes that can manipulate
- * Java beans.
- * <br/>Implementing classes have the ability to get and set
+ * Interface to be implemented by classes that can manipulate Java beans.
+ *
+ * <p>Implementing classes have the ability to get and set
  * property values (individually or in bulk), get property descriptors
  * and query the readability and writability of properties.
- * <p/>This interface supports <b>nested properties</b> enabling the setting of properties
- * on subproperties to an unlimited depth.
- * <br/>If a property update causes an exception, a PropertyVetoException will
- * be thrown. Bulk updates continue after exceptions are encountered, throwing an exception
- * wrapping <B>all</B> exceptions encountered during the update.
- * <br/>BeanWrapper implementations can be used repeatedly, with their "target" or wrapped
- * object changed.
- * <br/>This interface supports the ability to add standard JavaBeans API
+ *
+ * <p>This interface supports <b>nested properties</b> enabling the setting of
+ * properties on subproperties to an unlimited depth.
+ *
+ * <p>If a property update causes an exception, a PropertyVetoException will be thrown.
+ * Bulk updates continue after exceptions are encountered, throwing an exception
+ * wrapping <b>all</b> exceptions encountered during the update.
+ *
+ * <p>BeanWrapper implementations can be used repeatedly, with their "target" or
+ * wrapped object changed.
+ *
+ * <p>This interface supports the ability to add standard JavaBeans API
  * PropertyChangeListeners and VetoableChangeListeners, without the need for
- * supporting code in the target class. VetoableChangeListeners
- * can veto individual property changes.
+ * supporting code in the target class. VetoableChangeListeners can veto
+ * individual property changes.
+ * 
  * @author Rod Johnson
  * @since 13 April 2001
  * @version 1.1
@@ -45,8 +50,7 @@ public interface BeanWrapper {
 	/**
 	 * Path separator for nested properties.
 	 * Follows normal Java conventions:
-	 * getFoo().getBar() would be
-	 * foo.bar
+	 * getFoo().getBar() would be "foo.bar".
 	 */
 	String NESTED_PROPERTY_SEPARATOR = ".";
 
@@ -128,14 +132,16 @@ public interface BeanWrapper {
 	 */
 	void setPropertyValues(PropertyValues pvs, boolean ignoreUnknown, PropertyValuesValidator pvsValidator) throws BeansException;
 
-	/** Get the PropertyDescriptors standard JavaBeans introspection identified
+	/**
+	 * Get the PropertyDescriptors standard JavaBeans introspection identified
 	 * on this object.
 	 * @return the PropertyDescriptors standard JavaBeans introspection identified
 	 * on this object
 	 */
 	PropertyDescriptor[] getPropertyDescriptors() throws BeansException;
 
-	/** Get the property descriptor for a particular property, or null if there
+	/**
+	 * Get the property descriptor for a particular property, or null if there
 	 * is no such property
 	 * @param propertyName property to check status for
 	 * @return the property descriptor for a particular property, or null if there
@@ -216,9 +222,11 @@ public interface BeanWrapper {
 	 */
 	PropertyEditor findCustomEditor(Class requiredType, String propertyPath);
 
+
 	//---------------------------------------------------------------------
 	// Bean event support
 	//---------------------------------------------------------------------
+
 	/**
 	 * Add a VetoableChangeListener that will be notified of property updates
 	 * @param l VetoableChangeListener notified of all property updates
