@@ -210,6 +210,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		else
 			logger.info(getBeanDefinitionCount() + " beans defined in ApplicationContext: " + getDisplayName());
 
+		configureAllManagedObjects();
+		refreshListeners();
+
 		try {
 			loadOptions();
 		}
@@ -232,19 +235,16 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			this.messageSource = new StaticMessageSource();
 		}
 
-		refreshListeners();
-		configureAllManagedObjects();
+		onRefresh();
 		publishEvent(new ContextRefreshedEvent(this));
-		afterRefresh();
 	}
 
 	/**
-	 * Method which can be subclassed to add works on the refresh call.
-	 * @throws ApplicationContextException
+	 * Callback method which can be overridden to add context-specific refresh work.
+	 * @throws ApplicationContextException in case of errors during refresh
 	 */
-	protected void afterRefresh() throws ApplicationContextException {
-		// For subclasses
-		// Do nothing by default
+	protected void onRefresh() throws ApplicationContextException {
+		// For subclasses: do nothing by default.
 	}
 
 	/**
@@ -286,8 +286,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * Add beans that implement listener as listeners
-	 * Doesn't affect other listeners, that can be added without being beans
+	 * Add beans that implement listener as listeners.
+	 * Doesn't affect other listeners, that can be added without being beans.
 	 */
 	private void refreshListeners() throws ApplicationContextException {
 		logger.info("Refreshing listeners");
@@ -299,7 +299,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			try {
 				Object bean = getBeanFactory().getBean(beanName);
 				ApplicationListener l = (ApplicationListener) bean;
-				configureManagedObject(l);
 				addListener(l);
 				logger.info("Bean listener added: [" + l + "]");
 			} catch (BeansException ex) {

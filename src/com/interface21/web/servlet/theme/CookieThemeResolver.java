@@ -1,8 +1,8 @@
 package com.interface21.web.servlet.theme;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
 
 import com.interface21.web.util.WebUtils;
 
@@ -18,11 +18,11 @@ import com.interface21.web.util.WebUtils;
  * @author Juergen Hoeller
  * @since 17.06.2003
  */
-public class CookieThemeResolver implements ThemeResolver {
+public class CookieThemeResolver extends AbstractThemeResolver {
 
-	public static final String THEME_ATTRIBUTE_NAME = SessionThemeResolver.class.getName() + ".THEME";
+	public static final String THEME_REQUEST_ATTRIBUTE_NAME = CookieThemeResolver.class.getName() + ".THEME";
 
-	public static final String DEFAULT_COOKIE_NAME = THEME_ATTRIBUTE_NAME;
+	public static final String DEFAULT_COOKIE_NAME = CookieThemeResolver.class.getName() + ".THEME";
 
 	public static final int DEFAULT_COOKIE_MAX_AGE = Integer.MAX_VALUE;
 
@@ -30,8 +30,6 @@ public class CookieThemeResolver implements ThemeResolver {
 
 	private int cookieMaxAge = DEFAULT_COOKIE_MAX_AGE;
 	
-	private String defaultTheme = FixedThemeResolver.DEFAULT_THEME;
-
 	/**
 	 * Use the given name for theme cookies.
 	 */
@@ -57,11 +55,11 @@ public class CookieThemeResolver implements ThemeResolver {
 
 	/**
 	 * Gets the theme used in this request.
-	 * @see com.interface21.web.servlet.theme.ThemeResolver#resolveTheme(javax.servlet.http.HttpServletRequest)
+	 * @see com.interface21.web.servlet.ThemeResolver#resolveTheme(javax.servlet.http.HttpServletRequest)
 	 */
 	public String resolveTheme(HttpServletRequest request) {
 		// check locale for preparsed resp. preset locale
-		String theme = (String) request.getAttribute(THEME_ATTRIBUTE_NAME);
+		String theme = (String) request.getAttribute(THEME_REQUEST_ATTRIBUTE_NAME);
 		if (theme != null)
 			return theme;
 
@@ -73,43 +71,27 @@ public class CookieThemeResolver implements ThemeResolver {
 		}
 
 		// fallback
-		return defaultTheme;
+		return getDefaultThemeName();
 	}
 
 	/**
 	 * Sets the theme to use with this user.
-	 * @see com.interface21.web.servlet.theme.ThemeResolver#setTheme(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
 	 */
 	public void setTheme(HttpServletRequest request, HttpServletResponse response, String theme) {
 		Cookie cookie = null;
 		if (theme != null) {
 			// set request attribute and add cookie
-			request.setAttribute(THEME_ATTRIBUTE_NAME, theme);
+			request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, theme);
 			cookie = new Cookie(getCookieName(), theme);
 			cookie.setMaxAge(getCookieMaxAge());
 		}
 		else {
 			// set request attribute to fallback theme and remove cookie
-			request.setAttribute(THEME_ATTRIBUTE_NAME, defaultTheme);
+			request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, getDefaultThemeName());
 			cookie = new Cookie(getCookieName(), "");
 			cookie.setMaxAge(0);
 		}
 		response.addCookie(cookie);
-	}
-	
-	/**
-	 * @return the default theme name
-	 */
-	public String getDefaultTheme() {
-		return defaultTheme;
-	}
-
-	/**
-	 * Sets the default theme name
-	 * @param defaultTheme The new default theme name
-	 */
-	public void setDefaultTheme(String defaultTheme) {
-		this.defaultTheme = defaultTheme;
 	}
 
 }

@@ -38,7 +38,7 @@ import com.interface21.context.ApplicationContextAware;
  * @see com.interface21.web.servlet.handler.BeanNameUrlHandlerMapping
  * @see com.interface21.web.servlet.handler.SimpleUrlHandlerMapping
  */
-public interface HandlerMapping extends ApplicationContextAware, LocaleResolverAware {
+public interface HandlerMapping extends ApplicationContextAware, LocaleResolverAware, ThemeResolverAware {
 	
 	/** 
 	 * Will be invoked after setApplicationContext() and setLocaleResolver().

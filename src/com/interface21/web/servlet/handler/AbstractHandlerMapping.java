@@ -11,6 +11,8 @@ import com.interface21.core.Ordered;
 import com.interface21.web.servlet.HandlerMapping;
 import com.interface21.web.servlet.LocaleResolver;
 import com.interface21.web.servlet.LocaleResolverAware;
+import com.interface21.web.servlet.ThemeResolver;
+import com.interface21.web.servlet.ThemeResolverAware;
 
 /**
  * Abstract base class for HandlerMapping implementations.
@@ -28,6 +30,8 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 
 	private LocaleResolver localeResolver;
 
+	private ThemeResolver themeResolver;
+
 	private Object defaultHandler = null;
 
 	public void setOrder(int order) {
@@ -40,6 +44,10 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 
 	public void setLocaleResolver(LocaleResolver localeResolver) {
 		this.localeResolver = localeResolver;
+	}
+
+	public void setThemeResolver(ThemeResolver themeResolver) {
+		this.themeResolver = themeResolver;
 	}
 
 	/**
@@ -67,6 +75,9 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 	protected void initHandler(Object handler) {
 		if (handler instanceof LocaleResolverAware) {
 			((LocaleResolverAware) handler).setLocaleResolver(this.localeResolver);
+		}
+		if (handler instanceof ThemeResolverAware) {
+			((ThemeResolverAware) handler).setThemeResolver(this.themeResolver);
 		}
 	}
 

@@ -147,40 +147,41 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * If no bean is defined with the given name in the BeanFactory
 	 * for this namespace, we default to a AcceptHeaderLocaleResolver.
 	 */
-	private void initThemeResolver() throws ServletException {
+	private void initLocaleResolver() throws ServletException {
 		try {
-			this.themeResolver = (ThemeResolver) getWebApplicationContext().getBean(THEME_RESOLVER_BEAN_NAME);
-			logger.info("Loaded themeResolver [" + this.themeResolver + "]");
+			this.localeResolver = (LocaleResolver) getWebApplicationContext().getBean(LOCALE_RESOLVER_BEAN_NAME);
+			logger.info("Loaded locale resolver [" + this.localeResolver + "]");
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			// We need to use the default
-			logger.info("Unable to load theme resolver: bean with name '" + THEME_RESOLVER_BEAN_NAME + "': using default LocaleResolver [" + this.localeResolver + "]");
-			this.themeResolver = new FixedThemeResolver();
+			this.localeResolver = new AcceptHeaderLocaleResolver();
+			logger.info("Unable to load locale resolver with name '" + LOCALE_RESOLVER_BEAN_NAME + "': using default [" + this.localeResolver + "]");
 		}
 		catch (BeansException ex) {
-			// We tried and failed to load the ViewResolver specified by a bean
-			throw new ServletException("Fatal error loading theme resolver: bean with name '" + THEME_RESOLVER_BEAN_NAME + "' is required in servlet '" + getServletName()  + "': using default", ex);
+			// We tried and failed to load the LocaleResolver specified by a bean
+			throw new ServletException("Fatal error loading locale resolver with name '" + LOCALE_RESOLVER_BEAN_NAME + "': using default", ex);
 		}
 	}
+
 
 	/**
 	 * Initialize the LocaleResolver used by this class.
 	 * If no bean is defined with the given name in the BeanFactory
 	 * for this namespace, we default to a AcceptHeaderLocaleResolver.
 	 */
-	private void initLocaleResolver() throws ServletException {
+	private void initThemeResolver() throws ServletException {
 		try {
-			this.localeResolver = (LocaleResolver) getWebApplicationContext().getBean(LOCALE_RESOLVER_BEAN_NAME);
-			logger.info("Loaded localeResolver [" + this.localeResolver + "]");
+			this.themeResolver = (ThemeResolver) getWebApplicationContext().getBean(THEME_RESOLVER_BEAN_NAME);
+			logger.info("Loaded theme resolver [" + this.themeResolver + "]");
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			// We need to use the default
-			logger.info("Unable to load locale resolver: bean with name '" + LOCALE_RESOLVER_BEAN_NAME + "': using default LocaleResolver [" + this.localeResolver + "]");
-			this.localeResolver = new AcceptHeaderLocaleResolver();
+			this.themeResolver = new FixedThemeResolver();
+			logger.info("Unable to load theme resolver with name '" + THEME_RESOLVER_BEAN_NAME + "': using default [" + this.themeResolver + "]");
 		}
 		catch (BeansException ex) {
-			// We tried and failed to load the ViewResolver specified by a bean
-			throw new ServletException("Fatal error loading locale resolver: bean with name '" + LOCALE_RESOLVER_BEAN_NAME + "' is required in servlet '" + getServletName()  + "': using default", ex);
+			// We tried and failed to load the ThemeResolver specified by a bean
+			throw new ServletException("Fatal error loading theme resolver with name '" + THEME_RESOLVER_BEAN_NAME + "': using default", ex);
 		}
 	}
 
@@ -202,8 +203,8 @@ public class DispatcherServlet extends FrameworkServlet {
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
 		if (this.handlerMappings.isEmpty()) {
-			logger.info("No HandlerMappings found in servlet '" + getServletName() + "': using default");
 			initDefaultHandlerMapping();
+			logger.info("No HandlerMappings found in servlet '" + getServletName() + "': using default");
 		}
 		else {
 			// We keep HandlerMappings in sorted order
@@ -220,6 +221,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		try {
 			HandlerMapping hm = (HandlerMapping) getWebApplicationContext().getBean(beanName);
 			hm.setLocaleResolver(this.localeResolver);
+			hm.setThemeResolver(this.themeResolver);
 			hm.initHandlerMapping();
 			this.handlerMappings.add(hm);
 		}
@@ -239,6 +241,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			HandlerMapping hm = new BeanNameUrlHandlerMapping();
 			hm.setApplicationContext(getWebApplicationContext());
 			hm.setLocaleResolver(this.localeResolver);
+			hm.setThemeResolver(this.themeResolver);
 			hm.initHandlerMapping();
 			this.handlerMappings.add(hm);
 		}
@@ -264,8 +267,8 @@ public class DispatcherServlet extends FrameworkServlet {
 		// Ensure we have at least one HandlerAdapter, by registering
 		// a default HandlerAdapter if no other adapters are found.
 		if (this.handlerAdapters.isEmpty()) {
-			logger.info("No HandlerAdapters found in servlet '" + getServletName() + "': using default");
 			initDefaultHandlerAdapter();
+			logger.info("No HandlerAdapters found in servlet '" + getServletName() + "': using default");
 		}
 		else {
 			// We keep HandlerAdapters in sorted order

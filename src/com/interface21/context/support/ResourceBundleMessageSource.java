@@ -4,6 +4,9 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * MessageSource that 
  * <br/>This class is a JavaBean, exposing a 'basename'
@@ -14,6 +17,8 @@ import java.util.MissingResourceException;
  * @version $RevisionId$
  */
 public class ResourceBundleMessageSource extends AbstractNestingMessageSource {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private String basename;
 
@@ -35,8 +40,16 @@ public class ResourceBundleMessageSource extends AbstractNestingMessageSource {
 	 * @see AbstractNestingMessageSource#resolve(String, Locale)
 	 */
 	protected String resolve(String code, Locale locale) throws MissingResourceException {
-		ResourceBundle bundle = ResourceBundle.getBundle(this.basename, locale,
-		                                                 Thread.currentThread().getContextClassLoader());
+		ResourceBundle bundle = null;
+		try {
+			bundle = ResourceBundle.getBundle(this.basename, locale,
+																											 Thread.currentThread().getContextClassLoader());
+		} catch (MissingResourceException ex) {
+			logger.warn("No ResourceBundle found for MessageSource: " + ex.getMessage());
+			// assume bundle not found
+			// -> do NOT throw the exception to allow for checking parent message source
+			return null;
+		}
 		try {
 			return bundle.getString(code);
 		} catch (MissingResourceException ex) {

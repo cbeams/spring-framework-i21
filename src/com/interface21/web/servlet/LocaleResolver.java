@@ -23,16 +23,17 @@ public interface LocaleResolver {
   /**
    * Resolve the current locale via the given request.
    * Should return a default locale as fallback in any case.
-   * @param request  the request to be used for resolution
+   * @param request request to be used for resolution
    * @return the current locale
    */
 	Locale resolveLocale(HttpServletRequest request);
 
   /**
    * Set the current locale to the given one.
-   * @param request  the request to be used for locale modification
-   * @param response  the response to be used for locale modification
-   * @param locale  the new locale
+   * @param request request to be used for locale modification
+   * @param response response to be used for locale modification
+   * @param locale the new locale
    */
 	void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale);
+
 }

@@ -17,43 +17,24 @@ import com.interface21.web.util.WebUtils;
  * @author Juergen Hoeller
  * @since 17.06.2003
  */
-public class SessionThemeResolver implements ThemeResolver {
+public class SessionThemeResolver extends AbstractThemeResolver {
 
-	private String defaultTheme = FixedThemeResolver.DEFAULT_THEME;
-	
-	public static final String THEME_ATTRIBUTE_NAME = SessionThemeResolver.class.getName() + ".THEME";
+	public static final String THEME_SESSION_ATTRIBUTE_NAME = SessionThemeResolver.class.getName() + ".THEME";
 
 	/**
 	 * Gets the theme used in this request.
-	 * @see com.interface21.web.servlet.theme.ThemeResolver#resolveTheme(javax.servlet.http.HttpServletRequest)
 	 */
 	public String resolveTheme(HttpServletRequest request) {
-		String theme = (String) WebUtils.getSessionAttribute(request, THEME_ATTRIBUTE_NAME);
+		String theme = (String) WebUtils.getSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME);
 		// specific theme, or fallback to default?
-		return (theme != null ? theme : defaultTheme);
+		return (theme != null ? theme : getDefaultThemeName());
 	}
 
 	/**
 	 * Sets the theme to use with this user.
-	 * @see com.interface21.web.servlet.theme.ThemeResolver#setTheme(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)
 	 */
 	public void setTheme(HttpServletRequest request, HttpServletResponse response, String theme) {
-		WebUtils.setSessionAttribute(request, THEME_ATTRIBUTE_NAME, theme);
-	}
-
-	/**
-	 * @return the default theme name
-	 */
-	public String getDefaultTheme() {
-		return defaultTheme;
-	}
-
-	/**
-	 * Sets the default theme name
-	 * @param defaultTheme The new default theme name
-	 */
-	public void setDefaultTheme(String defaultTheme) {
-		this.defaultTheme = defaultTheme;
+		WebUtils.setSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME, theme);
 	}
 
 }

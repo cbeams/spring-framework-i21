@@ -21,16 +21,16 @@ import com.interface21.web.util.WebUtils;
  */
 public class SessionLocaleResolver implements LocaleResolver {
 
-	public static final String LOCALE_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+	public static final String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
 
 	public Locale resolveLocale(HttpServletRequest request) {
-		Locale locale = (Locale) WebUtils.getSessionAttribute(request, LOCALE_ATTRIBUTE_NAME);
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request, LOCALE_SESSION_ATTRIBUTE_NAME);
 		// specific locale, or fallback to request locale?
 		return (locale != null ? locale : request.getLocale());
 	}
 
 	public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		WebUtils.setSessionAttribute(request, LOCALE_ATTRIBUTE_NAME, locale);
+		WebUtils.setSessionAttribute(request, LOCALE_SESSION_ATTRIBUTE_NAME, locale);
 	}
 
 }
