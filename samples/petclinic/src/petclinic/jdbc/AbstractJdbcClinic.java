@@ -765,7 +765,7 @@ abstract public class AbstractJdbcClinic implements Clinic, InitializingBean {
 					owner.getAddress(),
 					owner.getCity(),
 					owner.getTelephone()};
-			update(objs);
+			super.update(objs);
 		}
 
 	}
@@ -903,7 +903,7 @@ abstract public class AbstractJdbcClinic implements Clinic, InitializingBean {
 					new Integer(pet.getTypeId()),
 					new Integer(pet.getOwner().getId()),
 					};
-			update(objs);
+			super.update(objs);
 		}
 
 	}
@@ -968,7 +968,7 @@ abstract public class AbstractJdbcClinic implements Clinic, InitializingBean {
 					new java.sql.Date(visit.getDate().getTime()),
 					visit.getDescription()
 					};
-			update(objs);
+			super.update(objs);
 		}
 
 	}
