@@ -20,10 +20,6 @@ import com.interface21.transaction.TransactionDefinition;
  */
 public class TransactionAttributeEditorTests extends TestCase {
 	
-	public TransactionAttributeEditorTests(String arg0) {
-		super(arg0);
-	}
-
 	public void testNull() {
 		TransactionAttributeEditor pe = new TransactionAttributeEditor();
 		pe.setAsText(null);
@@ -48,6 +44,7 @@ public class TransactionAttributeEditorTests extends TestCase {
 		assertTrue(ta != null);
 		assertTrue(ta.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED);
 		assertTrue(ta.getIsolationLevel() == TransactionDefinition.ISOLATION_DEFAULT);
+		assertTrue(!ta.isReadOnly());
 	}
 	
 	public void testInvalidPropagationCodeOnly() {
@@ -82,19 +79,36 @@ public class TransactionAttributeEditorTests extends TestCase {
 		}
 	}
 	
-	public void testValidPropagationCodeAndIsolationCodeAndRollbackRules() {
+	public void testValidPropagationCodeAndIsolationCodeAndRollbackRules1() {
 		TransactionAttributeEditor pe = new TransactionAttributeEditor();
 		pe.setAsText("PROPAGATION_MANDATORY,ISOLATION_REPEATABLE_READ,-ServletException,+EJBException");
 		TransactionAttribute ta = (TransactionAttribute) pe.getValue();
 		assertTrue(ta != null);
 		assertTrue(ta.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY);
 		assertTrue(ta.getIsolationLevel() == TransactionDefinition.ISOLATION_REPEATABLE_READ);
-		assertTrue(ta.rollBackOn(new RuntimeException()));
-		assertTrue(!ta.rollBackOn(new Exception()));
+		assertTrue(!ta.isReadOnly());
+		assertTrue(ta.rollbackOn(new RuntimeException()));
+		assertTrue(!ta.rollbackOn(new Exception()));
 		
 		// Check for our bizarre customized rollback rules
-		assertTrue(ta.rollBackOn(new ServletException()));
-		assertTrue(!ta.rollBackOn(new EJBException()));
+		assertTrue(ta.rollbackOn(new ServletException()));
+		assertTrue(!ta.rollbackOn(new EJBException()));
+	}
+
+	public void testValidPropagationCodeAndIsolationCodeAndRollbackRules2() {
+		TransactionAttributeEditor pe = new TransactionAttributeEditor();
+		pe.setAsText("+ServletException,readOnly,ISOLATION_READ_COMMITTED,-EJBException,PROPAGATION_SUPPORTS");
+		TransactionAttribute ta = (TransactionAttribute) pe.getValue();
+		assertTrue(ta != null);
+		assertTrue(ta.getPropagationBehavior() == TransactionDefinition.PROPAGATION_SUPPORTS);
+		assertTrue(ta.getIsolationLevel() == TransactionDefinition.ISOLATION_READ_COMMITTED);
+		assertTrue(ta.isReadOnly());
+		assertTrue(ta.rollbackOn(new RuntimeException()));
+		assertTrue(!ta.rollbackOn(new Exception()));
+
+		// Check for our bizarre customized rollback rules
+		assertTrue(!ta.rollbackOn(new ServletException()));
+		assertTrue(ta.rollbackOn(new EJBException()));
 	}
 
 }

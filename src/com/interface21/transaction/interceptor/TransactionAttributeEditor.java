@@ -6,47 +6,39 @@
 package com.interface21.transaction.interceptor;
 
 import java.beans.PropertyEditorSupport;
-import java.util.LinkedList;
-import java.util.List;
 
 import com.interface21.transaction.TransactionDefinition;
-import com.interface21.transaction.interceptor.NoRollbackRuleAttribute;
-import com.interface21.transaction.interceptor.RollbackRuleAttribute;
-import com.interface21.transaction.interceptor.RuleBasedTransactionAttribute;
-import com.interface21.util.Constants;
 import com.interface21.util.StringUtils;
 
 /**
- * PropertyEditor for TransactionAttribute objects.
- * Takes Strings of form
- * PROPAGATION_CODE,ISOLATION_CODE,+Exception1,-Exception2
- * where only propagation code is required.
- * Propagation and isolation codes must use the names specified
- * in the PlatformTransactionManager class.
- * A + before an exception name substring indicates that
+ * PropertyEditor for TransactionAttribute objects. Takes Strings of form
+ * <p><code>PROPAGATION_NAME,ISOLATION_NAME,readOnly,+Exception1,-Exception2</code>
+ * <p>where only propagation code is required. For example:
+ * <p><code>PROPAGATION_MANDATORY,ISOLATION_DEFAULT</code>
+ *
+ * <p>The tokens can be in any order. Propagation and isolation codes
+ * must use the names of the constants in the TransactionDefinition class.
+ *
+ * <p>A "+" before an exception name substring indicates that
  * transactions should commit even if this exception is thrown;
- * a - that they should roll back.
- * @see com.interface21.transaction.PlatformTransactionManager
- * @see com.interface21.util.Constants
+ * a "-" that they should roll back.
+ *
+ * @author Rod Johnson
  * @since 24-Apr-2003
  * @version $Id$
- * @author Rod Johnson
+ * @see com.interface21.transaction.TransactionDefinition
+ * @see com.interface21.util.Constants
  */
 public class TransactionAttributeEditor extends PropertyEditorSupport {
-	
-	public static final char ROLLBACK_PREFIX = '-';
-	
-	public static final char COMMIT_PREFIX = '+';
 
-	/** 
-	 * Helper enabling us to lookup constant names in
-	 * PlatformTransactionManager interface, to save us retyping them
-	 * here, with the risk of errors.
-	 */ 
-	private static Constants txConstants = new Constants(TransactionDefinition.class);
+	public static final String READ_ONLY_MARKER = "readOnly";
+
+	public static final String COMMIT_RULE_PREFIX = "+";
+
+	public static final String ROLLBACK_RULE_PREFIX = "-";
 
 	/**
-	 * Format is TXREQ,TX_REQ_NEW,+RemoteException,-RuntimeException
+	 * Format is PROPAGATION_NAME,ISOLATION_NAME,readOnly,+Exception1,-Exception2.
 	 * Null or the empty string means that the method is non transactional.
 	 * @see java.beans.PropertyEditor#setAsText(java.lang.String)
 	 */
@@ -55,42 +47,33 @@ public class TransactionAttributeEditor extends PropertyEditorSupport {
 			setValue(null);
 		}
 		else {	
-			// Tokenize it with ,s
+			// tokenize it with ","
 			String[] tokens = StringUtils.commaDelimitedListToStringArray(s);
-			// Must have length at least one
-			int propagationCode = txConstants.asInt(tokens[0]);
-			
-			int isolationLevel = TransactionDefinition.ISOLATION_DEFAULT;
-			
-			List rollbackRules = new LinkedList();
-			
-			if (tokens.length >= 2) {
-				// We have isolation as well
-				isolationLevel = txConstants.asInt(tokens[1]);
-			}
-			
-			if (tokens.length >= 3) {
-				// We have isolation codes
-				for (int i = 2; i < tokens.length; i++) {
-					if (tokens[i].length() <= 5)
-						throw new IllegalArgumentException("RollbackRule '" + tokens[i] + "' too short");
-						char prefix = tokens[i].charAt(0);
-					if (prefix != COMMIT_PREFIX && prefix != ROLLBACK_PREFIX)
-						throw new IllegalArgumentException("RollbackRule '" + tokens[i] + "' must begin with " + COMMIT_PREFIX + " or " + ROLLBACK_PREFIX);
-					String throwablePattern = tokens[i].substring(1);
-					RollbackRuleAttribute rr = null;
-					if (prefix == COMMIT_PREFIX) {
-						rr = new NoRollbackRuleAttribute(throwablePattern);
-					}
-					else {
-						rr = new RollbackRuleAttribute(throwablePattern);
-					}
-					
-					rollbackRules.add(rr);
+			RuleBasedTransactionAttribute attr = new RuleBasedTransactionAttribute();
+
+			for (int i = 0; i < tokens.length; i++) {
+				String token = tokens[i];
+				if (token.startsWith(TransactionDefinition.PROPAGATION_CONSTANT_PREFIX)) {
+					attr.setPropagationBehaviorName(tokens[i]);
+				}
+				else if (token.startsWith(TransactionDefinition.ISOLATION_CONSTANT_PREFIX)) {
+					attr.setIsolationLevelName(tokens[i]);
+				}
+				else if (token.equals(READ_ONLY_MARKER)) {
+					attr.setReadOnly(true);
+				}
+				else if (token.startsWith(COMMIT_RULE_PREFIX)) {
+					attr.getRollbackRules().add(new NoRollbackRuleAttribute(token.substring(1)));
+				}
+				else if (token.startsWith(ROLLBACK_RULE_PREFIX)) {
+					attr.getRollbackRules().add(new RollbackRuleAttribute(token.substring(1)));
+				}
+				else {
+					throw new IllegalArgumentException("Illegal transaction token: " + token);
 				}
 			}
-			
-			setValue(new RuleBasedTransactionAttribute(propagationCode, isolationLevel, rollbackRules));
+
+			setValue(attr);
 		}
 	}
 

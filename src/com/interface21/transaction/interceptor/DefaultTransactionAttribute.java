@@ -17,27 +17,18 @@ import com.interface21.transaction.support.DefaultTransactionDefinition;
 public class DefaultTransactionAttribute extends DefaultTransactionDefinition
     implements TransactionAttribute {
 
-	/**
-	 * Create a new transaction attribute with REQUIRED propagation
-	 * and default transaction isolation.
-	 */
 	public DefaultTransactionAttribute() {
-		super();
 	}
-	
+
 	public DefaultTransactionAttribute(int propagationBehavior) {
 		super(propagationBehavior);
 	}
-			
-	public DefaultTransactionAttribute(int propagationBehavior, int isolationLevel) {
-		super(propagationBehavior, isolationLevel);
-	}
-	
+
 	/**
 	 * Default behaviour is as with EJB: rollback on unchecked exception.
 	 * Consistent with TransactionTemplate's behavior.
 	 */
-	public boolean rollBackOn(Throwable t) {
+	public boolean rollbackOn(Throwable t) {
 		return (t instanceof RuntimeException);
 	}
 

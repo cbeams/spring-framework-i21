@@ -7,12 +7,10 @@ package com.interface21.transaction.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import com.interface21.transaction.interceptor.TransactionAttribute;
-
 /**
- * Interface used by TransactionInterceptor. Implementations
- * know how to source transaction attributes, whether from metadata
- * attributes at source level (the default) or anywhere else.
+ * Interface used by TransactionInterceptor. Implementations know
+ * how to source transaction attributes, whether from configuration,
+ * metadata attributes at source level, or anywhere else.
  * @author Rod Johnson
  * @since 15-Apr-2003
  * @version $Id$

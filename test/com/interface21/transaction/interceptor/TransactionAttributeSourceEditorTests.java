@@ -13,7 +13,7 @@ import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
 import com.interface21.transaction.TransactionDefinition;
-import com.interface21.transaction.TransactionUsageException;
+import com.interface21.util.ConstantException;
 
 /**
  * Format is 
@@ -49,7 +49,7 @@ public class TransactionAttributeSourceEditorTests extends TestCase {
 			pe.setAsText("foo=bar");
 			fail();
 		}
-		catch (TransactionUsageException ex) {
+		catch (IllegalArgumentException ex) {
 			// Ok
 		}
 	}

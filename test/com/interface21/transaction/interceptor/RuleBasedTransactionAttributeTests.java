@@ -14,11 +14,7 @@ import javax.servlet.ServletException;
 
 import junit.framework.TestCase;
 
-import com.interface21.transaction.PlatformTransactionManager;
 import com.interface21.transaction.TransactionDefinition;
-import com.interface21.transaction.interceptor.NoRollbackRuleAttribute;
-import com.interface21.transaction.interceptor.RollbackRuleAttribute;
-import com.interface21.transaction.interceptor.RuleBasedTransactionAttribute;
 
 /**
  * 
@@ -28,21 +24,12 @@ import com.interface21.transaction.interceptor.RuleBasedTransactionAttribute;
  */
 public class RuleBasedTransactionAttributeTests extends TestCase {
 
-	/**
-	 * Constructor for RuleBasedTransactionAttributeTests.
-	 * @param arg0
-	 */
-	public RuleBasedTransactionAttributeTests(String arg0) {
-		super(arg0);
-	}
-	
 	public void testDefaultRule() {
-		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED, new LinkedList());
-		
-		assertTrue(rta.rollBackOn(new RuntimeException()));
-		assertTrue(rta.rollBackOn(new EJBException()));
-		assertTrue(!rta.rollBackOn(new Exception()));
-		assertTrue(!rta.rollBackOn(new ServletException()));
+		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute();
+		assertTrue(rta.rollbackOn(new RuntimeException()));
+		assertTrue(rta.rollbackOn(new EJBException()));
+		assertTrue(!rta.rollbackOn(new Exception()));
+		assertTrue(!rta.rollbackOn(new ServletException()));
 	}
 	
 	/**
@@ -55,54 +42,54 @@ public class RuleBasedTransactionAttributeTests extends TestCase {
 		
 		// Add irrelevant object: should be ignored
 		l.add(new Object());
-		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED, l);
+		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, l);
 		
-		assertTrue(rta.rollBackOn(new RuntimeException()));
-		assertTrue(rta.rollBackOn(new EJBException()));
-		assertTrue(!rta.rollBackOn(new Exception()));
+		assertTrue(rta.rollbackOn(new RuntimeException()));
+		assertTrue(rta.rollbackOn(new EJBException()));
+		assertTrue(!rta.rollbackOn(new Exception()));
 		// Check that default behaviour is overridden
-		assertTrue(rta.rollBackOn(new ServletException()));
+		assertTrue(rta.rollbackOn(new ServletException()));
 	}
 	
 	public void testRuleForCommitOnUnchecked() {
 		List l = new LinkedList();
 		l.add(new NoRollbackRuleAttribute("javax.ejb.EJBException"));
 		l.add(new RollbackRuleAttribute("javax.servlet.ServletException"));
-		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED, l);
+		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, l);
 		
-		assertTrue(rta.rollBackOn(new RuntimeException()));
+		assertTrue(rta.rollbackOn(new RuntimeException()));
 		// Check default behaviour is overridden
-		assertTrue(!rta.rollBackOn(new EJBException()));
-		assertTrue(!rta.rollBackOn(new Exception()));
+		assertTrue(!rta.rollbackOn(new EJBException()));
+		assertTrue(!rta.rollbackOn(new Exception()));
 		// Check that default behaviour is overridden
-		assertTrue(rta.rollBackOn(new ServletException()));
+		assertTrue(rta.rollbackOn(new ServletException()));
 	}
 	
 	public void testRuleForSelectiveRollbackOnchecked() {
 		List l = new LinkedList();
 		l.add(new RollbackRuleAttribute("java.rmi.RemoteException"));
-		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED, l);
+		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, l);
 	
-		assertTrue(rta.rollBackOn(new RuntimeException()));
+		assertTrue(rta.rollbackOn(new RuntimeException()));
 		// Check default behaviour is overridden
-		assertTrue(!rta.rollBackOn(new Exception()));
+		assertTrue(!rta.rollbackOn(new Exception()));
 		// Check that default behaviour is overridden
-		assertTrue(rta.rollBackOn(new RemoteException()));
+		assertTrue(rta.rollbackOn(new RemoteException()));
 	}
 	
 	public void testRollbackNever() {
 		List l = new LinkedList();
 		l.add(new NoRollbackRuleAttribute("Throwable"));
 		
-		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, TransactionDefinition.ISOLATION_READ_COMMITTED, l);
+		RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED, l);
 	
-		assertTrue(!rta.rollBackOn(new Throwable()));
-		assertTrue(!rta.rollBackOn(new RuntimeException()));
+		assertTrue(!rta.rollbackOn(new Throwable()));
+		assertTrue(!rta.rollbackOn(new RuntimeException()));
 		
-		assertTrue(!rta.rollBackOn(new EJBException()));
-		assertTrue(!rta.rollBackOn(new Exception()));
+		assertTrue(!rta.rollbackOn(new EJBException()));
+		assertTrue(!rta.rollbackOn(new Exception()));
 	
-		assertTrue(!rta.rollBackOn(new ServletException()));
+		assertTrue(!rta.rollbackOn(new ServletException()));
 	}
 
 }

@@ -66,7 +66,8 @@ public class AttributeRegistryTransactionAttributeSource implements TransactionA
 		for (int i = 0; i < atts.length; i++) {
 			l.add(atts[i]);
 		}
-		TransactionAttribute txatt = new RuleBasedTransactionAttribute(l);
+		RuleBasedTransactionAttribute txatt = new RuleBasedTransactionAttribute();
+		txatt.setRollbackRules(l);
 		System.err.println("txatt=" + txatt);
 		return txatt;
 		//return null;
