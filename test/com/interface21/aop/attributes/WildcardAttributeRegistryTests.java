@@ -8,7 +8,8 @@ package com.interface21.aop.attributes;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
-import org.aopalliance.AttributeRegistry;
+import org.aopalliance.intercept.AttributeRegistry;
+
 
 import junit.framework.TestCase;
 

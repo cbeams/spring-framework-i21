@@ -7,7 +7,7 @@ package com.interface21.aop.attributes;
 
 import java.lang.reflect.AccessibleObject;
 
-import org.aopalliance.AttributeRegistry;
+import org.aopalliance.intercept.AttributeRegistry;
 
 //import attrib4j.Attributes;
 

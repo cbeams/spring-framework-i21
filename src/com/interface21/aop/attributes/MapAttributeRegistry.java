@@ -9,7 +9,7 @@ import java.lang.reflect.AccessibleObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.aopalliance.AttributeRegistry;
+import org.aopalliance.intercept.AttributeRegistry;
 
 /**
  * 

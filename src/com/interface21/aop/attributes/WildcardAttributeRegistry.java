@@ -10,8 +10,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import org.aopalliance.AspectException;
-import org.aopalliance.AttributeRegistry;
+import org.aopalliance.intercept.AspectException;
+import org.aopalliance.intercept.AttributeRegistry;
 
 /**
  * 
