@@ -15,6 +15,7 @@ import javax.servlet.ServletContext;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
+import com.interface21.ui.context.*;
 
 /** 
  * Interface to provide configuration for a web application. This is read-only while

@@ -14,17 +14,12 @@ package com.interface21.web.context.support;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 import javax.servlet.ServletContext;
 
-import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
-import com.interface21.context.MessageSourceResolvable;
-import com.interface21.context.NoSuchMessageException;
-import com.interface21.context.support.AbstractXmlApplicationContext;
-import com.interface21.web.context.ThemeSource;
+import com.interface21.ui.context.support.AbstractXmlUiApplicationContext;
 import com.interface21.web.context.WebApplicationContext;
 
 /**
@@ -46,7 +41,7 @@ import com.interface21.web.context.WebApplicationContext;
  * @author Juergen Hoeller
  * @version $Revision$
  */
-public class XmlWebApplicationContext extends AbstractXmlApplicationContext	implements WebApplicationContext {
+public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	implements WebApplicationContext {
 
 	/**
 	 * Name of servlet context parameter that can specify the config location prefix
@@ -86,9 +81,6 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	/** Servlet context that this context runs in */
 	private ServletContext servletContext;
 
-	/** ThemeSource */
-	private ThemeSource themeSource = new ConcreteThemeSource();
-	
 	/**
 	 * Create a new root web application context, for use in an entire
 	 * web application. This context will be the parent for individual
@@ -211,45 +203,6 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 		StringBuffer sb = new StringBuffer(super.toString() + "; ");
 		sb.append("config path='" + configLocation + "'; ");
 		return sb.toString();
-	}
-
-	/**
-	 * @see com.interface21.web.context.ThemeSource#getTheme(java.lang.String, com.interface21.context.MessageSourceResolvable, java.util.Locale)
-	 */
-	public String getTheme(	String theme, MessageSourceResolvable resolvable, Locale locale)
-		throws NoSuchMessageException {
-		return themeSource.getTheme( theme, resolvable, locale);
-	}
-
-	/**
-	 * @see com.interface21.web.context.ThemeSource#getTheme(java.lang.String, java.lang.String, java.lang.Object[], java.util.Locale)
-	 */
-	public String getTheme(String theme, String code, Object[] args, Locale locale)
-		throws NoSuchMessageException {
-		return themeSource.getTheme(theme, code, args, locale);
-	}
-
-	/**
-	 * @see com.interface21.web.context.ThemeSource#getTheme(java.lang.String, java.lang.String, java.lang.Object[], java.lang.String, java.util.Locale)
-	 */
-	public String getTheme(String theme, String code, Object[] args, String defaultMessage,	Locale locale) {
-		return themeSource.getTheme(theme, code, args, defaultMessage, locale);
-	}
-
-	/**
-	 * @see com.interface21.web.context.ThemeSource#refresh(com.interface21.beans.factory.ListableBeanFactory)
-	 * Drop from the interface ?
-	 */
-	public void refresh(ListableBeanFactory beanFactory, ApplicationContext parent)
-		throws ApplicationContextException {
-		// Nothing
-	}
-
-	/**
-	 * @see com.interface21.context.support.AbstractApplicationContext#afterRefresh()
-	 */
-	protected void afterRefresh() throws ApplicationContextException {
-		themeSource.refresh(getBeanFactory(), getParent());
 	}
 
 }

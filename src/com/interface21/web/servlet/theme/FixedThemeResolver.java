@@ -3,7 +3,6 @@ package com.interface21.web.servlet.theme;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.interface21.web.servlet.ThemeResolver;
 
 /**
  * Implementation of LocaleResolver that simply uses the primary locale

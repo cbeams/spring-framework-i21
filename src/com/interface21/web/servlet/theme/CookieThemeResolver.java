@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 
-import com.interface21.web.servlet.ThemeResolver;
 import com.interface21.web.util.WebUtils;
 
 /**
