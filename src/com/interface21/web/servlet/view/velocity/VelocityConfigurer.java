@@ -26,7 +26,7 @@ import com.interface21.web.context.support.WebApplicationObjectSupport;
  * JavaBean to configure Velocity, by setting the location of the Velocity properties
  * file. This bean must be included in the application context of any application using
  * Velocity with the Interface21 framework.
- * <br>The optional path property sets the location within the WAR of the Velocity properties file.
+ * <br>The optional location property sets the location within the WAR of the Velocity properties file.
  * By default it will be sought in the /WEB-INF directory, with the name velocity.properties.
  * <br>This bean exists purely to configure Velocity. It exposes no methods other than
  * initialization methods, and is not meant to be referenced by application components.
@@ -34,20 +34,18 @@ import com.interface21.web.context.support.WebApplicationObjectSupport;
  */
 public class VelocityConfigurer extends WebApplicationObjectSupport {
 
-	/**
-	 * Create a logging category that is available to subclasses.
-	 */
 	protected final Logger logger = Logger.getLogger(getClass());
 
 	public static final String DEFAULT_VELOCITY_PROPERTIES = "/WEB-INF/velocity.properties";
 
-	private String path = DEFAULT_VELOCITY_PROPERTIES;
+	private String location = DEFAULT_VELOCITY_PROPERTIES;
 
 	/**
-	 * Optionally override location of the Velocity properties file.
+	 * Optionally override the location of the Velocity config file.
+	 * Default is "/WEB-INF/velocity.properties".
 	 */
-	public void setPath(String path) {
-		this.path = path;
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	/**
@@ -62,20 +60,19 @@ public class VelocityConfigurer extends WebApplicationObjectSupport {
 	protected void initApplicationContext() throws ApplicationContextException {
 		try {
 			Properties p = new Properties();
-			logger.info("Loading Velocity properties from [" + this.path + "]");
-			p.load(getWebApplicationContext().getResourceAsStream(this.path));
-
+			logger.info("Loading Velocity properties from [" + this.location + "]");
+			p.load(getWebApplicationContext().getResourceAsStream(this.location));
 			Velocity.init(p);
 		}
 		catch (ServletException e) {
-			throw new ApplicationContextException("Error loading Velocity config from [" + this.path + "]", e);
+			throw new ApplicationContextException("Error loading Velocity config from [" + this.location + "]", e);
 		}
 		catch (IOException e) {
-			throw new ApplicationContextException("Error loading Velocity config from [" + this.path + "]", e);
+			throw new ApplicationContextException("Error loading Velocity config from [" + this.location + "]", e);
 		}
 		catch (Exception e) {
 			throw new ApplicationContextException(
-				"Error initializing Velocity from properties file (loaded OK) @[" + this.path + "]",
+				"Error initializing Velocity from properties file (loaded OK) @[" + this.location + "]",
 				e);
 		}
 	}

@@ -302,14 +302,14 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * be overridden for implementations targetted at a container.
 	 * @see com.interface21.context.ApplicationContext#getResourceAsStream
 	 */
-	public InputStream getResourceAsStream(String path) throws IOException {
+	public InputStream getResourceAsStream(String location) throws IOException {
 		try {
 			// try URL
-			URL url = new URL(path);
+			URL url = new URL(location);
 			return url.openStream();
 		} catch (MalformedURLException ex) {
-			// no URL -> file path
-			return new FileInputStream(path);
+			// no URL -> file location
+			return new FileInputStream(location);
 		}
 	}
 

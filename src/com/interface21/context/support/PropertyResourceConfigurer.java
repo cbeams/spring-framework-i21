@@ -30,25 +30,25 @@ public class PropertyResourceConfigurer implements ApplicationListener {
 
 	private Logger logger = Logger.getLogger(PropertyResourceConfigurer.class);
 
-	private String path;
+	private String location;
 
 	/**
-	 * Sets the path to the properties file.
-	 * Allows for both a URL and an absolute or a relative file path (according to
+	 * Sets the location of the properties file.
+	 * Allows for both a URL and an absolute or a relative file location (according to
 	 * the respective ApplicationContext's getResourceInputStream implementation).
 	 * @see com.interface21.context.ApplicationContext
 	 */
-	public void setPath(String path) {
-		this.path = path;
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public void onApplicationEvent(ApplicationEvent e) {
 		if (e instanceof ContextRefreshedEvent) {
 			ApplicationContext ctx = (ApplicationContext)e.getSource();
-			if (path != null) {
+			if (location != null) {
 				Properties prop = new Properties();
 				try {
-					prop.load(ctx.getResourceAsStream(this.path));
+					prop.load(ctx.getResourceAsStream(this.location));
 					for (Iterator it = prop.keySet().iterator(); it.hasNext();) {
 						String key = (String) it.next();
 						String value = prop.getProperty(key);
@@ -71,10 +71,10 @@ public class PropertyResourceConfigurer implements ApplicationListener {
 						}
 					}
 				} catch (IOException ex) {
-					logger.error("Could not load properties '" + this.path + "': " + ex.getMessage());
+					logger.error("Could not load properties '" + this.location + "': " + ex.getMessage());
 				}
 			} else {
-				logger.error("No properties path specified");
+				logger.error("No properties location specified");
 			}
 		}
 	}
