@@ -4,10 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.ejb.EJBObject;
 
-import org.aopalliance.AspectException;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.AspectException;
+import org.aopalliance.intercept.MethodInvocation;
 
-import com.interface21.aop.framework.AopUtils;
 import com.interface21.ejb.access.AbstractRemoteSlsbInvokerInterceptor;
 
 
@@ -48,7 +47,7 @@ public class SimpleRemoteSlsbInvokerInterceptor extends AbstractRemoteSlsbInvoke
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		EJBObject ejb = newSessionBeanInstance();
 		try {
-			return invocation.getMethod().invoke(ejb, AopUtils.getArguments(invocation));
+			return invocation.getMethod().invoke(ejb, invocation.getArguments());
 		}
 		catch (InvocationTargetException ex) {
 			logger.warn(ex + " thrown invoking remote EJB method " + invocation.getMethod());

@@ -5,10 +5,9 @@
 
 package com.interface21.aop.framework;
 
-import org.aopalliance.Interceptor;
-import org.aopalliance.Invocation;
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.Interceptor;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import com.interface21.aop.interceptor.AbstractQaInterceptor;
 import com.interface21.aop.interceptor.DebugInterceptor;
@@ -136,10 +135,11 @@ public class ProxyFactoryTests extends TestCase {
 			public Object invoke(MethodInvocation mi) throws Throwable {
 				// Check it was invoked in correct position
 				// Index must be this index now
-				assertTrue("Index should be 1, not " + mi.getCurrentInterceptorIndex(), mi.getCurrentInterceptorIndex() == 1);
-				Object ret = mi.invokeNext();
+				//assertTrue("Index should be 1, not " + mi.getCurrentInterceptorIndex(), mi.getCurrentInterceptorIndex() == 1);
+				Object ret = mi.proceed();
 				// Index must have been incremented following this call
-				assertTrue(mi.getCurrentInterceptorIndex() == 2);
+				//TODO no longer possible with AOP Alliance
+				//assertTrue(mi.getCurrentInterceptorIndex() == 2);
 				return ret;
 			}
 		});

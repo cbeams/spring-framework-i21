@@ -7,8 +7,8 @@ import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import org.aopalliance.MethodInvocation;
-import org.aopalliance.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.aopalliance.intercept.MethodInterceptor;
 
 import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.remoting.RemoteAccessException;
@@ -55,7 +55,7 @@ public class RmiProxyFactoryBean extends RemoteProxyFactoryBean {
 			pf.addInterceptor(0, new MethodInterceptor() {
 				public Object invoke(MethodInvocation invocation) throws Throwable {
 					try {
-						return invocation.invokeNext();
+						return invocation.proceed();
 					}
 					catch (UndeclaredThrowableException ex) {
 						throw new RemoteAccessException("Error on remote access", ex.getUndeclaredThrowable());

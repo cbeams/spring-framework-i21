@@ -12,9 +12,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.TestCase;
-import org.aopalliance.AttributeRegistry;
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.AttributeRegistry;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import com.interface21.aop.interceptor.DebugInterceptor;
 import com.interface21.beans.FatalBeanException;
@@ -267,15 +267,15 @@ public class ProxyFactoryBeanTests extends TestCase {
 			return new MethodInterceptor() {
 				public Object invoke(MethodInvocation invocation) throws Throwable {
 					methodNames.add(invocation.getMethod().getName());
-					return invocation.invokeNext();
+					return invocation.proceed();
 				}
 			};
 		}
 		
 		/** Should fire only if it returns null */
-		public boolean applies(Method m, Object[] args, AttributeRegistry ar) {
-			System.out.println(m.getReturnType());
-			return m.getReturnType() == Void.TYPE;
+		public boolean applies(MethodInvocation mi) {
+			//System.out.println(mi.getMethod().getReturnType());
+			return mi.getMethod().getReturnType() == Void.TYPE;
 		}
 
 	}
@@ -300,7 +300,7 @@ public class ProxyFactoryBeanTests extends TestCase {
 			//System.out.println("GlobalAspectInterfaceInterceptor.invoke");
 			if (mi.getMethod().getDeclaringClass().equals(AddedGlobalInterface.class))
 				return new Integer(-1);
-			return mi.invokeNext();
+			return mi.proceed();
 		}
 	}
 	

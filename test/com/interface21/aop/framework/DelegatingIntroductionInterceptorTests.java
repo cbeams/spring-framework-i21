@@ -7,7 +7,7 @@ package com.interface21.aop.framework;
 
 import junit.framework.TestCase;
 
-import org.aopalliance.MethodInterceptor;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 

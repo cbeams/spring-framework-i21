@@ -11,10 +11,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.aopalliance.AspectException;
-import org.aopalliance.AttributeRegistry;
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.AspectException;
+import org.aopalliance.intercept.AttributeRegistry;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import com.interface21.aop.attributes.Attrib4jAttributeRegistry;
 import com.interface21.beans.TestBean;
@@ -84,7 +84,7 @@ new Attrib4jAttributeRegistry());
 			MethodInvocationImpl invocation = new MethodInvocationImpl(proxy, null, m.getDeclaringClass(), //?
 		m, null, is, // list
 	r);
-		Object rv = invocation.invokeNext();
+		Object rv = invocation.proceed();
 		assertTrue("correct response", rv == returnValue);
 	}
 
@@ -108,15 +108,15 @@ new Attrib4jAttributeRegistry());
 		assertTrue(invocation.getAttributeRegistry() == r);
 		//assertTrue(invocation.getCurrentInterceptorIndex() == 0);
 		assertTrue(invocation.getInterceptor(0) == interceptor);
-		Object rv = invocation.invokeNext();
+		Object rv = invocation.proceed();
 		assertTrue("correct response", rv == returnValue);
 
 		assertTrue(invocation.getCurrentInterceptorIndex() == 0);
-		assertTrue(invocation.getInterceptorCount() == 1);
+		assertTrue(invocation.getNumberOfInterceptors() == 1);
 
 		// Now it gets interesting
 		try {
-			invocation.invokeNext();
+			invocation.proceed();
 			fail("Shouldn't allow illegal invocation number");
 		} catch (AspectException ex) {
 			// Shouldn't have changed position in interceptor chain
@@ -148,15 +148,15 @@ new Attrib4jAttributeRegistry());
 		m, null, is, // list
 	r);
 
-		assertTrue("no bogus attachment", invocation.getResource("bogus") == null);
+		assertTrue("no bogus attachment", invocation.getAttachment("bogus") == null);
 		String name = "foo";
 		Object val = new Object();
 		Object val2 = "foo";
-		assertTrue("New attachment returns null", null == invocation.setResource(name, val));
-		assertTrue(invocation.getResource(name) == val);
-		assertTrue("Replace returns correct value", val == invocation.setResource(name, val2));
-		assertTrue(invocation.getResource(name) == val2);
-		assertTrue("Can clear by attaching null", val2 == invocation.setResource(name, null));
+		assertTrue("New attachment returns null", null == invocation.addAttachment(name, val));
+		assertTrue(invocation.getAttachment(name) == val);
+		assertTrue("Replace returns correct value", val == invocation.addAttachment(name, val2));
+		assertTrue(invocation.getAttachment(name) == val2);
+		assertTrue("Can clear by attaching null", val2 == invocation.addAttachment(name, null));
 	}
 
 	/**

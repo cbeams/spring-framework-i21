@@ -11,10 +11,10 @@ import java.lang.reflect.Proxy;
 
 import junit.framework.TestCase;
 
-import org.aopalliance.AspectException;
-import org.aopalliance.AttributeRegistry;
-import org.aopalliance.MethodInterceptor;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.AspectException;
+import org.aopalliance.intercept.AttributeRegistry;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
@@ -220,8 +220,10 @@ public class AopProxyTests extends TestCase {
 		ITestBean tb = (ITestBean) aop.getProxy();
 		tb.getSpouse();
 		assertTrue(tii.invocation != null);
-		assertTrue(tii.invocation.getProxy() == tb);
-		assertTrue(tii.invocation.getInvokedObject() == null);
+		
+		// TODO strengthen this
+	//	assertTrue(tii.invocation.getProxy() == tb);
+		assertTrue(tii.invocation.getThis() == null);
 	}
 
 	/**
@@ -255,7 +257,7 @@ public class AopProxyTests extends TestCase {
 		TrapInvocationInterceptor tii = new TrapInvocationInterceptor() {
 			public Object invoke(MethodInvocation invocation) throws Throwable {
 					// Assert that target matches BEFORE invocation returns
-				assertTrue(invocation.getInvokedObject() == target);
+				assertTrue(invocation.getThis() == target);
 				return super.invoke(invocation);
 			}
 		};
@@ -267,7 +269,7 @@ public class AopProxyTests extends TestCase {
 		ITestBean tb = (ITestBean) aop.getProxy();
 		tb.getName();
 		assertTrue(tii.invocation == target.invocation);
-		assertTrue(target.invocation.getInvokedObject() == target);
+		assertTrue(target.invocation.getThis() == target);
 		assertTrue(target.invocation.getMethod().getDeclaringClass() == ITestBean.class);
 		//assertTrue(target.invocation.getProxy() == tb);
 
@@ -373,8 +375,8 @@ public class AopProxyTests extends TestCase {
 		/**
 		 * @see com.interface21.aop.framework.DynamicMethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[], org.aopalliance.AttributeRegistry)
 		 */
-		public boolean applies(Method m, Object[] args, AttributeRegistry attributeRegistry) {
-			boolean run = m.getName().indexOf(pattern) != -1;
+		public boolean applies(MethodInvocation mi) {
+			boolean run = mi.getMethod().getName().indexOf(pattern) != -1;
 			if (run) ++count;
 			return run;
 		}
@@ -405,7 +407,7 @@ public class AopProxyTests extends TestCase {
 
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			this.invocation =  invocation;
-			return invocation.invokeNext();
+			return invocation.proceed();
 		}
 	}
 

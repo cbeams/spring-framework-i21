@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 import javax.servlet.ServletException;
 
-import org.aopalliance.MethodInterceptor;
+import org.aopalliance.intercept.MethodInterceptor;
 
 import com.interface21.beans.IOther;
 import com.interface21.beans.TestBean;

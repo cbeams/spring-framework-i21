@@ -5,7 +5,7 @@
  
 package com.interface21.aop.framework;
 
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.MethodInvocation;
 
 
 /**

@@ -8,7 +8,7 @@ package com.interface21.transaction.interceptor;
 import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
-import org.aopalliance.MethodInvocation;
+import org.aopalliance.intercept.MethodInvocation;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
