@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -177,15 +178,16 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 		try {
 			this.messageSource = (MessageSource) getBeanFactory().getBean(MESSAGE_SOURCE_BEAN_NAME);
+
+			// set parent message source if applicable,
+			// and if the message source is defined in this context, not in a parent
+			if (this.parent != null && (this.messageSource instanceof NestingMessageSource) &&
+			    Arrays.asList(getBeanFactory().getBeanDefinitionNames()).contains(MESSAGE_SOURCE_BEAN_NAME)) {
+				((NestingMessageSource) this.messageSource).setParent(this.parent);
+			}
 		}
 		catch (BeansException ex) {
-			logger.warn("No MessageSource defined in ApplicationContext: using parent's");
-			this.messageSource = this.parent;
-			if (this.messageSource == null)
-				logger.warn("No MessageSource defined in WebApplicationContext and no parent");
-		}
-		if ((this.messageSource instanceof NestingMessageSource) && this.parent != null) {
-			((NestingMessageSource) this.messageSource).setParent(this.parent);
+			logger.warn("No MessageSource defined in WebApplicationContext and no parent");
 		}
 
 		refreshListeners();
