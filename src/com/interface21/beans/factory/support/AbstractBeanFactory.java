@@ -303,7 +303,24 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		}
 		else if (bd instanceof ChildBeanDefinition) {
 			ChildBeanDefinition ibd = (ChildBeanDefinition) bd;
-			instanceWrapper = getBeanWrapperForNewInstance(ibd.getParentName(), newlyCreatedBeans);
+			try {
+				instanceWrapper = getBeanWrapperForNewInstance(ibd.getParentName(), newlyCreatedBeans);
+			}
+			catch (NoSuchBeanDefinitionException ex) {
+				// Look in parent for the bean we're descended from
+				
+				if (getParentBeanFactory() != null) {
+					// Let this throw NoSuchBeanDefinitionException
+					Object parentsObject = getParentBeanFactory().getBean(ibd.getParentName());
+					// Check for invalid usage:
+					// a parent singleton cannot be the parent of a subfactory prototype
+					if (!ibd.isSingleton() && getParentBeanFactory().isSingleton(ibd.getParentName())) {
+						throw new BeanDefinitionStoreException("Prototype bean '" + name + "' cannot inherit from singleton bean '" + 
+								ibd.getParentName() + "' in parent factory", null);
+					}
+					instanceWrapper = new BeanWrapperImpl(parentsObject);
+				}
+			}
 		}
 		// Set our property values
 		if (instanceWrapper == null)

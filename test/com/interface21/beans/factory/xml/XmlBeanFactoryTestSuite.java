@@ -17,13 +17,14 @@ import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
 import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.HasMap;
+import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
 
 /**
  *
  * @author Rod Johnson
- * @version $Revision$
+* @version $Id$
  */
 public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 
@@ -82,6 +83,96 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		ITestBean davesJen = dave.getSpouse();
 		ITestBean jenksJen = jenks.getSpouse();
 		assertTrue("1 jen instances", davesJen == jenksJen);
+	}
+	
+	public void testSingletonInheritanceFromParentFactorySingleton() throws Exception {
+		InputStream pis = getClass().getResourceAsStream("parent.xml");
+		XmlBeanFactory parent = new XmlBeanFactory(pis);
+		InputStream is = getClass().getResourceAsStream("child.xml");
+		XmlBeanFactory child = new XmlBeanFactory(is, parent);
+		TestBean inherits = (TestBean) child.getBean("inheritsFromParentFactory");
+		// Name property value is overriden
+		assertTrue(inherits.getName().equals("override"));
+		// Age property is inherited from bean in parent factory
+		assertTrue(inherits.getAge() == 1);
+		TestBean inherits2 = (TestBean) child.getBean("inheritsFromParentFactory");
+		assertTrue(inherits2 == inherits);
+	}
+	
+	public void testPrototypeInheritanceFromParentFactoryPrototype() throws Exception {
+		InputStream pis = getClass().getResourceAsStream("parent.xml");
+		XmlBeanFactory parent = new XmlBeanFactory(pis);
+		InputStream is = getClass().getResourceAsStream("child.xml");
+		XmlBeanFactory child = new XmlBeanFactory(is, parent);
+		TestBean inherits = (TestBean) child.getBean("prototypeInheritsFromParentFactoryPrototype");
+		// Name property value is overriden
+		assertTrue(inherits.getName().equals("prototype-override"));
+		// Age property is inherited from bean in parent factory
+		assertTrue(inherits.getAge() == 2);
+		TestBean inherits2 = (TestBean) child.getBean("prototypeInheritsFromParentFactoryPrototype");
+		assertFalse(inherits2 == inherits);
+		inherits2.setAge(13);
+		assertTrue(inherits2.getAge() == 13);
+		// Shouldn't have changed first instance
+		assertTrue(inherits.getAge() == 2);
+	}
+	
+	public void testPrototypeCannotInheritFromParentFactorySingleton() throws Exception {
+		InputStream pis = getClass().getResourceAsStream("parent.xml");
+		XmlBeanFactory parent = new XmlBeanFactory(pis);
+		InputStream is = getClass().getResourceAsStream("child.xml");
+		XmlBeanFactory child = new XmlBeanFactory(is, parent);
+		try {
+			TestBean inherits = (TestBean) child.getBean("INVALID-protoypeInheritsFromParentFactorySingleton");
+			fail();
+		}
+		catch (BeanDefinitionStoreException ex) {
+			// Ok
+			// Check exception message contains both names and is helpful
+			assertTrue(ex.getMessage().indexOf("INVALID-protoypeInheritsFromParentFactorySingleton") != -1);
+			assertTrue(ex.getMessage().indexOf("inheritedTestBean") != -1);
+		}
+	}
+	
+	/**
+	 * Check that a prototype can't inherit from a bogus parent.
+	 * If a singleton does this the factory will fail to load.
+	 * @throws Exception
+	 */
+	public void testBogusParentageFromParentFactory() throws Exception {
+		InputStream pis = getClass().getResourceAsStream("parent.xml");
+		XmlBeanFactory parent = new XmlBeanFactory(pis);
+		InputStream is = getClass().getResourceAsStream("child.xml");
+		XmlBeanFactory child = new XmlBeanFactory(is, parent);
+		try {
+			TestBean inherits = (TestBean) child.getBean("bogusParent");
+			fail();
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			// Ok
+			// Check exception message contains the name 
+			assertTrue(ex.getMessage().indexOf("bogusParent") != -1);
+		}
+	}
+	
+	/**
+	 * Note that prototype/singleton distinction is <b>not</b> inherited.
+	 * It's possible for a subclass singleton not to return independent
+	 * instances even if derived from a prototype
+	 * @throws Exception
+	 */
+	public void testSingletonInheritsFromParentFactoryPrototype() throws Exception {
+		InputStream pis = getClass().getResourceAsStream("parent.xml");
+		XmlBeanFactory parent = new XmlBeanFactory(pis);
+		InputStream is = getClass().getResourceAsStream("child.xml");
+		XmlBeanFactory child = new XmlBeanFactory(is, parent);
+		TestBean inherits = (TestBean) child.getBean("singletonInheritsFromParentFactoryPrototype");
+		// Name property value is overriden
+		assertTrue(inherits.getName().equals("prototype-override"));
+		// Age property is inherited from bean in parent factory
+		assertTrue(inherits.getAge() == 2);
+		TestBean inherits2 = (TestBean) child.getBean("singletonInheritsFromParentFactoryPrototype");
+		assertTrue(inherits2 == inherits);
 	}
 
 	public void testCircularReferences() {

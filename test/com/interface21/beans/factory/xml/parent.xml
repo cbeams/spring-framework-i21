@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="inheritedTestBean" class="com.interface21.beans.TestBean">
+		<property name="name"><value>parent</value></property>
+		<property name="age"><value>1</value></property>
+	</bean>
+	
+	<bean id="inheritedTestBeanPrototype" 
+		class="com.interface21.beans.TestBean"
+		singleton="false"
+	>
+		<property name="name"><value>parent</value></property>
+		<property name="age"><value>2</value></property>
+	</bean>
+
+</beans>
