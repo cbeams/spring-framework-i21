@@ -9,6 +9,9 @@
 
 package com.interface21.context;
 
+import java.io.InputStream;
+import java.io.IOException;
+
 import com.interface21.beans.factory.ListableBeanFactory;
 
 /** 
@@ -42,7 +45,8 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	 */
 	String OPTIONS_BEAN_NAME = "ApplicationContext.options";
 	
-	/** Return the parent context, or null if there is no parent,
+	/**
+	 * Return the parent context, or null if there is no parent,
 	 * and this is the root of the context hierarchy.
 	 * @return the parent context, or null if there is no parent
 	 */
@@ -53,30 +57,12 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	*/
 	String getDisplayName();
 
-
-	/** 
-	 * Notify all listeners registered with this application of 
-	 * an application event. Events may be framework events (such as RequestHandledEvent)
-	 * or application-specific events.
-	 * @param e event to publish
-	 */
-	void publishEvent(ApplicationEvent e);
-	
-	/** 
-	 * Load or refresh the persistent representation of the configuration, which
-	 * might for example be an XML file, properties file or relational database schema.
-	 * @throws ApplicationContextException if the config cannot be loaded
-	 */
-	void refresh() throws ApplicationContextException;
-	
-	
-	/** 
+	/**
 	 * Return the timestamp when this context was first loaded
 	 * @return the timestamp (ms) when this context was first loaded
 	 */
 	long getStartupDate();
-	
-	
+
 	/**
 	 * Return context options. These control reloading etc.
 	 * ApplicationContext implementations may subclass ContextOptions to
@@ -87,7 +73,34 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory {
 	 * a context.
 	 */
 	ContextOptions getOptions();
+
+	/**
+	 * Load or refresh the persistent representation of the configuration, which
+	 * might for example be an XML file, properties file or relational database schema.
+	 * @throws ApplicationContextException if the config cannot be loaded
+	 */
+	void refresh() throws ApplicationContextException;
+
+	/**
+	 * Notify all listeners registered with this application of 
+	 * an application event. Events may be framework events (such as RequestHandledEvent)
+	 * or application-specific events.
+	 * @param e event to publish
+	 */
+	void publishEvent(ApplicationEvent e);
 	
+	/**
+	 * Open an InputStream to the specified resource.
+	 * Must support fully qualified URLs, e.g. "file:C:/test.dat".
+	 * Must support absolute file paths, e.g. "C:/test.dat".
+	 * May allow for relative file paths, e.g. "/WEB-INF/test.dat".
+	 * Note: Callers are responsible for closing the input stream.
+	 * @param path  the path to the specified resource
+	 * @return the InputStream for the specified resource
+	 * @throws IOException exception when opening the specified resource
+	 */
+	InputStream getResourceAsStream(String path) throws IOException;
+
 	/**
 	 * Put an object available for sharing. Note that this
 	 * method is not synchronized. As with Java 2 collections,
