@@ -14,15 +14,25 @@ package com.interface21.validation;
 import java.util.List;
 
 /**
- * Interface to be implemented by objects that can store
- * and expose information about data binding errors.
- * <br>Errors objects are single-threaded.
- * @author Rod Johnson, Juergen Hoeller
+ * Interface to be implemented by objects that can store and expose
+ * information about data binding errors.
+ *
+ * <p>Field names can be properties of the given object (e.g. "name"
+ * when binding to a customer object), or nested fields in case of
+ * subobjects (e.g. "address.street"). Supports subtree navigation
+ * via setNestedPath, e.g. an AddressValidator validates "address",
+ * not being aware that this is a subobject of customer.
+ *
+ * <p>Note: Errors objects are single-threaded.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @see #setNestedPath
  */
 public interface Errors {
 
 	/**
-	 * Return the name of the bound object
+	 * Return the name of the bound object.
 	 */
 	String getObjectName();
 
@@ -36,7 +46,7 @@ public interface Errors {
 
 	/**
 	 * Reject the given field of the current object, using the given error description.
-	 * @param field  the name of the field
+	 * @param field field name
 	 * @param errorCode error code, interpretable as message key
 	 * @param errorArgs error arguments, for argument binding via MessageFormat
 	 * @param defaultMessage fallback default message

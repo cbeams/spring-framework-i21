@@ -6,16 +6,22 @@ import com.interface21.beans.BeanWrapper;
 import com.interface21.beans.BeanWrapperImpl;
 
 /**
+ * Default implementation of the Errors interface, supporting
+ * registration and evaluation of binding errors.
+ * Slightly unusual, as it _is_ an exception.
+ * Supports exporting a model, suitable for example for web MVC.
  *
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @see #getModel
  */
 public class BindException extends Exception implements Errors {
 
-	public static final String ERROR_KEY_PREFIX = "com.interface21.web.bind.BIND_EXCEPTION.";
-
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
+	/**
+	 * Prefix for the name of the Errors instance in a model,
+	 * followed by the object name.
+	 */
+	public static final String ERROR_KEY_PREFIX = BindException.class.getName() + ".";
 
 	private List errors = new LinkedList();
 
@@ -24,10 +30,6 @@ public class BindException extends Exception implements Errors {
 	private String objectName;
 
 	private String nestedPath = "";
-
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
 
 	public BindException(Object target, String name) {
 		this.beanWrapper = new BeanWrapperImpl(target);
@@ -47,10 +49,6 @@ public class BindException extends Exception implements Errors {
 	protected void addFieldError(FieldError fe) {
 		errors.add(fe);
 	}
-
-	//---------------------------------------------------------------------
-	// Implementation of Errors
-	//---------------------------------------------------------------------
 
 	public Object getTarget() {
 		return beanWrapper.getWrappedInstance();
@@ -155,6 +153,10 @@ public class BindException extends Exception implements Errors {
 		this.nestedPath = nestedPath;
 	}
 
+	/**
+	 * Return a model Map for the contained state, exposing an Errors
+	 * instance as ERROR_KEY_PREFIX + objectName, and the object itself.
+	 */
 	public final Map getModel() {
 		Map m = new HashMap();
 		// errors instance, even if no errors
@@ -165,7 +167,7 @@ public class BindException extends Exception implements Errors {
 	}
 
 	/**
-	 * @return diagnostic information about the errors held in this object
+	 * Returns diagnostic information about the errors held in this object.
 	 */
 	public String getMessage() {
 		StringBuffer sb = new StringBuffer("BindException: " + getErrorCount() + " errors");

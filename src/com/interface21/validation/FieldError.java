@@ -28,7 +28,8 @@ package com.interface21.validation;
  * <li>or general level (all fields, on any object).
  * </ul>
  *
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  */
 public class FieldError extends ObjectError {
 
