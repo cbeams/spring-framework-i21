@@ -1,14 +1,11 @@
-/**
- * Generic framework code included with 
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
- * This code is free to use and modify. 
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
-
+ 
 package com.interface21.ejb.support;
 
+import javax.ejb.CreateException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
 
@@ -18,12 +15,17 @@ import javax.ejb.MessageDrivenContext;
  * JMS-specific: see the AbstractJmsMessageDrivenBean subclass.
  * <br>This class ensures that subclasses have access to the
  * MessageDrivenContext provided by the EJB container, and implement
- * a no argument ejbCreate() method as required by the EJB specification,
- * but not the javax.ejb.MessageDrivenBean interface.
+ * a no argument ejbCreate() method as required by the EJB specification.
+ * This ejbCreate() method loads a BeanFactory, before invoking
+ * the onEjbCreate() method, which should contain subclass-specific
+ * initialization.
  * <br>
  * NB: we cannot use final methods to implement EJB API methods,
- * as this violates the EJB specification.
+ * as this violates the EJB specification. However, there should
+ * be no need to override the setMessageDrivenContext() or
+ * ejbCreate() methods.
  * @author Rod Johnson
+ * @version $Id$
  */
 public abstract class AbstractMessageDrivenBean 
 				extends AbstractEnterpriseBean 
@@ -56,19 +58,29 @@ public abstract class AbstractMessageDrivenBean
 		this.messageDrivenContext = messageDrivenContext;
 	}
 	
-	/**
-	 * Lifecycle method required by the EJB specification but not the MessageDrivenBean interface.
-	 * We implement this as an abstract method to force subclasses to implement it.
-	 * Can use BeanFactory here for initialization if required.
+	/** 
+	 * Lifecycle method required by the EJB specification but not
+	 * the MessageDrivenBean interface.
+	 * This implementation loads the BeanFactory.
+	 * Don't override it (although it can't be made final):
+	 * code your initialization in onEjbCreate(), which is
+	 * called when the BeanFactory is available.
+	 * Unfortunately we can't load the BeanFactory in setSessionContext(), as ResourceManager
+	 * access isn't permitted and the BeanFactory may require it. 
 	 */
-	public abstract void ejbCreate();
-	
-	
-	/**
-	 * This method is required by the EJB Specification.
-	 */
-	public void ejbRemove() {
-		logger.info("ejbRemove");
+	public void ejbCreate() throws CreateException {
+		loadBeanFactory();
+		onEjbCreate();
 	}
 	
+	/**
+	 * Subclasses must implement this method to do any initialization
+	 * they would otherwise have done in an ejbCreate() method. 
+	 * The BeanFactory will have been loaded.
+	 * The same restrictions apply to the work of this method as
+	 * to an ejbCreate() method.
+	 * @throws CreateException
+	 */
+	protected abstract void onEjbCreate() throws CreateException;
+
 } 	// class AbstractMessageDrivenBean

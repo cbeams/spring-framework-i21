@@ -1,10 +1,6 @@
-/**
- * Generic framework code included with
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002).
- * This code is free to use and modify.
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
 
 package com.interface21.ejb.support;
@@ -13,18 +9,13 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
 /**
- * Convenient superclass for session beans.
- * <br>SFSBs can extend this class directly,
- * leaving them to implement the ejbActivate() and ejbPassivate() lifecycle methods
- * to comply with the requirements of the EJB specification.
- * <br>SLSBs will extend the AbstractStatelessSessionBean subclass of this class.
+ * Ssuperclass for all session beans, not intended for direct client subclassing.
  * <br>This class saves the session context provided by the EJB container in an instance
  * variable and provides a NOP implementation of the ejbRemove() lifecycle method.
- * <br>NB: We cannot use final for our implementation of EJB lifecycle methods,
- * as this violates the EJB specification.
+ * @version $Id$
  * @author Rod Johnson
  */
-public abstract class AbstractSessionBean extends AbstractEnterpriseBean implements SessionBean {
+abstract class AbstractSessionBean extends AbstractEnterpriseBean implements SessionBean {
 
 	//-------------------------------------------------------------------------
 	// Instance data
@@ -46,15 +37,7 @@ public abstract class AbstractSessionBean extends AbstractEnterpriseBean impleme
 		logger.debug("setSessionContext");
 		this.sessionContext = sessionContext;
 	}
-
-
-	/**
-	 * This method is required by the EJB Specification.
-	 */
-	public void ejbRemove() {
-		logger.info("AbstractSessionBean NOP ejbRemove");
-	}
-
+			
 
 	//-------------------------------------------------------------------------
 	// Convenience methods for subclasses

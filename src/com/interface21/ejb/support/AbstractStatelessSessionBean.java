@@ -1,10 +1,6 @@
-/**
- * Generic framework code included with 
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
- * This code is free to use and modify. 
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
 
 package com.interface21.ejb.support;
@@ -19,21 +15,44 @@ import javax.ejb.EJBException;
  * <br>As the ejbActivate() and ejbPassivate() methods cannot be invoked on SLSBs,
  * these methods are implemented to throw an exception and should not be overriden by 
  * subclasses. (Unfortunately the EJB specification forbids enforcing this by making
- * these two methods final.)
- * <br>Subclasses are left to implement the ejbCreate() method to ensure that they
- * offer a no-argument implementation of the home interface's create() method as
- * required by the EJB specification.
+ * EJB lifecycle methods final.)
+ * <br>There should
+ * be no need to override the setSessionContext() or
+ * ejbCreate() lifecycle methods.
+ * <br>Subclasses are left to implement the onEjbCreate() method to do
+ * whatever initialization they wish to do after their BeanFactory
+ * has already been loaded, and is available from the getBeanFactory() method.
+ * This class provides the no-argument ejbCreate() method required
+ * by the EJB specification, but not the SessionBean interface,
+ * eliminating a common cause of EJB deployment failure.
  * @author Rod Johnson
+ * @version $Id$
  */
 public abstract class AbstractStatelessSessionBean extends AbstractSessionBean {
 
 	/** 
-	 * This is declared abstract to ensure that subclasses implement this method. 
-	 * Otherwise it isn't required by the compiler, but will
-	 * fail on deployment. This is a common cause of errors in implementing SLSBs.
-	 * <br/>The BeanFactory is available at this point
+	 * This implementation loads the BeanFactory.
+	 * Don't override it (although it can't be made final):
+	 * code your initialization in onEjbCreate(), which is
+	 * called when the BeanFactory is available.
+	 * Unfortunately we can't load the BeanFactory in setSessionContext(), as ResourceManager
+	 * access isn't permitted and the BeanFactory may require it. 
 	 */
-	public abstract void ejbCreate() throws CreateException;
+	public void ejbCreate() throws CreateException {
+		loadBeanFactory();
+		onEjbCreate();
+	}
+	
+	/**
+	 * Subclasses must implement this method to do any initialization
+	 * they would otherwise have done in an ejbCreate() method. 
+	 * The BeanFactory will have been loaded.
+	 * The same restrictions apply to the work of this method as
+	 * to an ejbCreate() method.
+	 * @throws CreateException
+	 */
+	protected abstract void onEjbCreate() throws CreateException;
+
 	
 	/**
 	 * @see javax.ejb.SessionBean#ejbActivate(). This method always throws an exception, as
