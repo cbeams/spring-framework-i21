@@ -2,18 +2,19 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <!--
-  - Application context definition for a web app that uses Hibernate.
-  -
+  - Root application context definition for a web app that uses Hibernate.
   - Does not depend on web infrastructure or any web-specific classes!
-  - Assumes running in a J2EE environment in the "dataSource" definition, as
-  - it looks for a "java:comp/env/jdbc/myds" JNDI DataSource, just like Hibernate
-  - does according to hibernate.cfg.xml.
   -
-  - Such a context definition and its Hibernate configuration can be reused in
-  - test environments or standalone applications if leveraging the mock JNDI
-  - environment in com.interface21.jndi.mock, binding a DataSource instance like
-  - DriverManagerDataSource or a Commons DBCP BasicDataSource to the expected
-  - JNDI location.
+  - Assumes running in a J2EE environment in the "myDataSource" definition, as
+  - it looks for a "java:comp/env/jdbc/myds" JNDI DataSource that the Hibernate
+  - SessionFactory will use to access the database, but that can be replaced easily
+  - (as noted). Such a context definition can thus be reused in test environments
+  - or standalone applications without any hassle.
+  -
+  - Alternatively, the simple JNDI implementation in com.interface21.jndi.support
+  - can be leveraged to set up a JNDI environment outside of a J2EE container,
+  - binding a DataSource instance like DriverManagerDataSource or a Jakarta Commons
+  - DBCP BasicDataSource to the expected JNDI location.
   -->
 
 <beans>
@@ -37,65 +38,76 @@
 	<!-- ========================= PERSISTENCE DEFINITIONS ========================= -->
 
 	<!--
-	  - Builds a Hibernate SessionFactory and makes it available as bean reference.
-	  - By default, uses hibernate.cfg.xml in the root of the classpath for configuration.
+	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
+	  - By default, "java:comp/env/" will be prepended if not already specified.
 	  -
-	  - This SessionFactory will use the JDBC DataSource specified in its configuration.
-	  - To be able to share transactions with plain JDBC access code, that DataSource
-	  - should match the one defined for data access objects in this application context.
+	  - If giving this DataSource to LocalSessionFactoryBean, an alternative DataSource
+	  - could be used here too, e.g. for non-J2EE environments (see "webapp-typical").
+	  - Alternatively, one can omit the context-level DataSource definition, and let
+	  - Hibernate use its own connection provider, specified via Hibernate properties.
+	  -->
+	<bean id="myDataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+	  <property name="jndiName"><value>jdbc/myds</value></property>
+	</bean>
+
+	<!--
+	  - Builds a Hibernate SessionFactory and makes it available as bean reference.
+	  - All necessary settings get specified here, without relying on an external
+	  - Hibernate config file like "WEB-INF/classes/hibernate.cfg.xml".
+	  -
+	  - The SessionFactory will use the locally defined DataSource in this context.
+	  - This allows for convenient sharing of transactions with plain JDBC access
+	  - code, if HibernateTransactionManager is explictly given the same DataSource.
+	  -
+	  - This definition could also use a JDBC DataSource specified via Hibernate
+	  - properties. Note that to be able to share transactions with plain JDBC access
+	  - code then, that DataSource would need to be a JNDI one that should match the
+	  - one given to HibernateTransactionManager and data access objects.
 	  -
 	  - This definition can be replaced by a JndiObjectFactoryBean definition for fetching
 	  - a JNDI-bound SessionFactory, but this only makes sense when using Hibernate's
 	  - JCA Connector (not recommended for most types of applications).
 	  -->
-	<bean id="mySessionFactory" class="com.interface21.orm.hibernate.LocalSessionFactoryBean"/>
-
-	<!--
-	  - Optional: JDBC DataSource definition to be able to share transactions with
-	  - plain JDBC access code. If Hibernate is configured to a certain JNDI DataSource,
-	  - this definition should match Hibernate's.
-	  -
-	  - Alternatively, Connections from this DataSource can be given directly to
-	  - Hibernate Sessions: The Hibernate configuration does not need to specify an
-	  - own connection provider then, avoiding config duplication. To support this,
-	  - all data access objects need to pass the DataSource reference to
-	  - HibernateTemplate or SessionFactoryUtils.
-	  -
-	  - Makes a JNDI DataSource available as bean reference, assuming a J2EE environment.
-	  - By default, "java:comp/env/" will be prepended if not already specified.
-	  - If using this DataSource to create Hibernate Sessions, an alternative DataSource
-	  - can be used here too, e.g. for non-J2EE environments (see "webapp-typical").
-	  -->
-	<!--
-	<bean id="myDataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
-	  <property name="jndiName"><value>jdbc/myds</value></property>
+	<bean id="mySessionFactory" class="com.interface21.orm.hibernate.LocalSessionFactoryBean">
+		<property name="mappingResources">
+		  <list>
+		    <value>example.hbm.xml</value>
+		  </list>
+		</property>
+		<property name="hibernateProperties">
+		  <props>
+		    <prop key="hibernate.dialect">net.sf.hibernate.dialect.MySQLDialect</prop>
+		    <prop key="hibernate.query.substitutions">true=1 false=0</prop>
+		    <prop key="hibernate.show_sql">true</prop>
+		  </props>
+		</property>
+		<property name="dataSource"><ref bean="myDataSource"/></property>
 	</bean>
-	-->
 
 	<!--
 	  - Defines a transaction manager for usage in business or data access objects.
-	  -
 	  - No special treatment by the context, just a bean instance available as reference
 	  - for business objects that want to handle transactions, e.g. via TransactionTemplate.
-	  -->
-	<bean id="myTransactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
-
-	<!--
-	  - Alternative transaction manager for usage in business or data access objects.
-	  - Can be used as drop-in replacement for JtaTransactionManager if just performing
-	  - transactions on a single Hibernate SessionFactory. Does not depend on JTA!
 	  -
 	  - Needs a SessionFactory reference that it should handle transactions for.
-	  - Can optionally take a DataSource reference that it should use for Hibernate
-	  - transactions, to be able to share transactions with plain JDBC access code.
-	  - The same JDBC Connections will be used for Hibernate Sessions then: The
-	  - Hibernate configuration does not need to specify an own connection provider.
+	  - Can optionally take a DataSource reference that it should use export Hibernate
+	  - transactions for, to be able to share transactions with plain JDBC access code
+	  - on the same database (using the same DataSource as the Hibernate SessionFactory).
 	  -->
-	<!--
 	<bean id="myTransactionManager" class="com.interface21.orm.hibernate.HibernateTransactionManager">
 		<property name="sessionFactory"><ref bean="mySessionFactory"/></property>
+		<!--
 		<property name="dataSource"><ref bean="myDataSource"/></property>
+		-->
 	</bean>
+
+	<!--
+	  - Alternative transaction manager that accesses the container's transaction manager.
+	  - Can be used as drop-in replacement for HibernateTransactionManager, e.g. when
+	  - needing distributed transactions (i.e. across multiple databases).
+	  -->
+	<!--
+	<bean id="myTransactionManager" class="com.interface21.transaction.jta.JtaTransactionManager"/>
 	-->
 
 
@@ -112,15 +124,9 @@
 	  -
 	  - Is assumed to use the SessionFactory reference, passed to it via a
 	  - "setSessionFactory" bean property setter, probably with HibernateTemplate.
-	  - Can also take a JDBC DataSource reference for use with HibernateTemplate or
-	  - SessionFactoryUtils, to create JDBC Connections for Hibernate Sessions. The
-	  - Hibernate config does not need to specify an own connection provider then.
     -->
 	<bean id="exampleDataAccessObject" class="example.ExampleDataAccessObject">
 		<property name="sessionFactory"><ref bean="mySessionFactory"/></property>
-		<!--
-		<property name="dataSource"><ref bean="myDataSource"/></property>
-		-->
 	  <property name="exampleParam"><value>someValue</value></property>
 	</bean>
 
