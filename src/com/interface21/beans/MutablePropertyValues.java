@@ -39,10 +39,13 @@ public class MutablePropertyValues implements PropertyValues {
 	 * referenced by individual PropertyValue objects
 	 */
 	public MutablePropertyValues(PropertyValues other) {
-		PropertyValue[] pvs = other.getPropertyValues();
-		propertyValuesList = new ArrayList(pvs.length);
-		for (int i = 0; i < pvs.length; i++)
-			addPropertyValue(new PropertyValue(pvs[i].getName(), pvs[i].getValue()));
+		this();
+		if (other != null) {
+			PropertyValue[] pvs = other.getPropertyValues();
+			propertyValuesList = new ArrayList(pvs.length);
+			for (int i = 0; i < pvs.length; i++)
+				addPropertyValue(new PropertyValue(pvs[i].getName(), pvs[i].getValue()));
+		}
 	}
 	
 	/** 
