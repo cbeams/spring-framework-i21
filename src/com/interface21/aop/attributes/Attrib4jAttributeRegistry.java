@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 
 import org.aopalliance.AttributeRegistry;
 
-import attrib4j.Attributes;
+//import attrib4j.Attributes;
 
 /**
  * @author Rod Johnson
@@ -24,9 +24,11 @@ public class Attrib4jAttributeRegistry implements AttributeRegistry {
 	 */
 	public Object[] getAttributes(AccessibleObject ao) {
 		// TODO: could cache, or want independent instances?
-		Method m = (Method) ao;
-		attrib4j.Attribute[] attrib4jAtts = Attributes.getAttributes(m);
-		return attrib4jAtts;
+//		Method m = (Method) ao;
+//		attrib4j.Attribute[] attrib4jAtts = Attributes.getAttributes(m);
+//		return attrib4jAtts;
+
+		throw new UnsupportedOperationException("Attrib4j integration not yet implemented");
 	}
 		
 
@@ -34,7 +36,7 @@ public class Attrib4jAttributeRegistry implements AttributeRegistry {
 	 * @see org.aopalliance.AttributeRegistry#getAttributes(java.lang.Class)
 	 */
 	public Object[] getAttributes(Class clazz) {
-		throw new UnsupportedOperationException("getAttributes(Class)");
+		throw new UnsupportedOperationException("Attrib4j integration not yet implemented");
 	}
 
 }
