@@ -58,29 +58,36 @@ public class ContextLoader {
 		try {
 			Class clazz = (contextClass != null ? Class.forName(contextClass) : DEFAULT_CONTEXT_CLASS);
 			logger.info("Using context class '" + clazz.getName() + "'");
-			WebApplicationContext webApplicationContext = (WebApplicationContext)clazz.newInstance();
+
+			if (!WebApplicationContext.class.isAssignableFrom(clazz)) {
+				String msg = "Context class is no WebApplicationContext: " + contextClass;
+				logger.error(msg);
+				throw new ServletException(msg);
+			}
+
+			WebApplicationContext webApplicationContext = (WebApplicationContext) clazz.newInstance();
 			webApplicationContext.setServletContext(servletContext);
 			return webApplicationContext;
 
 		} catch (ClassNotFoundException ex) {
-			String mesg = "Failed to load config class '" + contextClass + "'";
-			logger.error(mesg, ex);
-			throw new ServletException(mesg + ": " + ex);
+			String msg = "Failed to load config class '" + contextClass + "'";
+			logger.error(msg, ex);
+			throw new ServletException(msg + ": " + ex);
 
 		} catch (InstantiationException ex) {
-			String mesg = "Failed to instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
-			logger.error(mesg, ex);
-			throw new ServletException(mesg + ": " + ex);
+			String msg = "Failed to instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
+			logger.error(msg, ex);
+			throw new ServletException(msg + ": " + ex);
 
 		} catch (IllegalAccessException ex) {
-			String mesg = "Failed with IllegalAccess to find or instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
-			logger.error(mesg, ex);
-			throw new ServletException(mesg + ": " + ex);
+			String msg = "Failed with IllegalAccess to find or instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
+			logger.error(msg, ex);
+			throw new ServletException(msg + ": " + ex);
 
 		} catch (Throwable t) {
-			String mesg = "Unexpected error loading config: " + t;
-			logger.error(mesg, t);
-			throw new ServletException(mesg, t);
+			String msg = "Unexpected error loading config: " + t;
+			logger.error(msg, t);
+			throw new ServletException(msg, t);
 		}
 	}
 }
