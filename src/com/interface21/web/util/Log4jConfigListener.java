@@ -7,6 +7,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.interface21.util.Log4jConfigurer;
+import org.apache.log4j.LogManager;
+
 
 /**
  * Listener that performs custom Log4J initialization, supporting 2 init parameters
@@ -85,6 +87,9 @@ public class Log4jConfigListener implements ServletContextListener {
 	}
 
 	public void contextDestroyed(ServletContextEvent event) {
+		// release any file locks
+		LogManager.shutdown();
+		event.getServletContext().log("Terminating Log4J");
 	}
 
 }
