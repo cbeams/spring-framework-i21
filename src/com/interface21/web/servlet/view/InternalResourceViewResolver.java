@@ -22,8 +22,8 @@ import com.interface21.web.servlet.View;
  */
 public class InternalResourceViewResolver extends AbstractCachingViewResolver {
 
-	private String prefix;
-	private String suffix;
+	private String prefix = "";
+	private String suffix = "";
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
