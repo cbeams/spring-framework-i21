@@ -1,8 +1,5 @@
 package com.interface21.samples.countries.web;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,29 +18,14 @@ import com.interface21.web.servlet.HandlerInterceptor;
 /**
  * An interceptor that tell the views about the possibility of a copy 
  * of the countries to a database.
- * 
- * @author Jean-Pierre Pawla
+ * @author Jean-Pierre Pawlak
  */
 public class CopyInterceptor implements HandlerInterceptor, ApplicationContextAware {
 
 	protected final Log logger = LogFactory.getLog(getClass());
+
 	private Boolean copyAvailable;
 	
-	/**
-	 * Makes the <code>copyAvailable</code> value available to views
-	 * 
-	 * @see com.interface21.web.servlet.HandlerInterceptor#preHandle(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.Object)
-	 */
-	public boolean preHandle(
-		HttpServletRequest request,
-		HttpServletResponse response,
-		Object handler)
-		throws ServletException, IOException {
-		
-		request.setAttribute("copyAvailable", copyAvailable);
-		return true;
-	}
-
 	/**
 	 * Set <code>copyAvailable</code> to True if the <code>countriesController</code> 
 	 * has a <code>secondDao</code> declared and if this one is of a DATABASE type.
@@ -76,6 +58,17 @@ public class CopyInterceptor implements HandlerInterceptor, ApplicationContextAw
 		} else {
 			logger.info("The countriesController has no valid secondDao. Copy to the database is not available.");
 		}
+	}
+
+	/**
+	 * Makes the <code>copyAvailable</code> value available to views.
+	 */
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+		request.setAttribute("copyAvailable", copyAvailable);
+		return true;
+	}
+
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 	}
 
 }
