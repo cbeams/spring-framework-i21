@@ -10,13 +10,14 @@ import javax.servlet.http.HttpServletResponse;
  * both locale resolution via the request and locale modification via
  * request and response.
  *
- * This interface allows for implementations based on request, session,
- * cookies, etc. The default implementantion is AcceptHeaderLocaleResolver,
+ * <p>This interface allows for implementations based on request, session,
+ * cookies, etc. The default implementation is AcceptHeaderLocaleResolver,
  * simply using the request's locale provided by the respective HTTP header.
  *
  * @author Juergen Hoeller
  * @since 27.02.2003
  * @see com.interface21.web.servlet.i18n.AcceptHeaderLocaleResolver
+ * @see LocaleResolverAware
  */
 public interface LocaleResolver {
 

@@ -1,10 +1,10 @@
 /**
- * Generic framework code included with 
+ * Generic framework code included with
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
+ * by Rod Johnson (Wrox, 2002).
  * This code is free to use and modify. However, please
  * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
+ * class using or derived from this code.
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
@@ -33,6 +33,7 @@ import com.interface21.web.servlet.theme.*;
 import com.interface21.web.servlet.theme.FixedThemeResolver;
 import com.interface21.web.servlet.view.InternalResourceViewResolver;
 import com.interface21.web.util.WebUtils;
+import com.interface21.ui.context.Theme;
 
 /**
  * Concrete front controller for use within the Interface21 MVC framework.<br>
@@ -75,7 +76,7 @@ import com.interface21.web.util.WebUtils;
  * @version $Revision$
  */
 public class DispatcherServlet extends FrameworkServlet {
-	
+
 	/**
 	 * Well-known name for the LocaleResolver object in the bean factory for
 	 * this namespace.
@@ -93,8 +94,8 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * this namespace.
 	 */
 	public static final String THEME_RESOLVER_BEAN_NAME = "themeResolver";
-	
-	
+
+
 	/**
 	 * Request attribute to hold current web application context.
 	 * Otherwise only the global web app context is obtainable by tags etc.
@@ -127,7 +128,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 	/** ViewResolver used by this servlet */
 	private ViewResolver viewResolver;
-	
+
 	/**
 	 * Overridden method, invoked after any bean properties have been set and the
 	 * WebApplicationContext and BeanFactory for this namespace is available.
@@ -361,10 +362,11 @@ public class DispatcherServlet extends FrameworkServlet {
 		request.setAttribute(LOCALE_ATTRIBUTE, locale);
 		response.setLocale(locale);
 
-		// Make Themes available */
-		String theme = this.themeResolver.resolveTheme(request);
+		// Make theme available */
+		String themeName = this.themeResolver.resolveThemeName(request);
+		Theme theme = getWebApplicationContext().getTheme(themeName);
 		request.setAttribute(THEME_ATTRIBUTE, theme);
-		
+
 		Object mappedHandler = getHandler(request);
 
 		if (mappedHandler == null) {
@@ -390,8 +392,8 @@ public class DispatcherServlet extends FrameworkServlet {
 			logger.debug("Null ModelAndView returned to DispatcherServlet with name '" + getServletName() + "': assuming HandlerAdapter completed request handling");
 		}
 	}
-	
-	
+
+
 	/**
 	 * Implementation method to support HTTP cache control.
 	 * Was the request successfully revalidated?
@@ -403,9 +405,9 @@ public class DispatcherServlet extends FrameworkServlet {
 		// HttpServlet checks getLastModified() before calling doGet(), so we need to
 		// leave the default implementation of getLastModified() to return -1, before
 		// handling unmodified requests here.
-		if (!"GET".equals(request.getMethod())) 
+		if (!"GET".equals(request.getMethod()))
 			return false;
-			
+
 		// Apply last modified rule
 		long ifModifiedSince = request.getDateHeader(WebUtils.HEADER_IFMODSINCE);
 		if (ifModifiedSince == -1)
@@ -430,7 +432,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			return true;
 		}
 	}	// wasRevalidated
-	
+
 
 	/*
 	 * Sets the Last-Modified entity header field, if it has not

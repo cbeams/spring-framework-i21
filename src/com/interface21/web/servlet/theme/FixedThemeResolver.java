@@ -5,28 +5,23 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Implementation of ThemeResolver that simply uses a fixed theme which name is done by
- * default by <code>DEFAULT_THEME>/code>. the fixed name can be defined in the configuration file.
+ * Implementation of ThemeResolver that simply uses a fixed theme.
+ * The fixed name can be defined via the defaultTheme property.
  *
- * <p>Note: Does not support setTheme, because no theme change code is provided.
+ * <p>Note: Does not support setThemeName, as the theme is fixed.
  *
  * @author Jean-Pierre Pawlak
  * @author Juergen Hoeller
  * @since 17.06.2003
+ * @see #setDefaultThemeName
  */
 public class FixedThemeResolver extends AbstractThemeResolver {
 
-	/**
-	 * Gets the theme used in this request.
-	 */
-	public String resolveTheme(HttpServletRequest request) {
+	public String resolveThemeName(HttpServletRequest request) {
 		return getDefaultThemeName();
 	}
 
-	/**
-	 * Sets the theme to use with this user. NOT AVAILABLE IN THIS IMPMLEMENTATION.
-	 */
-	public void setTheme(HttpServletRequest request, HttpServletResponse response, String theme) {
+	public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
 		throw new IllegalArgumentException("Cannot change theme - use a different theme resolution strategy");
 	}
 

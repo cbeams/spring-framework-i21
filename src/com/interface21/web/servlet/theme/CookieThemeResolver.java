@@ -53,11 +53,7 @@ public class CookieThemeResolver extends AbstractThemeResolver {
 		return cookieMaxAge;
 	}
 
-	/**
-	 * Gets the theme used in this request.
-	 * @see com.interface21.web.servlet.ThemeResolver#resolveTheme(javax.servlet.http.HttpServletRequest)
-	 */
-	public String resolveTheme(HttpServletRequest request) {
+	public String resolveThemeName(HttpServletRequest request) {
 		// check locale for preparsed resp. preset locale
 		String theme = (String) request.getAttribute(THEME_REQUEST_ATTRIBUTE_NAME);
 		if (theme != null)
@@ -74,15 +70,12 @@ public class CookieThemeResolver extends AbstractThemeResolver {
 		return getDefaultThemeName();
 	}
 
-	/**
-	 * Sets the theme to use with this user.
-	 */
-	public void setTheme(HttpServletRequest request, HttpServletResponse response, String theme) {
+	public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
 		Cookie cookie = null;
-		if (theme != null) {
+		if (themeName != null) {
 			// set request attribute and add cookie
-			request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, theme);
-			cookie = new Cookie(getCookieName(), theme);
+			request.setAttribute(THEME_REQUEST_ATTRIBUTE_NAME, themeName);
+			cookie = new Cookie(getCookieName(), themeName);
 			cookie.setMaxAge(getCookieMaxAge());
 		}
 		else {

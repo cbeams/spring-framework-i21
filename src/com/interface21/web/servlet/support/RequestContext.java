@@ -13,6 +13,7 @@ import com.interface21.validation.Errors;
 import com.interface21.web.bind.EscapedErrors;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.util.HtmlUtils;
+import com.interface21.ui.context.Theme;
 
 /**
  * Context holder for request-specific state, like current web application context,
@@ -28,15 +29,17 @@ import com.interface21.web.util.HtmlUtils;
  */
 public class RequestContext {
 
-	private ServletRequest request = null;
+	private ServletRequest request;
 
-	private WebApplicationContext webApplicationContext = null;
+	private WebApplicationContext webApplicationContext;
 
-	private Locale locale = null;
+	private Locale locale;
 
-	private boolean defaultHtmlEscape = false;
+	private Theme theme;
 
-	private Map errorsMap = null;
+	private boolean defaultHtmlEscape;
+
+	private Map errorsMap;
 
 	/**
 	 * Creates a new RequestContext for the given request.
@@ -45,6 +48,7 @@ public class RequestContext {
 		this.request = request;
 		this.webApplicationContext = RequestContextUtils.getWebApplicationContext(request);
 		this.locale = RequestContextUtils.getLocale(request);
+		this.theme = RequestContextUtils.getTheme(request);
 	}
 
 	/**
@@ -52,13 +56,6 @@ public class RequestContext {
 	 */
 	public WebApplicationContext getWebApplicationContext() {
 		return webApplicationContext;
-	}
-
-	/**
-	 * Returns the current Locale.
-	 */
-	public Locale getLocale() {
-		return locale;
 	}
 
 	/**
@@ -73,6 +70,20 @@ public class RequestContext {
 	 */
 	public boolean isDefaultHtmlEscape() {
 		return defaultHtmlEscape;
+	}
+
+	/**
+	 * Returns the current locale.
+	 */
+	public Locale getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Returns the current theme.
+	 */
+	public Theme getTheme() {
+		return theme;
 	}
 
 	/**

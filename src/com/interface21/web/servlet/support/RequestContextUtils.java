@@ -15,6 +15,7 @@ import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.context.support.WebApplicationContextUtils;
 import com.interface21.web.servlet.DispatcherServlet;
 import com.interface21.web.util.HtmlUtils;
+import com.interface21.ui.context.Theme;
 
 /**
  * Utility class for easy access to various request-specific state.
@@ -70,12 +71,12 @@ public abstract class RequestContextUtils {
 	}
 
 	/**
-	 * Retrieves the current locale from the given request.
+	 * Retrieves the current theme from the given request.
 	 * @param request current HTTP request
-	 * @return the current locale
+	 * @return the current theme
 	 */
-	public static String getTheme(ServletRequest request) {
-		return (String) request.getAttribute(DispatcherServlet.THEME_ATTRIBUTE);
+	public static Theme getTheme(ServletRequest request) {
+		return (Theme) request.getAttribute(DispatcherServlet.THEME_ATTRIBUTE);
 	}
 
 	/**

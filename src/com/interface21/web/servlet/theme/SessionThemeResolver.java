@@ -21,20 +21,14 @@ public class SessionThemeResolver extends AbstractThemeResolver {
 
 	public static final String THEME_SESSION_ATTRIBUTE_NAME = SessionThemeResolver.class.getName() + ".THEME";
 
-	/**
-	 * Gets the theme used in this request.
-	 */
-	public String resolveTheme(HttpServletRequest request) {
+	public String resolveThemeName(HttpServletRequest request) {
 		String theme = (String) WebUtils.getSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME);
 		// specific theme, or fallback to default?
 		return (theme != null ? theme : getDefaultThemeName());
 	}
 
-	/**
-	 * Sets the theme to use with this user.
-	 */
-	public void setTheme(HttpServletRequest request, HttpServletResponse response, String theme) {
-		WebUtils.setSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME, theme);
+	public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
+		WebUtils.setSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME, themeName);
 	}
 
 }

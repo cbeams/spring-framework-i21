@@ -46,6 +46,9 @@ public class ResourceBundleThemeSource implements NestingThemeSource {
 	}
 
 	public Theme getTheme(String themeName) {
+		if (themeName == null) {
+			return null;
+		}
 		Theme theme = (Theme) this.themes.get(themeName);
 		if (theme == null) {
 			ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
