@@ -81,10 +81,10 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 	/** Servlet context that this context runs in */
 	private ServletContext servletContext;
 
+
 	/**
-	 * Create a new root web application context, for use in an entire
-	 * web application. This context will be the parent for individual
-	 * servlet contexts.
+	 * Create a new root web application context, for use in an entire web application.
+	 * This context will be the parent for individual servlet contexts.
 	 */
 	public XmlWebApplicationContext() {
 		setDisplayName("Root WebApplicationContext");
@@ -101,7 +101,7 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 
 
 	/**
-	 * @return the namespace of this context, or null if root
+	 * Return the namespace of this context, or null if root.
 	 */
 	public String getNamespace() {
 		return this.namespace;
@@ -114,11 +114,10 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 	 */
 	public void setServletContext(ServletContext servletContext) throws ApplicationContextException {
 		this.servletContext = servletContext;
-
-		this.configLocation = getConfigLocationForNamespace();
+		this.configLocation = initConfigLocation();
 		logger.info("Using config location '" + this.configLocation + "'");
 		refresh();
-
+		
 		if (this.namespace == null) {
 			// We're the root context
 			WebApplicationContextUtils.publishConfigObjects(this);
@@ -127,9 +126,17 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 		}	
 	}
 
-	public final ServletContext getServletContext() {
+	public ServletContext getServletContext() {
 		return this.servletContext;
 	}
+
+	/**
+	 * Return the URL or path of the configuration.
+	 */
+	protected String getConfigLocation() {
+		return this.configLocation;
+	}
+
 
 	/**
 	 * Initialize the config location for the current namespace.
@@ -138,9 +145,9 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 	 * "WEB-INF/" and suffix ".xml", if a namespace is set. For the root context,
 	 * the "configLocation" servlet context parameter is used, falling back to
 	 * "WEB-INF/applicationContext.xml" if no parameter is found.
-	 * @return the URL or path of the configuration to use
+	 * @return the URL or path of the configuration
 	 */
-	protected String getConfigLocationForNamespace() {
+	private String initConfigLocation() {
 		if (getNamespace() != null) {
 			String configLocationPrefix = this.servletContext.getInitParameter(CONFIG_LOCATION_PREFIX_PARAM);
 			String prefix = (configLocationPrefix != null) ? configLocationPrefix : DEFAULT_CONFIG_LOCATION_PREFIX;
@@ -153,14 +160,6 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 			return (configLocation != null) ? configLocation : DEFAULT_CONFIG_LOCATION;
 		}
 	}
-
-	/**
-	 * @return the URL or path of the configuration
-	 */
-	protected final String getConfigLocation() {
-		return this.configLocation;
-	}
-
 
 	/**
 	 * Open and return the input stream for the bean factory for this namespace.
@@ -197,7 +196,7 @@ public class XmlWebApplicationContext extends AbstractXmlUiApplicationContext	im
 	}
 
 	/**
-	 * @return diagnostic information
+	 * Return diagnostic information.
 	 */
 	public String toString() {
 		StringBuffer sb = new StringBuffer(super.toString() + "; ");

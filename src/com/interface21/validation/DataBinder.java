@@ -12,11 +12,9 @@ import com.interface21.beans.ErrorCodedPropertyVetoException;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.PropertyVetoExceptionsException;
-import com.interface21.util.ObjectArrayUtils;
 
 /**
  * Binder that allows for binding property values to a target object.
- * Slightly unusual, as it _is_ an exception.
  * Supports property change listeners and vetoable change listeners.
  * @author Rod Johnson
  * @version 1.0
@@ -29,23 +27,42 @@ public class DataBinder extends BindException {
 
 	private String[] requiredFields;
 
-	public DataBinder(Object target, String objName) {
-		super(target, objName);
+	/**
+	 * Create a new DataBinder instance.
+	 * @param target target object to bind onto
+	 * @param name name of the target object
+	 */
+	public DataBinder(Object target, String name) {
+		super(target, name);
 	}
 
+	/**
+	 * Register fields that are required for each binding process.
+	 * @param requiredFields array of field names
+	 */
 	public void setRequiredFields(String[] requiredFields) {
 		this.requiredFields = requiredFields;
 	}
 
+	/**
+	 * Return the fields that are required for each binding process.
+	 * @return array of field names
+	 */
 	protected String[] getRequiredFields() {
 		return requiredFields;
 	}
 
+	/**
+	 * Add a VetoableChangeListener that will be notified of property updates.
+	 */
 	public void addVetoableChangeListener(VetoableChangeListener vcl) {
 		getBeanWrapper().setEventPropagationEnabled(true);
 		getBeanWrapper().addVetoableChangeListener(vcl);
 	}
 
+	/**
+	 * Add a PropertyChangeListener that will be notified of property updates.
+	 */
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {
 		getBeanWrapper().setEventPropagationEnabled(true);
 		getBeanWrapper().addPropertyChangeListener(pcl);
@@ -104,7 +121,7 @@ public class DataBinder extends BindException {
 				if (pv == null || "".equals(pv.getValue())) {
 					logger.debug("Required field '" + requiredFields[i] + "' is missing or empty");
 					// create field error with code "required"
-					addFieldError(new FieldError(getObjectName(), requiredFields[i], "", MISSING_FIELD_ERROR_CODE, ObjectArrayUtils.toArray(requiredFields[i]), "Field '" + requiredFields[i] + "' is required"));
+					addFieldError(new FieldError(getObjectName(), requiredFields[i], "", MISSING_FIELD_ERROR_CODE, new Object[] {requiredFields[i]}, "Field '" + requiredFields[i] + "' is required"));
 				}
 			}
 		}

@@ -23,8 +23,8 @@ import com.interface21.beans.factory.InitializingBean;
  * (for a certain underlying data source) in an application context,
  * and give bean references to application services that need it.
  *
- * <p>Configuration settings can either be read from a Hibernate XML config
- * file, specified as "location", or completely via this class. A typical
+ * <p>Configuration settings can either be read from a Hibernate XML file,
+ * specified as "configLocation", or completely via this class. A typical
  * local configuration consists of one or more "mappingResources", various
  * Hibernate "properties" (not strictly necessary), and a "dataSource"
  * that the SessionFactory should use. The latter can also be specified via

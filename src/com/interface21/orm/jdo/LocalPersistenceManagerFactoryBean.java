@@ -24,6 +24,11 @@ import com.interface21.dao.DataAccessResourceFailureException;
  * (for a certain underlying data source) in an application context,
  * and give bean references to application services that need it.
  *
+ * <p>Configuration settings can either be read from a properties file,
+ * specified as "configLocation", or completely via this class.
+ * Properties specified as "jdoProperties" here will override any
+ * settings in a file.
+ *
  * <p>This PersistenceManager handling strategy is most appropriate for
  * applications that solely use JDO for data access. In this case,
  * JdoTransactionManager is required for transaction demarcation, as
@@ -31,6 +36,9 @@ import com.interface21.dao.DataAccessResourceFailureException;
  *
  * @author Juergen Hoeller
  * @since 03.06.2003
+ * @see JdoTemplate#setPersistenceManagerFactory
+ * @see JdoTransactionManager#setPersistenceManagerFactory
+ * @see com.interface21.jndi.JndiObjectFactoryBean
  */
 public class LocalPersistenceManagerFactoryBean implements FactoryBean, InitializingBean {
 
@@ -70,6 +78,7 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 			throw new IllegalArgumentException("Either configLocation (e.g. '/kodo.properties') or jdoProperties must be set");
 		}
 		Properties prop = new Properties();
+
 		if (this.configLocation != null) {
 			String resourceLocation = this.configLocation;
 			if (!resourceLocation.startsWith("/")) {
@@ -82,9 +91,11 @@ public class LocalPersistenceManagerFactoryBean implements FactoryBean, Initiali
 			}
 			prop.load(in);
 		}
+
 		if (this.jdoProperties != null) {
 			prop.putAll(this.jdoProperties);
 		}
+		
 		this.persistenceManagerFactory = JDOHelper.getPersistenceManagerFactory(prop);
 	}
 
