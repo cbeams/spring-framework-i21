@@ -21,9 +21,21 @@ import com.interface21.validation.BindException;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- * Abstract base class for custom command controllers. Autopopulates a
+ * <p>Abstract base class for custom command controllers. Autopopulates a
  * command bean from the request. For command validation, a validator
- * (property inherited from BaseCommandController) can be used.
+ * (property inherited from BaseCommandController) can be used.</p>
+ * <p>This command controller should preferrable not be used to handle form
+ * submission, because functionality for forms is more offered in more
+ * detail by the {@link com.interface21.web.servlet.mvc.AbstractFormController
+ * AbstractFormController} and its corresponding implementations.</p>
+ *
+ * <p><b><a name="config">Exposed configuration properties</a>
+ * (<a href="AbstractController.html#config">and those defined by superclass</a>):</b><br>
+ * <i>none</i> (so only those available in superclass).</p>
+ *
+ * <p><b><a name="workflow">Workflow
+ * (<a name="BaseCommandController.html#workflow">and that defined by superclass</a>):</b><br>
+ *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see #setCommandClass

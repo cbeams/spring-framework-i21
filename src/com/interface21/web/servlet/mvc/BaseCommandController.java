@@ -20,17 +20,99 @@ import com.interface21.validation.BindException;
 import com.interface21.web.bind.ServletRequestDataBinder;
 
 /**
- * Controller implementation that creates a Command object on receipt
- * of requests, and attempts to populate the command's JavaBean properties
- * with request attributes.
+ * <p>Controller implementation creating a certain object (the command object)
+ * on receipt of request and attempt to populate this object with request
+ * parameters.</p>
+ * <p>This controller is the base for all controller wishing to populate
+ * JavaBeans based on request parameters, validate the content of such
+ * JavaBeans using {@link com.interface21.validation.Validator Validators}
+ * and use custom editors (in the form of
+ * {@link java.beans.PropertyEditor PropertyEditors}) to transform for instance
+ * object into strings and vice versa. Three notion are mentioned here:</p>
+ * <p><b>Command class:</b><br>
+ * The command class is the object that will be created filled using the request
+ * parameters. What the actual command class is, is customizable in many ways,
+ * through extending controllers or overriding methods. Command classes should
+ * preferrable be JavaBeans in order to be able to fill instance of the classes
+ * using the request parameters.</p>
+ * <p><b>Populating using request parameters and PropertyEditors:</b><br>
+ * Upon receiving a request, any BaseCommandController will attempt to fill the
+ * command class using the request parameters. This is done using the typical
+ * and wellknown JavaBeans property notation. When a request parameter named
+ * <code>'firstName'</code> exists, the framework will attempt to call the
+ * <code>setFirstName([value])</code> passing the value of the parameter. Nested properties
+ * as of course supported. For instance a parameter named <code>'address.city'</code>
+ * will result in a <code>getAddress().setCity([value])</code> call on the
+ * command class.<br><br>
+ * Important to know here is that you are not limited to String arguments in
+ * your JavaBeans. Using the PropertyEditor-notion as supplied by the
+ * java.beans package, you will be able to transform Strings to Objects and
+ * the other way around. For instance <code>setLocale(Locale loc)</code> is
+ * perfectly possible for a request parameter named <code>locale</code> having
+ * a value of <code>en</code>, as long as you register the appropriate
+ * PropertyEditor in the Controller (see
+ * {@link #initBinder(javax.servlet.http.HttpServletRequest,
+        * com.interface21.web.bind.ServletRequestDataBinder) initBinder()}
+ * for more information on that matter.</p>
+ * <p><b>Validators:</b>
+ * After the controller has successfully filled the command object with
+ * the parameters from the request, it will attempt use any configured validators
+ * to validate the object. Validation results will be put in a
+ * {@link com.interface21.validation.Errors Errors} object which can be used
+ * in for instance a View to render any input problems.</p>
  *
- * <p>Once created, commands can be validated using a Validator associated
- * with this class. Type mismatches populating a command are treated as
- * validation errors, but caught by the framework, not application code.
+ * <p><b><a name="workflow">Workflow
+ * (<a href="AbstractController.html#workflow">and that defined by superclass</a>):</b><br>
+ * Since this class is an abstract base class for more specific implementation,
+ * it does not override the handleRequestInternal() method and also has no
+ * actual workflow. Implementing classes like
+ * {@link AbstractFormController AbstractFormController},
+ * {@link AbstractCommandController AbstractcommandController},
+ * {@link SimpleFormController SimpleFormController} and
+ * {@link AbstractWizardFormController AbstractWizardFormController}
+ * provide actual functionality and workflow.
+ * More information on workflow performed by superclasses can be found
+ * <a href="AbstractController.html#workflow">here</a>.</p>
  *
- * <p>Note: This class is the base class for both AbstractFormController
- * and AbstractCommandController (which in turn is the base class for
- * custom controller implementations).
+ * <p><b><a name="config">Exposed configuration properties</a>
+ * (<a href="AbstractController.html#config">and those defined by superclass</a>):</b><br>
+ * <table border="1">
+ *  <tr>
+ *      <td><b>name</b></th>
+ *      <td><b>default</b></td>
+ *      <td><b>description</b></td>
+ *  </tr>
+ *  <tr>
+ *      <td>beanName</td>
+ *      <td>command</td>
+ *      <td>the name to use when binding the instantiated command class
+ *          to the request</td>
+ *  </tr>
+ *  <tr>
+ *      <td>commandClass</td>
+ *      <td><i>null</i></td>
+ *      <td>the class to use upon receiving a request and which to fill
+ *          using the request parameters. What object is used and
+ *          whether or not it should be created is defined by extending classes
+ *          and their configuration properties and methods</td>
+ *  </tr>
+ *  <tr>
+ *      <td>validator</td>
+ *      <td><i>null</i></td>
+ *      <td>Validator bean (usually passed in using a &lt;ref bean="beanId"/&gt;
+ *          property. The validator will be called somewhere in the workflow
+ *          of implementing classes (have a look at those for more info) to
+ *          validate the command object</td>
+ *  </tr>
+ *  <tr>
+ *      <td>validateOnBinding</td>
+ *      <td>true</td>
+ *      <td>Indicates whether or not to validate the command object
+ *          after the object has been filled using the request parameters</td>
+ *  </tr>
+ * </table>
+ * </p>
+ *
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -192,7 +274,7 @@ public abstract class BaseCommandController extends AbstractController {
 	 * @throws ServletException in case of invalid state or arguments
 	 * @see #bindAndValidate
 	 */
-	protected final ServletRequestDataBinder createBinder(HttpServletRequest request, Object command)
+	protected ServletRequestDataBinder createBinder(HttpServletRequest request, Object command)
 			throws ServletException {
 		ServletRequestDataBinder binder = new ServletRequestDataBinder(command, getBeanName());
 		initBinder(request, binder);
@@ -201,11 +283,16 @@ public abstract class BaseCommandController extends AbstractController {
 
 	/**
 	 * Initialize the given binder instance, e.g. with custom editors.
-	 * Called by createBinder.
+	 * Called by createBinder. This method allows you to register custom
+     * editors for certain fields of your command class. For instance, you will
+     * be able to transform Date objects into a String pattern and back, in order
+     * to allow your JavaBeans to have Date properties and still be able to
+     * set and display them in for instance an HTML interface.
 	 * @param request current request
 	 * @param binder new binder instance
 	 * @throws ServletException in case of invalid state or arguments
 	 * @see #createBinder
+     * @see com.interface21.web.bind.ServletRequestDataBinder
 	 */
 	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder)
 			throws ServletException {

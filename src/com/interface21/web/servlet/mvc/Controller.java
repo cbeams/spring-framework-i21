@@ -1,10 +1,10 @@
 /**
- * Generic framework code included with 
+ * Generic framework code included with
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
+ * by Rod Johnson (Wrox, 2002).
  * This code is free to use and modify. However, please
  * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
+ * class using or derived from this code.
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
@@ -28,7 +28,7 @@ import com.interface21.web.servlet.ModelAndView;
  * HTTP requests throughout the lifecycle of an application. To be able to
  * configure Controller in an easy, Controllers are usually JavaBeans.</p>
  *
- * <p><b>Workflow:</b><br>
+ * <p><b><a name="workflow">Workflow</a>:</b><br>
  * After the DispatcherServlet has received a request and has done its work
  * to resolve locales, themes and things a like, it tries to resolve
  * a Controller, using a {@link com.interface21.web.servlet.HandlerMapping
@@ -54,10 +54,13 @@ import com.interface21.web.servlet.ModelAndView;
  * extended one of the abstract controller mentioned above.
  * </p>
  *
+ * <p><b>Exposed configuration properties:</b><br>
+ * none</p>
+ *
  * @author Rod Johnson
  * @version $Id$
  */
-public interface Controller {	
+public interface Controller {
 
 	/**
 	 * Process the request and return a ModelAndView object which the
@@ -70,5 +73,5 @@ public interface Controller {
 	 */
 	ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException;
-	
+
 }

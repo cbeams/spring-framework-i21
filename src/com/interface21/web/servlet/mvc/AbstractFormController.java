@@ -26,56 +26,124 @@ import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.web.servlet.ModelAndView;
 
 /**
- * Form controller that autopopulates a form bean from the request, using a new
- * bean instance per request. To achieve population of the same bean instance,
- * "session form" can be activated. This is the common base class for both framework
- * subclasses like SimpleFormController and AbstractWizardFormController, and
- * custom application controllers.
+ * <p>Form controller that autopopulates a form bean from the request.
+ * This, either using a new bean instance per request, or using the same bean
+ * when the <code>sessionForm</code> property has been set to <code>true</code>.
+ * This class is the base class for both framework subclasses like
+ * {@link SimpleFormController SimpleFormController} and
+ * {@link AbstractWizardFormController AbstractWizardFormController}, and
+ * custom form controllers you can provide yourself.</p>
+ * <p>Both form- input-views and after-submission-views have to be provided
+ * programmatically. To provide those views using configuration properties,
+ * use the {@link SimpleFormController SimpleFormController}.</p>
  *
  * <p>Subclasses need to override showForm to prepare the form view, and processSubmit
  * to handle submit requests. For the latter, binding errors like type mismatches will
  * be reported via the given "errors" binder. For additional custom form validation,
  * a validator (property inherited from BaseCommandController) can be used, reporting
- * via the same "errors" instance.
+ * via the same "errors" instance.</p>
  *
- * <p>Note: If you decide to have "formView" and "successView" properties specifying
- * view names instead of programmatic handling, consider using SimpleFormController.
+ * <p>Comparing this Controller to the Struts notion of the <code>Action</code>
+ * shows us that with Spring, you can use any ordinary JavaBeans or database
+ * backed JavaBean without having to implement a framework specific class
+ * (in case of Struts, this is <code>ActionForm</code>). More complex properties
+ * of JavaBeans (Dates, Locales, but also your own application specific
+ * or compound types) can be represented and submitted to the controller, by
+ * using the notion of <code>java.beans.PropertyEditors</code>. For more information on that
+ * subject, see the workflow of this controller and the explanation of the
+ * {@link BaseCommandController BaseCommandController}.</p>
  *
- * <p>This approach is similar to the Struts approach, with the main difference that
- * you can use any beans, with no need to derive from a form base class. Type
- * mismatches are stored in Errors instances instead of forcing the form bean to have
- * mostly String properties. A further difference is the decoupling of validation,
- * not even coupling the validation logic to web usage.
+ * <p><b><a name="workflow">Workflow
+ * (<a href="BaseCommandController.html#workflow">and that defined by superclass</a>):</b><br>
+ * <ol>
+ *  <li>GET request on the controller is received</li>
+ *  <li>call to {@link #formBackingObject formBackingObject()} which by default,
+ *      returns an instance of the commandClass that has been configured
+ *      (see the properties the superclass exposes), but can also be overriden
+ *      to - for instance - retrieve an object from the database (that - for
+ *      instance - needs to be modified using the form)</li>
+ *  <li>call to {@link #initBinder initBinder()} which allows you to register
+ *      custom editors for certain fields (often properties of non-primitive
+ *      or non-Sring types) or the command class. This render appropriate
+ *      Strings for for instance locales</li>
+ *  <li>binding of the {@link com.interface21.web.bind.ServletRequestDataBinder ServletRequestDataBinder}
+ *      in the request to be able to use the property editors in the form rendering
+ *      (<i>only if <code>bindOnNewForm</code> is set to <code>true</code></i>)</li>
+ *  <li>call to {@link #showForm(HttpServletRequest, HttpServletResponse, BindException) showForm()}
+ *      to return a View that should be rendered (typically the view that renders
+ *      the form). This method has be overriden in extending classes</li>
+ *  <li>
+ *  <li>XXX Return and view gets rendered. Continue after user has filled in
+ *      form</li>
+ *  <li>POST request on the controller is received</li>
+ *  <li>if <code>sessionForm</code> is not set, {@link #userObject userObject()}
+ *      is called to retrieve a command class. Otherwise, the controller tries
+ *      to find the command object which is already bound in the session. If it cannot
+ *      find the object, it'll do a call to {@link #handleInvalidSubmit handleInvalidSubmit}
+ *      which - by default - tries to create a new command class and
+ *      resubmit the form</li>
+ *  <li>controller tries to put all parameters from the request into the
+ *      JavaBeans (command object) and if <code>validateOnBinding</code> is
+ *      set, validation will occur</li>
+ *  <li>call to {@link #onBindAndValidate onBindAndValidate()} which allows
+ *      you to do custom processing after binding and validation (for instance
+ *      to perform database persistency)</li>
+ *  <li>call to {@link #processSubmit processSubmit} which, in implementing
+ *      classes returns a sort of successview, for instance congratulating
+ *      the user with a successfull form submission</li>
+ * </ol>
+ * </p>
  *
  * <p>Note that by default POST requests are treated as form submissions. This can be
  * customized by overriding isFormSubmission. Custom binding can be achieved either
  * by registering custom property editors before binding in an initBinder
  * implementation, or by custom bean population from request parameters after binding
- * in an onBindAndValidate implementation.
+ * in an onBindAndValidate implementation.</p>
  *
  * <p>In session form mode, a submission without an existing form object in the
  * session is considered invalid, like in case of a resubmit/reload by the browser.
  * The handleInvalidSubmit method is invoked then, trying a resubmit by default.
  * It can be overridden in subclasses to show respective messages or redirect to a
  * new form, in order to avoid duplicate submissions. The form object in the session
- * can be considered a transaction token in this case.
- * 
+ * can be considered a transaction token in this case.</p>
+ *
  * <p>Note that views should never retrieve form beans from the session but always
  * from the request, as prepared by the form controller. Remember that some view
- * technologies like Velocity cannot even access a HTTP session.
+ * technologies like Velocity cannot even access a HTTP session.</p>
+ *
+ * <p><b><a name="config">Exposed configuration properties</a>
+ * (<a href="BaseCommandController.html#config">and those defined by superclass</a>):</b><br>
+ * <table border="1">
+ *  <tr>
+ *      <td><b>name</b></td>
+ *      <td><b>default</b></td>
+ *      <td><b>description</b></td>
+ *  </tr>
+ *  <tr>
+ *      <td>bindOnNewForm</td>
+ *      <td>false</td>
+ *      <td>Indicates whether or not to bind the ServletRequestDataBinder
+ *          to the request for GET requests as well (TODO guys, please help here,
+ *          I can't actually describe this too well)</td>
+ *  </tr>
+ *  <tr>
+ *      <td>sessionForm</td>
+ *      <td>false</td>
+ *      <td>Indicates whether or not the command object should be bound onto
+ *          the session when a user asks for a new form. This allows you
+ *          to for instance retrieve an object from the database, let the
+ *          user edit it, and then persist it again. If this is set to false,
+ *          a new command object will be created on all requests (both
+ *          requests for the form and submissions of the form)</td>
+ *  </tr>
+ * </table>
+ * </p>
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author Alef Arendsen
  * @see SimpleFormController
  * @see AbstractWizardFormController
- * @see #setSessionForm
- * @see #showForm
- * @see #processSubmit
- * @see #setValidator
- * @see #isFormSubmission
- * @see #initBinder
- * @see #onBindAndValidate
- * @see #handleInvalidSubmit
  */
 public abstract class AbstractFormController extends BaseCommandController {
 
