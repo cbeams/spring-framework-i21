@@ -72,6 +72,7 @@
 			<classpath refid="master-classpath"/>
 
 		</javac>
+		<copy file="${src.dir}/com/interface21/jdbc/core/sql-error-codes.xml" todir="${build.dir}/"/>
 
 	</target>
 
@@ -89,6 +90,7 @@
 
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/**"/>
+				<include name="*.xml"/>
 			</fileset>
 
 		</jar>
@@ -155,6 +157,7 @@
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/dao/**"/>
 				<include name="com/interface21/jdbc/**"/>
+				<include name="*.xml"/>
 			</fileset>
 
 		</jar>

@@ -1,0 +1,26 @@
+<dbms-beans>
+  <bean name="MySQL"
+    class="com.interface21.jdbc.core.SQLErrorCodes">
+    <property name="badSqlGrammarCodes">1054,1064,1146</property>
+    <property name="dataIntegrityViolationCodes">1062</property>
+  </bean>
+  <bean name="DB2"
+    class="com.interface21.jdbc.core.SQLErrorCodes">
+    <property name="badSqlGrammarCodes">-204,-206,-301,-408</property>
+    <property name="dataIntegrityViolationCodes">-803</property>
+  </bean>
+  <bean name="YourSQL"
+    class="com.interface21.jdbc.core.SQLErrorCodes">
+    <property name="dataIntegrityViolationCodes">1062</property>
+  </bean>
+  <bean name="Microsoft SQL Server"
+    class="com.interface21.jdbc.core.SQLErrorCodes">
+    <property name="badSqlGrammarCodes">207,208</property>
+    <property name="dataIntegrityViolationCodes">2627,8114,8115</property>
+  </bean>
+  <bean name="Oracle"
+    class="com.interface21.jdbc.core.SQLErrorCodes">
+    <property name="badSqlGrammarCodes">904,936,942</property>
+    <property name="dataIntegrityViolationCodes">1,1400,1722</property>
+  </bean>
+</dbms-beans>
