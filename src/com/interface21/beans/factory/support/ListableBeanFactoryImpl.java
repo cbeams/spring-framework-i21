@@ -1,3 +1,8 @@
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+
 package com.interface21.beans.factory.support;
 
 import java.util.Enumeration;
@@ -26,6 +31,7 @@ import com.interface21.util.StringUtils;
  * or as a superclass for custom bean factories.
  * @author Rod Johnson
  * @since 16 April 2001
+ * @version $Id$
  */
 public class ListableBeanFactoryImpl extends AbstractBeanFactory implements ListableBeanFactory {
 	
@@ -66,6 +72,11 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * will depend on the definition of the target bean.
 	 */
 	public static final String REF_SUFFIX = "(ref)";
+	
+	/**
+	 * Prefix before values referencing other beans
+	 */
+	public static final String REF_PREFIX = "*";
 
 
 	//---------------------------------------------------------------------
@@ -296,7 +307,6 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			String key = (String) itr.next();
 			if (key.startsWith(prefix + SEPARATOR)) {
 				String property = key.substring(prefix.length() + SEPARATOR.length());
-				//System.out.println("PROPERTY='" + property + "'");
 				if (property.equals(CLASS_KEY)) {
 					classname = (String) m.get(key);
 				}
@@ -319,9 +329,24 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 					Object val = new RuntimeBeanReference(ref);
 					pvs.addPropertyValue(new PropertyValue(property, val));
 				}
-				else {
+				else{
 					// Normal bean property
-					Object val = m.get(key);					
+					Object val = m.get(key);
+					if (val instanceof String) {
+						String sval = (String) val;
+						// If it starts with unescaped prefix...
+						if (sval.startsWith(REF_PREFIX)) {
+							// Expand reference
+							String targetName = ((String) val).substring(1);
+							if (sval.startsWith("**")) {
+								val = targetName;
+							}
+							else {
+								val = new RuntimeBeanReference(targetName);
+							}
+						}
+					}
+					
 					pvs.addPropertyValue(new PropertyValue(property, val));
 				}
 			}
@@ -388,7 +413,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	
 	
 	public String toString() {
-		return getClass() + ": defined prototypes [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
+		return getClass() + ": defined beans [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
 	}
 	
 }
