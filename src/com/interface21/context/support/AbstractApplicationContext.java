@@ -219,7 +219,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 		try {
 			this.messageSource = (MessageSource) getBeanFactory().getBean(MESSAGE_SOURCE_BEAN_NAME);
-		// set parent message source if applicable,
+			// set parent message source if applicable,
 			// and if the message source is defined in this context, not in a parent
 			if (this.parent != null && (this.messageSource instanceof NestingMessageSource) &&
 			    Arrays.asList(getBeanFactory().getBeanDefinitionNames()).contains(MESSAGE_SOURCE_BEAN_NAME)) {
@@ -227,7 +227,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			}
 		}
 		catch (NoSuchBeanDefinitionException ex) {
-			logger.warn("No MessageSource defined in WebApplicationContext and no parent");
+			logger.warn("No MessageSource found for: " + getDisplayName());
+			// use empty message source to be able to accept getMessage calls
+			this.messageSource = new StaticMessageSource();
 		}
 
 		refreshListeners();
@@ -380,17 +382,17 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	public synchronized Object sharedObject(String key) {
-		return sharedObjects.get(key);
+		return this.sharedObjects.get(key);
 	}
 
 	public synchronized void shareObject(String key, Object o) {
 		logger.info("Set shared object '" + key + "'");
-		sharedObjects.put(key, o);
+		this.sharedObjects.put(key, o);
 	}
 
 	public synchronized Object removeSharedObject(String key) {
 		logger.info("Removing shared object '" + key + "'");
-		Object o = sharedObjects.remove(key);
+		Object o = this.sharedObjects.remove(key);
 		if (o == null) {
 			logger.warn("Shared object '" + key + "' not present; could not be removed");
 		} else {
@@ -416,7 +418,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * otherwise return the default message passed as a parameter
 	 */
 	public String getMessage(String code, Object args[], String defaultMessage, Locale locale) {
-		return messageSource.getMessage(code, args, defaultMessage, locale);
+		return this.messageSource.getMessage(code, args, defaultMessage, locale);
 	}
 
 	/**
@@ -429,9 +431,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * @return message
 	 * @throws NoSuchMessageException not found in any locale
 	 */
-	public String getMessage(String code, Object args[], Locale locale) throws
-	    NoSuchMessageException {
-		return messageSource.getMessage(code, args, locale);
+	public String getMessage(String code, Object args[], Locale locale) throws NoSuchMessageException {
+		return this.messageSource.getMessage(code, args, locale);
 	}
 
 	/**
@@ -449,7 +450,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * @throws NoSuchMessageException not found in any locale
 	 */
 	public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
-		return messageSource.getMessage(resolvable, locale);
+		return this.messageSource.getMessage(resolvable, locale);
 	}
 
 

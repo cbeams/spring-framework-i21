@@ -1,6 +1,7 @@
 package com.interface21.web.context;
 
 import java.io.FileNotFoundException;
+import java.util.Locale;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -10,6 +11,7 @@ import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.context.TestListener;
+import com.interface21.context.NoSuchMessageException;
 import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.mock.MockServletContext;
@@ -102,6 +104,21 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 	public void testCount() {
 		assertTrue("should have 16 beans, not"+ this.applicationContext.getBeanDefinitionCount(),
 			this.applicationContext.getBeanDefinitionCount() == 16);
+	}
+
+	public void testWithoutMessageSource() throws Exception {
+		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		WebApplicationContext wac = new XmlWebApplicationContext(null, "testNamespace");
+		wac.setServletContext(sc);
+		try {
+			wac.getMessage("someMessage", null, Locale.getDefault());
+			fail("Should have thrown NoSuchMessageException");
+		}
+		catch (NoSuchMessageException ex) {
+			// expected;
+		}
+		String msg = wac.getMessage("someMessage", null, "default", Locale.getDefault());
+		assertTrue("Default message returned", "default".equals(msg));
 	}
 
 	public void testContextLoaderWithDefaultContext() throws Exception {

@@ -2,45 +2,34 @@
 
 <!-- <!DOCTYPE web-app-config SYSTEM 'file:///c:/rj/controller/WEB-INF/web-app-config-1-0.dtd'>
 -->
-		
-<beans>		
-	
-	
-	
-	
-	
-	<!-- Inherited tests fom text.xml -->
-		<bean name="rod" class="com.interface21.beans.TestBean">	
-				<property name="name">Rod</property>
-				<property name="age">31</property>
-			</bean>
-			
-			<bean name="kerry" class="com.interface21.beans.TestBean">	
-				<property name="name">Kerry</property>
-				<property name="age">34</property>
-				<property name="spouse" beanRef="true">rod</property>
-			</bean>
-		
-			<bean name="typeMismatch" class="com.interface21.beans.TestBean">	
-				<property name="name">typeMismatch</property>
-				<property name="age">34x</property>
-		                <property name="spouse" beanRef="true">rod</property>
-			</bean>
-		
-		      <bean name="agistListener" class="com.interface21.beans.factory.BeanFactoryTests$AgistListener" />	
-		
-		        <bean name="listenerVeto" class="com.interface21.beans.TestBean">	
-		                <listener property="age" beanRef="agistListener" />
-				<property name="name">listenerVeto</property>
-				<property name="age">66</property>
-			</bean>
-		
-		        <bean name="validEmpty" class="com.interface21.beans.TestBean" />	
-		
-		      
-	
 
+<beans>
 
+	<bean name="rod" class="com.interface21.beans.TestBean">
+		<property name="name">Rod</property>
+		<property name="age">31</property>
+	</bean>
 
+	<bean name="kerry" class="com.interface21.beans.TestBean">
+		<property name="name">Kerry</property>
+		<property name="age">34</property>
+		<property name="spouse" beanRef="true">rod</property>
+	</bean>
 
-</beans>		
+	<!--
+	<bean name="typeMismatch" class="com.interface21.beans.TestBean">
+		<property name="name">typeMismatch</property>
+		<property name="age">34x</property>
+		<property name="spouse" beanRef="true">rod</property>
+	</bean>
+	-->
+
+	<bean name="listenerVeto" class="com.interface21.beans.TestBean">
+		<listener property="age" beanRef="agistListener"/>
+		<property name="name">listenerVeto</property>
+		<property name="age">66</property>
+	</bean>
+
+	<bean name="validEmpty" class="com.interface21.beans.TestBean"/>
+
+</beans>
