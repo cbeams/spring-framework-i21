@@ -87,12 +87,15 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 		interceptor4.setParamName("theme2");
 		UserRoleAuthorizationInterceptor interceptor5 = new UserRoleAuthorizationInterceptor();
 		interceptor5.setAuthorizedRoles(new String[] {"role1", "role2"});
+
 		List interceptors = new ArrayList();
 		interceptors.add(interceptor5);
 		interceptors.add(interceptor1);
 		interceptors.add(interceptor2);
 		interceptors.add(interceptor3);
 		interceptors.add(interceptor4);
+		interceptors.add(new MyHandlerInterceptor1());
+		interceptors.add(new MyHandlerInterceptor2());
 		myUrlMapping1.setInterceptors(interceptors);
 	}
 
@@ -101,6 +104,7 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 
 		public void doSomething(HttpServletRequest request) throws ServletException;
 	}
+
 
 	public static class MyHandlerAdapter extends ApplicationObjectSupport implements HandlerAdapter, Ordered {
 
@@ -123,6 +127,7 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 		}
 	}
 
+
 	public static class MyDummyAdapter extends ApplicationObjectSupport implements HandlerAdapter {
 
 		public boolean supports(Object handler) {
@@ -138,6 +143,57 @@ class ComplexWebApplicationContext extends StaticWebApplicationContext {
 			return -1;
 		}
 	}
+
+
+	public static class MyHandlerInterceptor1 implements HandlerInterceptor {
+
+		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+		    throws ServletException {
+			if (request.getAttribute("test2") != null) {
+				throw new ServletException("Wrong interceptor order");
+			}
+			request.setAttribute("test1", "test1");
+			return true;
+		}
+
+		public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+		    throws ServletException {
+			if (request.getAttribute("test2") != null) {
+				throw new ServletException("Wrong interceptor order");
+			}
+			if (!"test1".equals(request.getAttribute("test1"))) {
+				throw new ServletException("Incorrect request attribute");
+			}
+			request.removeAttribute("test1");
+		}
+
+	}
+
+
+	public static class MyHandlerInterceptor2 implements HandlerInterceptor {
+
+		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+		    throws ServletException {
+			if (request.getAttribute("test1") == null) {
+				throw new ServletException("Wrong interceptor order");
+			}
+			request.setAttribute("test2", "test2");
+			return true;
+		}
+
+		public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+		    throws ServletException {
+			if (request.getAttribute("test1") == null) {
+				throw new ServletException("Wrong interceptor order");
+			}
+			if (!"test2".equals(request.getAttribute("test2"))) {
+				throw new ServletException("Incorrect request attribute");
+			}
+			request.removeAttribute("test2");
+		}
+
+	}
+
 
 	public static class ComplexLocaleChecker implements MyHandler {
 

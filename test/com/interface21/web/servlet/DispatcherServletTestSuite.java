@@ -22,8 +22,8 @@ import com.interface21.web.servlet.support.RequestContextUtils;
 import com.interface21.web.servlet.theme.AbstractThemeResolver;
 
 /**
- *
  * @author Rod Johnson
+ * @author Juergen Hoeller
  * @version $RevisionId$
  */
 public class DispatcherServletTestSuite extends TestCase {
@@ -63,7 +63,7 @@ public class DispatcherServletTestSuite extends TestCase {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			simpleControllerServlet.doGet(request, response);
-			assertTrue("not forwarded", response.forwarded == null);
+			assertTrue("Not forwarded", response.forwarded == null);
 			assertTrue("correct error code", response.getStatusCode() == HttpServletResponse.SC_NOT_FOUND);
 		}
 		catch (ServletException ex) {
@@ -108,7 +108,7 @@ public class DispatcherServletTestSuite extends TestCase {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			simpleControllerServlet.doGet(request, response);
-			assertTrue("not forwarded", response.forwarded == null);
+			assertTrue("Not forwarded", response.forwarded == null);
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());
@@ -175,7 +175,7 @@ public class DispatcherServletTestSuite extends TestCase {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			complexControllerServlet.doGet(request, response);
-			assertTrue("not forwarded", response.forwarded == null);
+			assertTrue("Not forwarded", response.forwarded == null);
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());
@@ -190,7 +190,7 @@ public class DispatcherServletTestSuite extends TestCase {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			complexControllerServlet.doGet(request, response);
-			assertTrue("not forwarded", response.forwarded == null);
+			assertTrue("Not forwarded", response.forwarded == null);
 			fail("Should have thrown ServletException");
 		}
 		catch (ServletException ex) {
@@ -207,7 +207,7 @@ public class DispatcherServletTestSuite extends TestCase {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			complexControllerServlet.doGet(request, response);
-			assertTrue("not forwarded", response.forwarded == null);
+			assertTrue("Not forwarded", response.forwarded == null);
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());
@@ -222,7 +222,7 @@ public class DispatcherServletTestSuite extends TestCase {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			complexControllerServlet.doGet(request, response);
-			assertTrue("not forwarded", response.forwarded == null);
+			assertTrue("Not forwarded", response.forwarded == null);
 			fail("Should have thrown ServletException");
 		}
 		catch (ServletException ex) {
@@ -233,13 +233,13 @@ public class DispatcherServletTestSuite extends TestCase {
 	public void testThemeChangeInterceptor2() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest(servletConfig.getServletContext(), "GET", "/locale.do");
 		request.addPreferredLocale(Locale.CANADA);
-		request.addRole("role3");
+		request.addRole("role1");
 		request.addParameter("theme", "mytheme");
 		request.addParameter("theme2", "theme");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		try {
 			complexControllerServlet.doGet(request, response);
-			assertTrue("not forwarded", response.forwarded == null);
+			assertTrue("Not forwarded", response.forwarded == null);
 		}
 		catch (ServletException ex) {
 			fail("Should not have thrown ServletException: " + ex.getMessage());
