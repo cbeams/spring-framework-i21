@@ -3,6 +3,7 @@ package com.interface21.jdbc.core;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Calendar;
+import java.net.URL;
 
 /**
  * <P>A class that implements java.sql.ResultSet which is used in the 
@@ -32,7 +33,7 @@ public class ReadOnlyResultSet implements ResultSet {
   /**
    * Constructor. Creates an instance of the ResultSet wrapper using the 
    * ResultSet to be wrapped as a parameter.
-   * @param The wrapped ResultSet instance
+   * @param rs The wrapped ResultSet instance
    * @throws InvalidParameterException when the wrapped ResultSet instance
    *          is null.
    */
@@ -1089,8 +1090,7 @@ public class ReadOnlyResultSet implements ResultSet {
   /**
    * Authorised.
    * @see java.sql.ResultSet#getDate(int columnIndex, Calendar cal)
-   */
-  public java.sql.Date getDate(int columnIndex, Calendar cal) throws SQLException {
+   */  public java.sql.Date getDate(int columnIndex, Calendar cal) throws SQLException {
     return rs.getDate(columnIndex, cal);
   }
 
@@ -1133,4 +1133,53 @@ public class ReadOnlyResultSet implements ResultSet {
   public java.sql.Timestamp getTimestamp(String columnName, Calendar cal) throws SQLException {
     return rs.getTimestamp(columnName, cal);
   }
+
+	//---------------------------------------------------------------------
+	// New ResultSet methods from JDBC 3.0 resp. J2SE 1.4.
+	// Dummy implementations for compatibility.
+	// TODO: Call underlying ResultSet as soon as Spring requires J2SE 1.4.
+	//---------------------------------------------------------------------
+	public URL getURL(int columnIndex) throws SQLException {
+		return null;
+	}
+
+	public URL getURL(String columnName) throws SQLException {
+		return null;
+	}
+
+	//---------------------------------------------------------------------
+	// New ResultSet methods from JDBC 3.0 resp. J2SE 1.4.
+	// Implementations for compatibility, not authorised anyway.
+	//---------------------------------------------------------------------
+	public void updateRef(int columnIndex, Ref x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateRef");
+	}
+
+	public void updateRef(String columnName, Ref x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateRef");
+	}
+
+	public void updateBlob(int columnIndex, Blob x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateBlob");
+	}
+
+	public void updateBlob(String columnName, Blob x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateBlob");
+	}
+
+	public void updateClob(int columnIndex, Clob x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateClob");
+	}
+
+	public void updateClob(String columnName, Clob x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateClob");
+	}
+
+	public void updateArray(int columnIndex, Array x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateArray");
+	}
+
+	public void updateArray(String columnName, Array x) throws SQLException {
+		throw new InvalidResultSetMethodInvocationException("updateArray");
+	}
 }
