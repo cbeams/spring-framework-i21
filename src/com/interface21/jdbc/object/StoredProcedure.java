@@ -21,11 +21,10 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import com.interface21.dao.InvalidDataAccessApiUsageException;
-import com.interface21.jdbc.datasource.DataSourceUtils;
 import com.interface21.jdbc.core.SQLExceptionTranslater;
 import com.interface21.jdbc.core.SQLExceptionTranslaterFactory;
-import com.interface21.jdbc.core.SQLStateSQLExceptionTranslater;
 import com.interface21.jdbc.core.SqlParameter;
+import com.interface21.jdbc.datasource.DataSourceUtils;
 
 /**
  * Superclass for object abstractions of RDBMS stored procedures.
@@ -56,8 +55,6 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	 */ 
 	private boolean isFunction = false;
 	
-	/** Factory to get instance of Helper to translate SQL exceptions */
-	private SQLExceptionTranslaterFactory exceptionTranslaterFactory;
 	/** Helper to translate SQL exceptions to DataAccessExceptions */
 	private SQLExceptionTranslater exceptionTranslater;
 	
@@ -65,20 +62,11 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	//---------------------------------------------------------------------
 	// Constructors
 	//---------------------------------------------------------------------
+
 	/**
 	 * Allow use as a bean
 	 */
 	protected StoredProcedure() {
-		this.exceptionTranslater = new SQLStateSQLExceptionTranslater();
-	}
-	
-	/**
-	 * Set the exception translater used in this class.
-	 * As in the JdbcTemplate class, this can be parameterized
-	 * @see com.interface21.jdbc.core.SQLExceptionTranslater
-	 */
-	public void setExceptionTranslater(SQLExceptionTranslater exceptionTranslater) {
-		this.exceptionTranslater = exceptionTranslater;
 	}
 
 	/**
@@ -90,8 +78,26 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	protected StoredProcedure(DataSource ds, String name) {
 		setDataSource(ds);
 		setSql(name);
-		this.exceptionTranslaterFactory = SQLExceptionTranslaterFactory.getInstance();
-		this.exceptionTranslater = this.exceptionTranslaterFactory.getDefaultTranslater(ds);
+	}
+
+	/**
+	 * Set the exception translater used in this class.
+	 * As in the JdbcTemplate class, this can be parameterized
+	 * @see com.interface21.jdbc.core.SQLExceptionTranslater
+	 */
+	public void setExceptionTranslater(SQLExceptionTranslater exceptionTranslater) {
+		this.exceptionTranslater = exceptionTranslater;
+	}
+
+	/**
+	 * Return the exception translater for this instance.
+	 * Create a default one for the specified DataSource if none set.
+	 */
+	protected SQLExceptionTranslater getExceptionTranslater() {
+		if (this.exceptionTranslater == null) {
+			this.exceptionTranslater = SQLExceptionTranslaterFactory.getInstance().getDefaultTranslater(getDataSource());
+		}
+		return this.exceptionTranslater;
 	}
 
 
@@ -176,7 +182,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	 * types.
 	 * <br/>Maps, using parameter names given in addParameter(),
 	 * are used to hold input and output parameters.
-	 * @param inParams Map of input parameters
+	 * @param mapper Map of input parameters
 	 * @return map of output parameters. In/out parameters
 	 * will appear here, with their value after the stored
 	 * procedure has been called.
@@ -207,12 +213,12 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		}
 		catch (SQLException ex) {
 			//throw new UncategorizedSQLException("Call to stored procedure '" + getSql() + "' failed", ex);
-			throw this.exceptionTranslater.translate("Call to stored procedure '" + getSql() + "'", this.callString, ex);
+			throw getExceptionTranslater().translate("Call to stored procedure '" + getSql() + "'", this.callString, ex);
 		}
 		finally {
 			DataSourceUtils.closeConnectionIfNecessary(con, ds);
 		}
-	} 	// execute
+	}
 	
 
 	/** 
@@ -250,10 +256,8 @@ public abstract class StoredProcedure extends RdbmsOperation {
 
 	/**
 	 * Extract output parameters from the completed stored procedure.
-	 * @param outParams parameters to the stored procedure
 	 * @param call JDBC wrapper for the stored procedure
-	 * @throws SQLException
-	 * @return 
+	 * @return parameters to the stored procedure
 	 */
 	private Map extractOutputParameters(CallableStatement call) throws SQLException {
 		Map outParams = new HashMap();
@@ -272,6 +276,7 @@ public abstract class StoredProcedure extends RdbmsOperation {
 	//---------------------------------------------------------------------
 	// Inner classes
 	//---------------------------------------------------------------------
+
 	/**
 	 * Implement this interface when parameters need to be customized based 
 	 * on the connection. We might need to do this to make
@@ -328,4 +333,4 @@ public abstract class StoredProcedure extends RdbmsOperation {
 		this.isFunction = isFunction;
 	}
 
-}	// class StoredProcedure
+}

@@ -97,9 +97,6 @@ public class JdbcTemplate {
 	/** If this variable is false, we will throw exceptions on SQL warnings */
 	private boolean ignoreWarnings = true;
 
-	/** Factory to get instance of Helper to translate SQL exceptions */
-	private SQLExceptionTranslaterFactory exceptionTranslaterFactory;
-
 	/** Helper to translate SQL exceptions to DataAccessExceptions */
 	private SQLExceptionTranslater exceptionTranslater;
 
@@ -134,36 +131,31 @@ public class JdbcTemplate {
 
 	/**
 	 * Set the J2EE DataSource to obtain connections from.
-	 * @param dataSource J2EE DataSource to obtain connections from
 	 */
 	public void setDataSource(DataSource dataSource) throws InvalidParameterException {
 		if (dataSource == null) {
 			throw new InvalidParameterException("dataSource", "null");
 		}
 		this.dataSource = dataSource;
-		this.exceptionTranslaterFactory = SQLExceptionTranslaterFactory.getInstance();
-		this.exceptionTranslater = this.exceptionTranslaterFactory.getDefaultTranslater(dataSource);
 	}
 
 	/**
-	 * Return the DataSource used by this template
-	 * @return the DataSource used by this template
+	 * Return the DataSource used by this template.
 	 */
 	public DataSource getDataSource() {
 		return dataSource;
 	}
 
 	/**
-	 * Return whether or not we want to ignore SQLWarnings.
-	 * Default is true
+	 * Set whether or not we want to ignore SQLWarnings.
+	 * Default is true.
 	 */
 	public void setIgnoreWarnings(boolean ignoreWarnings) {
 		this.ignoreWarnings = ignoreWarnings;
 	}
 
 	/**
-	 * Return whether or not we ignore SQLWarnings
-	 * @return whether or not we ignore SQLWarnings.
+	 * Return whether or not we ignore SQLWarnings.
 	 * Default is true.
 	 */
 	public boolean getIgnoreWarnings() {
@@ -174,10 +166,21 @@ public class JdbcTemplate {
 	 * Set the exception translater used in this class.
 	 * If no custom translater is provided, a default is used
 	 * which examines the SQLException's SQLState code.
-	 * @param exceptionTranslater custom exception translator.
+	 * @param exceptionTranslater custom exception translator
 	 */
 	public void setExceptionTranslater(SQLExceptionTranslater exceptionTranslater) {
 		this.exceptionTranslater = exceptionTranslater;
+	}
+
+	/**
+	 * Return the exception translater for this instance.
+	 * Create a default one for the specified DataSource if none set.
+	 */
+	protected SQLExceptionTranslater getExceptionTranslater() {
+		if (this.exceptionTranslater == null) {
+			this.exceptionTranslater = SQLExceptionTranslaterFactory.getInstance().getDefaultTranslater(this.dataSource);
+		}
+		return this.exceptionTranslater;
 	}
 
 
@@ -241,13 +244,12 @@ public class JdbcTemplate {
 			throwExceptionOnWarningIfNotIgnoringWarnings(warning);
 		}
 		catch (SQLException ex) {
-			throw this.exceptionTranslater.translate("JdbcTemplate.query(sql)", sql, ex);
+			throw getExceptionTranslater().translate("JdbcTemplate.query(sql)", sql, ex);
 		}
 		finally {
 			DataSourceUtils.closeConnectionIfNecessary(con, this.dataSource);
 		}
-	} 	// doWithResultSetFromStaticQuery
-
+	}
 
 	/**
 	 * Query using a prepared statement.
@@ -260,7 +262,6 @@ public class JdbcTemplate {
 	public void query(PreparedStatementCreator psc, RowCallbackHandler callbackHandler) throws DataAccessException {
 		doWithResultSetFromPreparedQuery(psc, new RowCallbackHandlerResultSetExtracter(callbackHandler));
 	}
-
 
 	/**
 	 * Query using a prepared statement. Most other query methods use
@@ -288,13 +289,12 @@ public class JdbcTemplate {
 			throwExceptionOnWarningIfNotIgnoringWarnings(warning);
 		}
 		catch (SQLException ex) {
-			throw this.exceptionTranslater.translate("JdbcTemplate.query(psc) with PreparedStatementCreator [" + psc + "]", null, ex);
+			throw getExceptionTranslater().translate("JdbcTemplate.query(psc) with PreparedStatementCreator [" + psc + "]", null, ex);
 		}
 		finally {
 			DataSourceUtils.closeConnectionIfNecessary(con, this.dataSource);
 		}
-	} 	// doWithResultSetFromPreparedQuery
-
+	}
 
 	/**
 	 * Query given SQL to create a prepared statement from SQL and a
@@ -392,7 +392,7 @@ public class JdbcTemplate {
 			return retvals;
 		}
 		catch (SQLException ex) {
-			throw this.exceptionTranslater.translate("processing update " +
+			throw getExceptionTranslater().translate("processing update " +
 			                                         (index + 1) + " of " + pscs.length + "; update was [" + pscs[index] + "]", null, ex);
 		}
 		finally {
@@ -458,7 +458,7 @@ public class JdbcTemplate {
 			return retvals;
 		}
 		catch (SQLException ex) {
-			throw this.exceptionTranslater.translate("processing batch update " +
+			throw getExceptionTranslater().translate("processing batch update " +
 			                                         " with size=" + setter.getBatchSize() + "; update was [" + sql + "]", sql, ex);
 		}
 		finally {
@@ -512,7 +512,7 @@ public class JdbcTemplate {
 		public void extractData(ResultSet rs) throws SQLException {
 			ReadOnlyResultSet rors = new ReadOnlyResultSet(rs);
 			while (rs.next()) {
-				callbackHandler.processRow(rors);
+				this.callbackHandler.processRow(rors);
 			}
 			//	Since rors is a wrapper around rs, calling the close() method is
 			// forbidden. Since rs is already closed, we only need to make it
