@@ -25,9 +25,10 @@ import com.interface21.context.ApplicationContextException;
  * context reference and provides an initialization callback method.
  *
  * <p>There is no requirement to subclass this class: It just makes things
- * a little easier. Note that many application objects do not need to be
- * aware of the application context all, as they can receive collaborating
- * beans via bean references.
+ * a little easier if you need access to the context, e.g. for access to
+ * file resources or to the message source. Note that many application
+ * objects do not need to be aware of the application context at all,
+ * as they can receive collaborating beans via bean references.
  *
  * <p>Many framework classes are derived from this class, especially
  * within the web support.
@@ -61,6 +62,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
 	/**
 	 * Subclasses can override this for custom initialization behavior.
 	 * Gets called by setApplicationContext() after setting the context instance.
+	 * <p>Note: Does </i>not</i> get called on reinitialization of the context.
 	 * @throws ApplicationContextException if initialization attempted
 	 * by this object fails
 	 */
