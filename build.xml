@@ -7,6 +7,8 @@
 	
 	Rod Johnson, 2002-3.
 	
+	$Revision$
+	
 	See page 594 of "Expert One-on-One J2EE" for a description of
 	the JAR files produced by this build script, and how
 	they can be deployed in applications.
@@ -71,9 +73,12 @@
 	 <!-- 
 	 	Global property to exclude selected classes from Clover
 	 	instrumentation. Typically we'll use this to exclude experimental
-	 	packages from coverage analysis.
+	 	packages from coverage analysis, or classes that are intended to support
+	 	development.
+	 	
+	 	NOTES: DynamicProxy is on the way out when the AOP stuff comes in
 	 -->
-  	<property name="clover.excludes" value="**/aop/**" />
+  	<property name="clover.excludes" value="**/aop/** com/interface21/beans/context/support/ConsoleListener.java com/interface21/beans/context/support/FileSystemXmlApplicationContext.java com/interface21/core/PrettyPrintVisitor.java com/interface21/core/NodeCountVisitor.java com/interface21/beans/DynamicProxy.java com/interface21/beans/ClassLoaderAnalyzer.java" />
 
 
 	<!-- Library directory within project -->
@@ -109,6 +114,7 @@
 	<!-- Delete all binaries and generated distribution units -->
 	<target name="clean">
 		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
 		<delete dir="${testbuild.dir}"/>
 		<delete dir="${clover.build.dir}"/>
 		<delete file="${clover.dbfile}"/>
@@ -121,7 +127,7 @@
 
 
 	<!-- 
-		Build framework Jar 
+		Compile main source tree
 	-->
 	<target name="build">
 
@@ -140,16 +146,16 @@
 	</target>
 		
 		
-		<!-- 
-			Build one big JAR. 
-		-->
-		<target name="full" depends="build">
-							
-			 <jar jarfile="${spring-full.jar}">
-			    <fileset dir="${build.dir}">
-			    <include name="com/interface21/**"/>
-			    </fileset>
-			  </jar>
+	<!-- 
+		Build one big JAR. 
+	-->
+	<target name="full" depends="build">
+
+		 <jar jarfile="${spring-full.jar}">
+		    <fileset dir="${build.dir}">
+		    <include name="com/interface21/**"/>
+		    </fileset>
+		  </jar>
 	</target>
 	
 	
@@ -158,6 +164,10 @@
 		Build the framework web classes.
 		This JAR will depend on the core JAR, so can't be used
 		in isolation.
+		We go to trouble to exclude stuff here to try to avoid 
+		class loader issues with application servers such as WebLogic
+		in which the EJB class loader is the parent of the WAR class loader.
+		Of course these problems only apply to applications using EJB.
 	-->
 	<target name="web" depends="build">
 
@@ -260,20 +270,6 @@
 	  </jar>				
 	</target>
 	
-	
-	<!--
-		Build load test support JAR
-	-->
-	<target name="load_test" depends="build">
-					 		 	
-			<!-- We inherit this property from calling ant script -->
-			<jar jarfile="${i21-loadtest.jar}">
-			<fileset dir="${build.dir}">
-
-			<include name="com/interface21/load/*"/>
-			</fileset>
-		  </jar>				
-	</target>
 
 	
 	<!--
@@ -297,18 +293,20 @@
 		Build all Jar files
 	-->
 	<target name="all" depends="build">
+	
+		<mkdir dir="${dist.dir}" />
 						 		 	
 		<ant target="ejbimpl">
-			<property name="spring-ejbimpl.jar" value="spring-ejbimpl-${spring-version}.jar"/>
+			<property name="spring-ejbimpl.jar" value="${dist.dir}/spring-ejbimpl-${spring-version}.jar"/>
 		  </ant>
 		  <ant target="jdbc">
-		  	<property name="spring-jdbc.jar" value="spring-jdbc-${spring-version}.jar"/>
+		  	<property name="spring-jdbc.jar" value="${dist.dir}/spring-jdbc-${spring-version}.jar"/>
 		  </ant>
 		  <ant target="core">
-		  	<property name="spring-core.jar" value="spring-core-${spring-version}.jar"/>
+		  	<property name="spring-core.jar" value="${dist.dir}/spring-core-${spring-version}.jar"/>
 		  </ant>
 		    <ant target="web">
-		  	<property name="spring-web.jar" value="spring-web-${spring-version}.jar"/>
+		  	<property name="spring-web.jar" value="${dist.dir}/spring-web-${spring-version}.jar"/>
 		  </ant>								
 	</target>
 	
