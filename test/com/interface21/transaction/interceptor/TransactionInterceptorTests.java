@@ -9,22 +9,20 @@ import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 import org.aopalliance.intercept.AttributeRegistry;
-import org.aopalliance.intercept.Invocation;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
-import com.interface21.aop.framework.AopContext;
 import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.beans.ITestBean;
 import com.interface21.beans.TestBean;
 import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.PlatformTransactionManager;
-import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.UnexpectedRollbackException;
+import com.interface21.transaction.TransactionSystemException;
 
 /**
- * Mock object based tests for TransactionInterceptor. 
+ * Mock object based tests for TransactionInterceptor.
  * True unit test in that it tests how the TransactionInterceptor uses
  * the PlatformTransactionManager helper, rather than indirectly
  * testing the helper implementation.
@@ -35,17 +33,17 @@ import com.interface21.transaction.UnexpectedRollbackException;
 public class TransactionInterceptorTests extends TestCase {
 
 	public void testNoTransaction() throws Exception {
-		// Could do this	
+		// Could do this
 		/*
 		Method m = Object.class.getMethod("hashCode", null);
 		Object proxy = new Object();
 		MethodInvocationImpl mi = new MethodInvocationImpl(proxy, null, m.getDeclaringClass(), //?
-		m, null, 
+		m, null,
 		interceptors, // could customize here
 		r);
 		*/
 
-		//TransactionAttribute txatt = 
+		//TransactionAttribute txatt =
 
 		MockControl arControl = EasyMock.controlFor(AttributeRegistry.class);
 		AttributeRegistry r = (AttributeRegistry) arControl.getMock();
@@ -55,7 +53,7 @@ public class TransactionInterceptorTests extends TestCase {
 
 		MockControl ptxControl = EasyMock.controlFor(PlatformTransactionManager.class);
 		PlatformTransactionManager ptm = (PlatformTransactionManager) ptxControl.getMock();
-		
+
 		// expect no calls
 		ptxControl.activate();
 
@@ -116,8 +114,8 @@ public class TransactionInterceptorTests extends TestCase {
 		arControl.verify();
 		ptxControl.verify();
 	}
-	
-	
+
+
 	/**
 	 * Test that TransactionControl.setRollbackOnly works
 	 * @throws java.lang.Exception
@@ -166,23 +164,39 @@ public class TransactionInterceptorTests extends TestCase {
 		arControl.verify();
 		ptxControl.verify();
 	}
-	
+
 	public void testRollbackOnCheckedException() throws Throwable {
-		testRollbackOnException(new Exception(), true);
+		testRollbackOnException(new Exception(), true, false);
 	}
-	
+
 	public void testNoRollbackOnCheckedException() throws Throwable {
-		testRollbackOnException(new Exception(), false);
+		testRollbackOnException(new Exception(), false, false);
 	}
-	
+
 	public void testRollbackOnUncheckedException() throws Throwable {
-		testRollbackOnException(new RuntimeException(), true);
+		testRollbackOnException(new RuntimeException(), true, false);
 	}
-		
+
 	public void testNoRollbackOnUncheckedException() throws Throwable {
-		testRollbackOnException(new RuntimeException(), false);
+		testRollbackOnException(new RuntimeException(), false, false);
 	}
-	
+
+	public void testRollbackOnCheckedExceptionWithRollbackException() throws Throwable {
+		testRollbackOnException(new Exception(), true, true);
+	}
+
+	public void testNoRollbackOnCheckedExceptionWithRollbackException() throws Throwable {
+		testRollbackOnException(new Exception(), false, true);
+	}
+
+	public void testRollbackOnUncheckedExceptionWithRollbackException() throws Throwable {
+		testRollbackOnException(new RuntimeException(), true, true);
+	}
+
+	public void testNoRollbackOnUncheckedExceptionWithRollbackException() throws Throwable {
+		testRollbackOnException(new RuntimeException(), false, true);
+	}
+
 	/**
 	 * Check that the given exception thrown by the target can
 	 * produce the desired behaviour with the appropriate transaction
@@ -191,7 +205,9 @@ public class TransactionInterceptorTests extends TestCase {
 	 * @param shouldRollback whether this should cause a transaction rollback
 	 * @throws java.lang.Throwable
 	 */
-	private void testRollbackOnException(final Exception ex, final boolean shouldRollback) throws Throwable {
+	private void testRollbackOnException(final Exception ex, final boolean shouldRollback, boolean rollbackException)
+	    throws Throwable {
+
 		TransactionAttribute txatt = new DefaultTransactionAttribute() {
 			public boolean rollbackOn(Throwable t) {
 				assertTrue(t == ex);
@@ -210,17 +226,23 @@ public class TransactionInterceptorTests extends TestCase {
 		MockControl ptxControl = EasyMock.controlFor(PlatformTransactionManager.class);
 		PlatformTransactionManager ptm = (PlatformTransactionManager) ptxControl.getMock();
 		// Gets additional call(s) from TransactionControl
-	
+
 		ptm.getTransaction(txatt);
 		ptxControl.setReturnValue(status, 1);
-		
+
 		if (shouldRollback) {
 			ptm.rollback(status);
 		}
 		else {
 			ptm.commit(status);
 		}
-		ptxControl.setVoidCallable(1);
+		TransactionSystemException tex = new TransactionSystemException("system exception");
+		if (rollbackException) {
+			ptxControl.setThrowable(tex, 1);
+		}
+		else {
+			ptxControl.setVoidCallable(1);
+		}
 		ptxControl.activate();
 
 		TestBean tb = new TestBean();
@@ -237,16 +259,21 @@ public class TransactionInterceptorTests extends TestCase {
 			fail("Should have thrown exception");
 		}
 		catch (Throwable t) {
-			assertTrue("Caught " + t + " expecting " + ex, t == ex);
+			if (rollbackException) {
+				assertTrue("Caught " + t + " expecting " + tex, t == tex);
+			}
+			else {
+				assertTrue("Caught " + t + " expecting " + ex, t == ex);
+			}
 		}
 
 		arControl.verify();
 		ptxControl.verify();
 	}
-	
+
 	/**
-	 * Simulate a transaction infrastructure failure. 
-	 * Shouldn't invoke target method. 
+	 * Simulate a transaction infrastructure failure.
+	 * Shouldn't invoke target method.
 	 * @throws java.lang.Exception
 	 */
 	public void testCannotCreateTransaction() throws Exception {
@@ -291,7 +318,7 @@ public class TransactionInterceptorTests extends TestCase {
 		arControl.verify();
 		ptxControl.verify();
 	}
-	
+
 	/**
 	 * Simulate failure of the underlying transaction infrastructure
 	 * to commit.
@@ -315,7 +342,7 @@ public class TransactionInterceptorTests extends TestCase {
 
 		MockControl ptxControl = EasyMock.controlFor(PlatformTransactionManager.class);
 		PlatformTransactionManager ptm = (PlatformTransactionManager) ptxControl.getMock();
-		
+
 		TransactionStatus status = new TransactionStatus(null, false);
 		ptm.getTransaction(txatt);
 		ptxControl.setReturnValue(status);

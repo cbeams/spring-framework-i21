@@ -1,10 +1,10 @@
 package com.interface21.transaction.support;
 
+import org.apache.log4j.Logger;
+
 import com.interface21.transaction.PlatformTransactionManager;
-import com.interface21.transaction.TransactionDefinition;
 import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
-import com.interface21.util.Constants;
 
 /**
  * Helper class that simplifies programmatic transaction demarcation
@@ -38,10 +38,9 @@ import com.interface21.util.Constants;
  */
 public class TransactionTemplate extends DefaultTransactionDefinition {
 
-	/** Constants instance for TransactionDefinition */
-	private static final Constants constants = new Constants(TransactionDefinition.class);
+	private final Logger logger = Logger.getLogger(getClass());
 
-	protected PlatformTransactionManager transactionManager = null;
+	private PlatformTransactionManager transactionManager = null;
 
 	/**
 	 * Create a new TransactionTemplate instance.
@@ -55,7 +54,6 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	/**
 	 * Create a new TransactionTemplate instance.
 	 * @param transactionManager transaction management strategy to be used
-	 * @see PlatformTransactionManager
 	 */
 	public TransactionTemplate(PlatformTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
@@ -75,34 +73,6 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 		return transactionManager;
 	}
 
-	/**
-	 * Set the propagation behavior by the name of the respective constant in
-	 * PlatformTransactionManager (e.g. "PROPAGATION_REQUIRED");
-	 * @param constantName name of the constant
-	 * @throws IllegalArgumentException if an invalid constant was specified
-	 * @see PlatformTransactionManager
-	 */
-	public void setPropagationBehaviorName(String constantName) throws IllegalArgumentException {
-		if (constantName == null || !constantName.startsWith(PROPAGATION_CONSTANT_PREFIX)) {
-			throw new IllegalArgumentException("Only propagation constants allowed");
-		}
-		setPropagationBehavior(constants.asInt(constantName));
-	}
-
-	/**
-	 * Set the isolation level by the name of the respective constant in
-	 * PlatformTransactionManager (e.g. "ISOLATION_DEFAULT");
-	 * @param constantName name of the constant
-	 * @throws IllegalArgumentException if an invalid constant was specified
-	 * @see PlatformTransactionManager
-	 */
-	public void setIsolationLevelName(String constantName) throws IllegalArgumentException {
-		if (constantName == null || !constantName.startsWith(ISOLATION_CONSTANT_PREFIX)) {
-			throw new IllegalArgumentException("Only isolation constants allowed");
-		}
-		setIsolationLevel(constants.asInt(constantName));
-	}
-
 	public void afterPropertiesSet() {
 		if (this.transactionManager == null) {
 			throw new IllegalArgumentException("transactionManager is required");
@@ -110,7 +80,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	}
 
 	/**
-	 * Executes the action specified by the given callback object within a transaction.
+	 * Execute the action specified by the given callback object within a transaction.
 	 * <p>Allows for returning a result object created within the transaction, i.e.
 	 * a domain object or a collection of domain objects. A RuntimeException thrown
 	 * by the callback is treated as application exception that enforces a rollback.
@@ -121,20 +91,38 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	 */
 	public Object execute(TransactionCallback action) throws TransactionException {
 		TransactionStatus status = this.transactionManager.getTransaction(this);
+		Object result = null;
 		try {
-			Object result = action.doInTransaction(status);
-			this.transactionManager.commit(status);
-			return result;
-		}
-		catch (TransactionException tse) {
-			// transaction management exception -> trying a rollback will not work
-			throw tse;
+			result = action.doInTransaction(status);
 		}
 		catch (RuntimeException ex) {
 			// transactional code threw application exception -> rollback
-			this.transactionManager.rollback(status);
+			performRollback(status, ex);
 			throw ex;
 		}
+		catch (Error err) {
+			// transactional code threw error -> rollback
+			performRollback(status, err);
+			throw err;
+		}
+		this.transactionManager.commit(status);
+		return result;
 	}
-	
+
+	/**
+	 * Perform a rollback, handling rollback exceptions properly.
+	 * @param status object representing the transaction
+	 * @param ex the thrown application exception or error
+	 * @throws TransactionException in case of a rollback error
+	 */
+	private void performRollback(TransactionStatus status, Throwable ex) throws TransactionException {
+		try {
+			this.transactionManager.rollback(status);
+		}
+		catch (TransactionException tex) {
+			logger.error("Application exception overridden by rollback exception", ex);
+			throw tex;
+		}
+	}
+
 }
