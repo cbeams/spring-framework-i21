@@ -1,12 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <HEAD>
-	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
 	<TITLE></TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.0.2  (Win32)">
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.0.2  (Linux)">
 	<META NAME="CREATED" CONTENT="20030630;21474000">
-	<META NAME="CHANGEDBY" CONTENT="Thomas Risberg">
-	<META NAME="CHANGED" CONTENT="20030726;17232130">
+	<META NAME="CHANGED" CONTENT="20030729;20395500">
 	<STYLE>
 	<!--
 		@page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
@@ -18,15 +17,15 @@
 <BODY LANG="en-US">
 <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT SIZE=4><B>Developing
 a Spring Framework MVC applicaton step-by-step</B></FONT></P>
-<P ALIGN=CENTER STYLE="margin-bottom: 0cm">Part 2 &ndash; Developing
-and Configuring the Application</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm">Part 2 – Developing and
+Configuring the Application</P>
 <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><B>Thomas Risberg</B>
 <BR>July, 2003</P>
 <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm">This is Part 2 of a step-by-step
 account of how to develop a web application from scratch using the
-Spring Framework. In Part 1 (Steps 1 &ndash; 12) we configured the
+Spring Framework. In Part 1 (Steps 1 – 12) we configured the
 environment and set up a basic application that we will build upon.</P>
 <P STYLE="margin-bottom: 0cm; font-weight: medium">This is what we
 have to start with.</P>
@@ -43,15 +42,23 @@ have to start with.</P>
 improve on these parts to build a more useful application.</P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><B>Step 13 &ndash; Improve index.jsp</B></P>
+<P STYLE="margin-bottom: 0cm"><B>Step 13 – Improve index.jsp</B></P>
 <P STYLE="margin-bottom: 0cm">We will make use of JSP Standard Tag
 Library (JSTL) so I will start by copying the JSTL files we need to
 our WEB-INF/lib directory. Copy jstl.jar and standard.jar from the
 spring-framework-0.9/lib/jstl directory to the
-springapp/war/WEB-INF/lib directory. I am also creating a &ldquo;header&rdquo;
+springapp/war/WEB-INF/lib directory. I am also creating a “header”
 file that will be incuded in every JSP page that I'm going to write.
 This will make development easier and I will be sure that I have the
-same definitions in all JSPs.</P>
+same definitions in all JSPs.  I am going to put all JSPs in a
+directory named jsp under the WEB-INF directory.   This will ensure
+that only the controller has access to the views - it is not possible
+to get to these pages by entering them directly as a URL in the
+browser.  This strategy might not work in all application servers and
+if this is the case with the one you are using, just move the jsp
+directory up a level.  You would then use springapp/war/jsp as the
+directory instread of springapp/war/WEB-INF/jsp in all the code
+examples that will follow.</P>
 <TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
 	<COL WIDTH=256*>
 	<TR>
@@ -92,15 +99,13 @@ our application framework.</P>
 </TABLE>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><B>Step 14 &ndash; Improve the view and
-the controller</B></P>
+<P STYLE="margin-bottom: 0cm"><B>Step 14 – Improve the view and the
+controller</B></P>
 <P>I am going to move the view hello.jsp to the WEB-INF/jsp
-directory. This will ensure that only the controller has access to
-the views - it is not possible to get to these pages by entering them
-directly as a URL in the browser. The same include that was added to
-index.jsp gets added to hello.jsp. I also add the current date and
-time as output that I will retrieve from the model, passed to the
-view, using the JSTL &lt;c:out&gt; tag. 
+directory.  The same include that was added to index.jsp gets added
+to hello.jsp. I also add the current date and time as output that I
+will retrieve from the model, passed to the view, using the JSTL
+&lt;c:out&gt; tag. 
 </P>
 <TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
 	<COL WIDTH=256*>
@@ -176,8 +181,8 @@ redirect to hello.htm, which in turn gets us to the controller that
 sends the data and time to the view.</P>
 <P STYLE="margin-bottom: 0cm"><IMG SRC="Spring-MVC-step-by-step-Part-2_html_1969edd8.png" NAME="Graphic1" ALIGN=LEFT WIDTH=780 HEIGHT=540 BORDER=0><BR CLEAR=LEFT><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><B>Step 15 &ndash; Decouple the view
-and the controller</B></P>
+<P STYLE="margin-bottom: 0cm"><B>Step 15 – Decouple the view and
+the controller</B></P>
 <P STYLE="margin-bottom: 0cm">Right now the controller specifies the
 full path of the view, which creates an unnessecary dependency
 between the controller and the view. Ideally we would like to map to
@@ -201,8 +206,8 @@ and it will also support internationalization.</P>
 	</TR>
 	<TR>
 		<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
-			<PRE>&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+			<PRE>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
 
 &lt;!--
   - Application context definition for &quot;springapp&quot; DispatcherServlet.
@@ -273,19 +278,19 @@ public class SpringappController implements Controller {
 should still work.</P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><B>Step 16 &ndash; Add some classes for
+<P STYLE="margin-bottom: 0cm"><B>Step 16 – Add some classes for
 business logic</B></P>
 <P STYLE="margin-bottom: 0cm">So far our application is not very
 useful. I would like to add a little bit of business logic in form of
 a Product class and a class that will manage all the products. I name
 this management class ProductManager. In order to separate the web
 dependent logic from the business logic I will create two separate
-packages for the Java source &ndash; web and bus. If this was an
+packages for the Java source – web and bus. If this was an
 application for a real company I would name the packages something
 like com.mycompany.web and com.mycompany.bus, but since this is just
 a demo application I will keep the package names real short. The
-Product class is implemented as a JavaBean &ndash; ith has the
-default constructor (automatically provided if we don't specify any
+Product class is implemented as a JavaBean – ith has the default
+constructor (automatically provided if we don't specify any
 constructors) and getters and setters for the two instance variables
 description and price. I also make it Serializable, not necessary for
 our application, but could come in handy later on if we have to pass
@@ -362,7 +367,7 @@ public class ProductManager implements Serializable {
 </TABLE>
 <P STYLE="margin-bottom: 0cm">Next, I modify the SpringappController
 to hold a reference to this ProductManager class. As you can see, it
-is now in a separate package called web &ndash; remember to move the
+is now in a separate package called web – remember to move the
 source to this new location. I also add code to have the controller
 pass some product information to the view. The getModelAndView now
 returns a Map with both the date and time and the product manager
@@ -428,12 +433,12 @@ public class SpringappController implements Controller {
 </TABLE>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><B>Step 17 &ndash; Modify the view to
+<P STYLE="margin-bottom: 0cm"><B>Step 17 – Modify the view to
 display business data and add support for message bundle</B></P>
 <P STYLE="margin-bottom: 0cm">Using the JSTL &lt;c:forEach&gt; tag, I
 add a section that displays product information. I have also replaced
 the title, heading and greeting text with a JSTL &lt;fmt:message&gt;
-tag that pulls the text to display from a provided 'message' source &ndash;
+tag that pulls the text to display from a provided 'message' source –
 I will show this source in a later step. 
 </P>
 <TABLE WIDTH=90% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
@@ -465,14 +470,14 @@ I will show this source in a later step.
 </TABLE>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><B>Step 18 &ndash; Add some test data
-to automatically populate some business objects</B></P>
+<P STYLE="margin-bottom: 0cm"><B>Step 18 – Add some test data to
+automatically populate some business objects</B></P>
 <P STYLE="margin-bottom: 0cm; font-weight: medium">I am not going to
 add any code to load the business objects from a database just yet.
-Instead, we can &ldquo;wire up&rdquo; a couple of instances using
-Spring's bean and application context support. I will simply put the
-data I need as a couple of bean entries in springapp-servlet.xml. I
-will also add the messageSource entry that will pull in the messages
+Instead, we can “wire up” a couple of instances using Spring's
+bean and application context support. I will simply put the data I
+need as a couple of bean entries in springapp-servlet.xml. I will
+also add the messageSource entry that will pull in the messages
 resource bundle ('messages.properties') that I will create in the
 next step.</P>
 <TABLE WIDTH=939 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
@@ -485,8 +490,8 @@ next step.</P>
 	</TR>
 	<TR>
 		<TD WIDTH=929 VALIGN=TOP BGCOLOR="#ffffcc">
-			<PRE>&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+			<PRE>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans.dtd&quot;&gt;
 
 &lt;!--
   - Application context definition for &quot;springapp&quot; DispatcherServlet.
@@ -550,8 +555,8 @@ next step.</P>
 </P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><B>Step 19 &ndash; Add the message
-bundle and a 'clean' target to build.xml</B></P>
+<P STYLE="margin-bottom: 0cm"><B>Step 19 – Add the message bundle
+and a 'clean' target to build.xml</B></P>
 <P STYLE="margin-bottom: 0cm">I create a 'messages.properties' file
 in the war/WEB-INF/classes directory. This properties budle so far
 has three entries matching the keys specified in the &lt;fmt:message&gt;
@@ -606,7 +611,7 @@ and you should see the following:</P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm"><A HREF="Spring-MVC-step-by-step.html" TARGET="_self">Back</A>
-<A HREF="Spring-MVC-step-by-step-Part-3.html" TARGET="_self">Part 3 &ndash;
+<A HREF="Spring-MVC-step-by-step-Part-3.html" TARGET="_self">Part 3 –
 Adding Unit Tests and a Form to the Application</A></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
