@@ -330,8 +330,58 @@ public class AopProxyTests extends TestCase {
 	}
 	
 	
+	public void testReplaceArgument() throws Throwable {
+		TestBean tb = new TestBean();
+		ProxyFactory pc = new ProxyFactory(new Class[] { ITestBean.class });
+		pc.addMethodPointcut(new StringSetterNullReplacementPointcut());
+		pc.addInterceptor(new InvokerInterceptor(tb));
 	
-	public void testDynamicMethodPointcut() throws Throwable {
+		ITestBean t = (ITestBean) pc.getProxy();
+		int newAge = 5;
+		t.setAge(newAge);
+		assertTrue(t.getAge() == newAge);
+		String newName = "greg";
+		t.setName(newName);
+		assertEquals(newName, t.getName());
+		
+		t.setName(null);
+		// Null replacement magic should work
+		assertTrue(t.getName().equals(""));
+	}
+	
+	/**
+	 * Fires on setter methods that take a string. Replaces null arg
+	 * with ""
+	 */
+	public static class StringSetterNullReplacementPointcut implements DynamicMethodPointcut {
+		
+		private MethodInterceptor cleaner = new MethodInterceptor() {
+			public Object invoke(MethodInvocation mi) throws Throwable {
+				// We know it can only be invoked if there's a single parameter of type string
+				mi.setArgument(0, "");
+				return mi.proceed();
+			}
+		};
+		
+		public boolean applies(Method m, Object[] args, AttributeRegistry attributeRegistry) {
+			return args[0] == null;
+		}
+
+		public boolean applies(Method m, AttributeRegistry attributeRegistry) {
+			return m.getName().startsWith("set") &&
+				m.getParameterTypes().length == 1 &&
+				m.getParameterTypes()[0].equals(String.class);
+		}
+
+		public MethodInterceptor getInterceptor() {
+			return this.cleaner;
+		}
+
+}
+	
+	
+	
+	public void testDynamicMethodPointcutThatAlwaysAppliesStatically() throws Throwable {
 		TestBean tb = new TestBean();
 		ProxyFactory pc = new ProxyFactory(new Class[] { ITestBean.class });
 		TestDynamicPointcut dp = new TestDynamicPointcut(new DebugInterceptor(), "getAge");
@@ -345,6 +395,27 @@ public class AopProxyTests extends TestCase {
 		assertEquals(it.getAge(), 11);
 		assertEquals(dp.count, 2);
 	}
+	
+	public void testDynamicMethodPointcutThatAppliesStaticallyOnlyToSetters() throws Throwable {
+		TestBean tb = new TestBean();
+		ProxyFactory pc = new ProxyFactory(new Class[] { ITestBean.class });
+		// Could apply dynamically to getAge/setAge but not to getName
+		TestDynamicPointcut dp = new TestDynamicPointcutForSettersOnly(new DebugInterceptor(), "Age");
+		pc.addMethodPointcut(dp);
+		pc.addInterceptor(new InvokerInterceptor(tb));
+		ITestBean it = (ITestBean) pc.getProxy();
+		assertEquals(dp.count, 0);
+		int age = it.getAge();
+		// Statically vetoed
+		assertEquals(0, dp.count);
+		it.setAge(11);
+		assertEquals(it.getAge(), 11);
+		assertEquals(dp.count, 1);
+		// Applies statically but not dynamically
+		it.setName("joe");
+		assertEquals(dp.count, 1);
+	}
+	
 	
 	public void testStaticMethodPointcut() throws Throwable {
 		TestBean tb = new TestBean();
@@ -375,12 +446,28 @@ public class AopProxyTests extends TestCase {
 		/**
 		 * @see com.interface21.aop.framework.DynamicMethodPointcut#applies(java.lang.reflect.Method, java.lang.Object[], org.aopalliance.AttributeRegistry)
 		 */
-		public boolean applies(MethodInvocation mi) {
-			boolean run = mi.getMethod().getName().indexOf(pattern) != -1;
+		public boolean applies(Method m, Object[] args, AttributeRegistry attributeRegistry) {
+			boolean run = m.getName().indexOf(pattern) != -1;
 			if (run) ++count;
 			return run;
 		}
 
+		/**
+		 * @see com.interface21.aop.framework.DynamicMethodPointcut#couldApply(java.lang.reflect.Method, org.aopalliance.intercept.AttributeRegistry)
+		 */
+		public boolean applies(Method m, AttributeRegistry attributeRegistry) {
+			return true;
+		}
+	}
+	
+	private static class TestDynamicPointcutForSettersOnly extends TestDynamicPointcut {
+		public TestDynamicPointcutForSettersOnly(MethodInterceptor mi, String pattern) {
+			super(mi, pattern);
+		}
+		
+		public boolean applies(Method m, AttributeRegistry attributeRegistry) {
+			return m.getName().startsWith("set");
+		}
 	}
 	
 	private static class TestStaticPointcut extends AbstractMethodPointcut implements StaticMethodPointcut {

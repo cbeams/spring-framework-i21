@@ -273,9 +273,16 @@ public class ProxyFactoryBeanTests extends TestCase {
 		}
 		
 		/** Should fire only if it returns null */
-		public boolean applies(MethodInvocation mi) {
+		public boolean applies(Method m, Object[] args, AttributeRegistry attributeRegistry) {
 			//System.out.println(mi.getMethod().getReturnType());
-			return mi.getMethod().getReturnType() == Void.TYPE;
+			return m.getReturnType() == Void.TYPE;
+		}
+
+		/**
+		 * @see com.interface21.aop.framework.DynamicMethodPointcut#couldApply(java.lang.reflect.Method, org.aopalliance.intercept.AttributeRegistry)
+		 */
+		public boolean applies(Method m, AttributeRegistry attributeRegistry) {
+			return true;
 		}
 
 	}

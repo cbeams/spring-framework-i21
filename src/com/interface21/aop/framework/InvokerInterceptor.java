@@ -1,4 +1,8 @@
-
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+ 
 package com.interface21.aop.framework;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,9 +14,10 @@ import org.aopalliance.intercept.MethodInvocation;
 /**
  * Implementation of Interceptor interface that 
  * invokes a local target object using reflection.
- * This is always a final interceptor. It's the only interceptor in the ****
- * 
+ * This should always be the last interceptor in the chain.
+ * It does not invoke proceed() on the MethodInvocation. 
  * @author Rod Johnson
+ * @version $Id$
  */
 public class InvokerInterceptor implements MethodInterceptor, ProxyInterceptor {
 
@@ -47,7 +52,6 @@ public class InvokerInterceptor implements MethodInterceptor, ProxyInterceptor {
 		// Use reflection to invoke the method
 		try {
 			Object rval = invocation.getMethod().invoke(this.target, invocation.getArguments());
-//			if (rval == null OR VOID OR this
 			return rval;
 		}
 		catch (InvocationTargetException ex) {

@@ -5,7 +5,9 @@
  
 package com.interface21.aop.framework;
 
-import org.aopalliance.intercept.MethodInvocation;
+import java.lang.reflect.Method;
+
+import org.aopalliance.intercept.AttributeRegistry;
 
 /**
  * Interface to be implemented by objects that can cause
@@ -21,7 +23,7 @@ import org.aopalliance.intercept.MethodInvocation;
  * @since 03-Apr-2003
  * @version $Id$
  */
-public interface DynamicMethodPointcut extends MethodPointcut {
+public interface DynamicMethodPointcut extends StaticMethodPointcut {
 
 	/**
 	 * Should the interceptor be invoked?
@@ -33,6 +35,6 @@ public interface DynamicMethodPointcut extends MethodPointcut {
 	 * @return boolean whether the interceptor referenced
 	 * by this object should be invoked
 	 */
-	boolean applies(MethodInvocation invocation);
+	boolean applies(Method m, Object[] arguments, AttributeRegistry attributeRegistry);
 	
 }
