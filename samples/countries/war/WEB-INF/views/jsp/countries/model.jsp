@@ -6,7 +6,7 @@
     <title><fmt:message key="${htitle}"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <c:set var="css"><i21:theme code="css"/></c:set>
-    <link rel="stylesheet" href="<c:url value="${css}"/>" type="text/css">
+    <c:if test="${not empty css}"><link rel="stylesheet" href="<c:url value="${css}"/>" type="text/css"></c:if>
   </head>
 
   <body>
