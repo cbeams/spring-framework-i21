@@ -30,7 +30,7 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
 		this.sc = servletContext;
 		try {
 			refresh();
-			WebApplicationContextUtils.configureConfigObjects(this);
+			WebApplicationContextUtils.publishConfigObjects(this);
 		}
 		catch (ApplicationContextException ex) {
 			// TODO nest properly
@@ -38,7 +38,7 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
 		}
 		
 		// Expose as a ServletContext object
-		WebApplicationContextUtils.setAsContextAttribute(this);
+		WebApplicationContextUtils.publishWebApplicationContext(this);
 	}
 	
 

@@ -257,18 +257,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
 	 */
 	private WebApplicationContext createWebApplicationContext() throws ServletException {
 		ServletContext sc = getServletConfig().getServletContext();
-
-		WebApplicationContext parent = null;
-		try {
-			if (WebApplicationContextUtils.getWebApplicationContext(sc) != null) {
-				// retrieve preloaded parent context
-				parent = WebApplicationContextUtils.getWebApplicationContext(sc);
-			}
-			// else simply create own context without parent
-		} catch (ServletException ex) {
-			this.startupException = ex;
-			throw ex;
-		}
+		WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(sc);
 
 		String namespace = getNamespace();
 		try {

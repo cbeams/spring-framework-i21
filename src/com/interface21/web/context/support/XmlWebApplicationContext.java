@@ -37,7 +37,8 @@ import com.interface21.web.context.WebApplicationContext;
  * paths beneath the web application root. Thus, absolute paths, i.e.
  * files outside the web app root, should be accessed via "file:" URLs.
  *
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @version $Revision$
  */
 public class XmlWebApplicationContext extends AbstractXmlApplicationContext	implements WebApplicationContext {
@@ -121,9 +122,9 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 
 		if (this.namespace == null) {
 			// We're the root context
-			WebApplicationContextUtils.configureConfigObjects(this);
+			WebApplicationContextUtils.publishConfigObjects(this);
 			// Expose as a ServletContext object
-			WebApplicationContextUtils.setAsContextAttribute(this);
+			WebApplicationContextUtils.publishWebApplicationContext(this);
 		}	
 	}
 
