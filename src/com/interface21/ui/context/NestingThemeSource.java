@@ -1,7 +1,5 @@
 package com.interface21.ui.context;
 
-import com.interface21.context.MessageSource;
-
 /**
  * Subinterface of ThemeSource to be implemented by objects that
  * can resolve messages hierarchically.

@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.interface21.context.support.ResourceBundleMessageSource;
-import com.interface21.context.MessageSource;
 import com.interface21.ui.context.NestingThemeSource;
 import com.interface21.ui.context.Theme;
 import com.interface21.ui.context.ThemeSource;
