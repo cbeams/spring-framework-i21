@@ -65,7 +65,7 @@
 		<javac destdir="${build.dir}"
 			debug="${debug}"
 			deprecation="false" optimize="false"
-			failonerror="false"
+			failonerror="true"
 			>
 			<src path="${src.dir}"/>
 
@@ -80,7 +80,7 @@
 	-->
 	<target name="full" depends="build">
 
-		<jar jarfile="${spring-full.jar}">
+		<jar jarfile="${dist.dir}/${spring-full.jar}">
 			<fileset dir="${build.dir}">
 				<include name="com/interface21/**"/>
 			</fileset>
