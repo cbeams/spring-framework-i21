@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Simple target -->
+	<bean id="test" class="com.interface21.beans.TestBean">	
+		<property name="name"><value>custom</value></property>
+		<property name="age"><value>666</value></property>
+	</bean>
+	
+	
+	
+	<!--
+		Check that invoker is automatically added to wrap target.
+		Non pointcut bean name should be wrapped in invoker.
+	-->
+	<bean id="test1" 
+			class="com.interface21.aop.auto.ServicedComponentFactory"
+	>	
+		<!-- 
+			Aspect interfaces don't need to be included here.
+			They may, for example, be added by global interceptors.
+		 -->
+		 <!--
+		<property name="proxyInterfaces"><value>com.interface21.beans.ITestBean</value></property>		
+		-->
+		
+		<!--
+			Note that "test" is a target. An InvokerInterceptor
+			will be added automatically.
+		-->
+		<property name="target"><ref bean="test"/></property>
+		
+	</bean>
+	
+
+</beans>		
+	
+	

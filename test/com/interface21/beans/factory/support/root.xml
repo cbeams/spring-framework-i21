@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="defaultAttributeRegistry" class="com.interface21.aop.attributes.MapAttributeRegistry">	
+	
+	</bean>
+	
+	
+	<bean id="counterAttributeScanner"
+		 class="com.interface21.aop.auto.CounterAttributeScanner">	
+	
+	</bean>
+	
+	<!-- Overridden by next factory -->
+	<bean id="test" class="com.interface21.beans.TestBean">	
+		<property name="name"><value>custom</value></property>
+		<property name="age"><value>25</value></property>
+	</bean>
+
+</beans>		
+	
+	
