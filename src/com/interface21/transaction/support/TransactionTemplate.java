@@ -66,29 +66,6 @@ public class TransactionTemplate extends DefaultTransactionDefinition {
 	}
 
 	/**
-	 * Create a new TransactionTemplate instance.
-	 * @param transactionManager transaction manager to be used
-	 * @param propagationBehavior default propagation behavior
-	 * @see PlatformTransactionManager
-	 */
-	public TransactionTemplate(PlatformTransactionManager transactionManager, int propagationBehavior) {
-		super(propagationBehavior);
-		this.transactionManager = transactionManager;
-	}
-
-	/**
-	 * Create a new TransactionTemplate instance.
-	 * @param transactionManager transaction manager to be used
-	 * @param propagationBehavior default propagation behavior
-	 * @param isolationLevel default isolation level
-	 * @see PlatformTransactionManager
-	 */
-	public TransactionTemplate(PlatformTransactionManager transactionManager, int propagationBehavior, int isolationLevel) {
-		super(propagationBehavior, isolationLevel);
-		this.transactionManager = transactionManager;
-	}
-
-	/**
 	 * Set the transaction manager to be used.
 	 */
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {

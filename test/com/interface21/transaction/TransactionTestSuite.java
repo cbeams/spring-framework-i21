@@ -72,9 +72,11 @@ public class TransactionTestSuite extends TestCase {
 	public void testNonTransactionalExecution() {
 		AbstractPlatformTransactionManager tm = new TestTransactionManager(false, false);
 		tm.setAllowNonTransactionalExecution(true);
+		assertTrue("Correctly allowed non-transaction execution", tm.getAllowNonTransactionalExecution());
 		try {
 			TransactionStatus status = tm.getTransaction(null);
 			assertTrue("Must not have transaction", status.getTransaction() == null);
+			tm.rollback(status);
 		}
 		catch (NoTransactionException ex) {
 			fail("Should not have thrown NoTransactionException");
@@ -182,6 +184,34 @@ public class TransactionTestSuite extends TestCase {
 			assertTrue("triggered rollback", tm.rollback);
 			assertTrue("no rollbackOnly", !tm.rollbackOnly);
 		}
+	}
+
+	public void testTransactionTemplateInitialization() {
+		TestTransactionManager tm = new TestTransactionManager(false, true);
+		TransactionTemplate template = new TransactionTemplate();
+		template.setTransactionManager(tm);
+		assertTrue("correct transaction manager set", template.getTransactionManager() == tm);
+
+		try {
+			template.setIsolationLevelName("TIMEOUT_DEFAULT");
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException ex) {
+			// expected
+		}
+		template.setIsolationLevelName("ISOLATION_SERIALIZABLE");
+		assertTrue("Correct isolation level set", template.getIsolationLevel() == TransactionDefinition.ISOLATION_SERIALIZABLE);
+
+		try {
+			template.setPropagationBehaviorName("TIMEOUT_DEFAULT");
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException ex) {
+			// expected
+		}
+		template.setPropagationBehaviorName("PROPAGATION_SUPPORTS");
+		assertTrue("Correct propagation behavior set", template.getPropagationBehavior() == TransactionDefinition.PROPAGATION_SUPPORTS);
+
 	}
 
 	public void testDataSourceTransactionManagerWithSingleConnection() throws Exception {
@@ -382,7 +412,7 @@ public class TransactionTestSuite extends TestCase {
 		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 		try {
 			tt.execute(new TransactionCallbackWithoutResult() {
-				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					// something transactional
 				}
 			});
@@ -422,7 +452,7 @@ public class TransactionTestSuite extends TestCase {
 		TransactionTemplate tt = new TransactionTemplate(tm);
 		tt.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
 		tt.execute(new TransactionCallbackWithoutResult() {
-			protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+			protected void doInTransactionWithoutResult(TransactionStatus status) {
 				// something transactional
 			}
 		});
@@ -446,7 +476,7 @@ public class TransactionTestSuite extends TestCase {
 		TransactionTemplate tt = new TransactionTemplate(tm);
 		try {
 			tt.execute(new TransactionCallbackWithoutResult() {
-				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					// something transactional
 				}
 			});
@@ -481,7 +511,7 @@ public class TransactionTestSuite extends TestCase {
 		TransactionTemplate tt = new TransactionTemplate(tm);
 		try {
 			tt.execute(new TransactionCallbackWithoutResult() {
-				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					// something transactional
 				}
 			});
