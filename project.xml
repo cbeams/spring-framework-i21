@@ -68,6 +68,23 @@
          </roles>
       </developer>
       <developer>
+         <name>Jurgen Hoeller</name>
+         <id>jhoeller</id>
+         <email>jhoeller at users.sourceforge.net</email>
+         <roles>
+            <role>Project Admin</role>         
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Alef Arendsen</name>
+         <id>aarendsen</id>
+         <email>aarendsen at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
          <name>Yann Caroff</name>
          <id>caroffy</id>
          <email>caroffy at users.sourceforge.net</email>
@@ -84,6 +101,30 @@
          </roles>
       </developer>
       <developer>
+         <name>Tony Falabella</name>
+         <id>tony_falabella</id>
+         <email>tony_falabella at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Dmitriy Kopylenko</name>
+         <id>dkopylenko</id>
+         <email>dkopylenko at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Ken Krebs</name>
+         <id>kktec</id>
+         <email>kktec at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
          <name>Isabelle Muszynski</name>
          <id>isabellem</id>
          <email>isabellem at users.sourceforge.net</email>
@@ -92,21 +133,13 @@
          </roles>
       </developer>
       <developer>
-         <name>Jurgen Hoeller</name>
-         <id>jhoeller</id>
-         <email>jhoeller at users.sourceforge.net</email>
+         <name>Jean-Pierre Pawlak</name>
+         <id>pawlakjp</id>
+         <email>pawlakjp at users.sourceforge.net</email>
          <roles>
             <role>Developer</role>
          </roles>
-      </developer>
-      <developer>
-         <name>Tony Falabella</name>
-         <id>tony_falabella</id>
-         <email>tony_falabella at users.sourceforge.net</email>
-         <roles>
-            <role>Developer</role>
-         </roles>
-      </developer>
+      </developer>      
       <developer>
          <name>Thomas Risberg</name>
          <id>trisberg</id>
@@ -128,9 +161,10 @@
 
    <!-- jar files the project is dependent on -->
    <dependencies>
-      <!-- J2EE classes. With the exception of servletapi, these are not available from the Maven online repository
-         Due to licensing restrictions and must be manually added.
-      -->
+      <!-- 
+       | J2EE classes. With the exception of servletapi, these are not available from the Maven online repository
+       | due to licensing restrictions and must be manually added.
+       -->
       <dependency>
          <id>servletapi</id>
          <version>2.3</version>
@@ -244,7 +278,8 @@
          <version>1.3-dev</version>
       </dependency>
       
-      <!-- these jars are not at http://www.ibiblio.org/maven, so must be manually added to the local repository
+      <!-- 
+       | these jars are not currently at http://www.ibiblio.org/maven, so must be manually added to the local repository
       for the time being -->
       <dependency>
          <id>attrib4j</id>
