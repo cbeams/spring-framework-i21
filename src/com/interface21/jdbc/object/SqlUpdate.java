@@ -147,7 +147,7 @@ public class SqlUpdate extends SqlOperation {
 		}
 		
 		if (requiredRowsAffected != 0 && rowsAffected != requiredRowsAffected) {
-			throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(getSql(), rowsAffected, requiredRowsAffected);
+			throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(getSql(), requiredRowsAffected, rowsAffected);
 		}
 
 		logger.info(rowsAffected + " rows affected by SQL update [" + getSql() + "]");
