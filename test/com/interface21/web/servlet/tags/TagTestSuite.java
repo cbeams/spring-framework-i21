@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 
 import com.interface21.beans.TestBean;
 import com.interface21.validation.BindException;
+import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.web.mock.MockHttpServletRequest;
 import com.interface21.web.mock.MockServletContext;
 import com.interface21.web.servlet.DispatcherServlet;
@@ -103,7 +104,7 @@ public class TagTestSuite extends TestCase {
 
 	public void testBindErrorsTagWithErrors() throws JspException {
 		MockPageContext pc = createPageContext();
-		BindException errors = new BindException(new TestBean(), "tb");
+		ServletRequestDataBinder errors = new ServletRequestDataBinder(new TestBean(), "tb");
 		errors.reject("test", null, "test");
 		pc.getRequest().setAttribute(BindException.ERROR_KEY_PREFIX + "tb", errors);
 		BindErrorsTag tag = new BindErrorsTag();
@@ -115,7 +116,7 @@ public class TagTestSuite extends TestCase {
 
 	public void testBindErrorsTagWithoutErrors() throws JspException {
 		MockPageContext pc = createPageContext();
-		BindException errors = new BindException(new TestBean(), "tb");
+		ServletRequestDataBinder errors = new ServletRequestDataBinder(new TestBean(), "tb");
 		pc.getRequest().setAttribute(BindException.ERROR_KEY_PREFIX + "tb", errors);
 		BindErrorsTag tag = new BindErrorsTag();
 		tag.setPageContext(pc);
@@ -140,7 +141,7 @@ public class TagTestSuite extends TestCase {
 
 	public void testBindTagWithoutErrors() throws JspException {
 		MockPageContext pc = createPageContext();
-		BindException errors = new BindException(new TestBean(), "tb");
+		ServletRequestDataBinder errors = new ServletRequestDataBinder(new TestBean(), "tb");
 		pc.getRequest().setAttribute(BindException.ERROR_KEY_PREFIX + "tb", errors);
 		BindTag tag = new BindTag();
 		tag.setPageContext(pc);
@@ -161,7 +162,7 @@ public class TagTestSuite extends TestCase {
 
 	public void testBindTagWithGlobalErrors() throws JspException {
 		MockPageContext pc = createPageContext();
-		BindException errors = new BindException(new TestBean(), "tb");
+		ServletRequestDataBinder errors = new ServletRequestDataBinder(new TestBean(), "tb");
 		errors.reject("code1", null, "message1");
 		pc.getRequest().setAttribute(BindException.ERROR_KEY_PREFIX + "tb", errors);
 		BindTag tag = new BindTag();
@@ -185,9 +186,9 @@ public class TagTestSuite extends TestCase {
 		MockPageContext pc = createPageContext();
 		TestBean tb = new TestBean();
 		tb.setName("name1");
-		BindException errors = new BindException(tb, "tb");
-		errors.rejectValue("name", "code1", null, "message & 1");
-		errors.rejectValue("name", "code2", null, "message2");
+		ServletRequestDataBinder errors = new ServletRequestDataBinder(tb, "tb");
+		errors.rejectValue("name", "code1", "message & 1");
+		errors.rejectValue("name", "code2", "message2");
 		pc.getRequest().setAttribute(BindException.ERROR_KEY_PREFIX + "tb", errors);
 		BindTag tag = new BindTag();
 		tag.setPageContext(pc);
@@ -205,6 +206,33 @@ public class TagTestSuite extends TestCase {
 		assertTrue("Correct errorCode", "code1".equals(status.getErrorCode()));
 		assertTrue("Correct errorMessage", "message &amp; 1".equals(status.getErrorMessage()));
 		assertTrue("Correct errorMessagesAsString", "message &amp; 1 - message2".equals(status.getErrorMessagesAsString(" - ")));
+	}
+
+	public void testBindTagWithNestedFieldErrors() throws JspException {
+		MockPageContext pc = createPageContext();
+		TestBean tb = new TestBean();
+		tb.setName("name1");
+		TestBean spouse = new TestBean();
+		spouse.setName("name2");
+		tb.setSpouse(spouse);
+		ServletRequestDataBinder errors = new ServletRequestDataBinder(tb, "tb");
+		errors.rejectValue("spouse.name", "code1", "message1");
+		pc.getRequest().setAttribute(BindException.ERROR_KEY_PREFIX + "tb", errors);
+		BindTag tag = new BindTag();
+		tag.setPageContext(pc);
+		tag.setPath("tb.spouse.name");
+		assertTrue("Correct doStartTag return value", tag.doStartTag() == Tag.EVAL_BODY_INCLUDE);
+		BindStatus status = (BindStatus) pc.getAttribute(BindTag.STATUS_VARIABLE_NAME);
+		assertTrue("Has status variable", status != null);
+		assertTrue("Correct expression", "spouse.name".equals(status.getExpression()));
+		assertTrue("Correct value", "name2".equals(status.getValue()));
+		assertTrue("Correct displayValue", "name2".equals(status.getDisplayValue()));
+		assertTrue("Correct isError", status.isError());
+		assertTrue("Correct errorCodes", status.getErrorCodes().length == 1);
+		assertTrue("Correct errorMessages", status.getErrorMessages().length == 1);
+		assertTrue("Correct errorCode", "code1".equals(status.getErrorCode()));
+		assertTrue("Correct errorMessage", "message1".equals(status.getErrorMessage()));
+		assertTrue("Correct errorMessagesAsString", "message1".equals(status.getErrorMessagesAsString(" - ")));
 	}
 
 	public void testPropertyExposing() throws JspException {
