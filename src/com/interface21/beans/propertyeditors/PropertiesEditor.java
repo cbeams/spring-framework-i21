@@ -117,7 +117,7 @@ public class PropertiesEditor extends PropertyEditorSupport {
 		}
 		for (int i = 0; i < commentKeys.size(); i++) {
 			String key = (String) commentKeys.get(i);
-			System.out.println("Removed comment " + commentKeys.get(i));
+			//System.out.println("Removed comment " + commentKeys.get(i));
 			props.remove(key);
 		}
 	}
