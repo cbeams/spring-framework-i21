@@ -18,19 +18,20 @@ import com.interface21.web.servlet.theme.SessionThemeResolver;
 public class ThemeResolverTestSuite extends TestCase {
 
 	private static final String TEST_THEME_NAME = "test.theme";
+	private static final String DEFAULT_TEST_THEME_NAME = "default.theme";
 
 	public ThemeResolverTestSuite(String name) {
 		super(name);
 	}
 
-	private void internalTest(ThemeResolver themeResolver, boolean shouldSet) {
+	private void internalTest(ThemeResolver themeResolver, boolean shouldSet, String defaultName) {
 		// create mocks
 		MockServletContext context = new MockServletContext();
 		MockHttpServletRequest request = new MockHttpServletRequest(context, "GET", "/test");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		// check original theme
 		String themeName = themeResolver.resolveThemeName(request);
-		assertEquals(themeName, AbstractThemeResolver.DEFAULT_THEME);
+		assertEquals(themeName, defaultName);
 		// set new theme name
 		try {
 			themeResolver.setThemeName(request, response, TEST_THEME_NAME);
@@ -39,6 +40,9 @@ public class ThemeResolverTestSuite extends TestCase {
 			// check new theme namelocale
 			themeName = themeResolver.resolveThemeName(request);
 			assertEquals(themeName, TEST_THEME_NAME);
+			themeResolver.setThemeName(request, response, null);
+			themeName = themeResolver.resolveThemeName(request);
+			assertEquals(themeName, defaultName);
 		} catch (IllegalArgumentException ex) {
 			if (shouldSet)
 				fail("should be able to set Theme name");
@@ -46,14 +50,20 @@ public class ThemeResolverTestSuite extends TestCase {
 	}
 
 	public void testFixedThemeResolver() {
-		internalTest(new FixedThemeResolver(), false);
+		internalTest(new FixedThemeResolver(), false, AbstractThemeResolver.DEFAULT_THEME);
 	}
 
 	public void testCookieThemeResolver() {
-		internalTest(new CookieThemeResolver(), true);
+		internalTest(new CookieThemeResolver(), true, AbstractThemeResolver.DEFAULT_THEME);
 	}
 
 	public void testSessionThemeResolver() {
-		internalTest(new SessionThemeResolver(), true);
+		internalTest(new SessionThemeResolver(), true,AbstractThemeResolver.DEFAULT_THEME);
+	}
+
+	public void testSessionThemeResolverWithDefault() {
+		SessionThemeResolver tr = new SessionThemeResolver();
+		tr.setDefaultThemeName(DEFAULT_TEST_THEME_NAME);
+		internalTest(tr, true, DEFAULT_TEST_THEME_NAME);
 	}
 }
