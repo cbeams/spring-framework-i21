@@ -62,19 +62,26 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				return new TransactionStatus(transaction, false);
 			}
 			if (propagationBehavior == PROPAGATION_MANDATORY) {
-				throw new NoTransactionException("No existing transaction context");
+				throw new NoTransactionException("Transaction propagation mandatory but no existing transaction context");
 			}
 			if (propagationBehavior == PROPAGATION_REQUIRED) {
 				// create new transaction
 				doBegin(transaction, isolationLevel);
 				return new TransactionStatus(transaction, true);
 			}
-		} catch (CannotCreateTransactionException ex) {
+		}
+		catch (CannotCreateTransactionException ex) {
 			// throw exception if transactional execution required
-			if (!this.allowNonTransactionalExecution)
+			if (!this.allowNonTransactionalExecution) {
+				logger.error(ex.getMessage());
 				throw ex;
+			}
 			// else non-transactional execution
-			logger.info("Transaction support is not available: falling back to non-transactional execution");
+			logger.warn("Transaction support is not available: falling back to non-transactional execution", ex);
+		}
+		catch (TransactionException ex) {
+			logger.error(ex.getMessage());
+			throw ex;
 		}
 		// empty (-> "no") transaction
 		return new TransactionStatus(null, false);
@@ -86,12 +93,18 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * Delegates to doCommit and rollback.
 	 */
 	public final void commit(TransactionStatus status) throws TransactionException {
-		if (status.isRollbackOnly()) {
-			logger.debug("Transactional code has requested rollback");
-			rollback(status);
+		try {
+			if (status.isRollbackOnly()) {
+				logger.debug("Transactional code has requested rollback");
+				rollback(status);
+			}
+			else if (status.isNewTransaction()) {
+				doCommit(status);
+			}
 		}
-		else if (status.isNewTransaction()) {
-			doCommit(status);
+		catch (TransactionException ex) {
+			logger.error(ex.getMessage());
+			throw ex;
 		}
 	}
 
@@ -100,13 +113,19 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * and non-transactional execution. Delegates to doRollback and doSetRollbackOnly.
 	 */
 	public final void rollback(TransactionStatus status) throws TransactionException {
-		if (status.isNewTransaction()) {
-			doRollback(status);
-		} else if (status.getTransaction() != null) {
-			doSetRollbackOnly(status);
-		} else {
-			// no transaction support available
-			logger.info("Should roll back transaction but cannot - no transaction support available");
+		try {
+			if (status.isNewTransaction()) {
+				doRollback(status);
+			} else if (status.getTransaction() != null) {
+				doSetRollbackOnly(status);
+			} else {
+				// no transaction support available
+				logger.info("Should roll back transaction but cannot - no transaction support available");
+			}
+		}
+		catch (TransactionException ex) {
+			logger.error(ex.getMessage());
+			throw ex;
 		}
 	}
 

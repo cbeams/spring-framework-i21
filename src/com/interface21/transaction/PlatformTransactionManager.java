@@ -11,11 +11,16 @@ import com.interface21.transaction.*;
 
 /**
  * SPI interface.
- * @author Rod Johnson, Juergen Hoeller
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @since 16-Mar-2003
  * @version $Revision$
  */
 public interface PlatformTransactionManager {
+
+	String PROPAGATION_CONSTANT_PREFIX = "PROPAGATION";
+	
+	String ISOLATION_CONSTANT_PREFIX = "ISOLATION";
 
 	/**
 	 * Support a current transaction, create a new one if none exists.
