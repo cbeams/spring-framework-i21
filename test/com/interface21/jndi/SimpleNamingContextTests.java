@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.naming.Binding;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -154,6 +155,45 @@ public class SimpleNamingContextTests extends TestCase {
 		}
 		assertTrue("Correct DataSource registered", DriverManagerDataSource.class.getName().equals(pairMap.get("myds")));
 		assertTrue("Correct DataSource registered", DriverManagerDataSource.class.getName().equals(pairMap.get("mydsX")));
+	}
+	
+	/**
+	 * Demonstrates how emptyActivatedContextBuilder() method can be
+	 * used repeatedly, and how it affects creating a new InitialContext()
+	 * @throws Exception
+	 */
+	public void testCreateInitialContext() throws Exception {
+		SimpleNamingContextBuilder builder = SimpleNamingContextBuilder.emptyActivatedContextBuilder();
+		String name = "foo";
+		Object o = new Object();
+		builder.bind(name, o);
+		// Check it affects JNDI
+		Context ctx = new InitialContext();
+		assertTrue(ctx.lookup(name) == o);
+		// Check it returns mutable contexts
+		ctx.unbind(name);
+		try {
+			ctx = new InitialContext();
+			ctx.lookup(name);
+			fail();
+		}
+		catch (NamingException ex) {
+			// Ok
+		}
+		
+		// Check the same call will work again, but the context is empty
+		builder = SimpleNamingContextBuilder.emptyActivatedContextBuilder();
+		try {
+			ctx = new InitialContext();
+			ctx.lookup(name);
+			fail();
+		}
+		catch (NamingException ex) {
+			// Ok
+		}
+		Object o2 = new Object();
+		builder.bind(name, o2);
+		assertEquals(ctx.lookup(name), o2);
 	}
 
 }

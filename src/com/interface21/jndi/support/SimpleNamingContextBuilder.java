@@ -1,3 +1,8 @@
+/*
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
+ */
+
 package com.interface21.jndi.support;
 
 import java.util.Hashtable;
@@ -16,7 +21,11 @@ import com.interface21.jndi.support.SimpleNamingContext;
 /**
  * Simple implementation of a JNDI naming context builder.
  *
- * <p>Mainly targetted at test environments, but also usable for standalone
+ * <p>Mainly targeted at test environments, where each test case can
+ * configure JNDI appropriately, so that new InitialContext() will
+ * expose the required objects. 
+ * <p>
+ * This context is also usable for standalone
  * applications. Typically used for binding a JDBC DataSource to a well-known JNDI
  * location, to be able to use J2EE data access code outside of a J2EE container.
  *
@@ -34,22 +43,56 @@ import com.interface21.jndi.support.SimpleNamingContext;
  * builder.bind("java:comp/env/jdbc/myds", ds);<br>
  * builder.activate();
  * </code>
+ * 
+ * Note that it's impossible to create and active multiple builders within the same
+ * JVM, due to JNDI restrictions. Thus to get and configure a new builder repeatedly, try:
+ * <code>
+ * SimpleNamingContextBuilder builder = SimpleNamingContextBuilder.emptyActivatedContextBuilder();
+ * DataSource ds = new DriverManagerDataSource(...);<br>
+ * builder.bind("java:comp/env/jdbc/myds", ds);<br>
+ * </code>
+ * Note that you <i>should not</i> call activate() on a context from this
+ * static factory method, as this will already have been done and JNDI
+ * lets us do it only once.
  *
  * <p>An instance of this class is only necessary at setup time.
  * An application does not need to keep it after activation.
  *
  * @author Juergen Hoeller
+ * @author Rod Johnson
  * @see #bind
  * @see #activate
  * @see SimpleNamingContext
  * @see com.interface21.jdbc.datasource.SingleConnectionDataSource
  * @see com.interface21.jdbc.datasource.DriverManagerDataSource
+ * @version $Id$
  */
 public class SimpleNamingContextBuilder implements InitialContextFactoryBuilder {
+	
+	/** Any instance of this class bound to JNDI. */
+	private static SimpleNamingContextBuilder activated;
 
 	private final Log logger = LogFactory.getLog(getClass());
+	
+	/**
+	 * If no SimpleNamingContextBuilder is already configuring JNDI, create and activate one.
+	 * Otherwise take the existing activate SimpleNamingContextBuilder, clear it and return it
+	 * @return SimpleNamingContextBuilder an empty SimpleNamingContextBuilder that can be used
+	 * to control the results of using JNDI
+	 */
+	public static SimpleNamingContextBuilder emptyActivatedContextBuilder() throws NamingException {
+		if (activated != null) {
+			activated.boundObjects.clear();
+			return activated;
+		}
+		else {
+			SimpleNamingContextBuilder builder = new SimpleNamingContextBuilder();
+			builder.activate();
+			return builder;
+		}
+	}
 
-	private Hashtable boundObjects = new Hashtable();
+	private Hashtable boundObjects = new Hashtable(); 
 
 	/**
 	 * Bind the given object under the given name, for all naming contexts
@@ -64,12 +107,21 @@ public class SimpleNamingContextBuilder implements InitialContextFactoryBuilder 
 
 	/**
 	 * Register the context builder by registering it with the JNDI NamingManager.
-	 * @throws javax.naming.NamingException if there's already a naming context builder
+	 * Note that once this has been done, new InitialContext() will always return
+	 * a context from this factory. Use the emptyActivatedContextBuilder() static
+	 * method to get an empty context (for example, in test methods).
+	 * @throws IllegalStateException if there's already a naming context builder
 	 * registered with the JNDI NamingManager
 	 */
-	public void activate() throws NamingException {
-		logger.info("Activating simple JNDI environment");
-		NamingManager.setInitialContextFactoryBuilder(this);
+	public void activate() throws IllegalStateException, NamingException {
+		if (activated == null) {
+			logger.info("Activating simple JNDI environment");
+			NamingManager.setInitialContextFactoryBuilder(this);
+			activated = this;
+		}
+		else {
+			throw new IllegalStateException("Cannot create and activate a SimpleNamingContextBuilder if one has already been activate (JNDI restriction)");
+		}
 	}
 
 	/**
