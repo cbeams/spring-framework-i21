@@ -1,7 +1,8 @@
 package com.interface21.transaction;
 
 /**
- * @author jho
+ * Exception thrown when a general transaction system error is encountered.
+ * @author Juergen Hoeller
  * @since 24.03.2003
  */
 public class TransactionSystemException extends TransactionException {

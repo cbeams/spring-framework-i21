@@ -15,7 +15,7 @@ import com.interface21.web.util.WebUtils;
  * in case of a custom setting, with a fallback to the accept header locale.
  * This is especially useful for stateless applications without user sessions.
  *
- * Custom controllers can thus override the user's locale by calling setLocale,
+ * <p>Custom controllers can thus override the user's locale by calling setLocale,
  * e.g. responding to a certain locale change request.
  *
  * @author Juergen Hoeller

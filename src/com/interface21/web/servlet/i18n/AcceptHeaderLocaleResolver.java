@@ -10,9 +10,9 @@ import com.interface21.web.servlet.LocaleResolver;
 /**
  * Implementation of LocaleResolver that simply uses the primary locale
  * specified in the "accept-language" header of the HTTP request
- * (i.e., the locale sent by the client browser, normally that of the client's OS)
+ * (i.e., the locale sent by the client browser, normally that of the client's OS).
  *
- * Note: Does not support setLocale, because the accept header cannot be changed.
+ * <p>Note: Does not support setLocale, because the accept header cannot be changed.
  *
  * @author Juergen Hoeller
  * @since 27.02.2003

@@ -17,17 +17,17 @@ import java.util.List;
  * Interface to be implemented by objects that can store
  * and expose information about data binding errors.
  * <br>Errors objects are single-threaded.
- * @author Rod Johnson
+ * @author Rod Johnson, Juergen Hoeller
  */
 public interface Errors {
 
 	/**
-	 * @return the name of the bound object
+	 * Return the name of the bound object
 	 */
 	String getObjectName();
 
 	/**
-	 * Rejects the current object, using the given error description.
+	 * Reject the current object, using the given error description.
 	 * @param errorCode  the error code, interpretable as message key
 	 * @param errorArgs  the error arguments, for argument binding via MessageFormat
 	 * @param defaultMessage  the fallback default message
@@ -35,7 +35,7 @@ public interface Errors {
 	void reject(String errorCode, Object[] errorArgs, String defaultMessage);
 
 	/**
-	 * Rejects the given field of the current object, using the given error description.
+	 * Reject the given field of the current object, using the given error description.
 	 * @param field  the name of the field
 	 * @param errorCode  the error code, interpretable as message key
 	 * @param errorArgs  the error arguments, for argument binding via MessageFormat
@@ -44,70 +44,72 @@ public interface Errors {
 	void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage);
 
 	/**
-	 * @return if there were any errors
+	 * Return if there were any errors.
 	 */
 	boolean hasErrors();
 
 	/**
-	 * @return the number of errors
+	 * Return the total number of errors.
 	 */
 	int getErrorCount();
 
 	/**
-	 * Gets all errors, both global and field ones.
+	 * Get all errors, both global and field ones.
 	 * @return List of ObjectError instances
 	 */
 	List getAllErrors();
 
 	/**
-	 * @return if there were any global errors (i.e. not field-specific)
+	 * Return if there were any global (i.e. not field-specific) errors.
 	 */
 	boolean hasGlobalErrors();
 
 	/**
-	 * @return the number of global errors
+	 * Return the number of global (i.e. not field-specific) errors.
 	 */
 	int getGlobalErrorCount();
 
 	/**
-	 * Gets all global errors.
+	 * Get all global errors.
 	 * @return List of ObjectError instances
 	 */
 	List getGlobalErrors();
 
 	/**
-	 * Gets the first global error, if any.
+	 * Get the first global error, if any.
 	 * @return the global error, or null
 	 */
 	ObjectError getGlobalError();
 
 	/**
+	 * Return if there are any errors associated with the given field.
 	 * @param field  the field name
 	 * @return if there were any errors associated with the given field
 	 */
 	boolean hasFieldErrors(String field);
 
 	/**
+	 * Return the number of errors associated with the given field.
 	 * @param field  the field name
 	 * @return the number of errors associated with the given field
 	 */
 	int getFieldErrorCount(String field);
 
 	/**
-	 * Gets all errors associated with the given field.
+	 * Get all errors associated with the given field.
 	 * @param field  the field name
 	 * @return List of FieldError instances
 	 */
 	List getFieldErrors(String field);
 
 	/**
-	 * Gets the first error associated with the given field, if any.
+	 * Get the first error associated with the given field, if any.
 	 * @return the field-specific error, or null
 	 */
 	FieldError getFieldError(String field);
 
 	/**
-	 * Returns the current value of the given field, or a rejected update value
+	 * Return the current value of the given field, or a rejected update value
 	 * value from the last binding, if any. Allows for convenient access to
 	 * user-specified field values, even if there were type mismatches.
 	 * @param field  the field name
@@ -116,11 +118,12 @@ public interface Errors {
 	Object getPropertyValueOrRejectedUpdate(String field);
 
 	/**
-	 * Allows context to be changed so that standard validators can validate subtrees.
+	 * Allow context to be changed so that standard validators can validate subtrees.
 	 * Reject calls prepend the given nested path to the field names.
 	 * E.g. an address validator could validate the subobject address of a user object.
 	 * @param nestedPath  nested path within this object, e.g. "address"
 	 * (defaults to "", null is also acceptable)
 	 */
 	void setNestedPath(String nestedPath);
+
 }
