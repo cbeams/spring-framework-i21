@@ -9,6 +9,7 @@ import javax.servlet.ServletRequest;
 import org.apache.log4j.Logger;
 
 import com.interface21.context.NoSuchMessageException;
+import com.interface21.context.MessageSourceResolvable;
 import com.interface21.validation.Errors;
 import com.interface21.validation.BindException;
 import com.interface21.web.bind.EscapedErrors;
@@ -66,11 +67,12 @@ public abstract class RequestContextUtils {
 	 * Resolves the given message code using the current WebApplicationContext.
 	 * @param request  the request to retrieve the WebApplicationContext from
 	 * @param code  the code of the message
+	 * @param args  the arguments for the message, or null if none
 	 * @param htmlEscape  HTML escape the message?
 	 * @return the message
 	 */
-	public static String getMessage(ServletRequest request, String code, boolean htmlEscape) throws ServletException, NoSuchMessageException {
-		String msg = getWebApplicationContext(request).getMessage(code, null, getLocale(request));
+	public static String getMessage(ServletRequest request, String code, Object[] args, boolean htmlEscape) throws ServletException, NoSuchMessageException {
+		String msg = getWebApplicationContext(request).getMessage(code, args, getLocale(request));
 		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
 	}
 
@@ -78,10 +80,33 @@ public abstract class RequestContextUtils {
 	 * Resolves the given message code using the current WebApplicationContext.
 	 * @param request  the request to retrieve the WebApplicationContext from
 	 * @param code  the code of the message
+	 * @param args  the arguments for the message, or null if none
 	 * @return the message
 	 */
-	public static String getMessage(ServletRequest request, String code) throws ServletException, NoSuchMessageException {
-		return getMessage(request, code, false);
+	public static String getMessage(ServletRequest request, String code, Object[] args) throws ServletException, NoSuchMessageException {
+		return getMessage(request, code, args, false);
+	}
+
+	/**
+	 * Resolves the given message code using the current WebApplicationContext.
+	 * @param request  the request to retrieve the WebApplicationContext from
+	 * @param resolvable  the MessageSourceResolvable
+	 * @param htmlEscape  HTML escape the message?
+	 * @return the message
+	 */
+	public static String getMessage(ServletRequest request, MessageSourceResolvable resolvable, boolean htmlEscape) throws ServletException, NoSuchMessageException {
+		String msg = getWebApplicationContext(request).getMessage(resolvable, getLocale(request));
+		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
+	}
+
+	/**
+	 * Resolves the given message code using the current WebApplicationContext.
+	 * @param request  the request to retrieve the WebApplicationContext from
+	 * @param resolvable  the MessageSourceResolvable
+	 * @return the message
+	 */
+	public static String getMessage(ServletRequest request, MessageSourceResolvable resolvable) throws ServletException, NoSuchMessageException {
+		return getMessage(request, resolvable, false);
 	}
 
 	/**

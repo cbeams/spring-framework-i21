@@ -8,6 +8,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletException;
 
 import com.interface21.context.NoSuchMessageException;
+import com.interface21.context.MessageSourceResolvable;
 import com.interface21.validation.Errors;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.util.HtmlUtils;
@@ -73,11 +74,12 @@ public class RequestContext {
 	/**
 	 * Retrieves the message for the given code.
 	 * @param code  the code of the message
+	 * @param args  the arguments for the message, or null if none
 	 * @param htmlEscape  HTML escape the message?
 	 * @return the message
 	 */
-	public String getMessage(String code, boolean htmlEscape) throws NoSuchMessageException {
-		String msg = webApplicationContext.getMessage(code, null, locale);
+	public String getMessage(String code, Object[] args, boolean htmlEscape) throws NoSuchMessageException {
+		String msg = webApplicationContext.getMessage(code, args, locale);
 		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
 	}
 
@@ -85,10 +87,32 @@ public class RequestContext {
 	 * Retrieves the message for the given code,
 	 * using the defaultHtmlEscape setting.
 	 * @param code  the code of the message
+	 * @param args  the arguments for the message, or null if none
 	 * @return the message
 	 */
-	public String getMessage(String code) throws NoSuchMessageException {
-		return getMessage(code, defaultHtmlEscape);
+	public String getMessage(String code, Object[] args) throws NoSuchMessageException {
+		return getMessage(code, args, defaultHtmlEscape);
+	}
+
+	/**
+	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance).
+	 * @param resolvable  the MessageSourceResolvable
+	 * @param htmlEscape  HTML escape the message?
+	 * @return the message
+	 */
+	public String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
+		String msg = webApplicationContext.getMessage(resolvable, locale);
+		return (htmlEscape ? HtmlUtils.htmlEscape(msg) : msg);
+	}
+
+	/**
+	 * Retrieves the given MessageSourceResolvable (e.g. an ObjectError instance),
+	 * using the defaultHtmlEscape setting.
+	 * @param resolvable  the MessageSourceResolvable
+	 * @return the message
+	 */
+	public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
+		return getMessage(resolvable, defaultHtmlEscape);
 	}
 
 	/**
