@@ -26,13 +26,16 @@
 	<property file="build.properties"/>
 
 	<path id="master-classpath">
+
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar"/>
 		</fileset>
+
 	</path>
 
 
 	<target name="usage">
+
 		<echo message=""/>
 		<echo message="${name} build file"/>
 		<echo message=" Clover excludes: ${clover.excludes}"/>
@@ -43,21 +46,26 @@
 		<echo message="all    --> create all JAR files"/>
 		<echo message="build    --> build all; don't create JARs"/>
 		<echo message=" "/>
-	</target>
 
-
-	<!-- Delete all binaries and generated distribution units -->
-	<target name="clean" description="Cleans ALL output dirs (build, dist, test, clover)">
-		<delete dir="${build.dir}"/>
-		<delete dir="${dist.dir}"/>
-		<delete dir="${testbuild.dir}"/>
-		<delete dir="${clover.build.dir}"/>
 	</target>
 
 
 	<!--
-	    Compile main source tree
+		Delete all binaries and generated distribution units.
 	-->
+	<target name="clean" description="Cleans ALL output dirs (build, dist, test, clover)">
+
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+		<delete dir="${testbuild.dir}"/>
+		<delete dir="${clover.build.dir}"/>
+
+	</target>
+
+
+	<!--
+		Compile main source tree.
+  -->
 	<target name="build" description="Compile main source tree java files into class files (no-jarring)">
 
 		<mkdir dir="${build.dir}"/>
@@ -75,17 +83,18 @@
 	</target>
 
 
-	<target name="initdist">
+	<!--
+		Initialize the distribition directory.
+  -->
+	<target name="initdist" description="Initialize the distribition directory.">
 
 		<mkdir dir="${dist.dir}"/>
 
 	</target>
 
 
-	<!--
-	    Build one big JAR.
-	-->
-	<target name="full" depends="build,initdist" description="Build one big jar file containing main source tree class files">
+	<!-- Build one big JAR -->
+	<target name="full" depends="build,initdist" description="Build one big jar file containing main source tree class files.">
 
 		<jar jarfile="${dist.dir}/${spring-full.jar}">
 			<fileset dir="${build.dir}">
@@ -96,10 +105,7 @@
 	</target>
 
 
-	<!--
-	    Create the core JAR file. JDBC and other JAR files
-	    depend on this.
-	-->
+	<!-- Create the core JAR file -->
 	<target name="core" depends="build,initdist" description="Create the core JAR file. JDBC and other JAR files depend on this.">
 
 		<!-- We inherit this property from calling ant script -->
@@ -129,11 +135,12 @@
 			</fileset>
 
 		</jar>
+
 	</target>
 
 
 	<!--
-	    Create the XML Bean implementation JAR file.
+		Create the XML Bean implementation JAR file.
 	-->
 	<target name="xmlbean" depends="build,initdist" description="Create the XML Bean implementation JAR file.">
 
@@ -149,8 +156,7 @@
 
 
 	<!--
-	    Create JDBC distribution.
-	    Depends on core JAR.
+		Create JDBC distribution. Depends on core and XML Bean JARs.
 	-->
 	<target name="jdbc" depends="build,initdist" description="Create the JDBC distribution JAR file.">
 
@@ -161,12 +167,13 @@
 				<include name="com/interface21/jdbc/**"/>
 			</fileset>
 		</jar>
+
 	</target>
 
 
 	<!--
-	    Create the EJB implementation JAR file.
-	-->
+		Create the EJB implementation JAR file.
+  -->
 	<target name="ejbimpl" depends="build,initdist" description="Create the EJB distribution JAR file.">
 
 		<!-- We inherit this property from calling ant script -->
@@ -209,23 +216,26 @@
 
 			</fileset>
 		</jar>
+
 	</target>
 
 
 	<!--
-	    Build all Jar files
+		Build all JAR files.
+		Note: Contained classes overlap, e.g. spring-full contains everything.
 	-->
 	<target name="all" depends="full,core,xmlbean,jdbc,ejbimpl,web" description="Create all JAR files."/>
 
 
-	<!-- Create Javadoc -->
+	<!--
+		Create Javadocs.
+	-->
 	<target name="javadoc" description="Generate framework Javadocs.">
 
 		<delete dir="${docs.dir}"/>
 		<mkdir dir="${docs.dir}"/>
 
-		<!--<javadoc packagenames="com.interface21.beans.*,com.interface21.web.context.*,com.interface21.web.servlet.*,com.interface21.web.servlet.mvc,com.interface21.util,com.interface21.jndi,com.interface21.core"-->
-		<javadoc packagenames="com.interface21.*" additionalparam="-breakiterator"
+		<javadoc packagenames="com.interface21.*"
 			sourcepath="src"
 			defaultexcludes="yes"
 			destdir="${docs.dir}"
@@ -241,10 +251,13 @@
 
 
 	<target name="checkstyle" description="Runs the checkstyle optional task to check for adherence to coding conventions">
+
 		<taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask"/>
+
 		<checkstyle failureProperty="checkstyle.failure" failOnViolation="false" properties="checkstyleConventions.properties">
 			<fileset dir="${src.dir}" includes="com/interface21/beans/BeanWrapperImpl.java"/>
 		</checkstyle>
+
 	</target>
 
 
@@ -263,7 +276,6 @@
 			<exclude name="**/jta/**"/>
 
 			<!-- Will pull in dependencies as required  -->
-
 			<classpath refid="master-classpath"/>
 			<classpath location="${build.dir}"/>
 
@@ -308,7 +320,9 @@
 					/>
 
 			</batchtest>
+
 		</junit>
+
 	</target>
 
 
@@ -359,25 +373,30 @@
 
 
 	<!--
-		Run Clover tests and bring up Swing coverage viewer
+		Run Clover tests and bring up Swing coverage viewer.
 	-->
 	<target name="clover.swing" depends="clover.tests" description="Run Clover tests and bring up Swing coverage viewer.">
+
 		<echo>Launching coverage viewer</echo>
+
 		<java classname="com.cortexeb.tools.clover.reporters.jfc.Viewer" fork="yes">
 			<arg value="${clover.initstring}"/>
 			<classpath refid="master-classpath"/>
 		</java>
+
 	</target>
 
 
 	<!--
-		Generate Clover HTML coverage reports from an existing Clover database
+		Generate Clover HTML coverage reports from an existing Clover database.
 	-->
 	<target name="clover.html" description="Generate Clover HTML coverage reports from an existing Clover database.">
+
 		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
 			<arg line="-o ${clover.html.outdir} -i ${clover.initstring} -t 'clover demo'"/>
 			<classpath refid="master-classpath"/>
 		</java>
+
 	</target>
 
 </project>
