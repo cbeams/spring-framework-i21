@@ -51,10 +51,10 @@ import com.interface21.web.servlet.ModelAndView;
  *
  * <p>In session form mode, a submission without an existing form object in the
  * session is considered invalid, like in case of a resubmit/reload by the browser.
- * The handleInvalidSubmit method is invoked then, showing a new form by default.
- * It can be overridden in subclasses to show respective messages or redirect to
- * some other view. This behavior can be leveraged to avoid duplicate submissions:
- * The form object in the session can be regarded as a transaction token.
+ * The handleInvalidSubmit method is invoked then, trying a resubmit by default.
+ * It can be overridden in subclasses to show respective messages or redirect to a
+ * new form, in order to avoid duplicate submissions. The form object in the session
+ * can be considered a transaction token in this case.
  * 
  * <p>Note that views should never retrieve form beans from the session but always
  * from the request, as prepared by the form controller. Remember that some view
@@ -296,18 +296,26 @@ public abstract class AbstractFormController extends BaseCommandController {
 	/**
 	 * Handle an invalid submit request, e.g. when in session form mode but no form object
 	 * was found in the session (like in case of an invalid resubmit by the browser).
-	 * <p>Default implementation simply shows a new form. If the new form should be
-	 * populated with the resubmitted values, set bindOnNewForm to true.
+	 * <p>Default implementation simply tries to resubmit the form with a new form object.
+	 * This should also work if the user hit the back button, changed some form data,
+	 * and resubmitted the form.
+	 * <p>Note: To avoid duplicate submissions, you need to override this method.
+	 * Either show some "invalid submit" message, or call showNewForm for resetting the
+	 * form (prepopulating it with the current values if "bindOnNewForm" is true).
+	 * In this case, the form object in the session serves as transaction token.
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @return a prepared view, or null if handled directly
 	 * @throws ServletException in case of invalid state
 	 * @throws IOException in case of I/O errors
+	 * @see #showNewForm
 	 * @see #setBindOnNewForm
 	 */
 	protected ModelAndView handleInvalidSubmit(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException {
-		return showNewForm(request, response);
+		Object command = formBackingObject(request);
+		ServletRequestDataBinder errors = bindAndValidate(request, command);
+		return processSubmit(request, response, command, errors);
 	}
 
 	/**
