@@ -89,7 +89,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 
 		try {
 			listableBeanFactory = new XmlBeanFactory(doc, getParent());
-			logger.info("**** BeanFactory for application config is [" + listableBeanFactory + "]");
+			logger.info("BeanFactory for application config is [" + listableBeanFactory + "]");
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			String mesg = "Cannot load configuration from: missing bean definition [" + ex.getBeanName() + "]";
@@ -114,11 +114,9 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 	/**
 	 * Open and return the input stream for the bean factory for this namespace. 
 	 * If namespace is null, return the input stream for the default bean factory.
-	 * @throw IOException if the required XML document isn't found
+	 * @exception IOException if the required XML document isn't found
 	 */
 	protected abstract InputStream getInputStreamForBeanFactory() throws IOException;
-		
-	
 	
 }	// class AbstractXMLApplicationContext
  
