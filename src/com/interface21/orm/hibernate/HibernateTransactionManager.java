@@ -43,9 +43,10 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * this instance needs to be aware of the DataSource (see setDataSource).
  * Note that the same JDBC Connection will be used for the Hibernate
  * Session then: The Hibernate configuration does not need to specify an
- * own connection provider, avoiding config duplication. The same
- * SessionFactory/DataSource needs to be used in data access code too,
- * i.e. passed to HibernateTemplate or SessionFactoryUtils.
+ * own connection provider, avoiding config duplication. The same DataSource
+ * needs to be passed to HibernateTemplate or SessionFactoryUtils too then.
+ * The DataSource can also just be used for exporting a transaction to
+ * plain JDBC code, via setting "useDataSourceForExportOnly" to true.
  *
  * <p>JTA resp. JtaTransactionManager is necessary for accessing multiple
  * transactional resources. The DataSource that Hibernate uses needs to be
@@ -53,8 +54,8 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * connector can to be used for direct container integration. Normally,
  * Hibernate JTA setup is somewhat container-specific due to the JTA
  * TransactionManager lookup, required for proper transactional handling of
- * the JVM-level cache. Using the JCA Connector can solve this but involves
- * classloading issues and container-specific connector deployment.
+ * the JVM-level read-write cache. Using the JCA Connector can solve this but
+ * involves classloading issues and container-specific connector deployment.
  *
  * <p>Fortunately, there is an easier way with Spring: SessionFactoryUtils'
  * close and thus HibernateTemplate register synchronizations with
@@ -70,7 +71,6 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * @see SessionFactoryUtils#getSession
  * @see SessionFactoryUtils#closeSessionIfNecessary
  * @see HibernateTemplate#execute
- * @see #setDataSource
  * @see com.interface21.jdbc.datasource.DataSourceTransactionManager
  * @see com.interface21.jdbc.datasource.DataSourceUtils#getConnection
  */
@@ -79,6 +79,8 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	private SessionFactory sessionFactory;
 
 	private DataSource dataSource;
+
+	private boolean useDataSourceForExportOnly = false;
 
 	/**
 	 * Create a new HibernateTransactionManager instance.
@@ -102,14 +104,14 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	/**
 	 * Set the SessionFactory that this instance should manage transactions for.
 	 */
-	public void setSessionFactory(SessionFactory sessionFactory) {
+	public final void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
 	/**
 	 * Return the SessionFactory that this instance should manage transactions for.
 	 */
-	public SessionFactory getSessionFactory() {
+	public final SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
 
@@ -117,6 +119,12 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	 * Set the JDBC DataSource that this instance should manage transactions for.
    * A Connection from this DataSource will be provided to both the Hibernate
 	 * Session and to application code accessing this DataSource directly.
+	 * <p>Note that by default, this DataSource overrides any connection provider
+	 * in the Hibernate configuration. Thus, the same DataSource should be passed
+	 * to any HibernateTemplate or SessionFactoryUtils, to avoid inconsistencies.
+	 * The Hibernate configuration shouldn't specify a connection provider then,
+	 * to force the use of user-provided, i.e. Spring-provided, connections.
+	 * @see #setUseDataSourceForExportOnly
 	 */
 	public final void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -125,8 +133,23 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 	/**
 	 * Return the JDBC DataSource that this instance manages transactions for.
 	 */
-	public DataSource getDataSource() {
+	public final DataSource getDataSource() {
 		return dataSource;
+	}
+
+	/**
+	 * Set if the specified DataSource should be used for exporting a Hibernate
+	 * transaction's JDBC Connection only. Else, the DataSource will also be used
+	 * for Hibernate Session creation, overriding any connection provider in the
+	 * Hibernate configuration. The latter is default.
+	 * <p>Warning: At least up until Hibernate 2.0.1, user-provided connections
+	 * effectively disable JVM-level read-write caching. So if you'd like to
+	 * simply export the transaction to plain JDBC access code, specify a JNDI
+	 * DataSource in both the Hibernate configuration and the Spring context,
+	 * and set this flag to true.
+	 */
+	public void setUseDataSourceForExportOnly(boolean useDataSourceForExportOnly) {
+		this.useDataSourceForExportOnly = useDataSourceForExportOnly;
 	}
 
 	public void afterPropertiesSet() {
@@ -143,7 +166,8 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		}
 		else {
 			logger.debug("Opening new Session for Hibernate transaction");
-			Session session = SessionFactoryUtils.getSession(this.sessionFactory, this.dataSource, true);
+			Session session = SessionFactoryUtils.getSession(this.sessionFactory,
+			                                                 (!this.useDataSourceForExportOnly ? this.dataSource : null), true);
 			return new HibernateTransactionObject(new SessionHolder(session), true);
 		}
 	}
@@ -263,7 +287,8 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			if (txObject.isNewSessionHolder()) {
 				logger.debug("Closing Hibernate session after transaction");
 				try {
-					SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(), this.sessionFactory, this.dataSource);
+					SessionFactoryUtils.closeSessionIfNecessary(txObject.getSessionHolder().getSession(),
+					                                            this.sessionFactory, (!this.useDataSourceForExportOnly ? this.dataSource : null));
 				}
 				catch (CleanupFailureDataAccessException ex) {
 					// just log it, to keep a transaction-related exception
