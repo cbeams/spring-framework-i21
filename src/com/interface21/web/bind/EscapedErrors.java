@@ -31,6 +31,9 @@ public class EscapedErrors implements Errors {
 	 * Create a new EscapedErrors instance for the given source instance.
 	 */
 	public EscapedErrors(Errors source) {
+		if (source == null) {
+			throw new IllegalArgumentException("Cannot wrap a null instance");
+		}
 		this.source = source;
 	}
 
