@@ -7,7 +7,9 @@
  * class using or derived from this code. 
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
- */
+ *
+ * 09/05/2003 : modified by Jean-Pierre Pawlak, added nextLongValue
+*/
 
 package com.interface21.jdbc.object;
 
@@ -33,9 +35,12 @@ import com.interface21.jdbc.util.JdbcUtils;
  * threadsafe.
  * @author Rod Johnson
  * @author Isabelle Muszynski
+ * @author Jean-Pierre Pawlak
  * History :
  * 20/04/2003 : modified by IM to allow returning something else than an int
+ * 09/05/2003 : modified by JPP, added case Types.BIGINT in function extract
  */
+
 public class SqlFunction extends ManualExtractionSqlQuery {
 	
     /**
@@ -136,6 +141,9 @@ public class SqlFunction extends ManualExtractionSqlQuery {
 	case Types.VARCHAR:
 	    obj = new String(rs.getString(1));
 	    break;
+	case Types.BIGINT :
+		obj = new Long(rs.getLong(1));
+		break;
 	default:
 	    obj = rs.getObject(1);
 	    break;

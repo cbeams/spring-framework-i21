@@ -9,11 +9,13 @@ import com.interface21.jdbc.core.DataFieldMaxValueIncrementer;
  * Subclasses should provide implementations of protected abstract methods
  * @author <a href="mailto:dkopylenko@acs.rutgers.edu>Dmitriy Kopylenko</a>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
+ * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
  * @version $Id$
  *
  * History 
  * 17/04/2003 : donated to Spring by Dmitriy Kopylenko
  * 19/04/2003 : modified by Isabelle Muszynski, added nextDoubleValue
+ * 09/05/2003 : modified by JPP, added nextLongValue
  */
 public abstract class AbstractDataFieldMaxValueIncrementer 
     implements DataFieldMaxValueIncrementer {
@@ -26,6 +28,14 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	return incrementIntValue();
     }
 	
+	/**
+	 * Template method
+	 * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextLongValue
+	 */
+	public final long nextLongValue() throws DataAccessException {
+	return incrementLongValue();
+	}
+
     /**
      * Template method
      * @see com.interface21.jdbc.core.DataFieldMaxValueIncrementer#nextDOubleValue
@@ -50,6 +60,9 @@ public abstract class AbstractDataFieldMaxValueIncrementer
 	if (int.class.getName().equals(keyClass.getName()) || 
 	    Integer.class.getName().equals(keyClass.getName()))
 	    return new Integer(incrementIntValue());
+	else if (long.class.getName().equals(keyClass.getName()) || 
+		Long.class.getName().equals(keyClass.getName()))
+		return new Long(incrementLongValue());
 	else if (double.class.getName().equals(keyClass.getName()) || 
 	    Double.class.getName().equals(keyClass.getName()))
 	    return new Double(incrementDoubleValue());

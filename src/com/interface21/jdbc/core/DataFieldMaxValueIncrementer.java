@@ -9,11 +9,13 @@ import com.interface21.dao.DataAccessException;
  * RDBMS SQL and/or Stored Procedures to do the job.
  * @author <a href="mailto:dkopylenko@acs.rutgers.edu>Dmitriy Kopylenko</a>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
+ * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
  * @version 1.0
  *
  * History 
  * 17/04/2003 : donated to Spring by Dmitriy Kopylenko
  * 19/04/2003 : modified by Isabelle Muszynski, added nextDoubleValue
+ * 09/05/2003 : modified by JPP, added nextLongValue
  */
 public interface DataFieldMaxValueIncrementer {
 	
@@ -23,6 +25,13 @@ public interface DataFieldMaxValueIncrementer {
      * @throws DataAccessException
      */
     int nextIntValue() throws DataAccessException;
+
+	/**
+	 * Increments data store field's max value as long
+	 * @return int next data store value such as <b>max + 1</b>
+	 * @throws DataAccessException
+	 */
+	long nextLongValue() throws DataAccessException;
 	
     /**
      * Increments data store field's max value as double
