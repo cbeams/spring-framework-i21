@@ -193,7 +193,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#find(String)
 	 */
-	public List find(final String query) {
+	public List find(final String query) throws DataAccessException {
 		return (List) execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				return session.find(query);
@@ -211,7 +211,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#find(String)
 	 */
-	public List find(final String query, final Object value, final Type type) {
+	public List find(final String query, final Object value, final Type type) throws DataAccessException {
 		return (List) execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				return session.find(query, value, type);
@@ -229,7 +229,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#find(String)
 	 */
-	public List find(final String query, final Object[] values, final Type[] types) {
+	public List find(final String query, final Object[] values, final Type[] types) throws DataAccessException {
 		return (List) execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				return session.find(query, values, types);
@@ -273,10 +273,44 @@ public class HibernateTemplate implements InitializingBean {
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#saveOrUpdate(Object)
 	 */
-	public void saveOrUpdate(final Object entity) {
+	public void saveOrUpdate(final Object entity) throws DataAccessException {
 		execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				session.saveOrUpdate(entity);
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Save the given persistent instance.
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.save.
+	 * @param entity the persistent instance to save resp. update
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#saveOrUpdate(Object)
+	 */
+	public void save(final Object entity) throws DataAccessException {
+		execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				session.save(entity);
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Update the given persistent instance.
+	 * <p>This is a convenience method for single step actions,
+	 * mirroring Session.update.
+	 * @param entity the persistent instance to save resp. update
+	 * @throws DataAccessException in case of Hibernate errors
+	 * @see net.sf.hibernate.Session#saveOrUpdate(Object)
+	 */
+	public void update(final Object entity) throws DataAccessException {
+		execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				session.update(entity);
 				return null;
 			}
 		});
@@ -290,7 +324,7 @@ public class HibernateTemplate implements InitializingBean {
 	 * @throws DataAccessException in case of Hibernate errors
 	 * @see net.sf.hibernate.Session#delete(Object)
 	 */
-	public void delete(final Object entity) {
+	public void delete(final Object entity) throws DataAccessException {
 		execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				session.delete(entity);
