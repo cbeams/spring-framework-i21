@@ -134,6 +134,14 @@ July 2003</i>
 
 <p>PicoContainer's main advantage is that it doesn't need any meta data like an XML application context definition. As this basic design strategy leads to the above mentioned severe limitations, we consider it very questionable. Using very simple XML meta data, Spring offers a significantly more flexible and powerful infrastructure that achieves similar goals.
 
+<p><b>P.S. [24-07-2003]</b>
+
+<p>PicoContainer features a bean-style component factory now, as of 1.0 alpha-2. This can remedy some of the issues that we've mentioned, although PicoContainer still focuses on the constructor-based approach in all of its documentation.
+
+<p>Note that the first and most important issue still applies: There is no notion of a specific instance for a given type. We consider passing a reference to a specific instance a very important feature for wiring up applications, which necessarily involves some kind of configuration like in an XML file (Spring makes this pluggable). PicoContainer sacrifices this to be able to adhere to its configuration-less "Type 3 IoC" dogma.
+
+<p>Finally, regarding the argument that constructor-based "Type 3 IoC" cannot miss any dependencies: Why should every component need to receive instances for all possible dependencies and parameters? A bean-based approach, aka "Type 2 IoC", allows for optional dependencies without any hassle. We consider such flexibility more important than to avoid missing dependencies at any cost.
+
 
 <p><h3>Resources</h3>
 
