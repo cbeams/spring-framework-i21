@@ -10,12 +10,11 @@ import junit.framework.TestSuite;
 /**
  *
  * @author Rod Johnson
- * @version $RevisionId$
+ * @version $Id$
  */
 public class StringUtilsTestSuite extends TestCase { 
 
 
-	/** Creates new SeatingPlanTest */
 	public StringUtilsTestSuite(String name) {
 		super(name);
 	}
@@ -40,30 +39,6 @@ public class StringUtilsTestSuite extends TestCase {
 		assertTrue("found substring=2", StringUtils.countOccurrencesOf(s, "oiu")==2);
 		assertTrue("found substring=3", StringUtils.countOccurrencesOf(s, "oiur")==1);
 		assertTrue("test last", StringUtils.countOccurrencesOf(s, "r")==2);
-	}
-
-	public void countParameterPlaceholders() {
-		
-		assertTrue("null string returns 0", StringUtils.countParameterPlaceholders(null, '\0', '\0') == 0);
-		assertTrue("null marker returns 0", StringUtils.countParameterPlaceholders("woof",'\0', '\'') == 0);
-		assertTrue("null delimiter returns 0", StringUtils.countParameterPlaceholders("woof", '?', '\0') == 0);
-		try {
-		    StringUtils.countParameterPlaceholders("The big bad wolf ate 'RedCap", '?', '\'');
-		    fail("Should have raised an IllegalArgumentException : string not properly delimited");
-	
-		} catch (IllegalArgumentException success) {}
-		try {
-		    StringUtils.countParameterPlaceholders("'The big bad wolf ate 'Red''Cap", '?', '\'');
-		    fail("Should have raised an IllegalArgumentException : string not properly delimited");
-	
-		} catch (IllegalArgumentException success) {}
-		String s = "The big ? bad wolf ate ?? RedCap ?";
-		assertTrue("count should be 2", StringUtils.countParameterPlaceholders(
-		                            "The big ? bad wolf ate ?? RedCap ? ", '?', '\'') == 2);
-		assertTrue("count should be 2", StringUtils.countParameterPlaceholders(
-		                            "The big ? bad wolf ate ' ? ' RedCap ?", '?', '\'') == 2);
-		assertTrue("count should be 1", StringUtils.countParameterPlaceholders(
-		                            "select * from tab where a=? and b='?''?'", '?', '\'') == 1);
 	}
 
 	public void testCommaDelimitedListToStringArrayNullProducesEmptyArray() {

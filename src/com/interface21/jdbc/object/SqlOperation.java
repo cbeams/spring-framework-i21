@@ -15,7 +15,7 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.JdbcTemplate;
 import com.interface21.jdbc.core.PreparedStatementCreator;
 import com.interface21.jdbc.core.PreparedStatementCreatorFactory;
-import com.interface21.util.StringUtils;
+import com.interface21.jdbc.util.JdbcUtils;
 
 /** 
  * RdbmsOperation using a JdbcTemplate and representing a SQL-based
@@ -80,7 +80,7 @@ public abstract class SqlOperation extends RdbmsOperation {
 		// Validate parameter count
 		int bindVarCount = 0;
 		try {
-		    bindVarCount = StringUtils.countParameterPlaceholders(getSql(), '?', '\'');
+		    bindVarCount = JdbcUtils.countParameterPlaceholders(getSql(), '?', '\'');
 		}
 		catch(IllegalArgumentException e) {
 		    // Transform jdbc-agnostic error to data-access error
