@@ -25,12 +25,14 @@ import java.beans.VetoableChangeSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.interface21.beans.propertyeditors.ClassEditor;
+import com.interface21.beans.propertyeditors.LocaleEditor;
 import com.interface21.beans.propertyeditors.PropertiesEditor;
 import com.interface21.beans.propertyeditors.PropertyValuesEditor;
 import com.interface21.beans.propertyeditors.StringArrayPropertyEditor;
@@ -55,7 +57,7 @@ import com.interface21.beans.propertyeditors.StringArrayPropertyEditor;
  * custom editor before using a BeanWrapperImpl instance, or call the instance's
  * registerCustomEditor method to register an editor for the particular instance.
  *
- * @author  Rod Johnson
+ * @author Rod Johnson
  * @since 15 April 2001
  * @version $Revision$
  * @see #registerCustomEditor
@@ -77,6 +79,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 		PropertyEditorManager.registerEditor(PropertyValues.class, PropertyValuesEditor.class);
 		PropertyEditorManager.registerEditor(Properties.class, PropertiesEditor.class);
 		PropertyEditorManager.registerEditor(Class.class, ClassEditor.class);
+		PropertyEditorManager.registerEditor(Locale.class, LocaleEditor.class);
 
 		// Register all editors in our standard package
 		PropertyEditorManager.setEditorSearchPath(new String[] {
@@ -146,7 +149,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * @throws BeansException if the class cannot be wrapped by a BeanWrapper
 	 */
 	public BeanWrapperImpl(Class clazz) throws BeansException {
-		cachedIntrospectionResults = CachedIntrospectionResults.forClass(clazz);
+		this.cachedIntrospectionResults = CachedIntrospectionResults.forClass(clazz);
 		setObject(BeanUtils.instantiateClass(clazz));
 	}
 
@@ -340,14 +343,12 @@ public class BeanWrapperImpl implements BeanWrapper {
 		return new PropertyChangeEvent(target, propertyName, oldValue, newValue);
 	}
 
-
 	/**
 	 * @see BeanWrapper#setPropertyValue(String, Object)
 	 */
 	public void setPropertyValue(String propertyName, Object value) throws PropertyVetoException, BeansException {
 		setPropertyValue(new PropertyValue(propertyName, value));
 	}
-
 
 	/**
 	 * Is the property nested? That is, does it contain the nested
@@ -799,6 +800,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	//---------------------------------------------------------------------
 	// Diagnostics
 	//---------------------------------------------------------------------
+
 	/**
 	 * This method is expensive! Only call for diagnostics and debugging reasons,
 	 * not in production
