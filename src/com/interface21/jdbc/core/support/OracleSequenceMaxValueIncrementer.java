@@ -1,27 +1,28 @@
 package com.interface21.jdbc.core.support;
 
-import java.sql.Types;
-
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.interface21.beans.factory.InitializingBean;
-import com.interface21.core.InternalErrorException;
 import com.interface21.jdbc.object.SqlFunction;
-import com.interface21.jdbc.util.JdbcUtils;
 
 /**
- * Class to increment maximum value of a given Oracle SEQUENCE 
- * If the sequence is created with a INCREMENT_BY value, this class
- * serves the intermediate values without querying the database
- * <br>****TODO Bug: The class has to check if the key donate by Oracle is the INITIAL_VALUE when using INCREMENT_BY.
+ * Class to retrieve the next value of a given Oracle SEQUENCE 
+ * If the cacheSize is set then we will retrive that number of values from sequence and
+*  then serve the intermediate values without querying the database
  * @author <a href="mailto:dkopylenko@acs.rutgers.edu>Dmitriy Kopylenko</a>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
  * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
+ * @author Thomas Risberg
  * @version $Id$
  */
 public class OracleSequenceMaxValueIncrementer
 	extends AbstractDataFieldMaxValueIncrementer
 	implements InitializingBean {
+
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	//-----------------------------------------------------------------
 	// Instance data
@@ -30,12 +31,13 @@ public class OracleSequenceMaxValueIncrementer
 
 	private String sequenceName;
 
-	/** The number of keys buffered in a bunch. */
-	private int incrementBy = 1;
+	/** The number of keys buffered in a cache, and the cache itself. */
+	private int cacheSize = 1;
+	private long[] valueCache = null;
 
 	/** Flag if dirty definition */
 	private boolean dirty = true;
-
+	
 	private NextMaxValueProvider nextMaxValueProvider;
 
 	//-----------------------------------------------------------------
@@ -54,9 +56,22 @@ public class OracleSequenceMaxValueIncrementer
 	 * @param seqName the sequence name to use for fetching key values
 	 */
 	public OracleSequenceMaxValueIncrementer(DataSource ds, String seqName) {
-		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.ds = ds;
 		this.sequenceName = seqName;
+		this.nextMaxValueProvider = new NextMaxValueProvider();
+	}
+
+	/**
+	 * Constructor
+	 * @param ds the datasource to use
+	 * @param seqName the sequence name to use for fetching key values
+	 * @param cacheSize the number of buffered keys
+	 **/
+	public OracleSequenceMaxValueIncrementer(DataSource ds, String seqName, int cacheSize) {
+		this.ds = ds;
+		this.sequenceName = seqName;
+		this.cacheSize = cacheSize;
+		this.nextMaxValueProvider = new NextMaxValueProvider();
 	}
 
 	/**
@@ -67,9 +82,25 @@ public class OracleSequenceMaxValueIncrementer
 	 * @param padding the length to which the string return value should be padded with zeroes
 	 */
 	public OracleSequenceMaxValueIncrementer(DataSource ds, String seqName, boolean prefixWithZero, int padding) {
-		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.ds = ds;
 		this.sequenceName = seqName;
+		this.nextMaxValueProvider = new NextMaxValueProvider();
+		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
+	}
+
+	/**
+	 * Constructor
+	 * @param ds the datasource to be used
+	 * @param seqName the sequence name to use for fetching key values
+	 * @param prefixWithZero in case of a String return value, should the string be prefixed with zeroes
+	 * @param padding the length to which the string return value should be padded with zeroes
+	 * @param cacheSize the number of buffered keys
+	 */
+	public OracleSequenceMaxValueIncrementer(DataSource ds, String seqName, boolean prefixWithZero, int padding, int cacheSize) {
+		this.ds = ds;
+		this.sequenceName = seqName;
+		this.cacheSize = cacheSize;
+		this.nextMaxValueProvider = new NextMaxValueProvider();
 		this.nextMaxValueProvider.setPrefixWithZero(prefixWithZero, padding);
 	}
 
@@ -105,47 +136,28 @@ public class OracleSequenceMaxValueIncrementer
 	// job of getting the sequence.nextVal value
 	private class NextMaxValueProvider extends AbstractNextMaxValueProvider {
 
-		/** The Sql String preparing to obtain keys from database */
-		private static final String PREPARE_INCR_SQL = "SELECT INCREMENT_BY FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = ?";
-		private static final String PREPARE_INIT_SQL = "SELECT INITIAL_VALUE FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = ?";
-
 		/** The next id to serve */
-		private long nextId = 0;
-
-		/** The max id to serve */
-		private long maxId = 0;
-
-		/** The initial value of the sequence */
-		private long initialVal = 1;
+		private int nextValueIx = -1;
 
 		protected long getNextKey(int type) {
 			if (dirty) { initPrepare(); }
-			if(maxId == nextId) {
+			if(nextValueIx < 0 || nextValueIx >= cacheSize) {
 				SqlFunction sqlf = new SqlFunction(ds, "SELECT " + sequenceName + ".NEXTVAL FROM DUAL", type);
 				sqlf.compile();
-				maxId = getLongValue(sqlf, type);
-				if (maxId == initialVal) {
-					nextId = maxId - 1;
-				} else {
-					nextId = maxId - incrementBy;
+				valueCache = new long[cacheSize];
+				nextValueIx = 0;
+				for (int i = 0; i < cacheSize; i++) {
+					valueCache[i] = getLongValue(sqlf, type);
 				}
 			}
-			nextId++;
-			return nextId;
+			if (logger.isInfoEnabled())
+				logger.info("Next sequence value is : " + valueCache[nextValueIx]);
+			return valueCache[nextValueIx++];
 		}
 	
 		private void initPrepare() {
-			/* Set the incrementBy value */
-			SqlFunction sqlf = new SqlFunction(ds, PREPARE_INCR_SQL, new int[] {Types.VARCHAR} );
-			sqlf.compile();
-			incrementBy = sqlf.run(new Object[] {sequenceName});
-			/* Set the initialVal value */
-/*			TODO Uncomment this code and test
-			sqlf = new SqlFunction(ds, PREPARE_INIT_SQL, new int[] {Types.VARCHAR}, Types.BIGINT );
-			sqlf.compile();
-			initialVal = sqlf.run(new Object[] {sequenceName});
-*/
 			/* Correct definitions are set */
+			nextValueIx = -1;
 			dirty = false; 			
 		}
 	
@@ -184,4 +196,14 @@ public class OracleSequenceMaxValueIncrementer
 		this.sequenceName = sequenceName;
 		dirty = true; 			
 	}
+
+	/**
+	 * Sets the cacheSize.
+	 * @param cacheSize The number of buffered keys
+	 */
+	public void setCacheSize(int cacheSize) {
+		this.cacheSize = cacheSize;
+		dirty = true;
+	}
+
 }
