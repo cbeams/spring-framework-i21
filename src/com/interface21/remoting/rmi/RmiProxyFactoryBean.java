@@ -7,7 +7,7 @@ import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import org.aopalliance.Invocation;
+import org.aopalliance.MethodInvocation;
 import org.aopalliance.MethodInterceptor;
 
 import com.interface21.aop.framework.ProxyFactory;
@@ -53,7 +53,7 @@ public class RmiProxyFactoryBean extends RemoteProxyFactoryBean {
 			// Create AOP interceptor wrapping source
 			ProxyFactory pf = new ProxyFactory(source);
 			pf.addInterceptor(0, new MethodInterceptor() {
-				public Object invoke(Invocation invocation) throws Throwable {
+				public Object invoke(MethodInvocation invocation) throws Throwable {
 					try {
 						return invocation.invokeNext();
 					}

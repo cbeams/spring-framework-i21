@@ -5,12 +5,11 @@ import java.net.MalformedURLException;
 
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.caucho.hessian.client.HessianRuntimeException;
-import org.aopalliance.Invocation;
+import org.aopalliance.MethodInvocation;
 import org.aopalliance.MethodInterceptor;
 
 import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.remoting.RemoteAccessException;
-import com.interface21.remoting.support.RemoteProxyFactoryBean;
 import com.interface21.remoting.support.AuthorizableRemoteProxyFactoryBean;
 
 /**
@@ -41,7 +40,7 @@ public class HessianProxyFactoryBean extends AuthorizableRemoteProxyFactoryBean 
 		// Create AOP interceptor wrapping source
 		ProxyFactory pf = new ProxyFactory(source);
 		pf.addInterceptor(0, new MethodInterceptor() {
-			public Object invoke(Invocation invocation) throws Throwable {
+			public Object invoke(MethodInvocation invocation) throws Throwable {
 				try {
 					return invocation.invokeNext();
 				}
