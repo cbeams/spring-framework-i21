@@ -22,20 +22,10 @@ import junit.framework.TestSuite;
  */
 public class BeanWrapperTestSuite extends TestCase {
 
-	/** Creates new SeatingPlanTest */
 	public BeanWrapperTestSuite(String name) {
 		super(name);
-		//Logger.getLogger(getClass().getName()).s
 	}
 
-	/** Run for each test */
-	protected void setUp() throws Exception {
-	}
-
-	protected void tearDown() {
-	}
-	
-	
 	public void testSetWrappedInstanceOfSameClass()throws Exception {
 		TestBean tb = new TestBean();
 		BeanWrapper bw = new BeanWrapperImpl(tb);
@@ -48,8 +38,7 @@ public class BeanWrapperTestSuite extends TestCase {
 		assertTrue("2nd changed", tb2.getAge()==14);
 		assertTrue("1 didn't change", tb.getAge() == 11);
 	}
-	
-	
+
 	public void testSetWrappedInstanceOfDifferentClass()throws Exception {
 		ThrowsException tex = new ThrowsException();
 		BeanWrapper bw = new BeanWrapperImpl(tex);
@@ -79,22 +68,6 @@ public class BeanWrapperTestSuite extends TestCase {
 		}
 		catch (BeansException ex) {
 			fail("Shouldn't throw exception when everything is valid");
-		}
-	}
-	
-	
-	/**
-	 * Bean with a getter
-	 */
-	public static class GetterBean {
-		private String name;
-		public void setName(String name) {
-			this.name = name;
-		}
-		public String getName() {
-			if (this.name == null)
-				throw new RuntimeException("name property must be set");
-			return name;
 		}
 	}
 	
@@ -553,38 +526,6 @@ public class BeanWrapperTestSuite extends TestCase {
 		}
 	}
 	
-	
-
-	// Test with Property editor: multithreaded
-	public void testComplexObject() {
-		PropertyEditorManager.registerEditor(ITestBean.class, TestBeanEditor.class);
-		TestBean t = new TestBean();
-		String newName = "Rod";
-		String tbString = "Kerry_34";
-		try {
-			BeanWrapper bw = new BeanWrapperImpl(t);
-			MutablePropertyValues pvs = new MutablePropertyValues();
-			pvs.addPropertyValue(new PropertyValue("age", new Integer(55)));
-			pvs.addPropertyValue(new PropertyValue("name", newName));
-			pvs.addPropertyValue(new PropertyValue("touchy", "valid"));
-			pvs.addPropertyValue(new PropertyValue("spouse", tbString));
-			bw.setPropertyValues(pvs);
-			assertTrue("spouse is non-null", t.getSpouse() != null);
-			assertTrue("spouse name is Kerry and age is 34", t.getSpouse().getName().equals("Kerry") && t.getSpouse().getAge() == 34);
-			//assertTrue("Event source is correct", l.getEventCount() == 3);
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-			fail("Shouldn't throw exception when everything is valid");
-		}
-	}
-
-
-	/** Test changing target */
-	public void testSetObject() {
-	}
-
-
 	public void testNullObject() {
 		try {
 			BeanWrapper bw = new BeanWrapperImpl((Object) null);
@@ -595,8 +536,7 @@ public class BeanWrapperTestSuite extends TestCase {
 			//ex.printStackTrace();
 		}
 	}
-	
-	
+
 	public void testInvokeValidVoidMethod() {
 		TestBean tb = new TestBean();
 		BeanWrapper bw = new BeanWrapperImpl(tb);
@@ -604,7 +544,6 @@ public class BeanWrapperTestSuite extends TestCase {
 		assertTrue("valid void method returned null", ret == null);
 		assertTrue("invoke set name", tb.getName().equals("invoked"));
 	}
-	
 	
 	public void testInvokeMethodThrowingException() {
 		ThrowsException te = new ThrowsException();
@@ -631,14 +570,12 @@ public class BeanWrapperTestSuite extends TestCase {
 		}
 
 	}
-	
-	
+
 	public static class ThrowsException {
 		public void doSomething(Throwable t) throws Throwable { 
 			throw t;
 		}
 	}
-
 
 	public void testInvokeValidGetterMethod() {
 		TestBean tb = new TestBean();
@@ -662,54 +599,6 @@ public class BeanWrapperTestSuite extends TestCase {
 		}
 	}
 
-	public void testCustomEditorForSingleProperty() {
-		TestBean tb = new TestBean();
-		BeanWrapper bw = new BeanWrapperImpl(tb);
-		bw.registerCustomEditor(String.class, "name", new PropertyEditorSupport() {
-			public void setAsText(String text) throws IllegalArgumentException {
-				setValue("prefix" + text);
-			}
-		});
-		try {
-			bw.setPropertyValue("name", "value");
-			bw.setPropertyValue("touchy", "value");
-		}
-		catch (PropertyVetoException ex) {
-			fail("Should not throw PropertyVetoException: " + ex.getMessage());
-		}
-		catch (BeansException ex) {
-			fail("Should not throw BeansException: " + ex.getMessage());
-		}
-		assertEquals("prefixvalue", bw.getPropertyValue("name"));
-		assertEquals("prefixvalue", tb.getName());
-		assertEquals("value", bw.getPropertyValue("touchy"));
-		assertEquals("value", tb.getTouchy());
-	}
-
-	public void testCustomEditorForAllStringProperties() {
-		TestBean tb = new TestBean();
-		BeanWrapper bw = new BeanWrapperImpl(tb);
-		bw.registerCustomEditor(String.class, null, new PropertyEditorSupport() {
-			public void setAsText(String text) throws IllegalArgumentException {
-				setValue("prefix" + text);
-			}
-		});
-		try {
-			bw.setPropertyValue("name", "value");
-			bw.setPropertyValue("touchy", "value");
-		}
-		catch (PropertyVetoException ex) {
-			fail("Should not throw PropertyVetoException: " + ex.getMessage());
-		}
-		catch (BeansException ex) {
-			fail("Should not throw BeansException: " + ex.getMessage());
-		}
-		assertEquals("prefixvalue", bw.getPropertyValue("name"));
-		assertEquals("prefixvalue", tb.getName());
-		assertEquals("prefixvalue", bw.getPropertyValue("touchy"));
-		assertEquals("prefixvalue", tb.getTouchy());
-	}
-
 
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(suite());
@@ -721,12 +610,26 @@ public class BeanWrapperTestSuite extends TestCase {
 	}
 
 
+	private static class GetterBean {
+
+		private String name;
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			if (this.name == null)
+				throw new RuntimeException("name property must be set");
+			return name;
+		}
+	}
+
 	private static class ConsoleListener implements PropertyChangeListener {
 		int events;
 
 		public void propertyChange(PropertyChangeEvent e) {
 			++events;
-			//System.out.println("PropertyChangeEvent " + events + ": old value=[" + e.getOldValue() + "] new value=[" + e.getNewValue() + "]");
 		}
 
 		public int getEventCount() {
@@ -755,13 +658,4 @@ public class BeanWrapperTestSuite extends TestCase {
 		}
 	}
 
-	public static class TestBeanEditor extends PropertyEditorSupport {
-		public void setAsText(String text) {
-			TestBean tb = new TestBean();
-			StringTokenizer st = new StringTokenizer(text, "_");
-			tb.setName(st.nextToken());
-			tb.setAge(Integer.parseInt(st.nextToken()));
-			setValue(tb);
-		}
-	}
 }

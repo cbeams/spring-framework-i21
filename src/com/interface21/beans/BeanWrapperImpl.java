@@ -1,10 +1,10 @@
 /**
- * Generic framework code included with 
+ * Generic framework code included with
  * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
+ * by Rod Johnson (Wrox, 2002).
  * This code is free to use and modify. However, please
  * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
+ * class using or derived from this code.
  * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
  * for commercial support.
  */
@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -157,7 +158,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 		setObject(object);
 	}
 
-	/** 
+	/**
 	 * Creates new BeanWrapperImpl, wrapping a new instance of the specified class
 	 * @param clazz class to instantiate and wrap
 	 * @throws BeansException if the class cannot be wrapped by a BeanWrapper
@@ -167,7 +168,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 		setObject(BeanUtils.instantiateClass(clazz));
 	}
 
-	/** 
+	/**
 	 * Creates new BeanWrapperImpl given the cached introspection results and
 	 * the given object. Used internally only.
 	 * @param cachedIntrospectionResults cached results of introspection, used
@@ -195,8 +196,8 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 */
 	public BeanWrapper newWrapper(Object obj) throws BeansException {
 		if (!this.cachedIntrospectionResults.getBeanClass().equals(obj.getClass()))
-			throw new FatalBeanException("Cannot create new wrapper for object of class " 
-				+ obj.getClass().getName() + " using cached information for class " 
+			throw new FatalBeanException("Cannot create new wrapper for object of class "
+				+ obj.getClass().getName() + " using cached information for class "
 				+ cachedIntrospectionResults.getBeanClass(), null);
 		return new BeanWrapperImpl(this.cachedIntrospectionResults, obj);
 	}
@@ -211,7 +212,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 		if (object == null)
 			throw new FatalBeanException("Cannot set BeanWrapperImpl target to a null object", null);
 		this.object = object;
-		if (cachedIntrospectionResults == null 
+		if (cachedIntrospectionResults == null
 				|| !cachedIntrospectionResults.getBeanClass().equals(object.getClass())) {
 			cachedIntrospectionResults = CachedIntrospectionResults.forClass(object.getClass());
 		}
@@ -315,7 +316,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * to create a PropertyChangeEvent.
 	 * Conversions from String to any type use the setAsTest() method of
 	 * the PropertyEditor class. Note that a PropertyEditor must be registered
-	 * for this class for this to work. This is a standard Java Beans API. 
+	 * for this class for this to work. This is a standard Java Beans API.
 	 * A number of property editors are automatically registered by this class.
 	 * @param target target bean
 	 * @param propertyName name of the property
@@ -327,17 +328,17 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * value.
 	 */
 	private PropertyChangeEvent createPropertyChangeEventWithTypeConversionIfNecessary(
-							Object target, String propertyName, 
-							Object oldValue, Object newValue, 
+							Object target, String propertyName,
+							Object oldValue, Object newValue,
 							Class requiredType) throws BeansException {
 		return new PropertyChangeEvent(target, propertyName, oldValue, doTypeConversionIfNecessary(target, propertyName, oldValue, newValue, requiredType));
 	}
-	
+
 	/**
 	 * Convert the value to the required type (if necessary from a string)
 	 * Conversions from String to any type use the setAsTest() method of
 	 * the PropertyEditor class. Note that a PropertyEditor must be registered
-	 * for this class for this to work. This is a standard Java Beans API. 
+	 * for this class for this to work. This is a standard Java Beans API.
 	 * A number of property editors are automatically registered by this class.
 	 * @param target target bean
 	 * @param propertyName name of the property
@@ -348,8 +349,8 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * @return new value, possibly the result of type convertion.
 	 */
 	public Object doTypeConversionIfNecessary(
-							Object target, String propertyName, 
-							Object oldValue, Object newValue, 
+							Object target, String propertyName,
+							Object oldValue, Object newValue,
 							Class requiredType) throws BeansException {
 		// Only need to cast if value isn't null
 		if (newValue != null) {
@@ -452,6 +453,17 @@ public class BeanWrapperImpl implements BeanWrapper {
 		if (nestedBw == null) {
 			logger.debug("Creating new nested BeanWrapper for property '" + nestedProperty + "'");
 			nestedBw = new BeanWrapperImpl(propertyValue, false);
+			// inherit all type-specific PropertyEditors
+			if (this.customEditors != null) {
+				for (Iterator it = this.customEditors.keySet().iterator(); it.hasNext();) {
+					Object key = it.next();
+					if (key instanceof Class) {
+						Class requiredType = (Class) key;
+						PropertyEditor propertyEditor = (PropertyEditor) this.customEditors.get(key);
+						nestedBw.registerCustomEditor(requiredType, null, propertyEditor);
+					}
+				}
+			}
 			this.nestedBeanWrappers.put(propertyValue, nestedBw);
 		} else {
 			logger.debug("Using cached nested BeanWrapper for property '" + nestedProperty + "'");
@@ -484,8 +496,9 @@ public class BeanWrapperImpl implements BeanWrapper {
 			}
 		}
 
-		if (!isWritableProperty(pv.getName()))
+		if (!isWritableProperty(pv.getName())) {
 			throw new NotWritablePropertyException(pv.getName(), getWrappedClass());
+		}
 
 		PropertyDescriptor pd = getPropertyDescriptor(pv.getName());
 		Method writeMethod = pd.getWriteMethod();
@@ -518,6 +531,10 @@ public class BeanWrapperImpl implements BeanWrapper {
 			// the change was never actually made
 			if (eventPropagationEnabled) {
 				vetoableChangeSupport.fireVetoableChange(propertyChangeEvent);
+			}
+
+			if (pd.getPropertyType().isPrimitive() && (pv.getValue() == null || "".equals(pv.getValue()))) {
+				throw new IllegalArgumentException("Invalid value [" + pv.getValue() + "] for property [" + pd.getName() +  "] of primitive type [" + pd.getPropertyType() + "]");
 			}
 
 			// Make the change
@@ -572,7 +589,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	/**
 	 * @see BeanWrapper#setPropertyValues(PropertyValues, boolean, PropertyValuesValidator)
 	 */
-	public void setPropertyValues(PropertyValues propertyValues, 
+	public void setPropertyValues(PropertyValues propertyValues,
 					boolean ignoreUnknown, PropertyValuesValidator pvsValidator) throws BeansException {
 		// Create only if needed
 		PropertyVetoExceptionsException propertyVetoExceptionsException = new PropertyVetoExceptionsException(this);
@@ -624,27 +641,31 @@ public class BeanWrapperImpl implements BeanWrapper {
 	public Object getPropertyValue(String propertyName) throws BeansException {
 		if (isNestedProperty(propertyName)) {
 			BeanWrapper nestedBw = getBeanWrapperForNestedProperty(propertyName);
-			logger.debug("Final path in nested property value '" + propertyName + "' is '" 
+			logger.debug("Final path in nested property value '" + propertyName + "' is '"
 					+ getFinalPath(propertyName) + "'");
 			return nestedBw.getPropertyValue(getFinalPath(propertyName));
 		}
 
 		PropertyDescriptor pd = getPropertyDescriptor(propertyName);
-		Method m = pd.getReadMethod();
-		if (m == null)
+		Method readMethod = pd.getReadMethod();
+		if (readMethod == null) {
 			throw new FatalBeanException("Cannot get scalar property [" + propertyName + "]: not readable", null);
+		}
+		if (logger.isDebugEnabled())
+			logger.debug("About to invoke read method ["
+						+ readMethod + "] on object of class '" + object.getClass().getName() + "'");
 		try {
-			return m.invoke(object, null);
+			return readMethod.invoke(object, null);
 		}
 		catch (InvocationTargetException ex) {
-			throw new FatalBeanException("getter for property [" + propertyName + "] threw exception", ex);
+			throw new FatalBeanException("Getter for property [" + propertyName + "] threw exception", ex);
 		}
 		catch (IllegalAccessException ex) {
-			throw new FatalBeanException("illegal attempt to get property [" + propertyName + "] threw exception", ex);
+			throw new FatalBeanException("Illegal attempt to get property [" + propertyName + "] threw exception", ex);
 		}
 	}
 
-	/** 
+	/**
 	 * Get the value of an indexed property
 	 * @param propertyName name of the property to get value of
 	 * @param index index from 0 of the property
@@ -654,11 +675,11 @@ public class BeanWrapperImpl implements BeanWrapper {
 	public Object getIndexedPropertyValue(String propertyName, int index) throws BeansException {
 		PropertyDescriptor pd = getPropertyDescriptor(propertyName);
 		if (!(pd instanceof IndexedPropertyDescriptor))
-			throw new FatalBeanException("Cannot get indexed property value for [" + propertyName 
+			throw new FatalBeanException("Cannot get indexed property value for [" + propertyName
 					+ "]: this property is not an indexed property", null);
 		Method m = ((IndexedPropertyDescriptor) pd).getIndexedReadMethod();
 		if (m == null)
-			throw new FatalBeanException("Cannot get indexed property [" + propertyName 
+			throw new FatalBeanException("Cannot get indexed property [" + propertyName
 					+ "]: not readable", null);
 		try {
 			return m.invoke(object, new Object[] { new Integer(index) });
@@ -667,7 +688,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 			throw new FatalBeanException("getter for indexed property [" + propertyName + "] threw exception", ex);
 		}
 		catch (IllegalAccessException ex) {
-			throw new FatalBeanException("illegal attempt to get indexed property [" 
+			throw new FatalBeanException("illegal attempt to get indexed property ["
 					+ propertyName + "] threw exception", ex);
 		}
 	}
@@ -850,7 +871,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		try {
-			sb.append("BeanWrapperImpl: eventPropagationEnabled=" + eventPropagationEnabled 
+			sb.append("BeanWrapperImpl: eventPropagationEnabled=" + eventPropagationEnabled
 				+ " wrapping [" + getWrappedInstance().getClass() + "]; ");
 			PropertyDescriptor pds[] = getPropertyDescriptors();
 			if (pds != null) {

@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * <p>In web MVC code, this editor will typically be
  * registered with binder.registerCustomEditor calls in an
- * implementation of BaseCommandController's initBinder.
+ * implementation of BaseCommandController's initBinder method.
  *
  * @author Juergen Hoeller
  * @since 28.04.2003
@@ -31,10 +31,10 @@ public class CustomDateEditor extends PropertyEditorSupport {
 	/**
 	 * Create a new instance, using the given DateFormat for
 	 * parsing and rendering.
-	 * The allowEmpty parameter states if an empty String should
+	 * <p>The allowEmpty parameter states if an empty String should
 	 * be allowed for parsing, i.e. get interpreted as null value.
 	 * Else, an IllegalArgumentException gets thrown in that case.
-	 * @param dateFormat DateFormat to use
+	 * @param dateFormat DateFormat to use for parsing and rendering
 	 * @param allowEmpty if empty strings should be allowed
 	 */
 	public CustomDateEditor(DateFormat dateFormat, boolean allowEmpty) {
@@ -42,6 +42,9 @@ public class CustomDateEditor extends PropertyEditorSupport {
 		this.allowEmpty = allowEmpty;
 	}
 
+	/**
+	 * Parse the Date from the given text, using the specified DateFormat.
+	 */
 	public void setAsText(String text) throws IllegalArgumentException {
 		if (this.allowEmpty && text.trim().equals("")) {
 			// treat empty String as null value
@@ -57,8 +60,11 @@ public class CustomDateEditor extends PropertyEditorSupport {
 		}
 	}
 
+	/**
+	 * Format the Date as String, using the specified DateFormat.
+	 */
 	public String getAsText() {
-		return dateFormat.format((Date) getValue());
+		return this.dateFormat.format((Date) getValue());
 	}
 
 }

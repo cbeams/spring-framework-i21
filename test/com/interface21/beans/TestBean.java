@@ -31,6 +31,8 @@ public class TestBean implements ITestBean, IOther {
 	
 	private Date date = new Date();
 
+	private Float myFloat = new Float(0.0);
+
 	public String getTouchy() {
 		return touchy;
 	}
@@ -99,6 +101,14 @@ public class TestBean implements ITestBean, IOther {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public Float getMyFloat() {
+		return myFloat;
+	}
+
+	public void setMyFloat(Float myFloat) {
+		this.myFloat = myFloat;
 	}
 
 	public boolean equals(Object other) {
