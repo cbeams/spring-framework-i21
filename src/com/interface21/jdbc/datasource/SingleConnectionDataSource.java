@@ -12,7 +12,7 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
  * connection factory (which will never try to close the connection) should close
  * the connection.
  *
- * This is primarily a test class. For example, it enables easy testing of code
+ * <p>This is primarily a test class. For example, it enables easy testing of code
  * outside of an application server, in conjunction with a mock JNDI InitialContext.
  * Furthermore, it allows for executing server-oriented business services in
  * standalone scenarios (e.g. offline clients).
@@ -63,7 +63,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource {
 		setUser(user);
 		setPassword(password);
 		this.suppressClose = suppressClose;
-		afterPropertiesSet();
+		init(null);
 	}
 
 	public void setSuppressClose(boolean suppressClose) {
@@ -74,25 +74,31 @@ public class SingleConnectionDataSource extends DriverManagerDataSource {
 		return suppressClose;
 	}
 
-	public void afterPropertiesSet() {
-		super.afterPropertiesSet();
-		try {
-			init(DriverManager.getConnection(getUrl(), getUser(), getPassword()));
-		}
-		catch (SQLException ex) {
-			throw new CannotCloseJdbcConnectionException("Could not create connection", ex);
-		}
-	}
-
+	/**
+	 * Initialized the underlying connection.
+	 * @param source the JDBC Connection to use,
+	 * or null for initialization via DriverManager
+	 */
 	protected void init(Connection source) {
-		logger.info("Creating SingleConnectionDataSource with source [" + source + "]" +
-		            (this.suppressClose ? " (close calls suppressed)" : ""));
+		if (source == null) {
+			// no JDBC Connection given -> initialize via DriverManager
+			try {
+				source = DriverManager.getConnection(getUrl(), getUser(), getPassword());
+			}
+			catch (SQLException ex) {
+				throw new CannotCloseJdbcConnectionException("Could not create connection", ex);
+			}
+		}
+
+		// prepare connection
 		try {
 			source.setAutoCommit(true);
 		}
 		catch (SQLException ex) {
 			throw new CannotGetJdbcConnectionException("Could not set autoCommit", ex);
 		}
+
+		// wrap connection?
 		this.connection = this.suppressClose ? DataSourceUtils.getCloseSuppressingConnectionProxy(source) : source;
 	}
 
@@ -117,6 +123,10 @@ public class SingleConnectionDataSource extends DriverManagerDataSource {
 	}
 
 	public Connection getConnection() throws SQLException {
+		if (this.connection == null) {
+			// No underlying connection -> lazy init via DriverManager
+			init(null);
+		}
 		logger.debug("SingleConnectionConnectionFactory.getConnection with con=" + connection);
 		if (this.connection.isClosed()) {
 			String mesg = "Connection was closed in SingleConnectionDataSource. "
