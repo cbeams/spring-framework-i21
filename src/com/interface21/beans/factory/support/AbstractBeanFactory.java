@@ -5,9 +5,7 @@
 
 package com.interface21.beans.factory.support;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -69,6 +67,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
 	/** name of default parent bean */
 	protected String defaultParentBean;
+	
+	/** Map from alias to canonical bean name */
+	private Map aliasMap = new HashMap();
 
 
 	//---------------------------------------------------------------------
@@ -121,13 +122,16 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	}
 
 	/**
-	 * Return the bean name, stripping out the factory deference prefix if necessary
+	 * Return the bean name, stripping out the factory deference prefix if necessary,
+	 * and resolving aliases to canonical names.
 	 */
 	private String transformedBeanName(String name) {
 		if (name.startsWith(FACTORY_BEAN_PREFIX)) {
 			name = name.substring(FACTORY_BEAN_PREFIX.length());
 		}
-		return name;
+		// Handle aliasing
+		String canonicalName = (String) this.aliasMap.get(name);
+		return canonicalName != null ? canonicalName : name;
 	}
 
 	/**
@@ -373,16 +377,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			val = pv.getValue();
 		}
 		
-		// Convert to a collection if necessary if it's a single value.
-		// A collection type may be passed a single value without error.
-		if (val != null &&
-				Collection.class.isAssignableFrom(bw.getPropertyDescriptor(pv.getName()).getPropertyType()) &&
-				!(Collection.class.isAssignableFrom(val.getClass()))) {
-			LinkedList ll = new LinkedList();
-			ll.add(val);
-			val = ll;
-		}
-		
 		return val;
 	}
 	
@@ -459,6 +453,18 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			}
 		}
 		throw new FatalBeanException("Shouldn't happen: BeanDefinition " + bd + " is Neither a rootBeanDefinition or a ChildBeanDefinition");
+	}
+	
+	/**
+	 * Given a bean id, create an alias. This must respect prototype/
+	 * singleton behaviour. We typically use this method to support
+	 * names that are illegal within XML ids (used for bean ids).
+	 * @param id id of the bean
+	 * @param alias alias that will behave the same as the bean id
+	 */
+	public void alias(String id, String alias) {
+		logger.debug("Creating alias '" + alias + "' for bean with id '" + id + "'");
+		this.aliasMap.put(alias, id);
 	}
 
 
