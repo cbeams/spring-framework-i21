@@ -1,8 +1,8 @@
 package com.interface21.web.bind;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 import com.interface21.validation.Errors;
 import com.interface21.validation.FieldError;
@@ -10,9 +10,19 @@ import com.interface21.validation.ObjectError;
 import com.interface21.web.util.HtmlUtils;
 
 /**
- * Errors wrapper that adds automatic HTML escaping to the wrapped instance.
+ * Errors wrapper that adds automatic HTML escaping to the wrapped instance,
+ * for convenient usage in HTML views. Can be retrieved easily via
+ * RequestContext's resp. RequestContextUtils' getErrors method.
+ *
+ * <p>Note that BindTag does not use this class to avoid unnecessary creation
+ * of ObjectError instances. It just escapes the messages and values that get
+ * copied into the respective BindStatus instance.
+ *
  * @author Juergen Hoeller
  * @since 01.03.2003
+ * @see com.interface21.web.servlet.support.RequestContext#getErrors
+ * @see com.interface21.web.servlet.support.RequestContextUtils#getErrors
+ * @see com.interface21.web.tags.BindTag
  */
 public class EscapedErrors implements Errors {
 
@@ -82,7 +92,8 @@ public class EscapedErrors implements Errors {
 	}
 
 	public Object getFieldValue(String field) {
-		return source.getFieldValue(field);
+		Object value = source.getFieldValue(field);
+		return (value instanceof String ? HtmlUtils.htmlEscape((String) value) : value);
 	}
 
 	public void setNestedPath(String nestedPath) {
