@@ -14,13 +14,16 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.interface21.beans.BeanWrapper;
+import com.interface21.beans.BeanWrapperImpl;
 import com.interface21.beans.BeansException;
 import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.PropertyValue;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.BeanIsNotAFactoryException;
 import com.interface21.beans.factory.BeanNotOfRequiredTypeException;
+import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.InitializingBean;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 
@@ -28,17 +31,25 @@ import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 /**
  * Abstract superclass that makes implementing a BeanFactory very easy.
  * This class uses the <b>Template Method</b> design pattern.
- * Subclasses must implement a single method,
+ * Subclasses must implement only the
  * <code>
  * getBeanDefinition(name)
  * </code>
- * which returns an object of an inner
- * class defined here.
- * <br/>Add event listeners through BeanDefinition objects.
+ * method.
  * @author  Rod Johnson
  * @since 15 April 2001
+ * @version $Revision$
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
+	
+	/** 
+	 * Used to dereference a FactoryBean and distinguish it from
+	 * beans <i>created</i> by the factory. For example,
+	 * if the bean named <code>myEjb</code> is a factory, getting
+	 * <code>&myEjb</code> will return the factory, not the instance
+	 * returned by the factory. 
+	 */
+	public static final String FACTORY_BEAN_PREFIX = "&";
 
 	//---------------------------------------------------------------------
 	// Instance data
@@ -75,7 +86,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	}
 
 	/**
-	 * Returns the parent bean factory, of null if none.
+	 * Returns the parent bean factory, or null if none.
 	 */
 	public BeanFactory getParent() {
 		return parent;
@@ -100,50 +111,117 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * @return a new instance of this bean
 	 */
     private Object createBean(String name) throws BeansException {
-        Object bean = getBeanWrapperForNewInstance(name).getWrappedInstance();
+        Object bean = getBeanWrapperForNewInstance(name).getWrappedInstance();     
 		invokeInitializerIfNecessary(bean);
 		return bean;
-    }
+    }	// createBean
 
+
+	/**
+	 * Return the bean name, stripping out the factory deference prefix if necessary
+	 */
+	private String transformedBeanName(String name) {
+		if (name.startsWith(FACTORY_BEAN_PREFIX)) {
+			name = name.substring(FACTORY_BEAN_PREFIX.length());
+		}
+		return name;
+	}
+	
+	/**
+	 * Return whether this name is a factory dereference (beginning
+	 * with the factory dereference prefix)
+	 */
+	private boolean isFactoryDerefence(String name) {
+		return name.startsWith(FACTORY_BEAN_PREFIX);
+	}
 
 	/**
 	 * Get a singleton instance of this bean name. Note that this method shouldn't
 	 * be called too often: callers should keep hold of instances. Hence, the whole
 	 * method is synchronized here.
-	 * ****TODO: there probably isn't any need for this to be
+	 * TODO: there probably isn't any need for this to be
 	 * synchronized, at least not if we pre-instantiate singletons
+	 * @param pname name that may include factory dereference prefix
 	 */
-	private final synchronized Object getSharedInstance(String name) throws BeansException {
-		Object o = sharedInstanceCache.get(name);
-	  if (o == null) {
+	private final synchronized Object getSharedInstance(String pname) throws BeansException {
+		// Get rid of the dereference prefix if there is one
+		String name = transformedBeanName(pname);
+		
+		Object beanInstance = sharedInstanceCache.get(name);
+	  if (beanInstance == null) {
 	    logger.info("Cached shared instance of Singleton bean '" + name + "'");
-		  o = createBean(name);
-		  sharedInstanceCache.put(name, o);
+		  beanInstance = createBean(name);
+		  sharedInstanceCache.put(name, beanInstance);
 	  }
 	  else {
 	  	if (logger.isDebugEnabled())
 		   	 logger.debug("Returning cached instance of Singleton bean '" + name + "'");
 	  }
-	  return o;
-	}
+	  
+	  // Don't let calling code try to dereference the 
+	  // bean factory if the bean isn't a factory
+	  if (isFactoryDerefence(pname) && !(beanInstance instanceof FactoryBean)) {
+	  	throw new BeanIsNotAFactoryException(name, beanInstance);
+	  }
+	  
+	  // Now we have the beanInstance, which may be a normal bean
+	  // or a FactoryBean. If it's a FactoryBean, we use it to
+	  // create a bean instance, unless the caller actually wants
+	  // a reference to the factory. 
+	  if (beanInstance instanceof FactoryBean) {
+	  		if (!isFactoryDerefence(pname)) {
+	  			// Configure and return new bean instance from factory
+				FactoryBean factory = (FactoryBean) beanInstance;
+				logger.info("Bean with name '" + name + "' is a factory bean");
+				beanInstance = factory.getObject();
+    	
+				// Set pass-through properties
+				if (factory.getPropertyValues() != null) {
+					logger.debug("Applying pass-through properties to bean with name '" + name + "'");
+					new BeanWrapperImpl(beanInstance).setPropertyValues(factory.getPropertyValues());
+				}
+				// Initialization is really up to factory
+				//invokeInitializerIfNecessary(beanInstance);
+	  		}
+	  		else {
+	  			// The user wants the factory itself
+	  			logger.info("Calling code asked for BeanFactory instance for name '" + name + "'");
+	  		}
+		}	// if we're dealing with a factory bean
+			
+	  return beanInstance;
+	}	// getSharedInstance
     
     
 	/**
 	 * Return the bean with the given name,
 	 * checking the parent bean factory of not found.
 	 * @param name  name of the bean to retrieve
+	 * TODO should correctly list beans in present factory if
+	 * not found in ancestor: presently lists only top-level
+	 * ancestor's definitions
 	 */
 	public final Object getBean(String name) {
+		if (name == null)
+			throw new NoSuchBeanDefinitionException(null);
+		
 		try {
-			BeanDefinition bd = getBeanDefinition(name);
+			BeanDefinition bd = getBeanDefinition(transformedBeanName(name));
+			
+			// invalid factory definition: must be a singleton
+		//	if (isFactoryDerefence(name) && !bd.isSingleton())
+		//		throw new BeanIsNotAFactoryException(name, )
+			
 			return bd.isSingleton() ? getSharedInstance(name) : createBean(name);
-		} catch (NoSuchBeanDefinitionException ex) {
+		} 
+		catch (NoSuchBeanDefinitionException ex) {
 			// not found -> check parent
 			if (this.parent != null)
 				return this.parent.getBean(name);
 			throw ex;
 		}
-	}
+	}	// getBean
+	
 	
 	/**
 	 * Return a shared instance of the given bean. Analogous to getBeanInstance(name, requiredType).
@@ -317,6 +395,5 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if the bean definition cannot be resolved
 	 */
     protected abstract BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
-
 
 }	// class AbstractBeanFactory
