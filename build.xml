@@ -342,8 +342,6 @@
 			<classpath location="${build.dir}"/>
 
 		</javac>
-		
-		<echo message="excluded JDBC!!!!" />
 	</target>
 		
 
@@ -382,6 +380,9 @@
 				<exclude name="**/*Abstract*/"/>
 				
 				<exclude name="com/interface21/jta/**" />
+				
+				<exclude name="com/interface21/jdbc/object/**" />
+
 				
 				<exclude name="**/*FIX*/"/>
 
