@@ -47,7 +47,7 @@
 
 
 	<!-- Delete all binaries and generated distribution units -->
-	<target name="clean">
+	<target name="clean" description="Cleans ALL output dirs (build, dist, test, clover)">
 		<delete dir="${build.dir}"/>
 		<delete dir="${dist.dir}"/>
 		<delete dir="${testbuild.dir}"/>
@@ -58,7 +58,7 @@
 	<!--
 	    Compile main source tree
 	-->
-	<target name="build">
+	<target name="build" description="Compile main source tree java files into class files (no-jarring)">
 
 		<mkdir dir="${build.dir}"/>
 
@@ -85,7 +85,7 @@
 	<!--
 	    Build one big JAR.
 	-->
-	<target name="full" depends="build,initdist">
+	<target name="full" depends="build,initdist" description="Build one big jar file containing main source tree class files">
 
 		<jar jarfile="${dist.dir}/${spring-full.jar}">
 			<fileset dir="${build.dir}">
@@ -100,7 +100,7 @@
 	    Create the core JAR file. JDBC and other JAR files
 	    depend on this.
 	-->
-	<target name="core" depends="build,initdist">
+	<target name="core" depends="build,initdist" description="Create the core JAR file. JDBC and other JAR files depend on this.">
 
 		<!-- We inherit this property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-core.jar}">
@@ -135,7 +135,7 @@
 	<!--
 	    Create the XML Bean implementation JAR file.
 	-->
-	<target name="xmlbean" depends="build,initdist">
+	<target name="xmlbean" depends="build,initdist" description="Create the XML Bean implementation JAR file.">
 
 		<!-- We inherit this property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-xmlbean.jar}">
@@ -152,7 +152,7 @@
 	    Create JDBC distribution.
 	    Depends on core JAR.
 	-->
-	<target name="jdbc" depends="build,initdist">
+	<target name="jdbc" depends="build,initdist" description="Create the JDBC distribution JAR file.">
 
 		<!-- We inherit the spring-jdbc property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-jdbc.jar}">
@@ -167,7 +167,7 @@
 	<!--
 	    Create the EJB implementation JAR file.
 	-->
-	<target name="ejbimpl" depends="build,initdist">
+	<target name="ejbimpl" depends="build,initdist" description="Create the EJB distribution JAR file.">
 
 		<!-- We inherit this property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-ejbimpl.jar}">
@@ -189,7 +189,7 @@
 	    in which the EJB class loader is the parent of the WAR class loader.
 	    Of course these problems only apply to applications using EJB.
 	-->
-	<target name="web" depends="build,initdist">
+	<target name="web" depends="build,initdist" description="Create the web distribution JAR file (runtime requires use of core JAR file).">
 
 		<!-- We inherit this property from calling ant script -->
 		<jar jarfile="${dist.dir}/${spring-web.jar}">
@@ -215,11 +215,11 @@
 	<!--
 	    Build all Jar files
 	-->
-	<target name="all" depends="full,core,xmlbean,jdbc,ejbimpl,web"/>
+	<target name="all" depends="full,core,xmlbean,jdbc,ejbimpl,web" description="Create all JAR files."/>
 
 
 	<!-- Create Javadoc -->
-	<target name="javadoc">
+	<target name="javadoc" description="Generate framework Javadocs.">
 
 		<delete dir="${docs.dir}"/>
 		<mkdir dir="${docs.dir}"/>
@@ -248,7 +248,7 @@
 	</target>
 
 
-	<target name="buildtests" depends="build">
+	<target name="buildtests" depends="build" description="Compile test source tree java files into class files.">
 
 		<mkdir dir="${testbuild.dir}"/>
 
@@ -280,7 +280,7 @@
 		the test.includes and (optionally) test.excludes properties through the command line, as below:
 			ant tests -Dtest.includes=com/interface21/jdbc/**/*Test*
 	-->
-	<target name="tests" depends="buildtests">
+	<target name="tests" depends="buildtests" description="Run tests.">
 
 		<property name="reports.dir" value="${junit.reports.dir}"/>
 
@@ -312,7 +312,7 @@
 	</target>
 
 
-	<target name="clover.build">
+	<target name="clover.build" description="Compile main source tree java files WITH CLOVER into class files.">
 		<!-- switch on clover by specifying it as the compiler to use -->
 		<property name="build.compiler" value="org.apache.tools.ant.taskdefs.CloverCompilerAdapter"/>
 
@@ -332,7 +332,7 @@
 	</target>
 
 
-	<target name="clover.tests" depends="buildtests,clover.build">
+	<target name="clover.tests" depends="buildtests,clover.build" description="Run clover tests.">
 
 		<junit printsummary="yes" haltonfailure="yes">
 
@@ -361,7 +361,7 @@
 	<!--
 		Run Clover tests and bring up Swing coverage viewer
 	-->
-	<target name="clover.swing" depends="clover.tests">
+	<target name="clover.swing" depends="clover.tests" description="Run Clover tests and bring up Swing coverage viewer.">
 		<echo>Launching coverage viewer</echo>
 		<java classname="com.cortexeb.tools.clover.reporters.jfc.Viewer" fork="yes">
 			<arg value="${clover.initstring}"/>
@@ -373,7 +373,7 @@
 	<!--
 		Generate Clover HTML coverage reports from an existing Clover database
 	-->
-	<target name="clover.html">
+	<target name="clover.html" description="Generate Clover HTML coverage reports from an existing Clover database.">
 		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
 			<arg line="-o ${clover.html.outdir} -i ${clover.initstring} -t 'clover demo'"/>
 			<classpath refid="master-classpath"/>
