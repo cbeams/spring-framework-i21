@@ -19,6 +19,7 @@ import org.easymock.MockControl;
 import com.interface21.dao.CleanupFailureDataAccessException;
 import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
+import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.dao.UncategorizedDataAccessException;
 import com.interface21.jdbc.mock.SingleConnectionDataSource;
 
@@ -505,7 +506,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 		dsControl.setReturnValue(con);
 		dsControl.activate();
 		
-		BulkPreparedStatementSetter setter = new BulkPreparedStatementSetter() {
+		BatchPreparedStatementSetter setter = new BatchPreparedStatementSetter() {
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				ps.setInt(1, ids[i]);	
 			}
@@ -566,7 +567,7 @@ public class JdbcTemplateTestSuite extends TestCase {
 			dsControl.setReturnValue(con);
 			dsControl.activate();
 		
-			BulkPreparedStatementSetter setter = new BulkPreparedStatementSetter() {
+			BatchPreparedStatementSetter setter = new BatchPreparedStatementSetter() {
 				public void setValues(PreparedStatement ps, int i) throws SQLException {
 					ps.setInt(1, ids[i]);	
 				}
@@ -613,6 +614,105 @@ public class JdbcTemplateTestSuite extends TestCase {
 			assertTrue("Check root cause", ex.getRootCause() == sex);
 		}
 	}
+	
+	public void testPreparedStatementSetterQueryWithNullArg() throws Exception { 
+		final String sql = "SELECT * FROM FOO WHERE ID > 1"; 
+		MockControl dsControl = EasyMock.niceControlFor(DataSource.class); 
+		final int expectedRowsUpdated = 111; 
+		DataSource ds = (DataSource) dsControl.getMock(); 
+		// Don't expect any calls 
+		dsControl.activate(); 
+
+		class MockJdbcTemplate extends JdbcTemplate { 
+				private boolean valid = false; 
+				public MockJdbcTemplate(DataSource ds) { 
+						super(ds); 
+				} 
+				// Override this so we don't need to get connection 
+				public void query(String sql, RowCallbackHandler rch) { 
+						valid = true; 
+				} 
+		} 
+
+		MockJdbcTemplate mockTemplate = new MockJdbcTemplate(ds); 
+		mockTemplate.query(sql, null, null); 
+		assertTrue("invoked no arg query", mockTemplate.valid); 
+		dsControl.verify(); 
+	} 
+
+	/** 
+	 * Check that the absence of bind variables is an error 
+	 * with null arg 
+	 * @throws Exception 
+	 */ 
+	public void testPreparedStatementSetterQueryWithNullArgButRequiringBindVariables() throws Exception { 
+		final String sql = "SELECT * FROM FOO WHERE ID > ?"; 
+		MockControl dsControl = EasyMock.niceControlFor(DataSource.class); 
+		final int expectedRowsUpdated = 111; 
+		DataSource ds = (DataSource) dsControl.getMock(); 
+		// Don't expect any calls 
+		dsControl.activate(); 
+
+
+
+		JdbcTemplate mockTemplate = new JdbcTemplate(ds); 
+		try { 
+				mockTemplate.query(sql, null, null); 
+				fail("Should have recognized that bind variable was required"); 
+		} 
+		catch (InvalidDataAccessApiUsageException ex) { 
+				// Ok 
+		} 
+    
+		dsControl.verify(); 
+	} 
+
+
+	public void testNullSqlWithPreparedStatementSetterQuery() throws Exception { 
+		final String sql = null; 
+		MockControl dsControl = EasyMock.niceControlFor(DataSource.class); 
+		final int expectedRowsUpdated = 111; 
+		DataSource ds = (DataSource) dsControl.getMock(); 
+		// Don't expect any calls 
+		dsControl.activate(); 
+
+
+
+		JdbcTemplate mockTemplate = new JdbcTemplate(ds); 
+		try { 
+				mockTemplate.query(sql, null, null); 
+				fail("Null SQL isn't permitted"); 
+		} 
+		catch (InvalidDataAccessApiUsageException ex) { 
+				// Ok 
+		} 
+
+		dsControl.verify(); 
+	} 
+
+	public void testNullSqlQuery() throws Exception { 
+		final String sql = null; 
+		MockControl dsControl = EasyMock.niceControlFor(DataSource.class); 
+		final int expectedRowsUpdated = 111; 
+		DataSource ds = (DataSource) dsControl.getMock(); 
+		// Don't expect any calls 
+		dsControl.activate(); 
+
+
+
+		JdbcTemplate mockTemplate = new JdbcTemplate(ds); 
+		try { 
+				mockTemplate.query(sql, null); 
+				fail("Null SQL isn't permitted"); 
+		} 
+		catch (InvalidDataAccessApiUsageException ex) { 
+				// Ok 
+		} 
+
+		dsControl.verify(); 
+	} 
+
+
 	
 	/**
 	 * Check that if we have a null PreparedStatementSetter we invoke the update method

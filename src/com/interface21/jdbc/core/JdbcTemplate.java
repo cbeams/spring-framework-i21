@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import com.interface21.dao.DataAccessException;
+import com.interface21.dao.InvalidDataAccessApiUsageException;
 
 /**
  * <b>This is the central class in this package.</b>
@@ -45,6 +46,9 @@ import com.interface21.dao.DataAccessException;
  * <br>Because this class is parameterizable by the callback interfaces and the
  * SQLExceptionTranslater interface, it isn't necessary to subclass it.
  * @author  Rod Johnson
+ * @author Juergen Hoeller
+ * @author Yann Caroff
+ * @author Thomas Risberg
  * @author Isabelle Muszynski
  * @see com.interface21.dao
  * @version $Id$
@@ -150,6 +154,9 @@ public class JdbcTemplate {
      * the query
      */
     public void query(String sql, RowCallbackHandler callbackHandler) throws DataAccessException {
+		if (sql == null) 
+			throw new InvalidDataAccessApiUsageException("SQL may not be null"); 
+        
 	Connection con = null;
 	PreparedStatement ps = null;
 	ResultSet rs = null;
@@ -233,6 +240,44 @@ public class JdbcTemplate {
 	    DataSourceUtils.closeConnectionIfNecessary(this.dataSource, con);
 	}
     } 	// query
+    
+    
+	/** 
+	 * Query given SQL to create a prepared statement from SQL and a   
+	 * PreparedStatementSetter implementation that knows how to bind values 
+	 * to the query. 
+	 * @param sql SQL to execute 
+	 * @param pss object that knows how to set values on the prepared statement. 
+	 * If this is null, the SQL will be assumed to contain no bind parameters.
+	 * Even if there are no bind parameters, this object may be used to
+	 * set fetch size and other performance options. 
+	 * @param callbackHandler object that will extract results 
+	 * @throws DataAccessException if the query fails 
+	 */ 
+	public void query(final String sql, final PreparedStatementSetter pss, RowCallbackHandler callbackHandler) throws DataAccessException {
+		if (sql == null) 
+			throw new InvalidDataAccessApiUsageException("SQL may not be null"); 
+        
+	   if (pss == null) { 
+		  	// Check there are no bind parameters, in which case pss could not be null 
+			if (sql.indexOf("?") != -1) 
+				   throw new InvalidDataAccessApiUsageException("SQL '" + sql + "' requires at least one bind variable, but PreparedStatementSetter parameter was null");
+		   query(sql, callbackHandler); 
+	   } 
+	   else { 
+	   		// Wrap it in a new PreparedStatementCreator
+		   query(new PreparedStatementCreator() { 
+				   public PreparedStatement createPreparedStatement(Connection conn) throws SQLException { 
+					   PreparedStatement ps = conn.prepareStatement(sql); 
+					   pss.setValues(ps); 
+					   return ps; 
+				   } 
+				   public String getSql() { 
+						return sql; 
+				   } 
+		   }, callbackHandler); 
+	   } 
+	}
 
 
     /**
@@ -498,7 +543,7 @@ public class JdbcTemplate {
      * @return an array of the number of rows affected by each statement
      * @throws DataAccessException if there is any problem issuing the update
      */
-    public int[] batchUpdate(String sql, BulkPreparedStatementSetter setter) throws DataAccessException {
+    public int[] batchUpdate(String sql, BatchPreparedStatementSetter setter) throws DataAccessException {
 	Connection con = null;
 	try {
 	    con = DataSourceUtils.getConnection(this.dataSource);
