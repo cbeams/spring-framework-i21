@@ -82,8 +82,15 @@ public class JdbcTemplate {
 	 * Construct a new JdbcTemplate, given a DataSource to use to obtain
 	 * connections
 	 * @param dataSource J2EE DataSource to use to obtain connections from
+	 * @throws InvalidParameterException when a null DataSource is used as
+	 *          a parameter
 	 */
-	public JdbcTemplate(DataSource dataSource) {
+	public JdbcTemplate(DataSource dataSource) 
+			throws InvalidParameterException {
+		if (dataSource == null) {
+	      throw new InvalidParameterException("dataSource", "null");
+    	}
+		
 		this.dataSource = dataSource;
 		this.exceptionTranslater = new SQLStateSQLExceptionTranslater();
 	}
