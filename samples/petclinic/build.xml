@@ -19,14 +19,24 @@
   <property name="testhtml.dir" value="${testreports.dir}/html"/>
 
   <property name="docs.dir" value="${war.dir}/docs"/>
-
   <property name="prj.zip" value="${name}-${version}.zip"/>
+
+	<property name="spring.root" value="../.."/>
 
 	<property file="build.properties"/>
 
 	<path id="master-classpath">
 		<fileset dir="${lib.dir}">
-			<include name="**/*.jar"/>
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${spring.root}/lib/j2ee">
+			<include name="servlet.jar"/>
+		</fileset>
+		<fileset dir="${spring.root}/lib/log4j">
+			<include name="commons-logging.jar"/>
+		</fileset>
+		<fileset dir="${spring.root}/dist">
+			<include name="spring-full*.jar"/>
 		</fileset>
 	</path>
 
@@ -62,10 +72,14 @@
     <jar jarfile="${war.dir}/WEB-INF/lib/petclinic.jar" compress="true" basedir="${build.dir}"/>
 		<copy todir="${war.dir}/WEB-INF/lib">
 			<fileset dir="${lib.dir}">
-				<include name="commons-logging.jar"/>
-				<include name="spring-full*.jar"/>
 				<include name="hsqldb.jar"/>
 				<include name="mysql*.jar"/>
+			</fileset>
+			<fileset dir="../../lib/log4j">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="../../dist">
+				<include name="spring-full*.jar"/>
 			</fileset>
 		</copy>
 	</target>
