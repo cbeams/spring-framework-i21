@@ -100,10 +100,12 @@ public void increasePriceOfAllProductsInCategory(final String category) {<br>
 <p>Note that switching from native Hibernate transaction management to JTA, i.e. when facing distributed transaction requirements, is just a matter of configuration. Both strategies allow for proper JVM-level cache handling with Hibernate - without container-specific transaction manager lookup or JCA connector (as long as not using EJB to initiate transactions). Additionally, HibernateTransactionManager can export the JDBC Connection used by Hibernate for plain JDBC access code too, just like DataSourceTransactionManager does. This allows for high level transaction demarcation with mixed Hibernate and plain JDBC data access - without JTA (on one database)!
 
 
-<h3><p>Resources</h3>
+<h3><p>Links</h3>
 
 <a href="http://www.springframework.org" target="_">Spring Framework website</a><br>
+
 <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/orm/hibernate" target="_">Hibernate support (CVS)</a><br>
+
 <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/transaction" target="_">Transaction support (CVS)</a>
 
 </body>

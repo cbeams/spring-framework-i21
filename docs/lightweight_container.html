@@ -24,7 +24,7 @@ July 2003</i>
 <p>A lightweight container aims to avoid all of these inconveniences.
 
 
-<p><h3>2. Spring As Lightweight Container</h3>
+<p><h3>2. Spring as Lightweight Container</h3>
 
 <p>Spring is a very lightweight container in that:
 
@@ -108,7 +108,7 @@ July 2003</i>
 <p>Note that most business and data access objects will implement a respective interface, so that client classes like web controllers just need to know the interfaces. This allows for flexible reconfiguration, e.g. simply switching a certain bean definition to a different class that implements the same interface, without any implications on the definitions of client objects.
 
 
-<p><h3>5. Spring Application Context Vs PicoContainer</h3>
+<p><h3>5. Spring Application Context vs PicoContainer</h3>
 
 <p>Another lightweight container getting attention is the PicoContainer. It is built around components that specify dependencies via constructor arguments. This infrastructure intends to solve the same problems as Spring's application context concept but has some severe drawbacks:
 
@@ -143,9 +143,10 @@ July 2003</i>
 <p>Finally, regarding the argument that constructor-based "Type 3 IoC" cannot miss any dependencies: Why should every component need to receive instances for all possible dependencies and parameters? A bean-based approach, aka "Type 2 IoC", allows for optional dependencies without any hassle. We consider such flexibility more important than to avoid missing dependencies at any cost.
 
 
-<p><h3>Resources</h3>
+<p><h3>Links</h3>
 
 <a href="http://www.springframework.org" target="_">Spring Framework website</a><br>
+
 <a href="http://www.picocontainer.org" target="_">PicoContainer website</a><br>
 
 </body>

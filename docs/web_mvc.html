@@ -18,7 +18,7 @@ June 2003</i>
 <p>Note that Spring doesn't generally aim to compete with existing solutions. It rather fosters seamless integration with standards like Servlet, JSP, JTA, JNDI, JDBC, and JDO, and well-suited tools like Hibernate, Velocity, Log4J, and Caucho's Hessian/Burlap. The framework is designed to grow with the needs of your applications, in terms of technology choice: For example, you will probably use JTA via Spring's JtaTransactionManager if you need distributed transactions - but only then, as there are perfect replacements for single databases, like DataSourceTransactionManager or HibernateTransactionManager.
 
 
-<p><h3>2. Web MVC: The design of Spring's Web Framework</h3>
+<p><h3>2. Web MVC: The Design of Spring's Web Framework</h3>
 
 <p>Spring's web framework is designed around a DispatcherServlet that dispatches requests to handlers, with configurable handler mappings, view resolution, and locale and theme resolution. The default handler is a very simple Controller interface, just offering a "ModelAndView handleRequest(request,response)" method. This can already be used for application controllers, but you will prefer the included implementation hierarchy, consisting of AbstractController, AbstractCommandController, MultiActionController, SimpleFormController, AbstractWizardFormController. Application controllers will typically be subclasses of those. Note that you can choose an appropriate base class: If you don't have a form, you don't need a FormController. This is a major difference to Struts. 
 
@@ -29,7 +29,7 @@ June 2003</i>
 <p>Regarding views: Spring's view resolution is extremely flexible. A Controller implementation can even write a view directly to the response, returning null as ModelAndView. In the normal case, a ModelAndView instance consists of a view name and a model Map, containing bean names and corresponding objects (like a command or form, reference data, etc). View name resolution is highly configurable, either via bean names, via a properties file, or via your own ViewResolver implementation. The abstract model Map allows for complete abstraction of the view technology, without any hassle: Be it JSP, Velocity, or anything else - every renderer can be integrated directly. The model Map simply gets transformed into an appropriate format, like JSP request attributes or a Velocity template model. 
 
 
-<p><h3>3. Integration: Using a different Web Framework with Spring</h3>
+<p><h3>3. Integration: Using a Different Web Framework with Spring</h3>
 
 <p>Many teams will try to leverage their investments in terms of know-how and tools, both for existing projects and for new ones. Concretely, there are not only a large number of books and tools for Struts but also a lot of developers that have experience with it. Thus, if you can live with Struts' architectural flaws, it can still be a viable choice for the web layer. The same applies to WebWork and other web frameworks.
 
@@ -61,9 +61,10 @@ June 2003</i>
 </ul>
 
 
-<p><h3>Resources</h3>
+<p><h3>Links</h3>
 
 <a href="http://www.springframework.org" target="_">Spring Framework website</a><br>
+
 <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/springframework/main/src/com/interface21/web/servlet" target="_">Web MVC support (CVS)</a>
 
 </body>
