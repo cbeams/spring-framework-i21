@@ -42,18 +42,23 @@ import com.interface21.web.servlet.view.AbstractView;
 /**
  * View using Velocity template engine.
  * Based on code in the VelocityServlet shipped with Velocity.
- * Exposes the following JavaBean properties:
+ *
+ * <p>Exposes the following JavaBean properties:
+ * <ul>
  * <li>templateName: name of the Velocity template to be cached
  * <li>poolSize (optional, default=40): number of Velocity writers (refer to
  * Velocity documentation to see exactly what this means)
  * <li>cache: whether or not Velocity templates should be cached. They always should
  * be in production (the default), but setting this to false enables us to modify
  * Velocity templates without restarting the application
- * <li>exposeDateFormatter: whether to expose a DateFormatter helper object in the Velocity context. 
- * Defaults to false, as it creates an object that is only needed if we do date formatting.
- * Velocity is currently weak in this area.
- * <li>exposeCurrencyFormatter: whether to expose a CurrencyFormatter helper object.
+ * <li>exposeDateFormatter: whether to expose a date formatter helper object in the
+ * Velocity context. Defaults to false, as it creates an object that is only needed
+ * if we do date formatting. Velocity is currently weak in this area.
+ * <li>exposeCurrencyFormatter: whether to expose a Currency formatter helper object
+ * </ul>
+ *
  * @author Rod Johnson
+ * @see VelocityConfigurer
  */
 public class VelocityView extends AbstractView {
 	
@@ -66,47 +71,27 @@ public class VelocityView extends AbstractView {
 	/** Encoding for the output stream */
 	public static final String DEFAULT_OUTPUT_ENCODING = "ISO-8859-1";
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/**
-	 * Velocity Template
-	 */
-	private Template velocityTemplate;
+
+	private int poolSize = 40;
+
+	private boolean cache;
+
+	private boolean exposeDateFormatter;
+
+	private boolean exposeCurrencyFormatter;
 
 	/** Name of the Velocity template */
 	private String templateName;
 
-	private int poolSize = 40;
+	/** Velocity Template */
+	private Template velocityTemplate;
 
-	/**
-	 * Cache of writers
-	 */
-	private SimplePool writerPool = new SimplePool(40);
-
-	/**
-	* The encoding to use when generating outputing.
-	*/
+	/** The encoding to use when generating outputing */
 	private static String encoding = null;
 
-	private boolean cache;
-	
-	private boolean exposeDateFormatter;
-	
-	private boolean exposeCurrencyFormatter;
+	/** Cache of writers */
+	private SimplePool writerPool = new SimplePool(40);
 
-
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
-
-	/** Creates new VelocityView */
-	public VelocityView() {
-	}
-
-	//---------------------------------------------------------------------
-	// Bean properties
-	//---------------------------------------------------------------------
 
 	public void setPoolSize(int sz) {
 		this.poolSize = sz;
@@ -114,53 +99,26 @@ public class VelocityView extends AbstractView {
 		writerPool = new SimplePool(poolSize);
 	}
 
-	public int getPoolSize() {
-		return this.poolSize;
-	}
-
-	public boolean getCache() {
-		return this.cache;
-	}
-
 	public void setCache(boolean cache) {
 		this.cache = cache;
 	}
 	
-	
 	/**
-	 * Gets the exposeDateFormatter.
-	 * @return Returns a boolean
-	 */
-	public boolean getExposeDateFormatter() {
-		return exposeDateFormatter;
-	}
-
-	/**
-	 * Sets the exposeDateFormatter.
-	 * @param exposeDateFormatter The exposeDateFormatter to set
+	 * Set whether to expose a date formatter.
 	 */
 	public void setExposeDateFormatter(boolean exposeDateFormatter) {
 		this.exposeDateFormatter = exposeDateFormatter;
 	}
 
 	/**
-	 * Gets the exposeCurrencyFormatter.
-	 * @return Returns a boolean
-	 */
-	public boolean getExposeCurrencyFormatter() {
-		return exposeCurrencyFormatter;
-	}
-
-	/**
-	 * Sets the exposeCurrencyFormatter.
-	 * @param exposeCurrencyFormatter The exposeCurrencyFormatter to set
+	 * Set whether to expose a currency formatter.
 	 */
 	public void setExposeCurrencyFormatter(boolean exposeCurrencyFormatter) {
 		this.exposeCurrencyFormatter = exposeCurrencyFormatter;
 	}
-	
 
-	/** Set the name of the wrapped Velocity template.
+	/**
+	 * Set the name of the wrapped Velocity template.
 	 * This will cause the template to be loaded.
 	 * @param templateName the name of the wrapped Velocity template,
 	 * relative to the Velocity template root. For example,
@@ -168,13 +126,10 @@ public class VelocityView extends AbstractView {
 	 */
 	public void setTemplateName(String templateName) throws ServletException {
 		this.templateName = templateName;
-
 		encoding = RuntimeSingleton.getString(RuntimeSingleton.OUTPUT_ENCODING, DEFAULT_OUTPUT_ENCODING);
-
-		// Check that we can get the template,
-		// even if we might subsequently get it again
+		// Check that we can get the template, even if we might subsequently get it again
 		loadTemplate();
-	} 	// setTemplateName
+	}
 	
 	
 	/**
@@ -183,10 +138,8 @@ public class VelocityView extends AbstractView {
 	private void loadTemplate() throws ServletException {
 		String mesg = "Velocity resource loader is: [" + Velocity.getProperty("class.resource.loader.class") + "]; ";
 		try {
-			
-			this.velocityTemplate =  RuntimeSingleton.getTemplate(this.templateName);
-			
-		} 
+			this.velocityTemplate = RuntimeSingleton.getTemplate(this.templateName);
+		}
 		catch (ResourceNotFoundException ex) {
 			mesg += "Can't load Velocity template '" + this.templateName + "': is it on the classpath, under /WEB-INF/classes?";
 			logger.error(mesg, ex);
@@ -204,11 +157,6 @@ public class VelocityView extends AbstractView {
 		}
 	}
 	
-
-	//---------------------------------------------------------------------
-	// Implementation of View
-	//---------------------------------------------------------------------
-
 	/**
 	 * Render the view given the model to output.
 	 * @param model combined output Map, with dynamic values
@@ -225,9 +173,8 @@ public class VelocityView extends AbstractView {
 				"FastVelocityView with name '" + getName() + "' is not configured: templateName must have been set");
 				
 		// We already hold a reference to the template, but we might want to load it
-		// if not caching.
-		// As Velocity itself caches templates, so our ability to cache templates
-		// in this class is a minor optimization only.
+		// if not caching. As Velocity itself caches templates, so our ability to
+		// cache templates in this class is a minor optimization only.
 		if (!this.cache) {
 			loadTemplate();
 		}
@@ -235,14 +182,10 @@ public class VelocityView extends AbstractView {
 		response.setContentType(getContentType());
 
 		try {
-			// Create Velocity context : 
+			// Create Velocity context
 			Context context = new VelocityContext();
-
-			// Expose model to the VelocityContext
 			exposeModelsAsContextAttributes(model, context);
-			
 			exposeHelpers(context, request);
-
 			mergeTemplate(this.velocityTemplate, context, response);
 
 			if (logger.isDebugEnabled())
@@ -281,8 +224,8 @@ public class VelocityView extends AbstractView {
 	}
 
 	/**
-	 * Expose the models in the given map as Velocity context attributes. Names will be
-	 * taken from the map. This method can be used by different view type.
+	 * Expose the models in the given map as Velocity context attributes.
+	 * Names will be taken from the map.
 	 * @param model Map of model data to expose
 	 * @param vContext VelocityContext to add data to
 	 */
@@ -342,28 +285,25 @@ public class VelocityView extends AbstractView {
 	private void mergeTemplate(Template template, Context context, HttpServletResponse response) throws Exception {
 		ServletOutputStream output = response.getOutputStream();
 		VelocityWriter vw = null;
-
 		try {
-			vw = (VelocityWriter) writerPool.get();
-
+			vw = (VelocityWriter) this.writerPool.get();
 			if (vw == null) {
-				vw = new VelocityWriter(new OutputStreamWriter(output, encoding), 4 * 1024, true);
+				vw = new VelocityWriter(new OutputStreamWriter(output, this.encoding), 4 * 1024, true);
 			}
 			else {
-				vw.recycle(new OutputStreamWriter(output, encoding));
+				vw.recycle(new OutputStreamWriter(output, this.encoding));
 			}
-
 			template.merge(context, vw);
 		}
 		finally {
 			try {
 				if (vw != null) {
 					vw.flush();
-					writerPool.put(vw);
+					this.writerPool.put(vw);
 					output.close();
 				}
 			}
-			catch (Exception e) {
+			catch (IOException ex) {
 				// do nothing
 			}
 		}
