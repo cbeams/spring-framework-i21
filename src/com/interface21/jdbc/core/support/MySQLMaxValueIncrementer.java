@@ -19,21 +19,25 @@ import com.interface21.jdbc.datasource.DataSourceUtils;
  * Class to increment maximum value of a given MySQL table with the equivalent of an auto-increment column
  * (note : if you use this class, your MySQL key column should NOT be auto-increment, as the sequence table
  * does the job)
- * <br>The sequence is kept in a table; there should be one sequence table per table that needs an auto-generated key.
+ * <br>The sequence is kept in a table; there should be one sequence table per table that needs an auto-generated key.  
+ * The table type of the sequence table should be MyISAM so the sequences are allocated without regerd to any
+ * transactions that might be in progress.
  * <p>
  * Example
  * <code>
  * create table tab (id int unsigned not null primary key, text varchar(100));
- * create table tab_sequence (seq int unsigned not null auto_increment primary key);
+ * create table tab_sequence (value int not null) type=MYISAM;
  * insert into tab_sequence values(0);
  * </code>
  * </p>
  * <p>If incrementBy is set, the intermediate values are served without querying the
- * database. If the server is stopped or crashes, the unused values will never be
- * served. The maximum hole size in numbering is consequently the value of incrementBy.
+ * database. If the server or you application is stopped or crashes or a transaction 
+ * is rolled back, the unused values will never be served. The maximum hole size in 
+ * numbering is consequently the value of incrementBy.
  * </p>
  * @author <a href="mailto:isabelle@meta-logix.com">Isabelle Muszynski</a>
  * @author <a href="mailto:jp.pawlak@tiscali.fr">Jean-Pierre Pawlak</a>
+ * @author Thomas Risberg
  * @version $Id$
  */
 
@@ -164,10 +168,7 @@ public class MySQLMaxValueIncrementer
 		private String insertSql;
 
 		/** The Sql string for retrieving the new sequence value */
-		private String selectSql = "select last_insert_id()";
-
-		/** The Sql string for cleaning the sequence table */
-		private String deleteSql;
+		private String updateSql = "select last_insert_id()";
 
 		/** The next id to serve */
 		private long nextId = 0;
@@ -192,13 +193,9 @@ public class MySQLMaxValueIncrementer
 					con = DataSourceUtils.getConnection(ds);
 					st = con.createStatement();
 					// Increment the sequence column
-					int count = incrementBy;
-					while (count-- > 0)
-						st.executeUpdate(insertSql);
+					st.executeUpdate(insertSql);
 					// Retrieve the new max of the sequence column
-					rs = st.executeQuery(selectSql);
-					// Zap excess records
-					st.executeUpdate(deleteSql);
+					rs = st.executeQuery(updateSql);
 					if (rs.next()) {
 						maxId = rs.getLong(1);
 						if (logger.isInfoEnabled())
@@ -239,23 +236,18 @@ public class MySQLMaxValueIncrementer
 
 		private void initPrepare() {
 			StringBuffer buf = new StringBuffer();
-			buf.append("insert into  ");
+			buf.append("update ");
 			buf.append(tableName);
-			buf.append("(");
+			buf.append(" set ");
 			buf.append(columnName);
-			buf.append(") values(NULL)");
+			buf.append(" = last_insert_id(");
+			buf.append(columnName);
+			buf.append(" + ");
+			buf.append(incrementBy);
+			buf.append(")");
 			insertSql = buf.toString();
 			if (logger.isInfoEnabled())
 				logger.info("insertSql = " + insertSql);
-			buf.delete(0, buf.length());
-			buf.append("delete from ");
-			buf.append(tableName);
-			buf.append(" where ");
-			buf.append(columnName);
-			buf.append(" < last_insert_id()");
-			deleteSql = buf.toString();
-			if (logger.isInfoEnabled())
-				logger.info("deleteSql = " + deleteSql);
 			dirty = false;
 		}
 	}
