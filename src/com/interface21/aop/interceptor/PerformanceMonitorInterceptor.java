@@ -9,9 +9,11 @@ import com.interface21.util.StopWatch;
 
 /**
  * Trivial performance monitor interceptor.
- * Could make this much more sophisticated, storing information.
- * Presently logs information using Log4j. This interceptor
- * has no effect on the intercepted method call.
+ * This interceptor has no effect on the intercepted method call.
+ *
+ * <p>Presently logs information using Commons Logging, at "info" level.
+ * Could make this much more sophisticated, storing information etc.
+ *
  * @author Rod Johnson
  * @author Dmitriy Kopylenko
  * @version $Id$
@@ -21,16 +23,16 @@ public class PerformanceMonitorInterceptor implements MethodInterceptor {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	public Object invoke(MethodInvocation invocation) throws Throwable {
-		logger.info("Begin...");
+		String name = invocation.getMethod().getDeclaringClass().getName() + "." + invocation.getMethod().getName();
+		logger.debug("Begin performance monitoring of method '" + name + "'");
 
-		StopWatch sw = new StopWatch();
-		sw.start(invocation.getMethod().getName());
+		StopWatch sw = new StopWatch(name);
+		sw.start(name);
 		Object rval = invocation.proceed();
 		sw.stop();
 
-		logger.info(sw.prettyPrint());
-
-		logger.info("End.");
+		logger.info(sw.shortSummary());
+		logger.debug("End performance monitoring of method '" + name + "'");
 
 		return rval;
 	}
