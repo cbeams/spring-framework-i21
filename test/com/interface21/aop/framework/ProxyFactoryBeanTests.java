@@ -131,7 +131,7 @@ public class ProxyFactoryBeanTests extends TestCase {
 		
 		ProxyFactoryBean config = (ProxyFactoryBean) factory.getBean("&test2");
 		long time = 666L;
-		TimestampAspectInterceptor ti = new TimestampAspectInterceptor();
+		TimestampIntroductionInterceptor ti = new TimestampIntroductionInterceptor();
 		ti.setTime(time);
 		// add to front of queue
 		int oldCount = config.getMethodPointcuts().size();
@@ -294,8 +294,8 @@ public class ProxyFactoryBeanTests extends TestCase {
 	 * global interceptors can add aspect interfaces.
 	 * NB: Add only via global interceptors in XML file.
 	 */
-	public static class GlobalAspectInterfaceInterceptor implements AspectInterfaceInterceptor {
-		public Class[] getAspectInterfaces() {
+	public static class GlobalAspectInterfaceInterceptor implements IntroductionInterceptor {
+		public Class[] getIntroducedInterfaces() {
 			return new Class[] { AddedGlobalInterface.class};
 		}
 		public Object invoke(Invocation invocation) throws Throwable {
