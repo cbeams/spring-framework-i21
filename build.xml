@@ -171,6 +171,7 @@
 				<include name="com/interface21/aop/**"/>
 				<include name="com/interface21/context/**"/>
 				<include name="com/interface21/ejb/access/**"/>
+				<include name="com/interface21/orm/**"/>
 				<include name="com/interface21/transaction/**"/>
 				<include name="com/interface21/validation/**"/>
 			</fileset>
@@ -190,6 +191,7 @@
 		<jar jarfile="${dist.dir}/${spring-web.jar}">
 
 			<fileset dir="${build.dir}">
+				<include name="com/interface21/ui/**"/>
 				<include name="com/interface21/web/**"/>
 			</fileset>
 
