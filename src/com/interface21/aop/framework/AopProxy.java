@@ -35,6 +35,8 @@ import org.apache.commons.logging.LogFactory;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @version $Id$
+ * @see java.lang.reflect.Proxy
+ * @see net.sf.cglib.Enhancer
  */
 public class AopProxy implements InvocationHandler {
 	
@@ -138,19 +140,22 @@ public class AopProxy implements InvocationHandler {
 		else {
 			// proxy the given class itself: CGLIB necessary
 			logger.info("Creating CGLIB proxy for [" + this.config.getTarget() + "]");
-			return Enhancer.enhance(this.config.getTarget().getClass(), this.config.getProxiedInterfaces(),
-			                        new CglibInterceptorWrapper(this));
+			// delegate to inner class to avoid AopProxy runtime dependency on CGLIB
+			// --> J2SE proxies work without cglib.jar then
+			return (new CglibProxyFactory()).createProxy();
 		}
 	}
 
 	/**
-	 * Equality means interceptors and interfaces are ==
+	 * Equality means interceptors and interfaces are ==.
+	 * This will only work with J2SE dynamic proxies,	not with CGLIB ones
+	 * (as CGLIB doesn't delegate equals calls to proxies).
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * @param other may be a dynamic proxy wrapping an instance
 	 * of this class
 	 */
-	public boolean equals(Object other) {		
-		if (other == null) 
+	public boolean equals(Object other) {
+		if (other == null)
 			return false;
 		if (other == this)
 			return true;
@@ -165,12 +170,6 @@ public class AopProxy implements InvocationHandler {
 				return false;
 			aopr2 = (AopProxy) ih; 
 		}
-		/*
-		else if (Enhancer.getMethodInterceptor(other) instanceof CglibInterceptorWrapper) {
-			CglibInterceptorWrapper iw = (CglibInterceptorWrapper) Enhancer.getMethodInterceptor(other);
-			aopr2 = iw.getProxy();
-		}
-		*/
 		else {
 			// Not a valid comparison
 			return false;
@@ -191,20 +190,20 @@ public class AopProxy implements InvocationHandler {
 	}
 
 
-	private static class CglibInterceptorWrapper implements MethodInterceptor {
+	/**
+	 * Putting CGLIB proxy creation in an inner class allows to avoid an AopProxy
+	 * runtime dependency on CGLIB --> J2SE proxies work without cglib.jar then.
+	 */
+	private class CglibProxyFactory {
 
-		private AopProxy proxy;
-
-		private CglibInterceptorWrapper(AopProxy proxy) {
-			this.proxy = proxy;
-		}
-
-		public AopProxy getProxy() {
-			return proxy;
-		}
-
-		public Object intercept(Object handler, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-			return proxy.invoke(handler, method, objects);
+		private Object createProxy() {
+			return Enhancer.enhance(config.getTarget().getClass(), config.getProxiedInterfaces(),
+				new MethodInterceptor() {
+					public Object intercept(Object handler, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+						return invoke(handler, method, objects);
+					}
+				}
+			);
 		}
 	}
 

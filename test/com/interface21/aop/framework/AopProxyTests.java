@@ -17,7 +17,6 @@ import org.aopalliance.MethodInvocation;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
-import com.interface21.aop.attributes.Attrib4jAttributeRegistry;
 import com.interface21.aop.interceptor.DebugInterceptor;
 import com.interface21.beans.IOther;
 import com.interface21.beans.ITestBean;
@@ -47,7 +46,7 @@ public class AopProxyTests extends TestCase {
 
 	public void testNoInterceptors() {
 		ProxyConfig pc =
-			new DefaultProxyConfig(new Class[] { ITestBean.class }, false, new Attrib4jAttributeRegistry());
+			new DefaultProxyConfig(new Class[] { ITestBean.class }, false, null);
 		// Add no interceptors
 		try {
 			AopProxy aop = new AopProxy(pc);
@@ -64,8 +63,7 @@ public class AopProxyTests extends TestCase {
 		MockControl miControl = EasyMock.controlFor(MethodInterceptor.class);
 		MethodInterceptor mi = (MethodInterceptor) miControl.getMock();
 
-		AttributeRegistry r = new Attrib4jAttributeRegistry();
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, r);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, null);
 		pc.addInterceptor(mi);
 		AopProxy aop = new AopProxy(pc);
 
@@ -110,8 +108,7 @@ public class AopProxyTests extends TestCase {
 				return s;
 			}
 		};
-		AttributeRegistry r = new Attrib4jAttributeRegistry();
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, context, r);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, context, null);
 		pc.addInterceptor(mi);
 		AopProxy aop = new AopProxy(pc);
 
@@ -135,8 +132,7 @@ public class AopProxyTests extends TestCase {
 		};
 		InvokerInterceptor ii = new InvokerInterceptor(raw);
 
-		AttributeRegistry r = new Attrib4jAttributeRegistry();
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, r);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, null);
 		pc.addInterceptor(ii);
 		AopProxy aop = new AopProxy(pc);
 
@@ -183,8 +179,7 @@ public class AopProxyTests extends TestCase {
 		TestBean raw = new EqualsTestBean();
 		InvokerInterceptor ii = new InvokerInterceptor(raw);
 
-		AttributeRegistry r = new Attrib4jAttributeRegistry();
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, r);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, null);
 		pc.addInterceptor(ii);
 		AopProxy aop = new AopProxy(pc);
 
@@ -196,10 +191,9 @@ public class AopProxyTests extends TestCase {
 		assertTrue("test equals proxy", tb.equals(aop));
 
 		// Test with AOP proxy with additional interceptor
-		ProxyConfig pc2 = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, r);
+		ProxyConfig pc2 = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, null);
 		pc2.addInterceptor(new DebugInterceptor());
 		assertTrue(!tb.equals(new AopProxy(pc2)));
-		//assertTrue(!tb.equals(AopProxy.getProxy(new AopProxy(pc2))));
 
 		// Test with any old dynamic proxy
 		assertTrue(!tb.equals(Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { ITestBean.class }, new InvocationHandler() {
@@ -209,38 +203,10 @@ public class AopProxyTests extends TestCase {
 		})));
 	}
 
-	/*
-	public void testEqualsWithCglibProxy() throws Throwable {
-		EqualsTestBean raw = new EqualsTestBean();
-		InvokerInterceptor ii = new InvokerInterceptor(raw);
-
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] {}, false, null);
-		pc.addInterceptor(ii);
-		AopProxy aop = new AopProxy(pc);
-
-		EqualsTestBean tb = (EqualsTestBean) aop.getProxy();
-		assertTrue("proxy equals itself", tb.equals(tb));
-		assertTrue("proxy is equal to proxied object", tb.equals(raw));
-		//test null eq
-		assertTrue("tb.equals(null) is false", !tb.equals(null));
-		assertTrue("test equals proxy", tb.equals(aop));
-
-		// Test with AOP proxy with additional interceptor
-		ProxyConfig pc2 = new DefaultProxyConfig(new Class[] {}, false, null);
-		pc2.addInterceptor(new DebugInterceptor());
-		assertTrue(!tb.equals(new AopProxy(pc2)));
-	}
-	*/
-
-	/**
-	 * Test canAttach
-	 * @throws Throwable
-	 */
 	public void testCanAttach() throws Throwable {
 		final TrapInvocationInterceptor tii = new TrapInvocationInterceptor();
 
-		AttributeRegistry r = new Attrib4jAttributeRegistry();
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, r);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, false, null);
 		pc.addInterceptor(tii);
 		pc.addInterceptor(new MethodInterceptor() {
 			public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -259,7 +225,6 @@ public class AopProxyTests extends TestCase {
 
 	/**
 	 * TODO also test undeclared: decide what it should do!
-	 * @throws Throwable
 	 */
 	public void testDeclaredException() throws Throwable {
 		final Exception ex = new Exception();
@@ -269,8 +234,7 @@ public class AopProxyTests extends TestCase {
 				throw ex;
 			}
 		};
-		AttributeRegistry r = new Attrib4jAttributeRegistry();
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, true, r);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class }, true, null);
 		pc.addInterceptor(mi);
 		AopProxy aop = new AopProxy(pc);
 
@@ -286,8 +250,7 @@ public class AopProxyTests extends TestCase {
 
 	public void testTargetCanGetInvocation() throws Throwable {
 		final ContextTestBean target = new ContextTestBean();
-		AttributeRegistry r = new Attrib4jAttributeRegistry();
-		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class, IOther.class }, true, r);
+		ProxyConfig pc = new DefaultProxyConfig(new Class[] { ITestBean.class, IOther.class }, true, null);
 		TrapInvocationInterceptor tii = new TrapInvocationInterceptor() {
 			public Object invoke(MethodInvocation invocation) throws Throwable {
 					// Assert that target matches BEFORE invocation returns
@@ -304,8 +267,8 @@ public class AopProxyTests extends TestCase {
 		tb.getName();
 		assertTrue(tii.invocation == target.invocation);
 		assertTrue(target.invocation.getInvokedObject() == target);
-		assertTrue( target.invocation.getMethod().getDeclaringClass() == ITestBean.class);
-		//assertTrue( target.invocation.getProxy() == tb);
+		assertTrue(target.invocation.getMethod().getDeclaringClass() == ITestBean.class);
+		//assertTrue(target.invocation.getProxy() == tb);
 
 		((IOther) tb).absquatulate();
 		MethodInvocation minv =  tii.invocation;
