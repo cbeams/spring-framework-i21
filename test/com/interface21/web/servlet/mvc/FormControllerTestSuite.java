@@ -15,6 +15,7 @@ import com.interface21.validation.*;
 import com.interface21.web.mock.MockHttpRequest;
 import com.interface21.web.mock.MockHttpResponse;
 import com.interface21.web.servlet.ModelAndView;
+import com.interface21.web.bind.ServletRequestDataBinder;
 
 /**
  *
@@ -272,26 +273,19 @@ public class FormControllerTestSuite extends TestCase {
 			super(TestBean.class, BEAN_NAME);
 		}
 		
-
-		/**
-		 * @see FormController#formBackingObject(HttpServletRequest)
-		 */
 		protected Object formBackingObject(HttpServletRequest request) throws ServletException {
 			TestBean person = new TestBean();
 			person.setAge(DEFAULT_AGE);
 			return person;
 		}
 
-		/**
-		 * @see FormController#onSubmit(HttpServletRequest, HttpServletResponse, Object, DataBinder)
-		 */
 		protected ModelAndView onSubmit(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Object command,
-			DataBinder binder)
+			ServletRequestDataBinder errors)
 			throws ServletException, IOException {
-			return super.onSubmit(request, response, command, binder);
+			return super.onSubmit(request, response, command, errors);
 		}
 	}
 	
