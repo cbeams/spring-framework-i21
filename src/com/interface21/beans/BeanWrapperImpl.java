@@ -25,10 +25,10 @@ import java.beans.VetoableChangeSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +60,7 @@ import com.interface21.beans.propertyeditors.StringArrayPropertyEditor;
  * registerCustomEditor method to register an editor for the particular instance.
  *
  * @author Rod Johnson
+ * @author Juergen Hoeller
  * @since 15 April 2001
  * @version $Revision$
  * @see #registerCustomEditor
@@ -310,7 +311,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 		return (PropertyEditor) this.customEditors.get(requiredType);
 	}
 
-
 	/**
 	 * Convert the value to the required type (if necessary from a string),
 	 * to create a PropertyChangeEvent.
@@ -328,15 +328,14 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * value.
 	 */
 	private PropertyChangeEvent createPropertyChangeEventWithTypeConversionIfNecessary(
-							Object target, String propertyName,
-							Object oldValue, Object newValue,
+							Object target, String propertyName,	Object oldValue, Object newValue,
 							Class requiredType) throws BeansException {
 		return new PropertyChangeEvent(target, propertyName, oldValue, doTypeConversionIfNecessary(target, propertyName, oldValue, newValue, requiredType));
 	}
 
 	/**
-	 * Convert the value to the required type (if necessary from a string)
-	 * Conversions from String to any type use the setAsTest() method of
+	 * Convert the value to the required type (if necessary from a String).
+	 * Conversions from String to any type use the setAsText() method of
 	 * the PropertyEditor class. Note that a PropertyEditor must be registered
 	 * for this class for this to work. This is a standard Java Beans API.
 	 * A number of property editors are automatically registered by this class.
@@ -348,10 +347,8 @@ public class BeanWrapperImpl implements BeanWrapper {
 	 * @throws BeansException if there is an internal error
 	 * @return new value, possibly the result of type convertion.
 	 */
-	public Object doTypeConversionIfNecessary(
-							Object target, String propertyName,
-							Object oldValue, Object newValue,
-							Class requiredType) throws BeansException {
+	public Object doTypeConversionIfNecessary(Object target, String propertyName, Object oldValue,
+																						Object newValue, Class requiredType) throws BeansException {
 		// Only need to cast if value isn't null
 		if (newValue != null) {
 			// We may need to change the value of newValue
@@ -385,16 +382,13 @@ public class BeanWrapperImpl implements BeanWrapper {
 		return newValue;
 	}
 
-	/**
-	 * @see BeanWrapper#setPropertyValue(String, Object)
-	 */
 	public void setPropertyValue(String propertyName, Object value) throws PropertyVetoException, BeansException {
 		setPropertyValue(new PropertyValue(propertyName, value));
 	}
 
 	/**
 	 * Is the property nested? That is, does it contain the nested
-	 * property separator (usually .)
+	 * property separator (usually ".").
 	 * @param path property path
 	 * @return boolean is the property nested
 	 */
@@ -564,7 +558,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 		}
 	}
 
-
 	/**
 	 * Bulk update from a Map.
 	 * Bulk updates from PropertyValues are more powerful: this method is
@@ -577,18 +570,10 @@ public class BeanWrapperImpl implements BeanWrapper {
 		setPropertyValues(new MutablePropertyValues(map));
 	}
 
-
-	/**
-	 * @see BeanWrapper#setPropertyValues(PropertyValues)
-	 */
 	public void setPropertyValues(PropertyValues pvs) throws BeansException {
 		setPropertyValues(pvs, false, null);
 	}
 
-
-	/**
-	 * @see BeanWrapper#setPropertyValues(PropertyValues, boolean, PropertyValuesValidator)
-	 */
 	public void setPropertyValues(PropertyValues propertyValues,
 					boolean ignoreUnknown, PropertyValuesValidator pvsValidator) throws BeansException {
 		// Create only if needed
@@ -634,10 +619,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 		}
 	}
 
-
-	/**
-	 * @see BeanWrapper#getPropertyValue(String)
-	 */
 	public Object getPropertyValue(String propertyName) throws BeansException {
 		if (isNestedProperty(propertyName)) {
 			BeanWrapper nestedBw = getBeanWrapperForNestedProperty(propertyName);
@@ -666,7 +647,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	}
 
 	/**
-	 * Get the value of an indexed property
+	 * Get the value of an indexed property.
 	 * @param propertyName name of the property to get value of
 	 * @param index index from 0 of the property
 	 * @return the value of the property
@@ -702,17 +683,10 @@ public class BeanWrapperImpl implements BeanWrapper {
 		return cachedIntrospectionResults.getBeanInfo().getPropertyDescriptors();
 	}
 
-
-	/**
-	 * @see BeanWrapper#getPropertyDescriptor(String)
-	 */
 	public PropertyDescriptor getPropertyDescriptor(String propertyName) throws BeansException {
 		return cachedIntrospectionResults.getPropertyDescriptor(propertyName);
 	}
 
-	/**
-	 * @see BeanWrapper#isReadableProperty(String)
-	 */
 	public boolean isReadableProperty(String propertyName) {
 		try {
 			return getPropertyDescriptor(propertyName).getReadMethod() != null;
@@ -723,9 +697,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 		}
 	}
 
-	/**
-	 * @see BeanWrapper#isWritableProperty(String)
-	 */
 	public boolean isWritableProperty(String propertyName) {
 		try {
 			return getPropertyDescriptor(propertyName).getWriteMethod() != null;
@@ -736,10 +707,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 		}
 	}
 
-	/**
-	 * Invoke a method
-	 * @see BeanWrapper#invoke(String, Object[])
-	 */
 	public Object invoke(String methodName, Object[] args) throws BeansException {
 		try {
 			MethodDescriptor md = this.cachedIntrospectionResults.getMethodDescriptor(methodName);
@@ -763,9 +730,6 @@ public class BeanWrapperImpl implements BeanWrapper {
 		}
 	}
 
-	/**
-	 * @see BeanWrapper#getPropertyDescriptors()
-	 */
 	public PropertyDescriptor[] getPropertyDescriptors() {
 		return cachedIntrospectionResults.getBeanInfo().getPropertyDescriptors();
 	}
@@ -773,81 +737,54 @@ public class BeanWrapperImpl implements BeanWrapper {
 	//---------------------------------------------------------------------
 	// Bean event support
 	//---------------------------------------------------------------------
-	/**
-	 * @see BeanWrapper#addVetoableChangeListener(VetoableChangeListener)
-	 */
+
 	public void addVetoableChangeListener(VetoableChangeListener l) {
 		if (eventPropagationEnabled)
 			vetoableChangeSupport.addVetoableChangeListener(l);
 	}
 
-	/**
-	 * @see BeanWrapper#removeVetoableChangeListener(VetoableChangeListener)
-	 */
 	public void removeVetoableChangeListener(VetoableChangeListener l) {
 		if (eventPropagationEnabled)
 			vetoableChangeSupport.removeVetoableChangeListener(l);
 	}
 
-	/**
-	 * @see BeanWrapper#addVetoableChangeListener(String, VetoableChangeListener)
-	 */
 	public void addVetoableChangeListener(String propertyName, VetoableChangeListener l) {
 		if (eventPropagationEnabled)
 			vetoableChangeSupport.addVetoableChangeListener(propertyName, l);
 	}
 
-	/**
-	 * @see BeanWrapper#removeVetoableChangeListener(String, VetoableChangeListener)
-	 */
 	public void removeVetoableChangeListener(String propertyName, VetoableChangeListener l) {
 		if (eventPropagationEnabled)
 			vetoableChangeSupport.removeVetoableChangeListener(propertyName, l);
 	}
 
-	/**
-	 * @see BeanWrapper#addPropertyChangeListener(PropertyChangeListener)
-	 */
 	public void addPropertyChangeListener(PropertyChangeListener l) {
 		if (eventPropagationEnabled)
 			propertyChangeSupport.addPropertyChangeListener(l);
 	}
 
-	/**
-	 * @see BeanWrapper#removePropertyChangeListener(PropertyChangeListener)
-	 */
 	public void removePropertyChangeListener(PropertyChangeListener l) {
 		if (eventPropagationEnabled)
 			propertyChangeSupport.removePropertyChangeListener(l);
 	}
 
-	/**
-	 * @see BeanWrapper#addPropertyChangeListener(String, PropertyChangeListener)
-	 */
 	public void addPropertyChangeListener(String propertyName, PropertyChangeListener l) {
 		if (eventPropagationEnabled)
 			propertyChangeSupport.addPropertyChangeListener(propertyName, l);
 	}
 
-	/**
-	 * @see BeanWrapper#removePropertyChangeListener(String, PropertyChangeListener)
-	 */
 	public void removePropertyChangeListener(String propertyName, PropertyChangeListener l) {
 		if (eventPropagationEnabled)
 			propertyChangeSupport.removePropertyChangeListener(propertyName, l);
 	}
 
-	/**
-	 * @see BeanWrapper#isEventPropagationEnabled()
-	 */
 	public boolean isEventPropagationEnabled() {
 		return eventPropagationEnabled;
 	}
 
 	/**
-	 * Disabling event propagation improves
-	 * performance
-	 * @param flag whether event propagation should be enabled.
+	 * Disabling event propagation improves performance.
+	 * @param flag whether event propagation should be enabled
 	 */
 	public void setEventPropagationEnabled(boolean flag) {
 		this.eventPropagationEnabled = flag;
