@@ -94,6 +94,8 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	private static final String KEY_ATTRIBUTE = "key";
 
 	private static final String ENTRY_ELEMENT = "entry";
+	
+	private static final String INIT_METHOD_ATTRIBUTE = "init-method";
 
 	private static final String BEAN_REF_ATTRIBUTE = "bean";
 
@@ -275,7 +277,10 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 				throw new FatalBeanException("No classname or parent in bean definition [" + beanName + "]", null);
 			if (classname != null) {
 				ClassLoader cl = Thread.currentThread().getContextClassLoader();
-				return new RootBeanDefinition(Class.forName(classname, true, cl), pvs, singleton);
+				String initMethodName = el.getAttribute(INIT_METHOD_ATTRIBUTE);
+				if (initMethodName.equals(""))
+					initMethodName = null;
+				return new RootBeanDefinition(Class.forName(classname, true, cl), pvs, singleton, initMethodName);
 			}
 			else {
 				return new ChildBeanDefinition(parent, pvs, singleton);

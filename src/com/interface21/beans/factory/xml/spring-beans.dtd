@@ -18,6 +18,12 @@
 <!ATTLIST bean class CDATA #IMPLIED>
 <!ATTLIST bean parent CDATA #IMPLIED>
 
+<!-- 
+	Optional attribute for the name of the custom initialization method
+	to invoke after setting bean properties. The method must have no arguments.
+-->
+<!ATTLIST bean init-method CDATA #IMPLIED>
+
 <!-- Todo default=true -->
 <!ATTLIST bean singleton CDATA #IMPLIED>
 

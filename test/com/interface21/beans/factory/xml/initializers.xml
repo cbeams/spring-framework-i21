@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="init-method1" 
+		class="com.interface21.beans.factory.xml.XmlBeanFactoryTestSuite$DoubleInitializer"
+		init-method="init"
+	>
+		<property name="num"><value>7</value></property>
+	</bean>
+	
+	<bean id="init-method2" 
+		class="com.interface21.beans.factory.xml.XmlBeanFactoryTestSuite$BadInitializer"
+		init-method="init2"
+		singleton="false"
+	>
+	</bean>
+	
+	<bean id="init-method3" 
+		class="com.interface21.beans.TestBean"
+		init-method="init"
+		singleton="false"
+	>
+	</bean>
+	
+	<bean id="init-and-ib" 
+		class="com.interface21.beans.factory.xml.XmlBeanFactoryTestSuite$InitAndIB"
+		init-method="customInit"
+	>
+	</bean>
+	
+
+</beans>

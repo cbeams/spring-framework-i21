@@ -111,25 +111,6 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory interface
 	//---------------------------------------------------------------------
-
-	/**
-	 * All the other methods in this class invoke this method
-	 * although beans may be cached after being instantiated by this method
-	 * @param name name of the bean. Must be unique in the BeanFactory
-	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
-	 * if triggered by the creation of another bean, or null else
-	 * (necessary to resolve circular references)
-	 * @return a new instance of this bean
-	 */
-	private Object createBean(String name, Map newlyCreatedBeans) throws BeansException {
-		if (newlyCreatedBeans == null) {
-			newlyCreatedBeans = new HashMap();
-		}
-		Object bean = getBeanWrapperForNewInstance(name, newlyCreatedBeans).getWrappedInstance();
-		callLifecycleMethodsIfNecessary(bean, name);
-		return bean;
-	}
-
 	/**
 	 * Return the bean name, stripping out the factory deference prefix if necessary,
 	 * and resolving aliases to canonical names.
@@ -287,22 +268,34 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	// Implementation methods
 	//---------------------------------------------------------------------
 	/**
+	 * All the other methods in this class invoke this method
+	 * although beans may be cached after being instantiated by this method.
 	 * All bean instantiation within this class is performed by this method.
 	 * Return a BeanWrapper object for a new instance of this bean.
 	 * First look up BeanDefinition for the given bean name.
 	 * Uses recursion to support instance "inheritance".
+	 * @param name name of the bean. Must be unique in the BeanFactory
+	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
+	 * if triggered by the creation of another bean, or null else
+	 * (necessary to resolve circular references)
+	 * @return a new instance of this bean
 	 */
-	private BeanWrapper getBeanWrapperForNewInstance(String name, Map newlyCreatedBeans) throws BeansException {
-		logger.debug("getBeanWrapperForNewInstance (" + name + ")");
+	private Object createBean(String name, Map newlyCreatedBeans) throws BeansException {
+		if (newlyCreatedBeans == null) {
+			newlyCreatedBeans = new HashMap();
+		}
+		logger.debug("createBean (" + name + ")");
 		RootBeanDefinition mergedBeanDefinition = getMergedBeanDefinition(name);
-		logger.debug("getBeanWrapperForNewInstance merged definition is: " + mergedBeanDefinition);
+		logger.debug("Merged definition is: " + mergedBeanDefinition);
 		BeanWrapper instanceWrapper = new BeanWrapperImpl(mergedBeanDefinition.getBeanClass());
 		
 		// cache new instance to be able resolve circular references
 		newlyCreatedBeans.put(name, instanceWrapper.getWrappedInstance());
 		PropertyValues pvs = mergedBeanDefinition.getPropertyValues();
 		applyPropertyValues(instanceWrapper, pvs, name, newlyCreatedBeans);
-		return instanceWrapper;
+		Object bean = instanceWrapper.getWrappedInstance();
+		callLifecycleMethodsIfNecessary(bean, name, mergedBeanDefinition, instanceWrapper);
+		return bean;
 	}
 
 	/**
@@ -473,18 +466,21 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * @param bean new bean instance we may need to initialize
 	 * @param name the bean has in the factory. Used for debug output.
 	 */
-	private void callLifecycleMethodsIfNecessary(Object bean, String name) throws BeansException {
+	private void callLifecycleMethodsIfNecessary(Object bean, String name, RootBeanDefinition rbd, BeanWrapper bw) throws BeansException {
 		if (bean instanceof InitializingBean) {
-			logger.debug("configureBeanInstance calling afterPropertiesSet on bean with name '" + name + "'");
+			logger.debug("configureBeanInstance calling afterPropertiesSet() on bean with name '" + name + "'");
 			try {
 				((InitializingBean) bean).afterPropertiesSet();
-			}
-			catch (BeansException ex) {
-				throw ex;
 			}
 			catch (Exception ex) {
 				throw new FatalBeanException("afterPropertiesSet on with name '" + name + "' threw an exception", ex);
 			}
+		}
+		
+		if (rbd.getInitMethodName() != null) {
+			logger.debug("configureBeanInstance calling custom init method '" + rbd.getInitMethodName() + "' on bean with name '" + name + "'");
+			bw.invoke(rbd.getInitMethodName(), null);
+			// Can throw MethodInvocationException
 		}
 
 		if (bean instanceof BeanFactoryAware) {
@@ -499,7 +495,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 				throw new FatalBeanException("BeanFactoryAware method on bean with name '" + name + "' threw an exception", ex);
 			}
 		}
-	}
+	}	// callLifecycleMethodsIfNecessary
 
 	/**
 	 * Make a RootBeanDefinition, even by traversing parent if the parameter is a child definition.

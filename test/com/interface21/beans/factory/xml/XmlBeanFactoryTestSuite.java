@@ -10,13 +10,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletException;
+
+import com.interface21.beans.BeansException;
+import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.ITestBean;
+import com.interface21.beans.MethodInvocationException;
 import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.TestBean;
 import com.interface21.beans.factory.AbstractListableBeanFactoryTests;
 import com.interface21.beans.factory.BeanDefinitionStoreException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.HasMap;
+import com.interface21.beans.factory.InitializingBean;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.beans.factory.support.RootBeanDefinition;
@@ -351,6 +357,103 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue(hasMap.getIntegerArray()[2].intValue() == 2);
 	}
 	*/
+	
+	public void testInitMethodIsInvoked() throws Exception {
+		InputStream is = getClass().getResourceAsStream("initializers.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		DoubleInitializer in = (DoubleInitializer) xbf.getBean("init-method1");
+		// Initializer should have doubled value
+		assertEquals(14, in.getNum());
+	}
+	
+	public static class DoubleInitializer {
+	
+		private int num;
+
+		public int getNum() {
+			return num;
+		}
+
+		public void setNum(int i) {
+			num = i;
+		}
+	
+		/** Init method */
+		public void init() {
+			this.num *= 2;
+		}
+	}
+	
+	/**
+	 * Test that if a custom initializer throws an exception, it's handled correctly
+	 * @throws Exception
+	 */
+	public void testInitMethodThrowsException() {
+		InputStream is = getClass().getResourceAsStream("initializers.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		try {
+			xbf.getBean("init-method2");
+			fail();
+		}
+		catch (MethodInvocationException ex) {
+			System.err.println("Root cause is " + ex.getRootCause());
+			assertTrue(ex.getRootCause() instanceof ServletException);
+		}
+	}
+
+	public static class BadInitializer {
+
+		/** Init method */
+		public void init2() throws ServletException {
+			throw new ServletException();
+		}
+	}
+	
+	
+	
+	public void testNoSuchInitMethod() throws Exception {
+		InputStream is = getClass().getResourceAsStream("initializers.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		try {
+			xbf.getBean("init-method3");
+			fail();
+		}
+		catch (FatalBeanException ex) {
+			// Ok
+			// Check message is helpful
+			assertTrue(ex.getMessage().indexOf("init") != -1);
+			assertTrue(ex.getMessage().indexOf("beans.TestBean") != -1);
+		}
+	}
+	
+	/**
+	 * Check that InitializingBean method is called first
+	 * @throws Exception
+	 */
+	public void testInitializingBeanAndInitMethod() throws Exception {
+		InputStream is = getClass().getResourceAsStream("initializers.xml");
+		XmlBeanFactory xbf = new XmlBeanFactory(is);
+		InitAndIB iib = (InitAndIB) xbf.getBean("init-and-ib");
+		assertTrue(iib.afterPropertiesSetInvoked && iib.initMethodInvoked);
+	}
+
+	public static class InitAndIB implements InitializingBean {
+		
+		public boolean afterPropertiesSetInvoked, initMethodInvoked;
+		
+		public void afterPropertiesSet() {
+			if (this.initMethodInvoked)
+				fail();
+			this.afterPropertiesSetInvoked = true;
+		}
+
+		/** Init method */
+		public void customInit() throws ServletException {
+			if (!this.afterPropertiesSetInvoked)
+				fail();
+			this.initMethodInvoked = true;
+		}
+	}
 	
 	public void testNoSuchXmlFile() throws Exception {
 		String filename = "missing.xml";
