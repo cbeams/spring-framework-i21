@@ -12,9 +12,9 @@ import junit.framework.TestCase;
 
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.jdbc.core.SqlParameter;
-import com.interface21.jdbc.datasource.SpringMockConnection;
-import com.interface21.jdbc.datasource.SpringMockDataSource;
-import com.interface21.jdbc.datasource.SpringMockJdbcFactory;
+import com.interface21.jdbc.mock.SpringMockConnection;
+import com.interface21.jdbc.mock.SpringMockDataSource;
+import com.interface21.jdbc.mock.SpringMockJdbcFactory;
 
 /**
  * @author tcook

@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 
-import com.interface21.jdbc.datasource.SpringMockPreparedStatement;
-import com.interface21.jdbc.datasource.SpringMockStatement;
+import com.interface21.jdbc.mock.SpringMockPreparedStatement;
+import com.interface21.jdbc.mock.SpringMockStatement;
 import com.mockobjects.sql.CommonMockMultiRowResultSet;
 import com.mockobjects.sql.MockConnection;
 import com.mockobjects.sql.MockMultiRowResultSet;

@@ -8,11 +8,14 @@ package com.interface21.jdbc.object;
 
 import java.sql.Types;
 
+import com.mockobjects.sql.MockResultSet;
 import junit.framework.TestCase;
 
 import com.interface21.dao.InvalidDataAccessApiUsageException;
-import com.interface21.jdbc.datasource.*;
-import com.mockobjects.sql.MockResultSet;
+import com.interface21.jdbc.mock.SpringMockConnection;
+import com.interface21.jdbc.mock.SpringMockDataSource;
+import com.interface21.jdbc.mock.SpringMockJdbcFactory;
+import com.interface21.jdbc.mock.SpringMockPreparedStatement;
 
 /**
  * @author tcook
