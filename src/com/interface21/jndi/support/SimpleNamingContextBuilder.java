@@ -20,10 +20,12 @@ import com.interface21.jndi.support.SimpleNamingContext;
  * applications. Typically used for binding a JDBC DataSource to a well-known JNDI
  * location, to be able to use J2EE data access code outside of a J2EE container.
  *
- * <p>There are various choices for DataSource implementations:<br>
- * - SingleConnectionDataSource (using the same Connection for all getConnection calls);<br>
- * - DriverManagerDataSource (creating a new Connection on each getConnection call);<br>
- * - Apache's Jakarta Commons DBCP offers BasicDataSource (a real pool).
+ * <p>There are various choices for DataSource implementations:
+ * <ul>
+ * <li>SingleConnectionDataSource (using the same Connection for all getConnection calls);
+ * <li>DriverManagerDataSource (creating a new Connection on each getConnection call);
+ * <li>Apache's Jakarta Commons DBCP offers BasicDataSource (a real pool).
+ * </ul>
  *
  * <p>Typical usage in bootstrap code:<br><br>
  * <code>
@@ -33,7 +35,7 @@ import com.interface21.jndi.support.SimpleNamingContext;
  * builder.activate();
  * </code>
  *
- * <p>An instance of this class is just necessary at setup time.
+ * <p>An instance of this class is only necessary at setup time.
  * An application does not need to keep it after activation.
  *
  * @author Juergen Hoeller
