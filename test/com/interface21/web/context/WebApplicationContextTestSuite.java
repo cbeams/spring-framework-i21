@@ -1,12 +1,16 @@
 package com.interface21.web.context;
 
-import javax.servlet.ServletContext;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.io.FileNotFoundException;
 
-import com.interface21.context.ApplicationContext;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
 import com.interface21.context.AbstractApplicationContextTests;
+import com.interface21.context.ApplicationContext;
+import com.interface21.context.ApplicationContextException;
 import com.interface21.context.TestListener;
+import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.mock.MockServletContext;
 
@@ -95,21 +99,58 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 		assertTrue("ctcb context is context", ctcb.getApplicationContext() == root);
 	}
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(suite());
-		//	junit.swingui.TestRunner.main(new String[] {PrototypeFactoryTests.class.getName() } );
-	}
-
-	public static Test suite() {
-		return new TestSuite(WebApplicationContextTestSuite.class);
-	}
-
-	/**
-	 * @see com.interface21.beans.factory.AbstractListableBeanFactoryTests#testCount()
-	 */
 	public void testCount() {
 		assertTrue("should have 16 beans, not"+ this.applicationContext.getBeanDefinitionCount(),
 			this.applicationContext.getBeanDefinitionCount() == 16);
+	}
+
+	public void testContextLoaderWithDefaultContext() throws Exception {
+		ServletContext sc = new MockServletContext(WAR_ROOT);
+		ServletContextListener listener = new ContextLoaderListener();
+		ServletContextEvent event = new ServletContextEvent(sc);
+		listener.contextInitialized(event);
+		WebApplicationContext wc = (WebApplicationContext)sc.getAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
+		assertTrue("Correct WebApplicationContext exposed in ServletContext", wc instanceof XmlWebApplicationContext);
+	}
+
+	public void testContextLoaderWithCustomContext() throws Exception {
+		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		sc.addInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, "com.interface21.web.context.support.StaticWebApplicationContext");
+		ServletContextListener listener = new ContextLoaderListener();
+		ServletContextEvent event = new ServletContextEvent(sc);
+		listener.contextInitialized(event);
+		WebApplicationContext wc = (WebApplicationContext) sc.getAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
+		assertTrue("Correct WebApplicationContext exposed in ServletContext", wc instanceof StaticWebApplicationContext);
+	}
+
+	public void testContextLoaderWithInvalidLocation() throws Exception {
+		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		sc.addInitParameter(XmlWebApplicationContext.CONFIG_LOCATION_PARAM, "/WEB-INF/myContext.xml");
+		ServletContextListener listener = new ContextLoaderListener();
+		ServletContextEvent event = new ServletContextEvent(sc);
+		try {
+			listener.contextInitialized(event);
+			fail("Should have thrown ApplicationContextException");
+		}
+		catch (ApplicationContextException ex) {
+			// expected
+			assertTrue(ex.getRootCause() instanceof FileNotFoundException);
+		}
+	}
+
+	public void testContextLoaderWithInvalidContext() throws Exception {
+		MockServletContext sc = new MockServletContext(WAR_ROOT);
+		sc.addInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, "com.interface21.web.context.support.InvalidWebApplicationContext");
+		ServletContextListener listener = new ContextLoaderListener();
+		ServletContextEvent event = new ServletContextEvent(sc);
+		try {
+			listener.contextInitialized(event);
+			fail("Should have thrown ApplicationContextException");
+		}
+		catch (ApplicationContextException ex) {
+			// expected
+			assertTrue(ex.getRootCause() instanceof ClassNotFoundException);
+		}
 	}
 
 }
