@@ -29,46 +29,37 @@ public abstract class AbstractListableBeanFactoryTests extends AbstractBeanFacto
 	/**
 	 * Subclasses can override
 	 */
-	public void testCount() {
-		assertCount(8);
+	public void testCount() throws Exception {
+		assertCount(11);
 	}
 	
-	protected final void assertCount(int count) {
-		try {
-			String[] defnames = getListableBeanFactory().getBeanDefinitionNames();
-			assertTrue("We should have " + count + " beans, not " + defnames.length, defnames.length == count);
-			for (int i = 0; i < defnames.length; i++) {
-			//	Object o = listableBeanFactory.getBeanInstance(defnames[i]);
-				// One gets vetoed
-			}
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-			fail("Shouldn't throw exception on getting bean from definition " + ex);
+	protected final void assertCount(int count) throws Exception {
+		String[] defnames = getListableBeanFactory().getBeanDefinitionNames();
+		assertTrue("We should have " + count + " beans, not " + defnames.length, defnames.length == count);
+		for (int i = 0; i < defnames.length; i++) {
 		}
 	}
 
-	public void testGetDefinitionsForClass() {
-		try {
-			String[] defnames = getListableBeanFactory().getBeanDefinitionNames(com.interface21.beans.TestBean.class);
-			assertTrue("We should have 7 beans for class com.interface21.beans.TestBean, not " + defnames.length, defnames.length == 7);
-			for (int i = 0; i < defnames.length; i++) {
-			//	Object o = listableBeanFactory.getBeanInstance(defnames[i]);
-				// One gets vetoed
-				// CHECK CLASS OF OBJECT
-			}
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-			fail("Shouldn't throw exception on getting bean by definition by class: " + ex);
+	public void testGetDefinitionsForClass() throws Exception {
+		String[] defnames = getListableBeanFactory().getBeanDefinitionNames(com.interface21.beans.TestBean.class);
+		assertTrue("We should have 7 beans for class com.interface21.beans.TestBean, not " + defnames.length, defnames.length == 7);
+		for (int i = 0; i < defnames.length; i++) {
+			// CHECK CLASS OF OBJECT
 		}
 	}
 	
 	public void testGetDefinitionsForNoSuchClass() {
 		String[] defnames = getListableBeanFactory().getBeanDefinitionNames(String.class);
 		assertTrue("No string definitions", defnames.length == 0);
-
 	}
-
+	
+	/**
+	 * Check that count refers to factory class, not
+	 * bean class (we don't know what type factories may return,
+	 * and it may even change over time).
+	 */
+	public void testGetCountForFactoryClass() {
+		assertTrue("Should have 3 factories", getListableBeanFactory().getBeanDefinitionNames(FactoryBean.class).length == 3);
+	}
 
 }

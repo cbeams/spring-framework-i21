@@ -31,6 +31,26 @@
                 <property name="spouse" beanRef="true">rod</property>
                
 	</bean>
+	
+	
+	<!-- Factory beans are automatically treated
+	differently -->
+	<bean name="singletonFactory"
+		class="com.interface21.beans.factory.DummyFactory">
+	</bean>
+	
+	<bean name="prototypeFactory"
+		class="com.interface21.beans.factory.DummyFactory">
+		<property name="singleton">false</property>
+	</bean>
+	
+	<bean name="factoryPassThrough"
+		class="com.interface21.beans.factory.DummyFactory">
+		<property name="singleton">true</property>
+		<property name="propertyValues">
+			name=passThrough
+		</property>
+	</bean>
 
 
       <bean name="agistListener" class="com.interface21.beans.factory.AbstractBeanFactoryTests$AgistListener" />	

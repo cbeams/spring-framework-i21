@@ -53,6 +53,18 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		assertTrue("roderick.age was inherited", roderick.getAge() == rod.getAge());
 	}
 	
+	public void testGetNull() {
+		try {
+			getBeanFactory().getBean(null);
+			fail("Can't get null bean");
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			// OK
+			System.out.println(ex);
+		}
+		
+	}
+	
 	public void testFindsValidInstance() {
 		try {
 			Object o = getBeanFactory().getBean("rod");
@@ -209,6 +221,65 @@ public abstract class AbstractBeanFactoryTests extends TestCase {
 		assertTrue("Dad has correct name", dad.getName().equals("Albert"));
 	}
 
+
+	public void testFactorySingleton() throws Exception {
+		TestBean tb = (TestBean) getBeanFactory().getBean("singletonFactory");
+		assertTrue("Singleton from factory has correct name, not " + tb.getName(), tb.getName().equals(DummyFactory.SINGLETON_NAME));
+		TestBean tb2 = (TestBean) getBeanFactory().getBean("singletonFactory");
+		assertTrue("Singleton references ==", tb == tb2);
+	}
+	
+	public void testFactoryPrototype() throws Exception {
+		TestBean tb = (TestBean) getBeanFactory().getBean("prototypeFactory");
+		assertTrue(!tb.getName().equals(DummyFactory.SINGLETON_NAME));
+		TestBean tb2 = (TestBean) getBeanFactory().getBean("prototypeFactory");
+		assertTrue("Prototype references !=", tb != tb2);
+	}
+	
+	/**
+	 * Check that passthrough values work
+	 * @throws Exception
+	 */
+	public void testFactoryPassesThroughPropertyValues() throws Exception {
+		TestBean tb = (TestBean) getBeanFactory().getBean("factoryPassThrough");
+		assertTrue("Name property was passed through: incorrect value was '" + tb.getName() + "'", 
+				tb.getName().equals("passThrough"));
+	}
+	
+	/**
+	 * Check that we can get the factory bean itself.
+	 * This is only possible if we're dealing with a factory
+	 * @throws Exception
+	 */
+	public void testGetFactoryItself() throws Exception {
+		DummyFactory factory = (DummyFactory) getBeanFactory().getBean("&singletonFactory");
+		assertTrue(factory != null);
+	}
+	
+	/**
+	 * Check that afterPropertiesSet gets called on factory
+	 * @throws Exception
+	 */
+	public void testFactoryIsInitialized() throws Exception {
+		TestBean tb = (TestBean) getBeanFactory().getBean("singletonFactory");
+		DummyFactory factory = (DummyFactory) getBeanFactory().getBean("&singletonFactory");
+		assertTrue("Factory was initialized because it implemented InitializingBean", factory.wasInitialized());
+	}
+	
+	/**
+	 * It should be illegal to dereference a normal bean
+	 * as a factory
+	 */
+	public void testRejectsFactoryGetOnNormalBean() {
+		try {
+			getBeanFactory().getBean("&rod");
+			fail("Shouldn't permit factory get on normal bean");
+		}
+		catch (BeanIsNotAFactoryException ex) {
+			System.out.println(ex);
+		}
+	}
+	
 /*
 	public void testVeto() {
 		try {
