@@ -1,4 +1,3 @@
-
 package com.interface21.beans;
 
 import java.util.LinkedList;
@@ -45,7 +44,7 @@ public class InvalidPropertyValuesException extends BeansException {
 		
 		private String field;
 		
-		private String errorCode;
+		private String errorCode = UNCODED;
 		
 		public MissingFieldException(String field, String errorCode) {
 			super("Field '" + field + "' is required");

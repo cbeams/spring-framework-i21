@@ -1,4 +1,3 @@
-
 package com.interface21.beans;
 
 import java.beans.PropertyChangeEvent;
@@ -8,7 +7,7 @@ import com.interface21.core.ErrorCoded;
 import com.interface21.core.HasRootCause;
 
 /**
- * Exception used by PropertyVetosException to wrap failures.
+ * Exception used by PropertyVetoException to wrap failures.
  * Clients can throw these.
  * @author  Rod Johnson
  * @version $Id$
@@ -23,35 +22,35 @@ public class ErrorCodedPropertyVetoException extends PropertyVetoException imple
 
 	private Throwable rootCause;
 
-        /**
-         * Creates new <code>ErrorCodedPropertyVetoException</code>.
-         * This signature will be called when either the caller has an
-         * object that has an ErrorCoded interface and
-         * they are calling us with that or if they want to use the ErrorCoded
-         * ability of this exception.
-         * NOTE:  Mesg passed in will already have been "resolved".
-         *        We will take the string passed in literally as is.
-         *        This means that the caller of this method either created a literal string
-         *        and passed it to us, OR the caller looked up the string value
-         *        for a mesg themself in a msgCat BEFORE calling us.
-         */
+	/**
+	 * Creates new <code>ErrorCodedPropertyVetoException</code>.
+	 * This signature will be called when either the caller has an
+	 * object that has an ErrorCoded interface and
+	 * they are calling us with that or if they want to use the ErrorCoded
+	 * ability of this exception.
+	 * NOTE:  Mesg passed in will already have been "resolved".
+	 *        We will take the string passed in literally as is.
+	 *        This means that the caller of this method either created a literal string
+	 *        and passed it to us, OR the caller looked up the string value
+	 *        for a mesg themself in a msgCat BEFORE calling us.
+	 */
 	public ErrorCodedPropertyVetoException(String mesg, PropertyChangeEvent e, String errorCode) {
 		super(mesg, e);
 		this.errorCode = errorCode;
 		// No root cause
 	}
 
+	/**
+	 * Only have this method here so that subclasses may call this overload
+	 * to get the superclass's behavior.
+	 */
+	/* package */
+	ErrorCodedPropertyVetoException(String mesg, PropertyChangeEvent e) {
+		super(mesg, e);
+	}
 
-        /**
-        * Only have this method here so that subclasses may call this overload
-        * to get the superclass's behavior.
-        */
-        /* package */ ErrorCodedPropertyVetoException(String mesg,
-                                                PropertyChangeEvent e) {
-                super(mesg, e);
-        }
-
-	/* package */ ErrorCodedPropertyVetoException(PropertyVetoException ex) {
+	/* package */
+	ErrorCodedPropertyVetoException(PropertyVetoException ex) {
 		super(ex.getMessage(), ex.getPropertyChangeEvent());
 		if (ex instanceof ErrorCoded) {
 			errorCode = ((ErrorCoded) ex).getErrorCode();
@@ -59,19 +58,22 @@ public class ErrorCodedPropertyVetoException extends PropertyVetoException imple
 		rootCause = ex;
 	}
 
-	/* package */ ErrorCodedPropertyVetoException(TypeMismatchException ex) {
+	/* package */
+	ErrorCodedPropertyVetoException(TypeMismatchException ex) {
 		super(ex.getMessage(), ex.getPropertyChangeEvent());
 		rootCause = ex.getRootCause();
 		errorCode = TYPE_MISMATCH_ERROR_CODE;
 	}
 
-	/* package */ ErrorCodedPropertyVetoException(MethodInvocationException ex) {
+	/* package */
+	ErrorCodedPropertyVetoException(MethodInvocationException ex) {
 		super(ex.getMessage(), ex.getPropertyChangeEvent());
 		rootCause = ex.getRootCause();
 		errorCode = METHOD_INVOCATION_ERROR_CODE;
 	}
 
-	/* package */ ErrorCodedPropertyVetoException(Object source, InvalidPropertyValuesException.MissingFieldException ex) {
+	/* package */
+	ErrorCodedPropertyVetoException(Object source, InvalidPropertyValuesException.MissingFieldException ex) {
 		super(ex.getMessage(), new PropertyChangeEvent(source, ex.getField(), null, null));
 		//rootCause = ex.getRootCause();
 		errorCode = ex.getErrorCode();
@@ -92,9 +94,6 @@ public class ErrorCodedPropertyVetoException extends PropertyVetoException imple
 	}
 
 	public String toString() {
-		return "ErrorCodedPropertyVetoException: errorCode=[" + getErrorCode() + "]; message=(" + getMessage() + ")";
+		return "ErrorCodedPropertyVetoException: message=[" + getMessage() + "]; errorCode=[" + getErrorCode() + "]";
 	}
-
 }
-
-
