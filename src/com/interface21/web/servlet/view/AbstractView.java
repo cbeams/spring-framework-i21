@@ -30,6 +30,7 @@ import com.interface21.context.ApplicationContextAware;
 import com.interface21.context.ApplicationContextException;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.servlet.View;
+import com.interface21.web.servlet.support.RequestContext;
 
 /**
  * Abstract view superclass. Standard framework view implementations
@@ -58,7 +59,7 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 	// Instance data
 	//---------------------------------------------------------------------
 	/** Map of static attributes, keyed by attribute name (String) */
-	private HashMap	staticAttributes = new HashMap();
+	private Map	staticAttributes = new HashMap();
 
 	/** The ApplicationContext passed to this object */
 	private WebApplicationContext webApplicationContext;
@@ -66,6 +67,9 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 	/** Default content type. Overridable as bean property. */
 	private String contentType = "text/html; charset=ISO-8859-1";
 	
+	/** Name of request context attribute, or null if not needed */
+	private String requestContextAttribute;
+
 	/** The name by which this View is known */
 	private String name;
 
@@ -120,7 +124,7 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 			}
 		}
 	}	// setAttributes
-	
+
 	public final void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
@@ -129,13 +133,21 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 		return this.contentType;
 	}
 
+	public void setRequestContextAttribute(String requestContextAttribute) {
+		this.requestContextAttribute = requestContextAttribute;
+	}
+
+	public String getRequestContextAttribute() {
+		return requestContextAttribute;
+	}
+
 
 	//---------------------------------------------------------------------
 	// Implementation of ApplicationContextAware
 	//---------------------------------------------------------------------
 	/** 
 	 * Set the ApplicationContext object used by this object.
-	 * @param ctx ApplicationContext object used by this object.
+	 * @param applicationContext ApplicationContext object used by this object.
 	 * This must be of type WebApplicatinContext
 	 * @throws ApplicationContextException if the ApplicationContext
 	 * isn't of type WebApplicatinContext.
@@ -236,7 +248,11 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 		// Consolidate static and dynamic model attributes
 		Map model = new HashMap(this.staticAttributes);
 		model.putAll(pModel);
-		
+
+		// expose request context?
+		if (this.requestContextAttribute != null)
+			model.put(this.requestContextAttribute, new RequestContext(request));
+
 		renderMergedOutputModel(model, request, response);
 	}	// render
 	
