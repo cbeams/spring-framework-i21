@@ -24,7 +24,7 @@ import com.interface21.beans.PropertyValues;
  * @author Rod Johnson
  * @version $Revision$
  */
-public abstract class AbstractBeanDefinition {
+abstract class AbstractBeanDefinition {
 
 	/**
 	* Create a logging category that is available

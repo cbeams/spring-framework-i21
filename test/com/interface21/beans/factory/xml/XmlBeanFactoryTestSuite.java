@@ -84,18 +84,6 @@ public class XmlBeanFactoryTestSuite extends AbstractListableBeanFactoryTests {
 		assertTrue("1 jen instances", davesJen == jenksJen);
 	}
 	
-	public void testCustomDefinitionClasses() throws Exception {
-		InputStream is = getClass().getResourceAsStream("custom.xml");
-		XmlBeanFactory xbf = new XmlBeanFactory(is);
-		assertTrue("2 beans in custom, not " + xbf.getBeanDefinitionCount(), xbf.getBeanDefinitionCount() == 2);
-		TestBean bob = (TestBean) xbf.getBean("bob");
-		TestBean custom = (TestBean) xbf.getBean("custom");
-		assertTrue("bob name is Bob", bob.getName().equals("Bob"));
-		assertTrue("custom name is Custom", custom.getName().equals("custom"));
-		
-	//	assertTrue("1 jen instances", davesJen == jenksJen);
-	
-	} 
 	
 	/*
 	public void testCycles() throws Exception {
