@@ -5,18 +5,18 @@
    <pomVersion>3</pomVersion>
 
    <!-- a unique name for this project -->
-   <id>spring-framework</id>
+   <id>spring</id>
 
    <!-- a short but descriptive name for the project -->
-   <name>Spring</name>
+   <name>Spring Framework</name>
 
    <!-- The version of the project under development, e.g.
         1.1, 1.2, 2.0-dev -->
-   <currentVersion>0.8-dev</currentVersion>
+   <currentVersion>0.9.1-dev</currentVersion>
 
    <organization>
       <name>Spring Framework Inc. :-)</name>
-      <url>http://sourceforge.net/projects/springframework</url>
+      <url>http://www.springframework.org</url>
       <logo>/images/logo-blue.png</logo>
    </organization>
 
@@ -119,7 +119,7 @@
          <name>Luke Taylor</name>
          <id>luke_t</id>
          <email>luke_t at users.sourceforge.net</email>
-			<organization>Monkey Machine</organization>
+         <organization>Monkey Machine</organization>
          <roles>
             <role>Developer</role>
          </roles>
@@ -135,6 +135,10 @@
          <id>servletapi</id>
          <version>2.3</version>
       </dependency>
+      <dependency>
+         <id>jdo</id>
+         <version>1.0</version>
+      </dependency>      
       <dependency>
          <id>ejb</id>
          <version>2.0</version>
@@ -156,9 +160,49 @@
       </dependency>
 
       <dependency>
-         <id>velocity</id>
-         <version>1.3-dev</version>
+         <id>bcel</id>
+         <version>5.1</version>
       </dependency>
+      <dependency>
+         <id>burlap</id>
+         <version>2.1.7</version>
+      </dependency>
+      <dependency>
+         <id>cglib</id>
+         <version>1.0</version>
+      </dependency>
+      <dependency>
+         <id>dom4j</id>
+         <version>1.4</version>
+      </dependency>
+      <dependency>
+         <id>commons-lang</id>
+         <version>1.0.1</version>
+      </dependency>
+      <dependency>
+         <id>commons-collections</id>
+         <version>2.1</version>
+      </dependency>       
+      <dependency>
+         <id>commons-logging</id>
+         <version>1.0.3</version>
+      </dependency>
+      <dependency>
+         <id>easymock</id>
+         <version>0.8</version>
+      </dependency>
+      <dependency>
+         <id>hibernate</id>
+         <version>2.0-final</version>
+      </dependency>
+      <dependency>
+         <id>hessian</id>
+         <version>3.0.1</version>
+      </dependency>
+      <dependency>
+         <id>itext</id>
+         <version>0.99</version>
+      </dependency>      
       <dependency>
          <id>jstl</id>
          <version>1.0.2</version>
@@ -166,10 +210,6 @@
       <dependency>
          <id>log4j</id>
          <version>1.2.8</version>
-      </dependency>
-      <dependency>
-         <id>easymock</id>
-         <version>0.8</version>
       </dependency>
       <dependency>
          <groupId>mockobjects</groupId>
@@ -186,9 +226,21 @@
          <artifactId>mockobjects-j1.4-j2ee1.3</artifactId>
          <version>0.07</version>
       </dependency>
-
-		<!-- these jars are not at http://www.ibiblio.org/maven, so must be manually added to the local repository
-		for the time being -->
+      <dependency>
+         <id>poi</id>
+         <version>1.10.0-dev-20030222</version>
+      </dependency>
+      <dependency>
+         <groupId>taglibs</groupId>
+         <artifactId>standard</artifactId>
+         <version>1.0.2</version>
+      </dependency>      
+      <dependency>
+         <id>velocity</id>
+         <version>1.3-dev</version>
+      </dependency>
+      <!-- these jars are not at http://www.ibiblio.org/maven, so must be manually added to the local repository
+      for the time being -->
       <dependency>
          <id>attrib4j</id>
          <version>0.8.4</version>
@@ -216,16 +268,23 @@
 
          <excludes>
             <exclude>**/Abstract*</exclude>
-            <exclude>com/interface21/jdbc/object/**</exclude>
-            <exclude>**/*FIX*</exclude>
          </excludes>
+         <resources>
+            <resource>
+               <directory>${pom.build.unitTestSourceDirectory}</directory>
+               <includes>
+                  <include>**/*.xml</include>
+                  <include>**/*.properties</include>                  
+               </includes>               
+            </resource>
+         </resources>
       </unitTest>
 
       <resources>
          <resource>
-            <directory>test</directory>
+            <directory>${pom.build.sourceDirectory}</directory>
             <includes>
-               <include>**/*.properties</include>
+               <include>**/*.dtd</include>
                <include>**/*.xml</include>
             </includes>
          </resource>
