@@ -9,6 +9,16 @@
   - it looks for a "java:comp/env/jdbc/myds" JNDI DataSource, but that can be
   - replaced easily (as noted). Such a context definition can thus be reused
   - in test environments or standalone applications without any hassle.
+  -
+  - We put the "application" beans in this file. Only beans needed for the application will stay
+  - here and avoid any Web related bean which will be configured in their servlet configuration 
+  - (ie countries-servlet.xml).
+  - We start with the DATA layer. After comes the BUSINESS layer (non existent for this tiny application).
+  - As explained above, the INTERFACE or CLIENT levels will be done in countries-servlet.xml.   
+  -
+  - If an application is only developped for web environnement, it may be possible to define here
+  - some general web beans reused in different servlets.
+  -
   -->
   
 	<beans>		
@@ -23,60 +33,68 @@
 	  - "getMessage" calls to this context will use this source.
 	  - Child contexts can have their own message sources, inheriting all messages from this
 	  - source, being able to define new messages and override ones defined in this source.
+	  -
+	  - We have no need for application messages in this tiny application, so this definition
+	  - will simply be used by the next level (web --> countries-servlet.xml).
 	  -->
 	<bean id="messageSource" class="com.interface21.context.support.ResourceBundleMessageSource">	
 		<property name="basename"><value>messages</value></property>										
 	</bean>
 
-	<bean id="localeResolver" class="com.interface21.web.servlet.i18n.CookieLocaleResolver"/>
+	<!-- ========================= DATA LAYER DEFINITIONS ========================= -->
+	<!-- For the simplicity of configuration change, the three scenarios are done separately.
+	     But take a look to see the differences between the sections.
+	     By example: switching from inMemory(1) to database(3) has only these changes:
+	       - Modifying the class of the "daoCountry" bean.
+	       - Defining a "dataSource" bean.
+	       - Adding the previously defined bean "dataSource" as parameter of "daoCountry" bean.
 
-	<bean id="themeResolver" class="com.interface21.web.servlet.theme.CookieThemeResolver"/>
-
-	<!-- ===========================================================-->
-	<!-- Interceptors												-->
-	<!-- ===========================================================-->
-	<bean id="localeChangeInterceptor" 
-		class="com.interface21.web.servlet.i18n.LocaleChangeInterceptor"/>
-	<bean id="themeChangeInterceptor" 
-		class="com.interface21.web.servlet.theme.ThemeChangeInterceptor"/>
+		By default, the scenario 1 is not commented. For testing another scenarion, please
+		comment the current scenario and uncomment this you will run.
 
 
-	<!-- ========================= Start of PERSISTENCE DEFINITIONS ========================= -->
 	<!-- If another database as MySql is used, replace DaoCountryJdbcMySql by DaoCountryJdbcXXX.
 	     Only the method initBase has normally to be redefined. Its work is to create the table 
 	     holding the countries as the database or instance has to preexist for having a working 
 	     connection.
 		 -->
 		      
+	<!-- === SCENARIO 1 === -->
 	<!-- ====================== In memory only version ====================== -->
 	
-	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem"
-		singleton="true"/>
+	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem" singleton="true"/>
+
 	
-	<!-- ======================= Database only version ====================== -->
-
-	<!--
-	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
-		<property name="jndiName"><value>jdbc/countries-ds</value></property>
-	</bean>
-	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"
-		singleton="true">
-		<property name="dataSource"><ref bean="dataSource"/></property>
-	</bean>
-	-->
-
+	<!-- === SCENARIO 2 === -->
 	<!-- ============= In memory + Database version for copying ============= -->
 	<!--
-	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem"
-		singleton="true"/>
 	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
 		<property name="jndiName"><value>jdbc/countries-ds</value></property>
 	</bean>
-	<bean id="secondDaoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"
-		singleton="true">
+	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem" singleton="true"/>
+	<bean id="secondDaoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql" singleton="true">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+		-->
+		<!--<property name="dropSql"><value>DROP TABLE countries</value></property>-->
+		<!--<property name="createSql"><value>CREATE TABLE countries (lang CHAR(2), code CHAR(2), name VARCHAR(50))</value></property>-->
+		<!--
+	</bean>
+	-->
+
+	<!-- === SCENARIO 3 === -->
+	<!-- ======================= Database only version ====================== -->
+	<!--
+	<bean id="dataSource" class="com.interface21.jndi.JndiObjectFactoryBean">
+		<property name="jndiName"><value>jdbc/countries-ds</value></property>
+	</bean>
+	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"	singleton="true">
 		<property name="dataSource"><ref bean="dataSource"/></property>
 	</bean>
 	-->
-	<!-- ========================= End of PERSISTENCE DEFINITIONS ========================= -->
+
+
+	<!-- ========================= BUSINESS LAYER DEFINITIONS ========================= -->
+	<!-- We have nothing in this layer here.
+	-->
 	
 </beans>
