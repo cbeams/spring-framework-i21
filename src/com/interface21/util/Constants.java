@@ -14,18 +14,20 @@ import java.util.Map;
  * This class can be used to parse other classes containing constant definitions
  * in public static final members. The asXXXX() methods of this class allow these
  * constant values to be accessed via their string names.
- * <br>
- * Consider class Foo containing public final static int CONSTANT1 = 66;
+ *
+ * <p>Consider class Foo containing public final static int CONSTANT1 = 66;
  * An instance of this class wrapping Foo.class will return the 
  * constant value of 66 from its asInt() method given the argument "CONSTANT1". 
- * <br>
- * This class is ideal for use in PropertyEditors, enabling them to recognize
+ *
+ * <p>This class is ideal for use in PropertyEditors, enabling them to recognize
  * the same names as the constants themselves, and freeing them from
- * maintaining their own mapping. 
+ * maintaining their own mapping.
+ *
+ * <p>TODO: add asBoolean, asDouble methods, keys method
+ *
  * @version $Id$
  * @author Rod Johnson
  * @since 16-Mar-2003
- * TODO add asBoolean, asDouble methods, keys method
  */
 public class Constants {
 
@@ -77,7 +79,7 @@ public class Constants {
 	 * Return a constant value cast to an int
 	 * @param code name of the field
 	 * @return int int value if successfuly
-	 * @see asObject
+	 * @see #asObject
 	 * @throws ConstantException if the field name wasn't found or
 	 * if the type wasn't compatible with int
 	 */
@@ -93,7 +95,7 @@ public class Constants {
 	 * @param code name of the field
 	 * @return String string value if successful.
 	 * Works even if it's not a string (invokes toString()).
-	 * @see asObject
+	 * @see #asObject
 	 * @throws ConstantException if the field name wasn't found
 	 */
 	public String asString(String code) throws ConstantException {
