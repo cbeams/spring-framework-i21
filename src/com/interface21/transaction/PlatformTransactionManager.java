@@ -47,11 +47,12 @@ public interface PlatformTransactionManager {
 
 	/**
 	 * Return a currently active transaction or create a new one.
-	 * @param propagationBehavior  propagation behavior according to the constants in this interface
-	 * @param isolationLevel  isolation level according to the constants in this interface
+	 * @param propagationBehavior propagation behavior according to the constants in this interface
+	 * @param isolationLevel isolation level according to the constants in this interface
 	 * @return transaction status object representing the new or current transaction
+	 * @throws TransactionException in case of lookup, creation, or system errors
 	 */
-	TransactionStatus getTransaction(int propagationBehavior, int isolationLevel);
+	TransactionStatus getTransaction(int propagationBehavior, int isolationLevel) throws TransactionException;
 
 	/**
 	 * Commit the given transaction, with regard to its status.
@@ -60,15 +61,17 @@ public interface PlatformTransactionManager {
 	 * If the transaction wasn't a new one, omit the commit
 	 * to take part in the surrounding transaction properly.
 	 * @param status object returned by the getTransaction() method.
+	 * @throws TransactionException in case of commit or system errors
 	 */
-	void commit(TransactionStatus status);
+	void commit(TransactionStatus status) throws TransactionException;
 
 	/**
 	 * Roll back the given transaction, with regard to its status.
 	 * If the transaction wasn't a new one, just set it rollback-only
 	 * to take part in the surrounding transaction properly.
 	 * @param status object returned by the getTransaction() method.
+	 * @throws TransactionException in case of system errors
 	 */
-	void rollback(TransactionStatus status);
+	void rollback(TransactionStatus status) throws TransactionException;
 
 }

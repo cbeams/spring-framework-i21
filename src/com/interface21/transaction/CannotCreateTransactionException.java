@@ -14,10 +14,10 @@ package com.interface21.transaction;
  */
 public class CannotCreateTransactionException extends TransactionException {
 
-	/**
-	 * @param s
-	 * @param ex
-	 */
+	public CannotCreateTransactionException(String s) {
+		super(s);
+	}
+
 	public CannotCreateTransactionException(String s, Throwable ex) {
 		super(s, ex);
 	}

@@ -5,17 +5,20 @@ import org.apache.log4j.Logger;
 import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.NoTransactionException;
 import com.interface21.transaction.PlatformTransactionManager;
+import com.interface21.transaction.TransactionException;
 import com.interface21.transaction.TransactionStatus;
 
 /**
  * Abstract class that allows for easy implementation of PlatformTransactionManager.
  * Provides the following case handling:
- * <br>- determines if there is an existing transaction;
- * <br>- applies the appropriate propagation behavior;
- * <br>- supports falling back to non-transaction execution;
- * <br>- determines programmatic rollback on commit;
- * <br>- applies the appropriate modification on rollback
+ * <ul>
+ * <li>determines if there is an existing transaction;
+ * <li>applies the appropriate propagation behavior;
+ * <li>supports falling back to non-transactional execution;
+ * <li>determines programmatic rollback on commit;
+ * <li>applies the appropriate modification on rollback
  * (actual rollback or setting rollback only).
+ * </ul>
  *
  * @author Juergen Hoeller
  * @since 28.03.2003
@@ -30,25 +33,28 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	private boolean allowNonTransactionalExecution = false;
 
 	/**
-	 * Set if transaction support needs to be available (else fallback behavior is enabled).
+	 * Set if transaction support needs to be available
+	 * (else fallback behavior is enabled).
 	 */
-	public void setAllowNonTransactionalExecution(boolean allowNonTransactionalExecution) {
+	public final void setAllowNonTransactionalExecution(boolean allowNonTransactionalExecution) {
 		this.allowNonTransactionalExecution = allowNonTransactionalExecution;
 	}
 
 	/**
-	 * Return if transaction support needs to be available (else fallback behavior is enabled).
+	 * Return if transaction support needs to be available
+	 * (else fallback behavior is enabled).
 	 */
-	public boolean getAllowNonTransactionalExecution() {
+	public final boolean getAllowNonTransactionalExecution() {
 		return allowNonTransactionalExecution;
 	}
 
 	/**
 	 * This implementation of getTransaction handles propagation behavior and
-	 * checks non-transactional execution. Delegates to doGetTransaction,
-	 * isExistingTransaction, doBegin.
+	 * checks non-transactional execution (on CannotCreateTransactionException).
+	 * Delegates to doGetTransaction, isExistingTransaction, doBegin.
 	 */
-	public final TransactionStatus getTransaction(int propagationBehavior, int isolationLevel) {
+	public final TransactionStatus getTransaction(int propagationBehavior, int isolationLevel)
+	    throws TransactionException {
 		try {
 			Object transaction = doGetTransaction();
 			if (isExistingTransaction(transaction)) {
@@ -56,7 +62,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				return new TransactionStatus(transaction, false);
 			}
 			if (propagationBehavior == PROPAGATION_MANDATORY) {
-				throw new NoTransactionException("no existing transaction context");
+				throw new NoTransactionException("No existing transaction context");
 			}
 			if (propagationBehavior == PROPAGATION_REQUIRED) {
 				// create new transaction
@@ -79,7 +85,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * i.e. status.isRollbackOnly(), and non-transactional execution.
 	 * Delegates to doCommit and rollback.
 	 */
-	public final void commit(TransactionStatus status) {
+	public final void commit(TransactionStatus status) throws TransactionException {
 		if (status.isRollbackOnly()) {
 			logger.debug("Transactional code has requested rollback");
 			rollback(status);
@@ -93,7 +99,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * This implementation of rollback handles taking part in existing transactions
 	 * and non-transactional execution. Delegates to doRollback and doSetRollbackOnly.
 	 */
-	public final void rollback(TransactionStatus status) {
+	public final void rollback(TransactionStatus status) throws TransactionException {
 		if (status.isNewTransaction()) {
 			doRollback(status);
 		} else if (status.getTransaction() != null) {
@@ -106,42 +112,51 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 	/**
 	 * Return a current transaction object, i.e. a JTA UserTransaction.
+	 * @return the current transaction object
+	 * @throws CannotCreateTransactionException if transaction support is
+	 * not available (e.g. no JTA UserTransaction retrievable from JNDI)
+	 * @throws TransactionException in case of lookup or system errors
 	 */
-	protected abstract Object doGetTransaction();
+	protected abstract Object doGetTransaction() throws CannotCreateTransactionException, TransactionException;
 
 	/**
 	 * Check if the given transaction object indicates an existing,
 	 * i.e. already begun, transaction.
-	 * @param transaction  the transaction object returned by doGetTransaction()
+	 * @param transaction transaction object returned by doGetTransaction()
 	 * @return if there is an existing transaction
+	 * @throws TransactionException in case of system errors
 	 */
-	protected abstract boolean isExistingTransaction(Object transaction);
+	protected abstract boolean isExistingTransaction(Object transaction) throws TransactionException;
 
 	/**
 	 * Begin a new transaction with the given isolation level
-	 * @param transaction  the transaction object returned by doGetTransaction()
-	 * @param isolationLevel  the desired isolation level
+	 * @param transaction transaction object returned by doGetTransaction()
+	 * @param isolationLevel desired isolation level
+	 * @throws TransactionException in case of creation or system errors
 	 */
-	protected abstract void doBegin(Object transaction, int isolationLevel);
+	protected abstract void doBegin(Object transaction, int isolationLevel) throws TransactionException;
 
 	/**
 	 * Perform an actual commit on the given transaction.
 	 * An implementation does not need to check the rollback-only flag.
-	 * @param status  the status representation of the transaction
+	 * @param status status representation of the transaction
+	 * @throws TransactionException in case of commit or system errors
 	 */
-	protected abstract void doCommit(TransactionStatus status);
+	protected abstract void doCommit(TransactionStatus status) throws TransactionException;
 
 	/**
 	 * Perform an actual rollback on the given transaction.
 	 * An implementation does not need to check the new transaction flag.
-	 * @param status  the status representation of the transaction
+	 * @param status status representation of the transaction
+	 * @throws TransactionException in case of system errors
 	 */
-	protected abstract void doRollback(TransactionStatus status);
+	protected abstract void doRollback(TransactionStatus status) throws TransactionException;
 
 	/**
 	 * Set the given transaction rollback-only.
-	 * @param status  the status representation of the transaction
+	 * @param status status representation of the transaction
+	 * @throws TransactionException in case of system errors
 	 */
-	protected abstract void doSetRollbackOnly(TransactionStatus status);
-}
+	protected abstract void doSetRollbackOnly(TransactionStatus status) throws TransactionException;
 
+}

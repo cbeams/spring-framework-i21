@@ -3,7 +3,6 @@ package com.interface21.transaction.jta;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
-import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.TransactionStatus;
 import com.interface21.transaction.support.AbstractPlatformTransactionManager;
 
@@ -33,11 +32,11 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 	}
 
 	/**
-	 * This standard JTA implementation simply ignores the isolation level.
-	 * To be overridden by server-specific subclasses that handle the isolation level.
-	 * @param transaction  the current JTA transaction object
-	 * @param isolationLevel  the desired isolation level
-	 * @throws CannotCreateTransactionException in case of an error
+	 * This standard JTA implementation simply ignores the isolation
+	 * level. To be overridden by server-specific subclasses that
+	 * handle the isolation level.
+	 * @param transaction current JTA transaction object
+	 * @param isolationLevel desired isolation level
 	 */
 	protected void doBegin(Object transaction, int isolationLevel) {
 		JtaServices.begin((UserTransaction) transaction);
