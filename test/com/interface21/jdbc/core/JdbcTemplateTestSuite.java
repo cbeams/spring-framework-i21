@@ -20,6 +20,8 @@ import com.interface21.dao.CleanupFailureDataAccessException;
 import com.interface21.dao.DataAccessException;
 import com.interface21.dao.DataAccessResourceFailureException;
 import com.interface21.dao.UncategorizedDataAccessException;
+import com.interface21.jdbc.mock.SingleConnectionDataSource;
+
 import com.mockobjects.sql.MockConnection;
 
 /** 

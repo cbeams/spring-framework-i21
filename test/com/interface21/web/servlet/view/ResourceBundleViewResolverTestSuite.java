@@ -13,6 +13,7 @@ import junit.framework.TestSuite;
 import com.interface21.web.context.WebApplicationContext;
 import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.servlet.View;
+import com.interface21.web.mock.MockServletContext;
 
 /**
  *
@@ -45,7 +46,7 @@ public class ResourceBundleViewResolverTestSuite extends TestCase {
 		rb.setBasename(PROPS_FILE);
 		rb.setCache(getCache());
 		wac = new StaticWebApplicationContext();
-		wac.setServletContext(new servletapi.TestServletContext());
+		wac.setServletContext(new MockServletContext());
 
 		// This will be propagated to views, so we need it
 		rb.setApplicationContext(wac);

@@ -1,8 +1,8 @@
 package com.interface21.web.servlet.mvc;
 
-import servletapi.TestHttpRequest;
-import servletapi.TestHttpResponse;
-import servletapi.TestHttpSession;
+import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpResponse;
+import com.interface21.web.mock.MockHttpSession;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -55,8 +55,8 @@ public class CommandControllerTestSuite extends TestCase {
 	
 	public void testNoArgsNoErrors() throws Exception {
 		TestController mc = new TestController();
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/welcome.html");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/welcome.html");
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name", mv.getViewname().equals(request.getServletPath()));
 		TestBean person = (TestBean) mv.getModel().get("command");
@@ -70,12 +70,12 @@ public class CommandControllerTestSuite extends TestCase {
 	
 	public void test2ArgsNoErrors() throws Exception {
 		TestController mc = new TestController();
-		TestHttpRequest request = new TestHttpRequest(null, "GET", "/ok.html");
+		MockHttpRequest request = new MockHttpRequest(null, "GET", "/ok.html");
 		String name = "Rod";
 		int age = 32;
 		request.addParameter("name", name);
 		request.addParameter("age", "" + age);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name", mv.getViewname().equals(request.getServletPath()));
 		TestBean person = (TestBean) mv.getModel().get("command");
@@ -88,12 +88,12 @@ public class CommandControllerTestSuite extends TestCase {
 	
 	public void test2Args1Mismatch() throws Exception {
 		TestController mc = new TestController();
-		TestHttpRequest request = new TestHttpRequest(null, "GET", "/ok.html");
+		MockHttpRequest request = new MockHttpRequest(null, "GET", "/ok.html");
 		String name = "Rod";
 		String age = "32x";
 		request.addParameter("name", name);
 		request.addParameter("age", age);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name", mv.getViewname().equals(request.getServletPath()));
 		TestBean person = (TestBean) mv.getModel().get("command");

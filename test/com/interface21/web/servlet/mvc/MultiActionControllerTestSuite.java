@@ -1,8 +1,8 @@
 package com.interface21.web.servlet.mvc;
 
-import servletapi.TestHttpRequest;
-import servletapi.TestHttpResponse;
-import servletapi.TestHttpSession;
+import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpResponse;
+import com.interface21.web.mock.MockHttpSession;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -61,7 +61,7 @@ public class MultiActionControllerTestSuite extends TestCase {
 	public void testDefaultNameExtraction(String in, String expected) throws Exception {
 		MultiActionController rc = new MultiActionController();
 		rc.setMethodNameResolver(new InternalPathMethodNameResolver());
-		HttpServletRequest request = new TestHttpRequest(null, "GET", in);
+		HttpServletRequest request = new MockHttpRequest(null, "GET", in);
 		String actual = rc.getMethodNameResolver().getHandlerMethodName(request);
 		assertTrue("input [" + in + "] should have produced [" + expected + "], not [" + actual + "]",
 		actual.equals(expected));
@@ -69,8 +69,8 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	public void testInvokesCorrectMethod() throws Exception {
 		TestMaController mc = new TestMaController();
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/welcome.html");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/welcome.html");
+		HttpServletResponse response = new MockHttpResponse();
 		Properties p = new Properties();
 		p.put("/welcome.html", "welcome");
 		PropertiesMethodNameResolver mn = new PropertiesMethodNameResolver(p);
@@ -82,8 +82,8 @@ public class MultiActionControllerTestSuite extends TestCase {
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
 		mc = new TestMaController();
-		request = new TestHttpRequest(null, "GET", "/subdir/test.html");
-		response = new TestHttpResponse();
+		request = new MockHttpRequest(null, "GET", "/subdir/test.html");
+		response = new MockHttpResponse();
 		mv = mc.handleRequest(request, response);
 		assertTrue("Invoked subdir_test method", mc.wasInvoked("subdir_test"));
 		assertTrue("view name is subdir_test", mv.getViewname().equals("subdir_test"));
@@ -102,8 +102,8 @@ public class MultiActionControllerTestSuite extends TestCase {
 		MultiActionController mac = new MultiActionController();
 		TestDelegate d = new TestDelegate();
 		mac.setDelegate(d);
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/test.html");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/test.html");
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mac.handleRequest(request, response);
 		assertTrue("view name is test", mv.getViewname().equals("test"));
 		assertTrue("Delegate was invoked", d.invoked);
@@ -111,16 +111,16 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	public void testInvokesCorrectMethodWithSession() throws Exception {
 		TestMaController mc = new TestMaController();
-		TestHttpRequest request = new TestHttpRequest(null, "GET", "/inSession.html");
-		request.setSession(new TestHttpSession()); 
-		HttpServletResponse response = new TestHttpResponse();
+		MockHttpRequest request = new MockHttpRequest(null, "GET", "/inSession.html");
+		request.setSession(new MockHttpSession());
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("Invoked inSession method", mc.wasInvoked("inSession"));
 		assertTrue("view name is welcome", mv.getViewname().equals("inSession"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
-		request = new TestHttpRequest(null, "GET", "/inSession.html");
-			response = new TestHttpResponse();
+		request = new MockHttpRequest(null, "GET", "/inSession.html");
+			response = new MockHttpResponse();
 		try {
 			
 			mc.handleRequest(request, response);
@@ -133,18 +133,18 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	public void testInvokesCommandMethodNoSession() throws Exception {
 		TestMaController mc = new TestMaController();
-		TestHttpRequest request = new TestHttpRequest(null, "GET", "/commandNoSession.html");
+		MockHttpRequest request = new MockHttpRequest(null, "GET", "/commandNoSession.html");
 		request.addParameter("name", "rod");
 		request.addParameter("age", "32");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("Invoked commandNoSession method", mc.wasInvoked("commandNoSession"));
 		assertTrue("view name is commandNoSession", mv.getViewname().equals("commandNoSession"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
 //		mc = new TestMaController();
-//		request = new TestHttpRequest(null, "GET", "/subdir/test.html");
-//		response = new TestHttpResponse();
+//		request = new MockHttpRequest(null, "GET", "/subdir/test.html");
+//		response = new MockHttpResponse();
 //		mv = mc.handleRequest(request, response);
 //		assertTrue("Invoked subdir_test method", mc.wasInvoked("subdir_test"));
 //		assertTrue("view name is subdir_test", mv.getViewname().equals("subdir_test"));
@@ -154,19 +154,19 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	public void testInvokesCommandMethodWithSession() throws Exception {
 		TestMaController mc = new TestMaController();
-		TestHttpRequest request = new TestHttpRequest(null, "GET", "/commandInSession.html");
+		MockHttpRequest request = new MockHttpRequest(null, "GET", "/commandInSession.html");
 		request.addParameter("name", "rod");
 		request.addParameter("age", "32");
 		
-		request.setSession(new TestHttpSession()); 
-		HttpServletResponse response = new TestHttpResponse();
+		request.setSession(new MockHttpSession());
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("Invoked commandInSession method", mc.wasInvoked("commandInSession"));
 		assertTrue("view name is commandInSession", mv.getViewname().equals("commandInSession"));
 		assertTrue("Only one method invoked", mc.getInvokedMethods() == 1);
 		
-		request = new TestHttpRequest(null, "GET", "/commandInSession.html");
-			response = new TestHttpResponse();
+		request = new MockHttpRequest(null, "GET", "/commandInSession.html");
+			response = new MockHttpResponse();
 		try {
 			
 			mc.handleRequest(request, response);
@@ -179,8 +179,8 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	
 	public void testSessionRequiredCatchable() throws Exception {
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/test.html");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/test.html");
+		HttpServletResponse response = new MockHttpResponse();
 		TestMaController contr = new TestSessionRequiredController();
 		try {
 			contr.handleRequest(request, response);
@@ -191,8 +191,8 @@ public class MultiActionControllerTestSuite extends TestCase {
 		}
 		
 		
-		request = new TestHttpRequest(null, "GET", "/test.html");
-		response = new TestHttpResponse();
+		request = new MockHttpRequest(null, "GET", "/test.html");
+		response = new MockHttpResponse();
 		contr = new TestSessionRequiredExceptionHandler();
 		ModelAndView mv = contr.handleRequest(request, response);
 		assertTrue("Name is ok", mv.getViewname().equals("handle(SRE)"));
@@ -200,9 +200,9 @@ public class MultiActionControllerTestSuite extends TestCase {
 	}
 	
 	private void testExceptionNoHandler(TestMaController mc, Throwable t) throws Exception {
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/testException.html");
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/testException.html");
 		request.setAttribute(mc.THROWABLE_ATT, t);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		try {
 			mc.handleRequest(request, response);
 			fail("Should have thrown exception");
@@ -245,22 +245,22 @@ public class MultiActionControllerTestSuite extends TestCase {
 	
 	public void testLastModifiedDefault() throws Exception {
 		TestMaController mc = new TestMaController();
-		TestHttpRequest request = new TestHttpRequest(null, "GET", "/welcome.html");
+		MockHttpRequest request = new MockHttpRequest(null, "GET", "/welcome.html");
 		long lastMod = mc.getLastModified(request);
 		assertTrue("default last modified is -1", lastMod == -1L);
 	}
 	
 	public void testLastModifiedWithMethod() throws Exception {
 		LastModController mc = new LastModController();
-		TestHttpRequest request = new TestHttpRequest(null, "GET", "/welcome.html");
+		MockHttpRequest request = new MockHttpRequest(null, "GET", "/welcome.html");
 		long lastMod = mc.getLastModified(request);
 		assertTrue("last modified with method is > -1", lastMod == mc.getLastModified(request));
 	}
 	
 	private ModelAndView testHandlerCaughtException(TestMaController mc, Throwable t) throws Exception {
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/testException.html");
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/testException.html");
 		request.setAttribute(mc.THROWABLE_ATT, t);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		return mv;
 	}

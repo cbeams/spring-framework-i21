@@ -1,22 +1,13 @@
 package com.interface21.jdbc.object;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.sql.DataSource;
-import jdbc.*;
-import jdbc.TestDataSource;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
+import com.interface21.jdbc.TestDataSource;
 import com.interface21.jdbc.core.JdbcHelper;
-import com.interface21.jdbc.core.UncategorizedSQLException;
 import com.interface21.jdbc.core.JdbcTemplate;
 import com.interface21.jdbc.core.SqlParameter;
 

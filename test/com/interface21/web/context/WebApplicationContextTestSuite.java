@@ -8,6 +8,7 @@ import com.interface21.context.ApplicationContext;
 import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.TestListener;
 import com.interface21.web.context.support.XmlWebApplicationContext;
+import com.interface21.web.mock.MockServletContext;
 
 /**
  *
@@ -32,7 +33,7 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 
 	protected ApplicationContext createContext() throws Exception {
 		root = new XmlWebApplicationContext();
-		servletapi.TestServletContext sc = new servletapi.TestServletContext(WAR_ROOT);
+		MockServletContext sc = new MockServletContext(WAR_ROOT);
 
 		// This is required for the framework
 		sc.addInitParameter("configUrl", "/WEB-INF/applicationContext.xml");

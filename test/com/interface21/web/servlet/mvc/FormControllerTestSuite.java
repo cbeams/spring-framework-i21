@@ -1,38 +1,20 @@
 package com.interface21.web.servlet.mvc;
 
-import servletapi.TestHttpRequest;
-import servletapi.TestHttpResponse;
-import servletapi.TestHttpSession;
-
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
-import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.TestBean;
 import com.interface21.validation.*;
-import com.interface21.validation.BindException;
-import com.interface21.validation.DataBinder;
-import com.interface21.validation.Errors;
-import com.interface21.validation.FieldError;
-import com.interface21.web.bind.WebRequestBindingException;
-import com.interface21.web.context.WebApplicationContext;
-import com.interface21.web.context.support.StaticWebApplicationContext;
+import com.interface21.web.mock.MockHttpRequest;
+import com.interface21.web.mock.MockHttpResponse;
 import com.interface21.web.servlet.ModelAndView;
-import com.interface21.web.servlet.View;
-import com.interface21.web.servlet.mvc.multiaction.*;
 
 /**
  *
@@ -40,8 +22,6 @@ import com.interface21.web.servlet.mvc.multiaction.*;
  * @version $RevisionId$
  */
 public class FormControllerTestSuite extends TestCase {
-
-	
 	
 	/**
 	 * Constructor for AbstractMultiRequestHandlerTestSuite.
@@ -65,8 +45,8 @@ public class FormControllerTestSuite extends TestCase {
 		mc.setSuccessView(successView);
 		mc.refDataCount = 0;
 		
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/welcome.html");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/welcome.html");
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name", mv.getViewname().equals(formView));
 		
@@ -78,7 +58,8 @@ public class FormControllerTestSuite extends TestCase {
 		assertTrue("model is non null", person != null);
 		assertTrue("numbers is non null", numbers != null);
 	}
-	
+
+
 	public void testReferenceDataOnResubmit() throws Exception {
 		String formView = "f";
 		String successView = "s";
@@ -89,9 +70,9 @@ public class FormControllerTestSuite extends TestCase {
 		mc.setSuccessView(successView);
 		mc.refDataCount = 0;
 		
-		TestHttpRequest request = new TestHttpRequest(null, "POST", "/welcome.html");
+		MockHttpRequest request = new MockHttpRequest(null, "POST", "/welcome.html");
 		request.addParameter("age", "23x");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name", mv.getViewname().equals(formView));
 		assertTrue("has errors", mv.getModel().get(BindException.ERROR_KEY_PREFIX + mc.getBeanName()) != null);
@@ -104,9 +85,8 @@ public class FormControllerTestSuite extends TestCase {
 		assertTrue("model is non null", person != null);
 		assertTrue("numbers is non null", numbers != null);
 	}
-	
-	
-	
+
+
 	public void testForm() throws Exception {
 		String formView = "f";
 		String successView = "s";
@@ -115,8 +95,8 @@ public class FormControllerTestSuite extends TestCase {
 		mc.setFormView(formView);
 		mc.setSuccessView(successView);
 		
-		HttpServletRequest request = new TestHttpRequest(null, "GET", "/welcome.html");
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletRequest request = new MockHttpRequest(null, "GET", "/welcome.html");
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name", mv.getViewname().equals(formView));
 		
@@ -139,10 +119,10 @@ public class FormControllerTestSuite extends TestCase {
 		int age = 32;
 		
 		
-		TestHttpRequest request = new TestHttpRequest(null, "POST", "/welcome.html");
+		MockHttpRequest request = new MockHttpRequest(null, "POST", "/welcome.html");
 		request.addParameter("name", name);
 		request.addParameter("age", "" + age);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name: expected '" + successView + "', not '" + mv.getViewname() + "'", 
 			mv.getViewname().equals(successView));
@@ -171,10 +151,10 @@ public class FormControllerTestSuite extends TestCase {
 		int age = 32;
 		
 		
-		TestHttpRequest request = new TestHttpRequest(null, "POST", "/welcome.html");
+		MockHttpRequest request = new MockHttpRequest(null, "POST", "/welcome.html");
 		request.addParameter("name", name);
 		request.addParameter("age", "" + age);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name: expected '" + successView + "', not '" + mv.getViewname() + "'", 
 			mv.getViewname().equals(successView));
@@ -198,10 +178,10 @@ public class FormControllerTestSuite extends TestCase {
 		String age = "xxx";
 		
 		
-		TestHttpRequest request = new TestHttpRequest(null, "POST", "/foo.html");
+		MockHttpRequest request = new MockHttpRequest(null, "POST", "/foo.html");
 		request.addParameter("name", name);
 		request.addParameter("age", "" + age);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name: expected '" + formView + "', not '" + mv.getViewname() + "'", 
 		mv.getViewname().equals(formView));
@@ -234,10 +214,10 @@ public class FormControllerTestSuite extends TestCase {
 		String age = "xxx";
 		
 		
-		TestHttpRequest request = new TestHttpRequest(null, "POST", "/foo.html");
+		MockHttpRequest request = new MockHttpRequest(null, "POST", "/foo.html");
 		request.addParameter("name", name);
 		request.addParameter("age", "" + age);
-		HttpServletResponse response = new TestHttpResponse();
+		HttpServletResponse response = new MockHttpResponse();
 		ModelAndView mv = mc.handleRequest(request, response);
 		assertTrue("returned correct view name: expected '" + formView + "', not '" + mv.getViewname() + "'", 
 		mv.getViewname().equals(formView));
@@ -261,7 +241,7 @@ public class FormControllerTestSuite extends TestCase {
 		assertTrue("Saved invalid value", fe.getRejectedValue().equals(name));
 		assertTrue("Correct field", fe.getField().equals("name"));
 		assertTrue("Correct validation code: expected '" +TestValidator.TOOSHORT + "', not '" 
-		+ fe.getErrorCode() + "'", fe.getErrorCode().equals(TestValidator.TOOSHORT));
+		+ fe.getCode() + "'", fe.getCode().equals(TestValidator.TOOSHORT));
 	}
 	
 	
@@ -272,9 +252,9 @@ public class FormControllerTestSuite extends TestCase {
 				// CHECK THERE ISN'T ALREADY AN ERROR!?
 				TestBean tb = (TestBean) o;
 				if (tb.getName() == null || "".equals(tb.getName()))
-					errors.rejectValue("name", "needname", "need name");
+					errors.rejectValue("name", "needname", null, "need name");
 				else if (tb.getName().length() < 5)
-					errors.rejectValue("name", TOOSHORT, "need full name");
+					errors.rejectValue("name", TOOSHORT, null, "need full name");
 			}
 		};
 
@@ -294,7 +274,7 @@ public class FormControllerTestSuite extends TestCase {
 		
 
 		/**
-		 * @see ValidatingFormController#formBackingObject(HttpServletRequest)
+		 * @see FormController#formBackingObject(HttpServletRequest)
 		 */
 		protected Object formBackingObject(HttpServletRequest request) throws ServletException {
 			TestBean person = new TestBean();
@@ -303,7 +283,7 @@ public class FormControllerTestSuite extends TestCase {
 		}
 
 		/**
-		 * @see ValidatingFormController#onSubmit(HttpServletRequest, HttpServletResponse, Object, DataBinder)
+		 * @see FormController#onSubmit(HttpServletRequest, HttpServletResponse, Object, DataBinder)
 		 */
 		protected ModelAndView onSubmit(
 			HttpServletRequest request,
