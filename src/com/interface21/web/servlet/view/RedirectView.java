@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * View that redirects to an internal or external URL,
  * exposing all model attributes as HTTP query parameters.
- * @author  Rod Johnson
+ * @author Rod Johnson, Juergen Hoeller
  * @version $Revision$
  */
 public class RedirectView extends AbstractView {
@@ -30,7 +30,7 @@ public class RedirectView extends AbstractView {
 		this.url = url;
 	}
 	
-	public String getUrl() { 
+	protected String getUrl() {
 		return url;
 	}
 	
@@ -73,6 +73,6 @@ public class RedirectView extends AbstractView {
 		}
 		
 		response.sendRedirect(response.encodeRedirectURL(url.toString()));
-	}	// renderMergedOutputModel
+	}
 	
 }

@@ -41,7 +41,7 @@ public class ModelAndView {
 	/** 
 	 * View name if we hold a view name that will be resolved by the ControllerServlet
 	 */
-	private String viewname;
+	private String viewName;
 
 	//---------------------------------------------------------------------
 	// Constructors
@@ -60,41 +60,41 @@ public class ModelAndView {
 	}
 
 	/** 
-	 * Creates new ModelAndView given a viewname and a model
-	 * @param viewname name of the View to render this model.
+	 * Creates new ModelAndView given a viewName and a model
+	 * @param viewName name of the View to render this model.
 	 * This will be resolved by the Controller servlet at runtime.
 	 * @param model Map of model names (Strings) to
 	 * models (Objects). Model entries may not be null, but the
 	 * model may be null if there is no model data.
 	 */
-	public ModelAndView(String viewname, Map model) {
-		this.viewname = viewname;
+	public ModelAndView(String viewName, Map model) {
+		this.viewName = viewName;
 		// Less efficient than simply copying reference?
 		this.model = new HashMap(model);
 	}
 
 	/** 
 	 * Convenient constructor to take a single model
-	 * @param viewname name of the view
+	 * @param viewName name of the view
 	 * @param modelname name of the single entry in the model
 	 * @param model model data object
 	 */
-	public ModelAndView(String viewname, String modelname, Object model) {
-		this(viewname);
+	public ModelAndView(String viewName, String modelname, Object model) {
+		this(viewName);
 		this.model.put(modelname, model);
 	}
 	
 
 	/**
 	 * Constructor taking a view name and two model entries.
-	 * @param viewname name of the view
+	 * @param viewName name of the view
 	 * @param key1 key for first model entry
 	 * @param value1 value for first model entry
 	 * @param key2 key for second model entry
 	 * @param value2 value for second model entry
 	 */
-	public ModelAndView(String viewname, String key1, Object value1, String key2, Object value2) {
-		this(viewname);
+	public ModelAndView(String viewName, String key1, Object value1, String key2, Object value2) {
+		this(viewName);
 		this.model.put(key1, value1);
 		this.model.put(key2, value2);
 	}
@@ -122,10 +122,10 @@ public class ModelAndView {
 
 	/** 
 	 * Convenient constructor when there is no model data to expose
-	 * @param viewname view name, resolved by the controller servlet
+	 * @param viewName view name, resolved by the controller servlet
 	 */
-	public ModelAndView(String viewname) {
-		this.viewname = viewname;
+	public ModelAndView(String viewName) {
+		this.viewName = viewName;
 		this.model = new HashMap();
 	}
 
@@ -148,11 +148,11 @@ public class ModelAndView {
 	 * @return whether we use a view reference
 	 */
 	public boolean isReference() {
-		return viewname != null;
+		return viewName != null;
 	}
 
 	/**
-	 * @return the View reference, or null if we are using a viewname
+	 * @return the View reference, or null if we are using a viewName
 	 * to be resolved by the controller servlet.
 	 */
 	public View getView() {
@@ -160,11 +160,11 @@ public class ModelAndView {
 	}
 
 	/**
-	 * @return the viewname, or null if we are using a View
+	 * @return the viewName, or null if we are using a View
 	 * reference
 	 */
-	public String getViewname() {
-		return viewname;
+	public String getViewName() {
+		return viewName;
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class ModelAndView {
 	 */
 	public String toString() {
 		String s = "ModelAndView: ";
-		s += isReference() ? "reference to view with name '" + viewname + "'" : "materialized View is " + view;
+		s += isReference() ? "reference to view with name '" + viewName + "'" : "materialized View is " + view;
 		s += "; Model=[" + model + "]";
 		return s;
 	}

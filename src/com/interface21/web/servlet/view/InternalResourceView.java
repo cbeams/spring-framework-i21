@@ -23,82 +23,62 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.interface21.web.servlet.ControllerServlet;
 
-
 /**
  * Wrapper for a JSP or other resource within the WAR.
- * We set request attributes and forward to request to the
+ * Sets request attributes and forwards the request to the specified
  * specified resource using a RequestDispatcher.
- * @author  Rod Johnson	
+ *
+ * @author Rod Johnson
  */
 public class InternalResourceView extends AbstractView {
-	
 
-	//---------------------------------------------------------------------
-	// Instance data
-	//---------------------------------------------------------------------
-	/** URL of the resource within the WAR we'll use a RequestDispatcher
-	 * to forward to */
 	private String url;
 
 	private String debugUrl;
 
-
-	//---------------------------------------------------------------------
-	// Constructors
-	//---------------------------------------------------------------------
-	/** Constructor for use as a bean
+	/**
+	 * Constructor for use as a bean
 	 */
 	public InternalResourceView() {
 	}
 	 
-	/** Create a new InternalResourceView, specifying
-	 * the given url
+	/**
+	 * Create a new InternalResourceView with the given URL.
 	 * @param url url to forward to
 	 */
 	public InternalResourceView(String url) {
 		setUrl(url);
 	}
 
-
-	//---------------------------------------------------------------------
-	// Bean properties
-	//---------------------------------------------------------------------
-	/** Set the URL of the resource this view forwards to
+	/**
+	 * Set the resource URL that this view forwards to.
 	 * @param url the URL of the resource this view forwards to
 	 */
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
-	/**
-	 * Get the URL of the resource this view forwards to
-	 * @return the URL of the resource this view forwards to
-	 */
-	public String getUrl() {
+
+	protected String getUrl() {
 		return url;
 	}
 
+	/**
+	 * Set a debug URL that gets included at the end of the response,
+	 * if the ControllerServlet is in debug mode.
+	 * @param debugUrl the URL of the debug resource
+	 * @see ControllerServlet#setDebug
+	 */
 	public void setDebugUrl(String debugUrl) {
 		this.debugUrl = debugUrl;
 	}
 
-	public String getDebugUrl() {
-		return debugUrl;
-	}
-
-
-	//---------------------------------------------------------------------
-	// Implementation of abstract methods
-	//---------------------------------------------------------------------
 	/**
-	 * Renders the view given the specified model.  There can be many types of
-	 * view.<br/>
-	 * The first take will be preparing the request: this may include setting the model
-	 * as an attribute, in the case of a JSP view.
+	 * Render the internal resource given the specified model.
+	 * This includes setting the model as request attributes.
 	 */
-	public void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws ServletException {
 			
-		if (getUrl() == null)
+		if (this.url == null)
 			throw new ServletException("InternalResourceView is not configured: URL cannot be null");
 			
 		exposeModelsAsRequestAttributes(model, request);
@@ -107,30 +87,31 @@ public class InternalResourceView extends AbstractView {
 				
 		try {
 			if (ControllerServlet.isDebugMode(request)) {
-				logger.debug("Showing debug information, and including JSP with url '" + getUrl() + "' in InternalResourceView with name '" + getName() + "'");
-				request.getRequestDispatcher(getUrl()).include(request, response);
-				request.getRequestDispatcher(getDebugUrl()).include(request, response);
+				logger.debug("Showing debug information, and including JSP with url '" + this.url + "' in InternalResourceView with name '" + getName() + "'");
+				request.getRequestDispatcher(this.url).include(request, response);
+				request.getRequestDispatcher(this.debugUrl).include(request, response);
 			}
 			else {
 				// Simply forward to the JSP
-				RequestDispatcher rd = request.getRequestDispatcher(getUrl());
+				RequestDispatcher rd = request.getRequestDispatcher(this.url);
 				if (rd == null)
-					throw new ServletException("Can't get RequestDispatcher for '" + getUrl() + "': check that this file exists within your WAR");
+					throw new ServletException("Can't get RequestDispatcher for '" + this.url + "': check that this file exists within your WAR");
 				rd.forward(request, response);
-				logger.debug("Forwarded OK to resource within current application with url '" + getUrl() + "' in InternalResource view with name '" + getName() + "'");
+				logger.debug("Forwarded OK to resource within current application with url '" + this.url + "' in InternalResource view with name '" + getName() + "'");
 			}
 			
 		} 
 		catch (IOException ex) {
-			//Category.getInstance(getClass()).error("Couldn't dispatch to JSP with url '" + getUrl() + "' defined in view with name '" + cr.getViewName() + "': " + ex, ex);
-			throw new ServletException("Couldn't dispatch to JSP with url '" + getUrl() + "' in InternalResourceView with name '" + getName() + "'", ex);
+			//Category.getInstance(getClass()).error("Couldn't dispatch to JSP with url '" + this.url + "' defined in view with name '" + cr.getViewName() + "': " + ex, ex);
+			throw new ServletException("Couldn't dispatch to JSP with url '" + this.url + "' in InternalResourceView with name '" + getName() + "'", ex);
 		}
 	}	// renderMergedOutputModel
 	
 	
 	/**
-	 * Expose the models in the given map as request attributes. Names will be
-	 * taken from the map. This method can be used by different view types.
+	 * Expose the models in the given map as request attributes.
+	 * Names will be taken from the map.
+	 * This method is suitable for all resources reachable by RequestDispatcher.
 	 * @param model Map of models to expose
 	 * @param request HttpServletRequest to preprocess.
 	 */
@@ -141,8 +122,6 @@ public class InternalResourceView extends AbstractView {
 			while (itr.hasNext()) {
 				String modelname = (String) itr.next();
 				Object val = model.get(modelname);
-				// NULL!?
-
 				if (logger.isDebugEnabled()) {
 					String msg = "Added model with name '" + modelname + "' to request in InternalResourceView with name '" + getName() + "' ";
 					msg += (val != null) ? "and class " + val.getClass() : "(null)";
@@ -156,4 +135,4 @@ public class InternalResourceView extends AbstractView {
 		}
 	}
 	
-}	// class InternalResourceView
+}

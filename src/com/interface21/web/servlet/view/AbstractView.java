@@ -23,12 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
-
-import com.interface21.context.ApplicationContext;
-import com.interface21.context.ApplicationContextAware;
-import com.interface21.context.ApplicationContextException;
-import com.interface21.web.context.WebApplicationContext;
+import com.interface21.web.context.support.WebApplicationObjectSupport;
 import com.interface21.web.servlet.View;
 import com.interface21.web.servlet.support.RequestContext;
 
@@ -49,20 +44,13 @@ import com.interface21.web.servlet.support.RequestContext;
  * <br/>Also provides a logging category.
  * @author  Rod Johnson
  */
-public abstract class AbstractView implements View, ApplicationContextAware {
+public abstract class AbstractView extends WebApplicationObjectSupport implements View {
 
-	/** Log4j Category for this object */
-	protected final Logger logger = Logger.getLogger(getClass().getName());
-
-	
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
 	/** Map of static attributes, keyed by attribute name (String) */
 	private Map	staticAttributes = new HashMap();
-
-	/** The ApplicationContext passed to this object */
-	private WebApplicationContext webApplicationContext;
 
 	/** Default content type. Overridable as bean property. */
 	private String contentType = "text/html; charset=ISO-8859-1";
@@ -101,8 +89,7 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 			}
 			addStaticAttribute(name, val);
 		}
-	}	// setAttributesCSV
-	
+	}
 	
 	/**
 	 * Set static attributes from a java.util.Properties object. This is
@@ -123,75 +110,31 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 				addStaticAttribute(name, val);
 			}
 		}
-	}	// setAttributes
+	}
 
+	/**
+	 * Set the content type for this view.
+	 * May be ignored by subclasses if the view itself is assumed
+	 * to set the content type, e.g. in case of JSPs.
+	 * @param contentType content type for this view
+	 */
 	public final void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
 	
-	public final String getContentType() {
+	protected final String getContentType() {
 		return this.contentType;
 	}
 
+	/**
+	 * Set the name of the RequestContext attribute for all views,
+	 * or null if not needed.
+	 * @param requestContextAttribute name of the RequestContext attribute
+	 */
 	public void setRequestContextAttribute(String requestContextAttribute) {
 		this.requestContextAttribute = requestContextAttribute;
 	}
 
-	public String getRequestContextAttribute() {
-		return requestContextAttribute;
-	}
-
-
-	//---------------------------------------------------------------------
-	// Implementation of ApplicationContextAware
-	//---------------------------------------------------------------------
-	/** 
-	 * Set the ApplicationContext object used by this object.
-	 * @param applicationContext ApplicationContext object used by this object.
-	 * This must be of type WebApplicatinContext
-	 * @throws ApplicationContextException if the ApplicationContext
-	 * isn't of type WebApplicatinContext.
-	 */
-	public final void setApplicationContext(ApplicationContext applicationContext) throws ApplicationContextException {
-		if (this.webApplicationContext != null)
-			throw new RuntimeException("Assertion failed: View with name '" + name + "' (set previously) cannot be initialized twice");
-		
-		if (!(applicationContext instanceof WebApplicationContext))
-			throw new ApplicationContextException("AbstractView requires a WebApplicationContext. " + applicationContext + " is not acceptable");
-		this.webApplicationContext = (WebApplicationContext) applicationContext;
-		
-		// Call subclass initialization
-		onSetContext();
-	}
-	
-	/** 
-	 * Subclasses may implement this to perform their own
-	 * initialization. It's invoked after the ApplicationContext
-	 * has been set.
-	 * <br/>This implementation does nothing.
-	 * @throws ApplicationContextException if subclass initialization fails.
-	 */
-	protected void onSetContext() throws ApplicationContextException {
-	}
-
-
-	/**
-	 * @see ApplicationContextAware#getApplicationContext()
-	 */
-	public final ApplicationContext getApplicationContext() {
-		return this.webApplicationContext;
-	}
-	
-	
-	/**
-	 * Convenient method to return the application context as a WebApplicationContext,
-	 * available to subclasses.
-	 */
-	protected final WebApplicationContext getWebApplicationContext() {
-		return this.webApplicationContext;
-	}
-	
-	
 
 	//---------------------------------------------------------------------
 	// Implementation of View
@@ -254,9 +197,8 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 			model.put(this.requestContextAttribute, new RequestContext(request));
 
 		renderMergedOutputModel(model, request, response);
-	}	// render
-	
-	
+	}
+
 	/** 
 	 * Subclasses must implement this method. 
 	 * Render the view given the model to output.
@@ -270,4 +212,4 @@ public abstract class AbstractView implements View, ApplicationContextAware {
 	 */
 	protected abstract void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 
-}	// AbstractView
+}

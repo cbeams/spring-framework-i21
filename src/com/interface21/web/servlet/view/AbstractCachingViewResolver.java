@@ -159,11 +159,11 @@ public abstract class AbstractCachingViewResolver implements ViewResolver {
 
 	/** Subclasses must implement this method. There need be no concern for efficiency,
 	 * as this class will cache views.
-	 * @param viewname name of the view to retrieve
+	 * @param viewName name of the view to retrieve
 	 * @param locale Locale to retrieve the view for. Not all subclasses may support
 	 * internationalization. A subclass that doesn't can ignore this parameter.
 	 * @throws ServletException if there is an error trying to resolve the view
 	 * @return the View if it can be resolved; otherwise null.
 	 */
-	protected abstract View loadView(String viewname, Locale locale) throws ServletException;
+	protected abstract View loadView(String viewName, Locale locale) throws ServletException;
 }

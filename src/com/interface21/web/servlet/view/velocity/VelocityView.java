@@ -216,8 +216,6 @@ public class VelocityView extends AbstractView {
 	 * taking precedence over static attributes
 	 * @param request HttpServetRequest
 	 * @param response HttpServletResponse
-	 * @throws IOException if there is an IO exception trying to obtain
-	 * or render the view
 	 * @throws ServletException if there is any other error
 	 */
 	protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response)
