@@ -28,20 +28,6 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 		super(pvs, singleton);
 		this.clazz = clazz;
 	}
-	
-	protected RootBeanDefinition() {
-	}
-	
-	protected void setBeanClass(Class clazz) {
-		this.clazz = clazz;
-	}
-	
-	/**
-	 * Setter for the name of the JavaBean target class.
-	 */
-	public void setBeanClassName(String classname) throws ClassNotFoundException {
-		this.clazz = Class.forName(classname);
-	}
 
 
 	/**
