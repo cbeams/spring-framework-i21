@@ -15,7 +15,7 @@ div#nav li a span {display: none}
 div#nav li a:hover {background: #00f; color: #fff}
 div#nav li a:hover span {padding: 5px 5px 0 5px; DISPLAY: block;Z-INDEX: 100; LEFT: 0px;font-size: 10px; COLOR: #666;POSITION: absolute; TOP: 16px; TEXT-ALIGN: left}
 
-/* ========= PIED DE PAGE ========== */
+/* ========= FOOTER ========== */
 div#footer {font-size: 10px;color: #8080ff; text-align:center;}
 div#footer img {vertical-align: bottom;}
 div#footer li {padding: 0;display: inline;}
@@ -25,28 +25,27 @@ div#footer li a:link {color: #8080ff}
 div#footer li a:visited {color: #004080}
 div#footer li a:hover {color: #009;border-bottom: 2px #fff solid;background-color: #ffee91;}
 
-/* =========== BANDEAU ============= */
+/* =========== HEADER ============= */
 div#top {background-color: #E4EFF3;background-image: url(logo.gif);background-position: 100px 1px;background-repeat: no-repeat; height: 50px; width:100%; padding:0; border: none;margin: 0;}
 
 /* =========== GENERAL ============= */
-h1 {PADDING-RIGHT: 5px 10px 4px 0px; BACKGROUND: #0006f0;MARGIN: 0 -2px 0 -2px; font-size: 20px; VERTICAL-ALIGN: middle; TEXT-TRANSFORM: lowercase; COLOR: #ffee91; WHITE-SPACE: nowrap; LETTER-SPACING: 0.5em; TEXT-ALIGN: right}
-h2 {PADDING-RIGHT: 3px 10px 3px 10px; BACKGROUND: #000250; MARGIN: 0 -2px 2px -2px; font-size: 16px; VERTICAL-ALIGN: middle; COLOR: #ffee91; WHITE-SPACE: nowrap;  HEIGHT: 18px; TEXT-ALIGN: center}
-h3 {PADDING-RIGHT: 10px; PADDING-LEFT: 10px; BACKGROUND: #ffee91; PADDING-BOTTOM: 2px; MARGIN: 4px -2px 2px -2px; font-size: 14px; VERTICAL-ALIGN: middle; COLOR: #009; PADDING-TOP: 3px; WHITE-SPACE: nowrap;  TEXT-ALIGN: left; border-top: 1px #000 solid; border-bottom: 1px #000 solid;}
 img {border: none;}
 
 .odd {background-color: #f0f3f6;}
-
-/* =========== CONTENT ============= */
-div#content {border: 1px #000000 solid;width: 100%;z-index: 2;COLOR: #000080; clear:right; font-size: x-small;padding: 0 2px 0 2px;background-color: #fafcff;margin:2px;}
-div#content p {MARGIN: 0 0 1px 0.5em;vertical-align: bottom;}
-div#content p strong {color: #000;font-weight: bold;}
-
 .pagernav {float: left;color: #000; font-weight: bold; font-size: x-small;margin: 0;padding: 0;text-align: right;}
 .pagernav a {text-decoration: none;}
 .pagernav a:hover {background-color: #0006f0;color: #fff;}
 .pager {font-size: x-small;color: #0006f0; width: 100%;border: 3px outset; margin: 5px; padding: 1px 15px 1px 15px;
 background-color: #eee;clear:both;}
 .psize {float: right;}
+
+/* =========== CONTENT ============= */
+div#content {border: 1px #000000 solid;width: 100%;z-index: 2;COLOR: #000080; clear:right; font-size: x-small;padding: 0 2px 0 2px;background-color: #fafcff;margin:2px;font-weight: normal;}
+div#content p {MARGIN: 0 0 1px 0.5em;vertical-align: bottom;}
+div#content p strong {color: #000;font-weight: bold;}
+div#content h1 {PADDING-RIGHT: 5px 10px 4px 0px; BACKGROUND: #0006f0;MARGIN: 0 -2px 0 -2px; font-size: 20px; VERTICAL-ALIGN: middle; TEXT-TRANSFORM: lowercase; COLOR: #ffee91; WHITE-SPACE: nowrap; LETTER-SPACING: 0.5em; TEXT-ALIGN: right}
+div#content h2 {PADDING-RIGHT: 3px 10px 3px 10px; BACKGROUND: #000250; MARGIN: 0 -2px 2px -2px; font-size: 16px; VERTICAL-ALIGN: middle; COLOR: #ffee91; WHITE-SPACE: nowrap;  HEIGHT: 18px; TEXT-ALIGN: center}
+div#content h3 {PADDING-RIGHT: 10px; PADDING-LEFT: 10px; BACKGROUND: #ffee91; PADDING-BOTTOM: 2px; MARGIN: 4px -2px 2px -2px; font-size: 14px; VERTICAL-ALIGN: middle; COLOR: #009; PADDING-TOP: 3px; WHITE-SPACE: nowrap;  TEXT-ALIGN: left; border-top: 1px #000 solid; border-bottom: 1px #000 solid;}
 
 /* Tableaux */
 div#content table {border-collapse: collapse;  width: 100%; margin: 0 0 5px 0; font-size: x-small;}
@@ -59,4 +58,3 @@ div#content th a {background-color: #ffee91;padding: 0em 0.5em 0em 0.5em;color: 
 div#content th a:link {background-color: #ffee91;color: #009;}
 div#content th a:visited {background-color: #ffee91;color: #009;}
 div#content th a:hover {background-color: #E4EFF3;color: #000;}
-

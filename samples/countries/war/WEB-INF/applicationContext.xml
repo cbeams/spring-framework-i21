@@ -49,10 +49,10 @@
 		 -->
 		      
 	<!-- ====================== In memory only version ====================== -->
-
+	
 	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryMem"
 		singleton="true"/>
-
+	
 	<!-- ======================= Database only version ====================== -->
 
 	<!--
@@ -60,7 +60,9 @@
 		<property name="jndiName"><value>jdbc/countries-ds</value></property>
 	</bean>
 	<bean id="daoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"
-		singleton="true"/>
+		singleton="true">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
 	-->
 
 	<!-- ============= In memory + Database version for copying ============= -->
@@ -71,9 +73,10 @@
 		<property name="jndiName"><value>jdbc/countries-ds</value></property>
 	</bean>
 	<bean id="secondDaoCountry" class="com.interface21.samples.countries.dao.DaoCountryJdbcMySql"
-		singleton="true"/>
+		singleton="true">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
 	-->
-
 	<!-- ========================= End of PERSISTENCE DEFINITIONS ========================= -->
 	
 </beans>

@@ -17,6 +17,7 @@
 		<property name="basename"><value>views-countries</value></property>
 		<property name="defaultParentView"><value>modelView</value></property>
 	</bean>
+	<bean id="copyInterceptor" class="com.interface21.samples.countries.web.CopyInterceptor"/>			
 
 	<!--
 	 - Explicit URL handler mapping instead of default BeanNameUrlHandlerMapping.
@@ -26,11 +27,14 @@
 			<list>
 				<ref external="localeChangeInterceptor"/>
 				<ref external="themeChangeInterceptor"/>
+				<ref bean="copyInterceptor"/>
 			</list>
 		</property>
 		<property name="mappings">
 			<props>
 				<prop key="/home.htm">countriesController</prop>
+				<prop key="/config.htm">countriesController</prop>
+				<prop key="/copy.htm">countriesController</prop>
 				<prop key="/main/home.htm">countriesController</prop>
 				<prop key="/main/detail.htm">countriesController</prop>
 				<prop key="/main/countries.xls">countriesController</prop>
@@ -49,6 +53,8 @@
 		<property name="mappings">
 			<props>
 				<prop key="/home.htm">handleHome</prop>
+				<prop key="/config.htm">handleConfig</prop>
+				<prop key="/copy.htm">handleCopy</prop>
 				<prop key="/main/home.htm">handleMain</prop>
 				<prop key="/main/detail.htm">handleDetail</prop>
 				<prop key="/main/countries.xls">handleExcel</prop>
@@ -63,6 +69,7 @@
 	  - Uses the MethodNameResolver definition defined above.
 	  -->
 	<!-- ONLY MEMORY OR ONLY DATABASE IMPLEMENTATION -->
+
 	<bean id="countriesController" class="com.interface21.samples.countries.web.CountriesController">
 		<property name="methodNameResolver"><ref bean="countriesMethodNameResolver"/></property>
 		<property name="daoCountry"><ref external="daoCountry"/></property>

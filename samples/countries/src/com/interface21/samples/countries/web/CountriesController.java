@@ -39,6 +39,16 @@ public class CountriesController extends MultiActionController {
 	}
 
 	/**
+	 * Custom handler for config
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @return a ModelAndView to render the response
+	 */
+	public ModelAndView handleConfig(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+		return new ModelAndView("configView");
+	}
+
+	/**
 	 * Custom handler for countries main paged list
 	 * @param request current HTTP request
 	 * @param response current HTTP response
@@ -109,12 +119,17 @@ public class CountriesController extends MultiActionController {
 		boolean copyMade = false;
 		try {
 			if (null != secondDaoCountry) {
+				logger.info("A secondDao is configured");
 				secondDaoCountry.initBase(); 
+				logger.info("The database is initiallised");
 				Locale locs[] = {Locale.US, Locale.FRANCE, Locale.GERMANY};
 				for (int i = 0; i < locs.length; i++ ) {
 					secondDaoCountry.saveCountries(daoCountry.getAllCountries(locs[i]), locs[i]);
 				}
 				copyMade = true;
+				logger.info("The data is copied");
+			} else {
+				logger.error("No secondDao is configured. You cannot copy in a database.");
 			}
 		} finally {
 			return new ModelAndView("copyView", "copyMade", Boolean.valueOf(copyMade));
@@ -122,6 +137,10 @@ public class CountriesController extends MultiActionController {
 	}
 
 	// Accessors
+	public IDaoCountry getSecondDaoCountry() {
+		return secondDaoCountry;
+	}
+
 	public void setDaoCountry(IDaoCountry daoCountry) {
 		this.daoCountry = daoCountry;
 	}

@@ -45,7 +45,7 @@ public class DaoCountryMem implements IDaoCountry, InitializingBean {
 		while (it.hasNext()) {
 			Country country = (Country) it.next();
 			if ((null == name || country.getName().startsWith(name)) &&
-			    (null == code || country.getCode().startsWith(code))
+				(null == code || country.getCode().startsWith(code))
 			) {
 				countries.add(country);
 			}
@@ -110,6 +110,13 @@ public class DaoCountryMem implements IDaoCountry, InitializingBean {
 	 */
 	public void saveCountries(List countries, Locale locale) {
 		// Do nothing in this implementation
+	}
+
+	/**
+	 * @see com.interface21.samples.countries.dao.IDaoCountry#getType()
+	 */
+	public String getType() {
+		return MEMORY;
 	}
 
 }

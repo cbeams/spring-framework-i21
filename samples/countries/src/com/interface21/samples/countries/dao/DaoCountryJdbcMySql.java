@@ -16,6 +16,8 @@ public class DaoCountryJdbcMySql extends AbstractDaoCountryJdbc {
 		JdbcTemplate tpl = new JdbcTemplate();
 		tpl.setDataSource(this.getDataSource());
 		tpl.update("DROP TABLE IF EXISTS countries");
-		tpl.update("CREATE TABLE countries (lang CHAR(2), code CHAR(2), name VARCHAR(50)");
+		logger.info("Table countries deleted");
+		tpl.update("CREATE TABLE countries (lang CHAR(2), code CHAR(2), name VARCHAR(50))");
+		logger.info("Table countries created");
 	}
 }

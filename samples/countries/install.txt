@@ -1,0 +1,40 @@
+DATABASE CONFIGURATION
+======================
+
+DATABASE
+
+a "test" database" with a "test" user with "test" password having authority to create tables
+has to be provided on the database.
+
+This demo assumes the use of MySql.
+For other databases: 
+	- copy the DaoCountriesJdbcMySql.java file as DaoCountriesJdbcXXX.java
+	- modify the new file for the syntax of your database
+	- make the replacement in applicationContext.xml
+	
+
+APPLICATION SERVER
+
+This demo was tested on Jboss 3.0.5 and 3.2.0.
+
+JBoss
+-----
+You will find the MySql driver in the db/MySql directory, it has to be copied, if not already there, 
+in default/lib directory.
+
+Depending of the JBoss serie you use, copy the xml file from db/MySql/jboss/3.XX.XX in the deploy directory.
+
+Copy the jboss-web file from db/MySql/jboss in your war/WEB-INF directory before making the war.
+
+For other databases, change these files accordingly.
+
+Tomcat
+------
+Rely on the petclinic demo.
+
+Others
+------
+Rely on your documentation.
+
+
+
