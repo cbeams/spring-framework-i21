@@ -5,13 +5,10 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import com.mockobjects.sql.MockConnection;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 
-import com.interface21.jdbc.core.JdbcTemplate;
-import com.interface21.jdbc.core.MockConnectionFactory;
 import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.InvalidTimeoutException;
 import com.interface21.transaction.PlatformTransactionManager;
@@ -32,51 +29,25 @@ public class DataSourceTransactionManagerTests extends TestCase {
 		super(msg);
 	}
 
-	public void testDataSourceTransactionManagerWithSingleConnection() throws Exception {
-		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
-		final int rowsAffected = 33;
-
-		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
-		con.setExpectedCloseCalls(0);
-		con.setExpectedCommitCalls(1);
-		con.setExpectedRollbackCalls(0);
-		final DataSource ds = new SingleConnectionDataSource(con, true);
-
-		PlatformTransactionManager tm = new DataSourceTransactionManager(ds) {
-			protected boolean isExistingTransaction(Object transaction) {
-				return false;
-			}
-		};
-
-		TransactionTemplate tt = new TransactionTemplate(tm);
-		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
-
-		tt.execute(new TransactionCallbackWithoutResult() {
-			protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
-				assertTrue("Has thread connection", DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
-				JdbcTemplate template = new JdbcTemplate(ds);
-				int actualRowsAffected = template.update(sql);
-				assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
-			}
-		});
-
-		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
-		con.verify();
-	}
-
 	public void testDataSourceTransactionManagerWithCommit() throws Exception {
-		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
+		con.setAutoCommit(false);
+		conControl.setVoidCallable(1);
+		con.commit();
+		conControl.setVoidCallable(1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
+		con.setAutoCommit(true);
+		conControl.setVoidCallable(1);
+		con.close();
+		conControl.setVoidCallable(1);
 
-		final MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		final DataSource ds = (DataSource) dsControl.getMock();
-		final int rowsAffected = 33;
-
-		// It's because Integers aren't canonical
-		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
-		con.setExpectedCloseCalls(1);
-
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 1);
+		conControl.activate();
 		dsControl.activate();
 
 		PlatformTransactionManager tm = new DataSourceTransactionManager(ds);
@@ -87,32 +58,36 @@ public class DataSourceTransactionManagerTests extends TestCase {
 			protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
 				assertTrue("Has thread connection", DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 				assertTrue("Is new transaction", status.isNewTransaction());
-				JdbcTemplate template = new JdbcTemplate(ds);
-				int actualRowsAffected = template.update(sql);
-				assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
 			}
 		});
 
 		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
-		con.verify();
+		conControl.verify();
+		dsControl.verify();
 	}
 
 	public void testDataSourceTransactionManagerWithRollback() throws Exception {
-		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
-		final int rowsAffected = 33;
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
+		con.setAutoCommit(false);
+		conControl.setVoidCallable(1);
+		con.rollback();
+		conControl.setVoidCallable(1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
+		con.setAutoCommit(true);
+		conControl.setVoidCallable(1);
+		con.close();
+		conControl.setVoidCallable(1);
 
-		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
-		con.setExpectedCloseCalls(0);
-		con.setExpectedCommitCalls(0);
-		con.setExpectedRollbackCalls(1);
-		final DataSource ds = new SingleConnectionDataSource(con, true);
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		final DataSource ds = (DataSource) dsControl.getMock();
+		ds.getConnection();
+		dsControl.setReturnValue(con, 1);
+		conControl.activate();
+		dsControl.activate();
 
-		PlatformTransactionManager tm = new DataSourceTransactionManager(ds) {
-			protected boolean isExistingTransaction(Object transaction) {
-				return false;
-			}
-		};
-
+		PlatformTransactionManager tm = new DataSourceTransactionManager(ds);
 		TransactionTemplate tt = new TransactionTemplate(tm);
 		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 
@@ -122,9 +97,6 @@ public class DataSourceTransactionManagerTests extends TestCase {
 				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
 					assertTrue("Has thread connection", DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 					assertTrue("Is new transaction", status.isNewTransaction());
-					JdbcTemplate template = new JdbcTemplate(ds);
-					int actualRowsAffected = template.update(sql);
-					assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
 					throw ex;
 				}
 			});
@@ -134,26 +106,26 @@ public class DataSourceTransactionManagerTests extends TestCase {
 			// expected
 			assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 			assertTrue("Correct exception thrown", ex2.equals(ex));
-			con.verify();
 		}
+		conControl.verify();
+		dsControl.verify();
 	}
 
 	public void testDataSourceTransactionManagerWithRollbackOnly() throws Exception {
-		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
-		final int rowsAffected = 33;
-
-		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
-		con.setExpectedCloseCalls(0);
-		con.setExpectedCommitCalls(0);
-		con.setExpectedRollbackCalls(0);
-		final DataSource ds = new SingleConnectionDataSource(con, true);
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		final DataSource ds = (DataSource) dsControl.getMock();
+		ds.getConnection();
+		dsControl.setReturnValue(con, 1);
+		conControl.activate();
+		dsControl.activate();
 
 		PlatformTransactionManager tm = new DataSourceTransactionManager(ds) {
 			protected boolean isExistingTransaction(Object transaction) {
 				return true;
 			}
 		};
-
 		TransactionTemplate tt = new TransactionTemplate(tm);
 		assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 
@@ -163,9 +135,6 @@ public class DataSourceTransactionManagerTests extends TestCase {
 				protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
 					assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 					assertTrue("Is existing transaction", !status.isNewTransaction());
-					JdbcTemplate template = new JdbcTemplate(ds);
-					int actualRowsAffected = template.update(sql);
-					assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
 					throw ex;
 				}
 			});
@@ -175,19 +144,31 @@ public class DataSourceTransactionManagerTests extends TestCase {
 			// expected
 			assertTrue("Hasn't thread connection", !DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 			assertTrue("Correct exception thrown", ex2.equals(ex));
-			con.verify();
 		}
+		conControl.verify();
+		dsControl.verify();
 	}
 
 	public void testDataSourceTransactionManagerWithExistingTransaction() throws Exception {
-		final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 4";
-		final int rowsAffected = 33;
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
+		con.setAutoCommit(false);
+		conControl.setVoidCallable(1);
+		con.rollback();
+		conControl.setVoidCallable(1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
+		con.setAutoCommit(true);
+		conControl.setVoidCallable(1);
+		con.close();
+		conControl.setVoidCallable(1);
 
-		MockConnection con = MockConnectionFactory.updateWithPreparedStatement(sql, null, rowsAffected, true, null, null);
-		con.setExpectedCloseCalls(0);
-		con.setExpectedCommitCalls(0);
-		con.setExpectedRollbackCalls(1);
-		final DataSource ds = new SingleConnectionDataSource(con, true);
+		MockControl dsControl = EasyMock.controlFor(DataSource.class);
+		final DataSource ds = (DataSource) dsControl.getMock();
+		ds.getConnection();
+		dsControl.setReturnValue(con, 1);
+		conControl.activate();
+		dsControl.activate();
 
 		PlatformTransactionManager tm = new DataSourceTransactionManager(ds);
 		final TransactionTemplate tt = new TransactionTemplate(tm);
@@ -200,15 +181,14 @@ public class DataSourceTransactionManagerTests extends TestCase {
 					protected void doInTransactionWithoutResult(TransactionStatus status) throws RuntimeException {
 						assertTrue("Has thread connection", DataSourceUtils.getThreadObjectManager().hasThreadObject(ds));
 						assertTrue("Is existing transaction", !status.isNewTransaction());
-						JdbcTemplate template = new JdbcTemplate(ds);
-						int actualRowsAffected = template.update(sql);
-						assertTrue("Actual rows affected is correct", actualRowsAffected == rowsAffected);
 						status.setRollbackOnly();
 					}
 				});
 				assertTrue("Is new transaction", status.isNewTransaction());
 			}
 		});
+		conControl.verify();
+		dsControl.verify();
 	}
 
 	public void testDataSourceTransactionManagerWithTimeout() throws Exception {
@@ -217,7 +197,7 @@ public class DataSourceTransactionManagerTests extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 1);
 		conControl.activate();
 		dsControl.activate();
 
@@ -248,21 +228,23 @@ public class DataSourceTransactionManagerTests extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 1);
 		con.getTransactionIsolation();
-		conControl.setReturnValue(Connection.TRANSACTION_READ_COMMITTED);
+		conControl.setReturnValue(Connection.TRANSACTION_READ_COMMITTED, 1);
 		con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		con.setAutoCommit(false);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		con.commit();
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		con.setAutoCommit(true);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		con.close();
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		conControl.activate();
 		dsControl.activate();
 
@@ -284,9 +266,9 @@ public class DataSourceTransactionManagerTests extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 1);
 		con.setAutoCommit(false);
-		conControl.setThrowable(new SQLException("cannot begin"));
+		conControl.setThrowable(new SQLException("Cannot begin"));
 		conControl.activate();
 		dsControl.activate();
 
@@ -313,15 +295,17 @@ public class DataSourceTransactionManagerTests extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 1);
 		con.setAutoCommit(false);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		con.commit();
-		conControl.setThrowable(new SQLException("cannot commit"));
+		conControl.setThrowable(new SQLException("Cannot commit"));
 		con.setAutoCommit(true);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		con.close();
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		conControl.activate();
 		dsControl.activate();
 
@@ -348,15 +332,17 @@ public class DataSourceTransactionManagerTests extends TestCase {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		DataSource ds = (DataSource) dsControl.getMock();
 		ds.getConnection();
-		dsControl.setReturnValue(con);
+		dsControl.setReturnValue(con, 1);
 		con.setAutoCommit(false);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		con.rollback();
-		conControl.setThrowable(new SQLException("cannot rollback"));
+		conControl.setThrowable(new SQLException("Cannot rollback"));
 		con.setAutoCommit(true);
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		con.close();
-		conControl.setVoidCallable();
+		conControl.setVoidCallable(1);
 		conControl.activate();
 		dsControl.activate();
 

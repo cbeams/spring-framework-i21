@@ -102,19 +102,25 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	/**
 	 * This implementation sets the isolation level but ignores the timeout.
 	 */
-	protected void doBegin(Object transaction, int isolationLevel, int timeout) {
-		if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
-			throw new InvalidTimeoutException("DataSourceTransactionManager does not support timeouts");
+	protected void doBegin(Object transaction, TransactionDefinition definition) {
+		if (definition.getTimeout() != TransactionDefinition.TIMEOUT_DEFAULT) {
+			throw new InvalidTimeoutException("DataSourceTransactionManager does not support timeouts", definition.getTimeout());
 		}
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
 		Connection con = txObject.getConnectionHolder().getConnection();
 		logger.debug("Switching JDBC connection [" + con + "] to manual commit");
 		try {
-			if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
-				logger.debug("Changing isolation level to " + isolationLevel);
+			// apply isolation level
+			if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
+				logger.debug("Changing isolation level to " + definition.getIsolationLevel());
 				txObject.setPreviousIsolationLevel(new Integer(con.getTransactionIsolation()));
-				con.setTransactionIsolation(isolationLevel);
+				con.setTransactionIsolation(definition.getIsolationLevel());
 			}
+			// apply read-only
+			if (definition.isReadOnly()) {
+				con.setReadOnly(true);
+			}
+			// switch to manual commit
 			con.setAutoCommit(false);
 		}
 		catch (SQLException ex) {
@@ -169,8 +175,12 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		// reset connection
 		Connection con = txObject.getConnectionHolder().getConnection();
 		try {
-			// reset to autocommit
+			// reset to auto-commit
 			con.setAutoCommit(true);
+			// reset read-only
+			if (con.isReadOnly()) {
+				con.setReadOnly(false);
+			}
 			// reset transaction isolation to previous value, if changed for the transaction
 			if (txObject.getPreviousIsolationLevel() != null) {
 				logger.debug("Resetting isolation level to " + txObject.getPreviousIsolationLevel());
