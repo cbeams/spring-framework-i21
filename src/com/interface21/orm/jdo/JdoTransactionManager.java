@@ -102,12 +102,12 @@ public class JdoTransactionManager extends AbstractPlatformTransactionManager im
 		return txObject.getPersistenceManagerHolder().getPersistenceManager().currentTransaction().isActive();
 	}
 
-	protected void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException {
-		if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
+	protected void doBegin(Object transaction, TransactionDefinition definition) throws TransactionException {
+		if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
 			throw new InvalidIsolationException("JdoTransactionManager does not support custom isolation levels");
 		}
-		if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
-			throw new InvalidTimeoutException("JdoTransactionManager does not support timeouts");
+		if (definition.getTimeout() != TransactionDefinition.TIMEOUT_DEFAULT) {
+			throw new InvalidTimeoutException("JdoTransactionManager does not support timeouts", definition.getTimeout());
 		}
 		JdoTransactionObject txObject = (JdoTransactionObject) transaction;
 		logger.debug("Beginning JDO transaction");
