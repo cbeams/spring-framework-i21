@@ -80,10 +80,10 @@ public class ResourceBundleViewResolver extends AbstractCachingViewResolver {
 	protected View loadView(String viewName, Locale locale) throws ServletException {
 		ResourceBundle bundle = null;
 
-		// Distinguish between failure to load a bundle and failure
-		// to load a message
+		// Distinguish between failure to load a bundle and failure to load a message
 		try {
-			bundle = ResourceBundle.getBundle(basename, locale);
+			bundle = ResourceBundle.getBundle(this.basename, locale,
+			                                  Thread.currentThread().getContextClassLoader());
 		}
 		catch (MissingResourceException ex) {
 			throw new ServletException("Cannot load resource bundle with basename '" + this.basename + "' trying to resolve view with name '" + viewName + "'", ex);
