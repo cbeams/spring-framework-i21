@@ -1,6 +1,9 @@
 package com.interface21.web.servlet.mvc;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -10,12 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 import junit.framework.TestCase;
 
 import com.interface21.beans.TestBean;
+import com.interface21.beans.propertyeditors.CustomDateEditor;
 import com.interface21.validation.Errors;
 import com.interface21.validation.FieldError;
+import com.interface21.web.bind.ServletRequestDataBinder;
 import com.interface21.web.mock.MockHttpServletRequest;
 import com.interface21.web.mock.MockHttpServletResponse;
-import com.interface21.web.servlet.ModelAndView;
 import com.interface21.web.servlet.LastModified;
+import com.interface21.web.servlet.ModelAndView;
 
 /**
  *
@@ -24,16 +29,8 @@ import com.interface21.web.servlet.LastModified;
  */
 public class CommandControllerTestSuite extends TestCase {
 
-	/**
-	 * Constructor for AbstractMultiRequestHandlerTestSuite.
-	 * @param arg0
-	 */
-	public CommandControllerTestSuite(String arg0) {
-		super(arg0);
-	}
-
-	public void setUp() {
-		
+	public CommandControllerTestSuite(String name) {
+		super(name);
 	}
 
 	public void testNoArgsNoErrors() throws Exception {
@@ -84,7 +81,6 @@ public class CommandControllerTestSuite extends TestCase {
 		assertTrue("has 1 errors", errors.getErrorCount() == 1);
 		assertTrue("command name bound ok", person.getName().equals(name));
 		assertTrue("command age default", person.getAge() == new TestBean().getAge());
-		
 		assertTrue("has error on field age", errors.hasFieldErrors("age"));
 		FieldError fe = errors.getFieldError("age");
 		assertTrue("Saved invalid value", fe.getRejectedValue().equals(age));
@@ -170,6 +166,62 @@ public class CommandControllerTestSuite extends TestCase {
 		assertTrue("Correct expires header", response.getHeader("Expires") != null);
 	}
 
+	public void testCustomDateEditorWithAllowEmpty() throws Exception {
+		final DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.GERMAN);
+		TestController mc = new TestController() {
+			protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
+				binder.registerCustomEditor(Date.class, new CustomDateEditor(df, true));
+			}
+		};
+
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/welcome.html");
+		request.addParameter("date", "1.5.2003");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		ModelAndView mv = mc.handleRequest(request, response);
+		TestBean tb = (TestBean) mv.getModel().get("command");
+		Errors errors = (Errors) mv.getModel().get("errors");
+		assertTrue("Correct date property", df.parse("1.5.2003").equals(tb.getDate()));
+		assertTrue("Correct date value", "01.05.2003".equals(errors.getFieldValue("date")));
+
+		request = new MockHttpServletRequest(null, "GET", "/welcome.html");
+		request.addParameter("date", "");
+		response = new MockHttpServletResponse();
+		mv = mc.handleRequest(request, response);
+		tb = (TestBean) mv.getModel().get("command");
+		errors = (Errors) mv.getModel().get("errors");
+		assertTrue("Correct date property", tb.getDate() == null);
+		assertTrue("Correct date value", errors.getFieldValue("date") == null);
+		assertTrue("No field error", !errors.hasFieldErrors("date"));
+	}
+
+	public void testCustomDateEditorWithoutAllowEmpty() throws Exception {
+		final DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.GERMAN);
+		TestController mc = new TestController() {
+			protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
+				binder.registerCustomEditor(Date.class, new CustomDateEditor(df, false));
+			}
+		};
+
+		MockHttpServletRequest request = new MockHttpServletRequest(null, "GET", "/welcome.html");
+		request.addParameter("date", "1.5.2003");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		ModelAndView mv = mc.handleRequest(request, response);
+		TestBean tb = (TestBean) mv.getModel().get("command");
+		Errors errors = (Errors) mv.getModel().get("errors");
+		assertTrue("Correct date property", df.parse("1.5.2003").equals(tb.getDate()));
+		assertTrue("Correct date value", "01.05.2003".equals(errors.getFieldValue("date")));
+
+		request = new MockHttpServletRequest(null, "GET", "/welcome.html");
+		request.addParameter("date", "");
+		response = new MockHttpServletResponse();
+		mv = mc.handleRequest(request, response);
+		tb = (TestBean) mv.getModel().get("command");
+		errors = (Errors) mv.getModel().get("errors");
+		assertTrue("Correct date property", tb.getDate() != null);
+		assertTrue("Correct date value", errors.getFieldValue("date") != null);
+		assertTrue("Has field error", errors.hasFieldErrors("date"));
+	}
+
 
 	public static class TestController extends AbstractCommandController {
 		
@@ -177,11 +229,7 @@ public class CommandControllerTestSuite extends TestCase {
 			super(TestBean.class, "person");
 		}
 		
-		protected ModelAndView handle(
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Object command,
-			Errors errors) {
+		protected ModelAndView handle(HttpServletRequest request,	HttpServletResponse response,	Object command,	Errors errors) {
 				Map m = new HashMap();
 				assertTrue("Command not null", command != null);
 				assertTrue("errors not null", errors != null);
