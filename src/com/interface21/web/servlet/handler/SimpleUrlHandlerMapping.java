@@ -11,14 +11,8 @@
 
 package com.interface21.web.servlet.handler;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import com.interface21.context.ApplicationContextException;
 
 /**
  * Implementation of the HandlerMapping interface to map from URLs
@@ -40,11 +34,6 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	
 	private Properties mappingProperties;
 	
-	private Map handlerMap;
-
-	/** Default handler. May be null. */
-	private Object defaultHandler;
-
 	/**
 	 * Set mappings from a properties object. This property must
 	 * be set to configure this object.
@@ -52,46 +41,32 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 * @see java.util.Properties
 	 */
 	public void setMappings(Properties mappingProperties) {
-		logger.info("Set properties to [" + mappingProperties + "]");
 		this.mappingProperties = mappingProperties;
+		logger.debug("Set properties to [" + mappingProperties + "]");
 	}
 
 	public void initHandlerMapping() {
-		this.handlerMap = new HashMap();
-		
 		if (!this.mappingProperties.isEmpty()) {
 			Iterator itr = mappingProperties.keySet().iterator();
 			while (itr.hasNext()) {
 				String url = (String) itr.next();
 				String beanName = this.mappingProperties.getProperty(url);
-				logger.info("Controller mapping from URL '" + url + "' to '" +  beanName + "'");
+				logger.info("Controller mapping from URL '" + url + "' to '" + beanName + "'");
 				if ("*".equals(url)) {
-					this.defaultHandler = initHandler(beanName, url);
-					logger.warn("Default mapping is to controller [" + this.defaultHandler + "]");
+					setDefaultHandler(initHandler(beanName, url));
 				}
 				else {
 					// Prepend with / if it's not present
 					if (!url.startsWith("/"))
 						url = "/" + url;					
-					initHandler(beanName, url);
+					Object handler = initHandler(beanName, url);
+					registerHandler(url, handler);
 				}
 			}
 		}
 		else {
 			logger.warn("No mappings in " + getClass().getName());
 		}
-	}	// init
-	
-	public Object getHandler(HttpServletRequest request) {
-		Object handler = handlerMap.get(request.getServletPath());
-		if (handler == null)
-			handler = this.defaultHandler;
-		return handler;
 	}
 
-	protected void registerHandler(Object handler, String url) {
-		handlerMap.put(url, handler);
-		logger.info("Mapped url [" + url + "] onto handler [" + handler + "]");
-	}
-	
-}	// class SimpleUrlHandlerMapping
+}

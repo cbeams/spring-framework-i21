@@ -9,48 +9,36 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Miscellaneous utilities for web applications
- * @author  Rod Johnson
+ * Miscellaneous utilities for web applications.
+ * Also used by various framework classes.
+ * @author Rod Johnson, Juergen Hoeller
  */
 public abstract class WebUtils {
 
-	/**
-	 * @return the first cookie with the given name or null if none is found
-	 * Note that multiple cookies can have the same name but different paths or domains
-	 * @param name cookie name
-	 */
-	public static Cookie getCookie(HttpServletRequest request, String name) {
-		Cookie cookies[] = request.getCookies();
-		if (cookies != null) {
-			for (int i = 0; i < cookies.length; i++) {
-				if (name.equals(cookies[i].getName()))
-					return cookies[i];
-			}
-		}
-		return null;
-	}
+	/** HTTP header value */
+	public static final String HEADER_IFMODSINCE = "If-Modified-Since";
+
+	/** HTTP header value */
+	public static final String HEADER_LASTMOD = "Last-Modified";
 
 	/**
 	 * Given a String which may be either a URL, an absolute file path, or a path
 	 * within the WAR. Opens an input stream allowing access to its contents.
 	 * Note: Callers are responsible for closing the input stream.
-	 * @param path String which may be either a URL (e.g. http://somecompany.com/foo.xml)
-	 * or a path within this WAR (e.g. /WEB-INF/data/file.dat)
+	 * @param path String which may be either a URL (e.g. http://somecompany.com/foo.xml),
+	 * an absolute file path, or a path within the WAR (e.g. /WEB-INF/data/file.dat)
 	 * @param servletContext the application's servlet context. We'll need this if we
 	 * need to load from within the WAR
 	 * @throws IOException if we can't open the resource
 	 * @return an InputStream for the resources contents.
-	 * <B>Callers are responsible for closing this input stream.</B>
 	 */
 	public static InputStream getResourceInputStream(String path, ServletContext servletContext) throws IOException {
-		//Category.getInstance(Utils.class).debug("Looking up resource stream [" + path + "]");
 		try {
 			// try URL
 			URL url = new URL(path);
@@ -72,17 +60,59 @@ public abstract class WebUtils {
 				return new FileInputStream(path);
 			}
 		}
-	}	// getResourceInputStream
+	}
 
-
-	/** FOR BACKWARD COMPATIBILITY ONLY
-	 * <B>Callers are responsible for closing this input stream.</B>
+	/**
+	 * Retrieve the first cookie with the given name.
+	 * @return the first cookie with the given name or null if none is found
+	 * Note that multiple cookies can have the same name but different paths or domains
+	 * @param name cookie name
 	 */
-	public static InputStream getResourceInputStream(String url, ServletConfig servletConfig) throws IOException {
-		return getResourceInputStream(url, servletConfig.getServletContext());
-	}	// getResourceInputStream
+	public static Cookie getCookie(HttpServletRequest request, String name) {
+		Cookie cookies[] = request.getCookies();
+		if (cookies != null) {
+			for (int i = 0; i < cookies.length; i++) {
+				if (name.equals(cookies[i].getName()))
+					return cookies[i];
+			}
+		}
+		return null;
+	}
 
-	/** Given a servlet path string, determine the directory within the WAR
+	/**
+	 * Return the URL of the root of the current application.
+	 * @param request current request
+	 */
+	public static String getUrlToApplication(HttpServletRequest request) {
+		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
+	}
+
+	/**
+	 * Return the path within the web application for the given request.
+	 * @param request current request
+	 * @return the path within the web application
+	 */
+	public static String getPathWithinApplication(HttpServletRequest request) {
+		return request.getRequestURI().substring(request.getContextPath().length());
+	}
+
+	/**
+	 * Return the path within the servlet mapping for the given request,
+	 * i.e. the part of the request's URL beyond the part that called the servlet,
+	 * or "" if the whole URL has been used to identify the servlet.
+	 * <p>E.g.: servlet mapping = "/test/*"; request URI = "/test/a" -> "/a".
+	 * <p>E.g.: servlet mapping = "/test"; request URI = "/test" -> "".
+	 * <p>E.g.: servlet mapping = "/*.test"; request URI = "/a.test" -> "".
+	 * @param request current request
+	 * @return the path within the servlet mapping, or ""
+	 */
+	public static String getPathWithinServletMapping(HttpServletRequest request) {
+		int servletIndex = request.getRequestURI().indexOf(request.getServletPath());
+		return request.getRequestURI().substring(servletIndex + request.getServletPath().length());
+	}
+
+	/**
+	 * Given a servlet path string, determine the directory within the WAR
 	 * this belongs to, ending with a /. For example, /cat/dog/test.html would be
 	 * returned as /cat/dog/. /test.html would be returned as /
 	 */
@@ -94,15 +124,8 @@ public abstract class WebUtils {
 		return left;
 	}
 
-
-	/** Return the URL of the root of the current application
-	 */
-	public static String getURLToApplication(HttpServletRequest request) {
-		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
-	}
-
-
-	/** Convenience method to return a map from un-prefixed property names
+	/**
+	 * Convenience method to return a map from un-prefixed property names
 	 * to values. E.g. with a prefix of price, price_1, price_2 produce
 	 * a properties object with mappings for 1, 2 to the same values.
 	 * @param request HTTP request in which to look for parameters
@@ -113,7 +136,6 @@ public abstract class WebUtils {
 	public static Properties getParametersStartingWith(ServletRequest request, String base) {
 		Enumeration enum = request.getParameterNames();
 		Properties props = new Properties();
-
 		if (base == null)
 			base = "";
 		while (enum != null && enum.hasMoreElements()) {
@@ -125,34 +147,6 @@ public abstract class WebUtils {
 			}
 		}
 		return props;
-	}   // getParameterValuesStartingWith
-
-	public static void main(String[] args) {
-		String spec = "foo.html";
-		String contexts = "http://127.0.0.1/barrier/bunny.jsp";
-		com.interface21.util.StopWatch sw = new com.interface21.util.StopWatch();
-		sw.start("1000 urls");
-		try {
-
-			for (int i = 0; i < 100000; i++) {
-				java.net.URL context = new java.net.URL(contexts);
-				java.net.URL u = new java.net.URL(context, spec);
-				String s = u.toExternalForm();
-
-			}
-			//System.out.println(u);
-			sw.stop();
-			System.out.println(sw);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		sw.stop();
-
-
-		String[] tests = new String[]{"/dog/cat.jsp", "/index.jsp", "/dog", "/dog/", "/dog/cat/big/a065.html", "/cat/dog/"};
-		for (int i = 0; i < tests.length; i++) {
-			System.out.println("For " + tests[i] + " result is " + getDirectoryForServletPath(tests[i]));
-		}
 	}
 
 }
