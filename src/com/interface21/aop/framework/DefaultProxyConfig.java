@@ -23,10 +23,12 @@ import com.interface21.beans.factory.InitializingBean;
 * are obtained directly.
 * Implements InitializingBean interface. If using outside
 * a BeanFactory (which will call this lifecycle method automatically)
-* invoke the afterPropertiesSet() method before using an object of this class,
-* but after setting its JavaBean properties.
+* check subclass documentation as to whether it's necessary to call
+* a method such as afterPropertiesSet() to complete initialization after
+* all JavaBean properties has been set.
 * <br>
-* This class frees subclasses of the housekeeping of interceptors and pointcuts.
+* This class frees subclasses of the housekeeping of interceptors and pointcuts,
+* but doesn't actually create AOP proxies.
 * @author Rod Johnson
 * @version $Id$
 */
@@ -91,7 +93,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	/** 
 	 * @see com.interface21.aop.framework.ProxyConfig#addInterceptor(org.aopalliance.Interceptor)
 	 */
-	public final void addInterceptor(Interceptor interceptor) {
+	public void addInterceptor(Interceptor interceptor) {
 		int pos = (this.pointcuts != null) ? this.pointcuts.size() : 0;
 		addInterceptor(pos, interceptor);
 	}
@@ -126,7 +128,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * means we'll additionally proxy.
 	 * @param interceptor
 	 */
-	public void addAspectInterfacesIfNecessary(Interceptor interceptor) {
+	private void addAspectInterfacesIfNecessary(Interceptor interceptor) {
 		 if (interceptor instanceof AspectInterfaceInterceptor) {
 		 	System.out.println("Added new aspect interface");
 			 AspectInterfaceInterceptor aii = (AspectInterfaceInterceptor) interceptor;
@@ -134,7 +136,7 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 				 addInterface(aii.getAspectInterfaces()[i]);
 			 }
 		 }
-	}	// addInterceptor
+	}	
 	
 	
 	
@@ -162,10 +164,12 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		}
 	}	// computeTargetAndCheckValidity
 	
+	/**
+	 * Remove the given interceptor
+	 * @see com.interface21.aop.framework.ProxyConfig#removeInterceptor(org.aopalliance.Interceptor)
+	 */
 	public final boolean removeInterceptor(Interceptor interceptor) {
-		
 		boolean removed = false;
-		
 		for (int i = 0; i < this.pointcuts.size() && !removed; i++) {
 			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
 			if (pc.getInterceptor() == interceptor) {
@@ -186,11 +190,11 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		}
 		
 		return removed;
-	}
+	}	// removeInterceptor
 	
 	/**
-	 * Add a new proxied interface
-	 * @param newInterface
+	 * Add a new proxied interface.
+	 * @param newInterface additional interface to proxy.
 	 */
 	protected final void addInterface(Class newInterface) {
 		List l = arrayToList(this.interfaces);
@@ -213,8 +217,6 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 		}
 		return removed;
 	}
-
-
 
 	/**
 	 * @see com.interface21.aop.framework.ProxyConfig#getProxiedInterfaces()
@@ -307,11 +309,46 @@ public class DefaultProxyConfig implements ProxyConfig, InitializingBean {
 	 * wasn't found in the list of pointcuts, this method
 	 * returns false and does nothing.
 	 */
-	public boolean replaceMethodPointcut(MethodPointcut pc1, MethodPointcut pc2) {
+	public final boolean replaceMethodPointcut(MethodPointcut pc1, MethodPointcut pc2) {
 		if (!this.pointcuts.contains(pc1))
 			return false;
 		this.pointcuts.set(this.pointcuts.indexOf(pc1), pc2);
 		return true;
+	}
+	
+	/**
+	 * Is this interceptor included in any pointcut?
+	 * @param mi interceptor to check inclusion of
+	 * @return boolean whether this interceptor instance could be
+	 * run in an invocation.
+	 */
+	public final boolean interceptorIncluded(MethodInterceptor mi) {
+		if (this.pointcuts.size() == 0)
+			return false;
+		for (int i = 0; i < this.pointcuts.size(); i++) {
+			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			if (pc.getInterceptor() == mi) 
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Count interceptors of the given class
+	 * @param interceptorClass class of the interceptor to check
+	 * @return int the count of the interceptors of this class or
+	 * subclasses
+	 */
+	public final int countInterceptorsOfType(Class interceptorClass) {
+		if (this.pointcuts.size() == 0)
+			return 0;
+		int count = 0;
+		for (int i = 0; i < this.pointcuts.size(); i++) {
+			MethodPointcut pc = (MethodPointcut) this.pointcuts.get(i);
+			if (interceptorClass.isAssignableFrom(pc.getInterceptor().getClass())) 
+				++count;
+		}
+		return count;
 	}
 	
 }	// DefaultProxyConfig

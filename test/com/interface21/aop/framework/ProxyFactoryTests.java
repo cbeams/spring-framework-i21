@@ -10,6 +10,7 @@ import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
 import org.aopalliance.MethodInvocation;
 
+import com.interface21.aop.interceptor.misc.AbstractQaInterceptor;
 import com.interface21.aop.interceptor.misc.DebugInterceptor;
 import com.interface21.beans.IOther;
 import com.interface21.beans.ITestBean;
@@ -18,6 +19,8 @@ import com.interface21.core.TimeStamped;
 import com.interface21.util.StringUtils;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 /**
  * Also tests DefaultProxyConfig superclass
@@ -146,5 +149,40 @@ public class ProxyFactoryTests extends TestCase {
 		IOther other = (IOther) factory.getProxy();
 		other.absquatulate();
 	}
+	
+	public void testInterceptorInclusionMethods() {
+		DebugInterceptor di = new DebugInterceptor();
+		DebugInterceptor diUnused = new DebugInterceptor();
+		ProxyFactory factory = new ProxyFactory(new TestBean());
+		factory.addInterceptor(0, di);
+		//factory.addInterceptor(new InvokerInterceptor());
+		ITestBean tb = (ITestBean) factory.getProxy();
+		assertTrue(factory.interceptorIncluded(di));
+		assertTrue(!factory.interceptorIncluded(diUnused));
+		assertTrue(factory.countInterceptorsOfType(DebugInterceptor.class) == 1);
+		assertTrue(factory.countInterceptorsOfType(InvokerInterceptor.class) == 1);
+		assertTrue(factory.countInterceptorsOfType(AbstractQaInterceptor.class) == 0);
+	
+		factory.addInterceptor(0, diUnused);
+		assertTrue(factory.interceptorIncluded(diUnused));
+		assertTrue(factory.countInterceptorsOfType(DebugInterceptor.class) == 2);
+	}
+
+	/**
+	 * Used for profiling
+	 *
+	 */
+//	public void testManyInvocations() {
+//		ProxyFactory factory = new ProxyFactory(new TestBean());
+//
+//		IOther other = (IOther) factory.getProxy();
+//		for (int i = 0; i < 100000; i++) {
+//			other.absquatulate();
+//		}
+//	}
+//
+//	public static void main(String[] args) {
+//		TestRunner.run(new TestSuite(ProxyFactoryTests.class));
+//	}
 
 }
