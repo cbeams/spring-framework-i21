@@ -207,7 +207,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			throw new NoSuchBeanDefinitionException(null);
 		
 		try {
-			BeanDefinition bd = getBeanDefinition(transformedBeanName(name));
+			AbstractBeanDefinition bd = getBeanDefinition(transformedBeanName(name));
 			
 			// invalid factory definition: must be a singleton
 		//	if (isFactoryDerefence(name) && !bd.isSingleton())
@@ -265,7 +265,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 */
     private BeanWrapper getBeanWrapperForNewInstance(String name) throws BeansException {
         logger.debug("getBeanWrapperForNewInstance (" + name + ")");
-        BeanDefinition bd = getBeanDefinition(name);
+        AbstractBeanDefinition bd = getBeanDefinition(name);
 //        bd.setBeanFactory(this);
 		logger.debug("getBeanWrapperForNewInstance definition is: " + bd);
         BeanWrapper instanceWrapper = null;
@@ -379,7 +379,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * may not actually contain the class--this method may need to navigate
 	 * its ancestors to find the class.
 	 */
-	protected final Class getBeanClass(BeanDefinition bd) {
+	protected final Class getBeanClass(AbstractBeanDefinition bd) {
 		if (bd instanceof RootBeanDefinition)
 			return ((RootBeanDefinition) bd).getBeanClass();
 		else if (bd instanceof ChildBeanDefinition) {
@@ -407,6 +407,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	 * @return the BeanDefinition for this prototype name. Must never return null.
 	 * @throws NoSuchBeanDefinitionException if the bean definition cannot be resolved
 	 */
-    protected abstract BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
+    protected abstract AbstractBeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
 }	// class AbstractBeanFactory

@@ -6,8 +6,8 @@ import com.interface21.beans.BeansException;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.ListableBeanFactory;
-import com.interface21.beans.factory.support.DefaultRootBeanDefinition;
 import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
+import com.interface21.beans.factory.support.RootBeanDefinition;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
 import java.util.Locale;
@@ -45,7 +45,7 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 
 		// Register the message source bean
 		defaultBeanFactory.registerBeanDefinition(MESSAGE_SOURCE_BEAN_NAME,
-			new DefaultRootBeanDefinition(StaticMessageSource.class, null, true));
+			new RootBeanDefinition(StaticMessageSource.class, null, true));
 
 		//refresh();
 	}
@@ -96,12 +96,12 @@ public class StaticApplicationContext extends AbstractApplicationContext {
 	 */
 	public void registerSingleton(String name, Class clazz, PropertyValues pvs) throws BeansException {
 		defaultBeanFactory.registerBeanDefinition(name,
-			new DefaultRootBeanDefinition(clazz, pvs, true));
+			new RootBeanDefinition(clazz, pvs, true));
 	}
 
 	public void registerPrototype(String name, Class clazz, PropertyValues pvs) throws BeansException {
 		defaultBeanFactory.registerBeanDefinition(name,
-			new DefaultRootBeanDefinition(clazz, pvs, false));
+			new RootBeanDefinition(clazz, pvs, false));
 	}
 
         /**

@@ -165,9 +165,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	 * @param prototypeName name of the bean instance to register
 	 * @param beanDefinition definition of the bean instance to register
 	 */
-	public final void registerBeanDefinition(String prototypeName, BeanDefinition beanDefinition) throws BeansException {
-		// The BeanDefinition may need access to this bean factory
-        beanDefinition.setBeanFactory(this);
+	public final void registerBeanDefinition(String prototypeName, AbstractBeanDefinition beanDefinition) throws BeansException {
 		beanDefinitionHash.put(prototypeName, beanDefinition);
 	}
 	
@@ -180,7 +178,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		// Ensure that unreferenced singletons are instantiated
 		String[] beanNames = getBeanDefinitionNames();
 		for (int i = 0; i < beanNames.length; i++) {
-			BeanDefinition bd = getBeanDefinition(beanNames[i]);
+			AbstractBeanDefinition bd = getBeanDefinition(beanNames[i]);
 			if (bd.isSingleton()) {
 				Object singleton = getBean(beanNames[i]);
 	 			logger.debug("Instantiated singleton: " + singleton);
@@ -310,15 +308,15 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		
 		try {
 			
-			BeanDefinition beanDefinition = null;
+			AbstractBeanDefinition beanDefinition = null;
 			if (classname != null) {
 				// Load the class using a special class loader if one is available.
 				// Otherwise rely on the default behavior of Class.forName().
 				Class clazz = (this.classLoader != null) ? Class.forName(classname, true, this.classLoader) : Class.forName(classname);
-				beanDefinition = new DefaultRootBeanDefinition(clazz, pvs, singleton);
+				beanDefinition = new RootBeanDefinition(clazz, pvs, singleton);
 			}
 			else {
-				beanDefinition = new ChildBeanDefinitionImpl(parent, pvs, singleton);
+				beanDefinition = new ChildBeanDefinition(parent, pvs, singleton);
 			}
 			registerBeanDefinition(beanName, beanDefinition);
 		}
@@ -352,8 +350,8 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	/**
 	 * @see AbstractBeanFactory#getBeanDefinition(String)
 	 */
-	protected final BeanDefinition getBeanDefinition(String prototypeName) throws NoSuchBeanDefinitionException {
-		BeanDefinition bd = (BeanDefinition) beanDefinitionHash.get(prototypeName);
+	protected final AbstractBeanDefinition getBeanDefinition(String prototypeName) throws NoSuchBeanDefinitionException {
+		AbstractBeanDefinition bd = (AbstractBeanDefinition) beanDefinitionHash.get(prototypeName);
 		if (bd == null)
 			throw new NoSuchBeanDefinitionException(prototypeName, toString());
 		return bd;
