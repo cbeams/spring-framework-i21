@@ -8,9 +8,9 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.ejb.EJBException;
 import javax.sql.DataSource;
 
+import com.interface21.dao.DataAccessException;
 import com.interface21.dao.InvalidDataAccessResourceUsageException;
 
 
@@ -64,7 +64,7 @@ public class JdbcHelper {
 		return I.intValue();
 	}
 	
-	public Object runSQLFunction(final String sql, final Class requiredType, int[] types, Object[] args) throws EJBException {
+	public Object runSQLFunction(final String sql, final Class requiredType, int[] types, Object[] args) throws DataAccessException {
 		FunctionHandler fh = new FunctionHandler(sql, requiredType);
 		PreparedStatementCreator psc = PreparedStatementCreatorFactory.newPreparedStatementCreator(sql, types, args);
 		jdbcTemplate.query(psc, fh);
@@ -78,7 +78,7 @@ public class JdbcHelper {
 	 * @param requiredType the class we need to extract the function result as.
 	 * @throws EJBException if there is a problem executing the function
 	 */
-	public Object runSQLFunction(final String sql, final Class requiredType) throws EJBException {
+	public Object runSQLFunction(final String sql, final Class requiredType) throws DataAccessException {
 		return runSQLFunction(sql, requiredType, null, null);		
 	}	// runSQLFunction
 	
@@ -90,7 +90,7 @@ public class JdbcHelper {
 	 * @param requiredType the class we need to extract the function result as.
 	 * @throws EJBException if there is a problem executing the function
 	 */
-	public int[] getIDs(final String sql, final Object[] params) throws EJBException {
+	public int[] getIDs(final String sql, final Object[] params) throws DataAccessException {
 		Object[] os = getIDs(sql, Integer.class, params);
 		int[] is = new int[os.length];
 		for (int i = 0; i < is.length; i++)
@@ -99,7 +99,7 @@ public class JdbcHelper {
 	}	// getIDs		
 	
 	
-	public Object[] getIDs(final String sql, final Class requiredType, final Object[] params) throws EJBException {
+	public Object[] getIDs(final String sql, final Class requiredType, final Object[] params) throws DataAccessException {
 		class IDsHandler extends RowCountCallbackHandler implements PreparedStatementCreator {			
 			private List l = new LinkedList();
 			
