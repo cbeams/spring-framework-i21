@@ -190,6 +190,8 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 		assertTrue("Has father", context.getBean("father") != null);
 		assertTrue("Has father", context.getBean("rod") != null);
 		assertTrue("Doesn't have spouse", ((TestBean) context.getBean("rod")).getSpouse() == null);
+		// "/WEB-INF/myinit.properties" will not be found by in classpath
+		assertTrue("myinit not evaluated", "dummy".equals(((TestBean) context.getBean("rod")).getName()));
 
 		context = new ClassPathXmlApplicationContext(new String[] {"/com/interface21/web/context/WEB-INF/applicationContext.xml",
 		                                                           "/com/interface21/web/context/WEB-INF/test-servlet.xml"});

@@ -18,9 +18,9 @@ import com.interface21.beans.BeansException;
 import com.interface21.beans.FatalBeanException;
 import com.interface21.beans.MutablePropertyValues;
 import com.interface21.beans.PropertyValue;
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
-import com.interface21.beans.factory.BeanFactory;
 import com.interface21.util.StringUtils;
 
 /**
@@ -85,7 +85,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	/**
 	 * Map of BeanDefinition objects, keyed by prototype name
 	 */
-	private Map beanDefinitionHash = new HashMap();
+	private Map beanDefinitionMap = new HashMap();
 
 
 	//---------------------------------------------------------------------
@@ -126,19 +126,12 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	// Implementation of ListableBeanFactory
 	//---------------------------------------------------------------------
 
-	/**
-	 * @see ListableBeanFactory#getBeanDefinitionCount()
-	 */
 	public int getBeanDefinitionCount() {
-		return beanDefinitionHash.size();
+		return beanDefinitionMap.size();
 	}
 
-
-	/**
-	 * @see ListableBeanFactory#getBeanDefinitionNames()
-	 */
 	public final String[] getBeanDefinitionNames() {
-		Set keys = beanDefinitionHash.keySet();
+		Set keys = beanDefinitionMap.keySet();
 		String[] names = new String[keys.size()];
 		Iterator itr = keys.iterator();
 		int i = 0;
@@ -147,19 +140,18 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		}
 		return names;
 	}
-	
-	
+
 	/**
 	 * Note that this method is slow. Don't invoke it too often:
 	 * it's best used only in application initialization.
 	 */
 	public final String[] getBeanDefinitionNames(Class type) {
-		Set keys = beanDefinitionHash.keySet();
+		Set keys = beanDefinitionMap.keySet();
 		List matches = new LinkedList();
 		Iterator itr = keys.iterator();
 		while (itr.hasNext()) {
 			String name = (String) itr.next();
-			Class clazz = getBeanClass((AbstractBeanDefinition) beanDefinitionHash.get(name));
+			Class clazz = getBeanClass((AbstractBeanDefinition) beanDefinitionMap.get(name));
 			if (type.isAssignableFrom(clazz)) {
 				matches.add(name);
 			}
@@ -175,18 +167,17 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	/**
 	 * Subclasses or users should call this method to register new bean definitions
 	 * with this class. All other registration methods in this class use this method.
-	 * <br/>This method isn't guaranteed to be threadsafe. It should be called
+	 * <p>This method isn't guaranteed to be threadsafe. It should be called
 	 * before any bean instances are accessed.
 	 * @param prototypeName name of the bean instance to register
 	 * @param beanDefinition definition of the bean instance to register
 	 */
-	public final void registerBeanDefinition(String prototypeName, AbstractBeanDefinition beanDefinition) throws BeansException {
-		beanDefinitionHash.put(prototypeName, beanDefinition);
+	public final void registerBeanDefinition(String prototypeName, AbstractBeanDefinition beanDefinition) {
+		beanDefinitionMap.put(prototypeName, beanDefinition);
 	}
-	
-	
+
 	/**
-	 * Ensure that even potentially unreferenced singletons are instantiated
+	 * Ensure that even potentially unreferenced singletons are instantiated.
 	 * Subclasses or callers should invoke this if they want this behavior.
 	 */
 	public void preInstantiateSingletons() {
@@ -200,8 +191,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			}
 		}
 	}
-	
-	
+
 	/** 
 	 * Register valid bean definitions in a properties file.
 	 * Ignore ineligible properties
@@ -244,7 +234,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 				if (sepIndx != -1) {
 					String beanName = nameAndProperty.substring(0, sepIndx);
 					logger.debug("Found bean name '" + beanName + "'");
-					if (beanDefinitionHash.get(beanName) == null) {
+					if (beanDefinitionMap.get(beanName) == null) {
 						// If we haven't already registered it...
 						registerBeanDefinition(beanName, m, prefix + beanName);
 						++beanCount;
@@ -253,14 +243,13 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 				else {
 					// Ignore it: it wasn't a valid bean name and property,
 					// although it did start with the required prefix
-					logger.debug("invalid name and property '" + nameAndProperty + "'");
+					logger.debug("Invalid bean name and property '" + nameAndProperty + "'");
 				}
 			}	// if the key started with the prefix we're looking for
 		}	// while there are more keys
 		
 		return beanCount;
 	}
-	
 	
 	/**
 	 * Get all property values, given a prefix (which will be stripped)
@@ -352,8 +341,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		}
 	}
 	
-	
-	/** 
+	/**
 	 * Register bean definitions in a ResourceBundle. Similar syntax
 	 * as for a Map. This method is useful to enable standard
 	 * Java internationalization support.
@@ -366,11 +354,28 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 			String key = (String) keys.nextElement();
 			m.put(key, rb.getObject(key));
 		}
-		
 		return registerBeanDefinitions(m, prefix);
 	}
-	 
-	
+
+	/**
+	 * Register additional property value for a specific bean.
+	 * This is intended for bean factory post processing, i.e. overriding
+	 * certain property values after parsing the original bean definitions.
+	 * @param beanName name of the bean
+	 * @param pv property name and value
+	 * @throws BeansException if the property values of the specified bean are immutable
+	 * @see com.interface21.context.support.BeanFactoryPostProcessor
+	 */
+	public void registerAdditionalPropertyValue(String beanName, PropertyValue pv) throws BeansException {
+		AbstractBeanDefinition bd = getBeanDefinition(beanName);
+		if (!(bd.getPropertyValues() instanceof MutablePropertyValues)) {
+			throw new FatalBeanException("Cannot modify immutable property values for bean [" + beanName + "]");
+		}
+		MutablePropertyValues pvs = (MutablePropertyValues) bd.getPropertyValues();
+		pvs.addPropertyValue(pv);
+	}
+
+
 	//---------------------------------------------------------------------
 	// Implementation of superclass protected abstract methods
 	//---------------------------------------------------------------------
@@ -378,14 +383,14 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	/**
 	 * @see AbstractBeanFactory#getBeanDefinition(String)
 	 */
-	protected final AbstractBeanDefinition getBeanDefinition(String prototypeName) throws NoSuchBeanDefinitionException {
-		AbstractBeanDefinition bd = (AbstractBeanDefinition) beanDefinitionHash.get(prototypeName);
+	protected final AbstractBeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+		AbstractBeanDefinition bd = (AbstractBeanDefinition) beanDefinitionMap.get(beanName);
 		if (bd == null)
-			throw new NoSuchBeanDefinitionException(prototypeName, toString());
+			throw new NoSuchBeanDefinitionException(beanName, toString());
 		return bd;
 	}
-	
-	
+
+
 	public String toString() {
 		return getClass() + ": defined beans [" + StringUtils.arrayToDelimitedString(getBeanDefinitionNames(), ",") + "]";
 	}

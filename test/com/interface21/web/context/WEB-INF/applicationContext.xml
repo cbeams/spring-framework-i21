@@ -45,13 +45,19 @@
 	<bean id="parentListener" class="com.interface21.context.TestListener"/>
 	
 	<!-- Inherited tests -->
-	<bean id="rod" class="com.interface21.beans.TestBean">	
-		<property name="name"><value>Roderick</value></property>
-		<property name="age"><value>31</value></property>
+
+	<!-- name and age values will be overridden by myinit.properties" -->
+	<bean id="rod" class="com.interface21.beans.TestBean">
+		<property name="name"><value>dummy</value></property>
+		<property name="age"><value>-1</value></property>
 	</bean>
 	
 	<bean id="father" class="com.interface21.beans.TestBean">	
-		<property name="name"><value>Albert</value></property>
+		<property name="name"><value>yetanotherdummy</value></property>
 	</bean>
 
-</beans>		
+	<bean id="myinit" class="com.interface21.context.support.PropertyResourceConfigurer">
+		<property name="location"><value>/WEB-INF/myinit.properties</value></property>
+	</bean>
+
+</beans>

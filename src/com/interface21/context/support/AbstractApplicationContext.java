@@ -27,9 +27,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.interface21.beans.BeansException;
-import com.interface21.beans.factory.ListableBeanFactory;
 import com.interface21.beans.factory.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
+import com.interface21.beans.factory.support.ListableBeanFactoryImpl;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextAware;
 import com.interface21.context.ApplicationContextException;
@@ -212,7 +212,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		else
 			logger.info(getBeanDefinitionCount() + " beans defined in ApplicationContext: " + getDisplayName());
 
-		configureAllManagedObjects();
+		invokeContextConfigurers();
+		preInstantiateSingletons();
 		refreshListeners();
 
 		try {
@@ -250,7 +251,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * The BeanFactory must be loaded before this method is called
+	 * Load the options bean.
+	 * The BeanFactory must be loaded before this method is called.
 	 */
 	private void loadOptions() throws BeansException {
 		if (this.contextOptions == null) {
@@ -265,11 +267,25 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
+	 * Instantiate and invoke all registered BeanFactoryPostProcessor beans.
+	 * Must be called before singleton instantiation.
+	 */
+	private void invokeContextConfigurers() throws ApplicationContextException {
+		String[] beanNames = getBeanDefinitionNames(BeanFactoryPostProcessor.class);
+		for (int i = 0; i < beanNames.length; i++) {
+			String beanName = beanNames[i];
+			BeanFactoryPostProcessor configurer = (BeanFactoryPostProcessor) getBean(beanName);
+			configureManagedObject(configurer);
+			configurer.postProcessBeanFactory(getBeanFactory());
+		}
+	}
+
+	/**
 	 * Invoke the setApplicationContext() callback on all objects
 	 * in the context. This involves instantiating the objects.
 	 * Only singletons will be instantiated eagerly.
 	 */
-	private void configureAllManagedObjects() throws ApplicationContextException {
+	private void preInstantiateSingletons() throws ApplicationContextException {
 		logger.info("Configuring singleton beans in context");
 		String[] beanNames = getBeanDefinitionNames();
 		logger.debug("Found " + beanNames.length + " listeners in bean factory: names=[" +
@@ -280,25 +296,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 				try {
 					Object bean = getBeanFactory().getBean(beanName);
 					configureManagedObject(bean);
-				} catch (BeansException ex) {
+				}
+				catch (BeansException ex) {
 					throw new ApplicationContextException("Couldn't instantiate object with name '" + beanName + "'", ex);
 				}
 			}
-		}
-	}
-
-	/**
-	 * Add beans that implement listener as listeners.
-	 * Doesn't affect other listeners, which can be added without being beans.
-	 */
-	private void refreshListeners() throws ApplicationContextException {
-		logger.info("Refreshing listeners");
-		List listeners = BeanFactoryUtils.beansOfType(ApplicationListener.class, this);
-		logger.debug("Found " + listeners.size() + " listeners in bean factory");
-		for (int i = 0; i < listeners.size(); i++) {
-			ApplicationListener l = (ApplicationListener) listeners.get(i);
-			addListener(l);
-			logger.info("Bean listener added: [" + l + "]");
 		}
 	}
 
@@ -315,6 +317,21 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			logger.debug("Setting application context on ApplicationContextAware object [" + o + "]");
 			ApplicationContextAware aca = (ApplicationContextAware) o;
 			aca.setApplicationContext(this);
+		}
+	}
+
+	/**
+	 * Add beans that implement listener as listeners.
+	 * Doesn't affect other listeners, which can be added without being beans.
+	 */
+	private void refreshListeners() throws ApplicationContextException {
+		logger.info("Refreshing listeners");
+		List listeners = BeanFactoryUtils.beansOfType(ApplicationListener.class, this);
+		logger.debug("Found " + listeners.size() + " listeners in bean factory");
+		for (int i = 0; i < listeners.size(); i++) {
+			ApplicationListener l = (ApplicationListener) listeners.get(i);
+			addListener(l);
+			logger.info("Bean listener added: [" + l + "]");
 		}
 	}
 
@@ -456,22 +473,24 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		return this.messageSource.getMessage(resolvable, locale);
 	}
 
+
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory
 	//---------------------------------------------------------------------
 
-	/**
-	 * Try to find the bean instance in the hierarchy.
-	 */
 	public Object getBean(String name) throws BeansException {
 		Object bean = getBeanFactory().getBean(name);
-		configureManagedObject(bean);
+		if (!isSingleton(name)) {
+			configureManagedObject(bean);
+		}
 		return bean;
 	}
 
 	public Object getBean(String name, Class requiredType) throws BeansException {
 		Object bean = getBeanFactory().getBean(name, requiredType);
-		configureManagedObject(bean);
+		if (!isSingleton(name)) {
+			configureManagedObject(bean);
+		}
 		return bean;
 	}
 
@@ -530,6 +549,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * efficiently, so that it can be called repeatedly without a performance penalty.
 	 * @return this application context's default BeanFactory
 	 */
-	protected abstract ListableBeanFactory getBeanFactory();
+	protected abstract ListableBeanFactoryImpl getBeanFactory();
 
 }
