@@ -16,6 +16,7 @@ import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.StaleObjectStateException;
 import net.sf.hibernate.TransientObjectException;
 import net.sf.hibernate.Interceptor;
+import net.sf.hibernate.FlushMode;
 import net.sf.hibernate.type.Type;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
@@ -24,12 +25,79 @@ import com.interface21.beans.TestBean;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 import com.interface21.dao.InvalidDataAccessResourceUsageException;
 import com.interface21.dao.OptimisticLockingFailureException;
+import com.interface21.jdbc.core.support.JdbcDaoSupport;
+import com.interface21.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * @author Juergen Hoeller
  * @since 06.05.2003
  */
 public class HibernateTemplateTests extends TestCase {
+
+	public void testTemplateExecuteWithNewSession() {
+		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
+		SessionFactory sf = (SessionFactory) sfControl.getMock();
+		MockControl sessionControl = EasyMock.controlFor(Session.class);
+		Session session = (Session) sessionControl.getMock();
+		try {
+			sf.openSession();
+			sfControl.setReturnValue(session, 1);
+			session.flush();
+			sessionControl.setVoidCallable(1);
+			session.close();
+			sessionControl.setReturnValue(null, 1);
+		}
+		catch (HibernateException ex) {
+		}
+		sfControl.activate();
+		sessionControl.activate();
+
+		HibernateTemplate ht = new HibernateTemplate(sf);
+		assertTrue("Correct allowCreate default", ht.isAllowCreate());
+		assertTrue("Correct flushMode default", ht.getFlushMode() == HibernateTemplate.FLUSH_AUTO);
+		final List l = new ArrayList();
+		l.add("test");
+		List result = ht.executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return l;
+			}
+		});
+		assertTrue("Correct result list", result == l);
+		sfControl.verify();
+		sessionControl.verify();
+	}
+
+	public void testTemplateExecuteWithNewSessionAndFlushNever() {
+		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
+		SessionFactory sf = (SessionFactory) sfControl.getMock();
+		MockControl sessionControl = EasyMock.controlFor(Session.class);
+		Session session = (Session) sessionControl.getMock();
+		try {
+			sf.openSession();
+			sfControl.setReturnValue(session, 1);
+			session.setFlushMode(FlushMode.NEVER);
+			sessionControl.setVoidCallable(1);
+			session.close();
+			sessionControl.setReturnValue(null, 1);
+		}
+		catch (HibernateException ex) {
+		}
+		sfControl.activate();
+		sessionControl.activate();
+
+		HibernateTemplate ht = new HibernateTemplate(sf);
+		ht.setFlushMode(HibernateTemplate.FLUSH_NEVER);
+		final List l = new ArrayList();
+		l.add("test");
+		List result = ht.executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return l;
+			}
+		});
+		assertTrue("Correct result list", result == l);
+		sfControl.verify();
+		sessionControl.verify();
+	}
 
 	public void testTemplateExecuteWithNotAllowCreate() {
 		HibernateTemplate ht = new HibernateTemplate();
@@ -71,27 +139,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateExecuteWithNewSession() {
+	public void testTemplateExecuteWithThreadBoundAndFlushEager() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		session.flush();
+		sessionControl.setVoidCallable(1);
 		sfControl.activate();
 		sessionControl.activate();
 
 		HibernateTemplate ht = new HibernateTemplate(sf);
-		assertTrue("Correct allowCreate default", ht.isAllowCreate());
-		assertTrue("Correct forceFlush default", !ht.isForceFlush());
+		ht.setFlushModeName("FLUSH_EAGER");
+		ht.setAllowCreate(false);
+		SessionFactoryUtils.getThreadObjectManager().bindThreadObject(sf, new SessionHolder(session));
 		final List l = new ArrayList();
 		l.add("test");
 		List result = ht.executeFind(new HibernateCallback() {
@@ -100,11 +161,12 @@ public class HibernateTemplateTests extends TestCase {
 			}
 		});
 		assertTrue("Correct result list", result == l);
+		SessionFactoryUtils.getThreadObjectManager().removeThreadObject(sf);
 		sfControl.verify();
 		sessionControl.verify();
 	}
 
-	public void testTemplateExecuteWithEntityInterceptor() {
+	public void testTemplateExecuteWithEntityInterceptor() throws HibernateException {
 		MockControl interceptorControl = EasyMock.controlFor(net.sf.hibernate.Interceptor.class);
 		Interceptor entityInterceptor = (Interceptor) interceptorControl.getMock();
 		interceptorControl.activate();
@@ -112,16 +174,12 @@ public class HibernateTemplateTests extends TestCase {
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession(entityInterceptor);
-			sfControl.setReturnValue(session, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession(entityInterceptor);
+		sfControl.setReturnValue(session, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -139,24 +197,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateFind1() {
+	public void testTemplateFind1() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		List list = new ArrayList();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.find("some query");
-			sessionControl.setReturnValue(list, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.find("some query");
+		sessionControl.setReturnValue(list, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -167,24 +221,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateFind2() {
+	public void testTemplateFind2() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		List list = new ArrayList();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.find("some query", "myvalue", Hibernate.STRING);
-			sessionControl.setReturnValue(list, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.find("some query", "myvalue", Hibernate.STRING);
+		sessionControl.setReturnValue(list, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -195,7 +245,7 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateFind3() {
+	public void testTemplateFind3() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
@@ -203,18 +253,14 @@ public class HibernateTemplateTests extends TestCase {
 		List list = new ArrayList();
 		Object[] values = new Object[] {"myvalue1", new Integer(2)};
 		Type[] types = new Type[]{Hibernate.STRING, Hibernate.INTEGER};
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.find("some query", values, types);
-			sessionControl.setReturnValue(list, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.find("some query", values, types);
+		sessionControl.setReturnValue(list, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -225,24 +271,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateLoad() {
+	public void testTemplateLoad() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		TestBean tb = new TestBean();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.load(TestBean.class, "");
-			sessionControl.setReturnValue(tb, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.load(TestBean.class, "");
+		sessionControl.setReturnValue(tb, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -253,23 +295,19 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateLoadWithNotFound() {
+	public void testTemplateLoadWithNotFound() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.load(TestBean.class, "");
-			sessionControl.setThrowable(new ObjectNotFoundException("msg", "id", TestBean.class));
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.load(TestBean.class, "");
+		sessionControl.setThrowable(new ObjectNotFoundException("msg", "id", TestBean.class));
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -280,24 +318,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateSaveOrUpdate() {
+	public void testTemplateSaveOrUpdate() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		TestBean tb = new TestBean();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.saveOrUpdate(tb);
-			sessionControl.setVoidCallable(1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.saveOrUpdate(tb);
+		sessionControl.setVoidCallable(1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
 			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -307,24 +341,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateSave() {
+	public void testTemplateSave() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		TestBean tb = new TestBean();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.save(tb);
-			sessionControl.setReturnValue(new Integer(0), 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.save(tb);
+		sessionControl.setReturnValue(new Integer(0), 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -334,24 +364,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateUpdate() {
+	public void testTemplateUpdate() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		TestBean tb = new TestBean();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.update(tb);
-			sessionControl.setVoidCallable(1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.update(tb);
+		sessionControl.setVoidCallable(1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
 			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -361,24 +387,20 @@ public class HibernateTemplateTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTemplateDelete() {
+	public void testTemplateDelete() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		TestBean tb = new TestBean();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.delete(tb);
-			sessionControl.setVoidCallable(1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.delete(tb);
+		sessionControl.setVoidCallable(1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
 			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -397,6 +419,7 @@ public class HibernateTemplateTests extends TestCase {
 			});
 		}
 		catch (HibernateJdbcException ex) {
+			// expected
 		}
 		catch (Exception ex) {
 			fail("Should have thrown HibernateJdbcException");
@@ -410,6 +433,7 @@ public class HibernateTemplateTests extends TestCase {
 			});
 		}
 		catch (InvalidDataAccessResourceUsageException ex) {
+			// expected
 		}
 		catch (Exception ex) {
 			fail("Should have thrown InvalidDataAccessResourceUsageException");
@@ -423,6 +447,7 @@ public class HibernateTemplateTests extends TestCase {
 			});
 		}
 		catch (OptimisticLockingFailureException ex) {
+			// expected
 		}
 		catch (Exception ex) {
 			fail("Should have thrown OptimisticLockingFailureException");
@@ -436,6 +461,7 @@ public class HibernateTemplateTests extends TestCase {
 			});
 		}
 		catch (InvalidDataAccessApiUsageException ex) {
+			// expected
 		}
 		catch (Exception ex) {
 			fail("Should have thrown InvalidDataAccessApiUsageException");
@@ -449,6 +475,7 @@ public class HibernateTemplateTests extends TestCase {
 			});
 		}
 		catch (InvalidDataAccessApiUsageException ex) {
+			// expected
 		}
 		catch (Exception ex) {
 			fail("Should have thrown InvalidDataAccessApiUsageException");
@@ -462,6 +489,7 @@ public class HibernateTemplateTests extends TestCase {
 			});
 		}
 		catch (InvalidDataAccessApiUsageException ex) {
+			// expected
 		}
 		catch (Exception ex) {
 			fail("Should have thrown InvalidDataAccessApiUsageException");
@@ -475,27 +503,24 @@ public class HibernateTemplateTests extends TestCase {
 			});
 		}
 		catch (HibernateSystemException ex) {
+			// expected
 		}
 		catch (Exception ex) {
 			fail("Should have thrown HibernateSystemException");
 		}
 	}
 
-	private HibernateTemplate createTemplate() {
+	private HibernateTemplate createTemplate() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 		return new HibernateTemplate(sf);

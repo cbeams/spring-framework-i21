@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.FlushMode;
 import org.aopalliance.intercept.AttributeRegistry;
 import org.aopalliance.intercept.Interceptor;
 import org.aopalliance.intercept.Invocation;
@@ -19,25 +20,49 @@ import org.easymock.MockControl;
  */
 public class HibernateInterceptorTests extends TestCase {
 
-	public void testInterceptor() {
+	public void testInterceptorWithNewSession() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
 			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
 		sfControl.activate();
 		sessionControl.activate();
 
 		HibernateInterceptor interceptor = new HibernateInterceptor();
+		interceptor.setSessionFactory(sf);
+		try {
+			interceptor.invoke(new TestInvocation(sf));
+		}
+		catch (Throwable t) {
+			fail("Should not have thrown Throwable: " + t.getMessage());
+		}
+
+		sfControl.verify();
+		sessionControl.verify();
+	}
+
+	public void testInterceptorWithNewSessionAndFlushNever() throws HibernateException {
+		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
+		SessionFactory sf = (SessionFactory) sfControl.getMock();
+		MockControl sessionControl = EasyMock.controlFor(Session.class);
+		Session session = (Session) sessionControl.getMock();
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.setFlushMode(FlushMode.NEVER);
+		sessionControl.setVoidCallable(1);
+		session.close();
+			sessionControl.setReturnValue(null, 1);
+		sfControl.activate();
+		sessionControl.activate();
+
+		HibernateInterceptor interceptor = new HibernateInterceptor();
+		interceptor.setFlushModeName("FLUSH_NEVER");
 		interceptor.setSessionFactory(sf);
 		try {
 			interceptor.invoke(new TestInvocation(sf));
@@ -72,23 +97,19 @@ public class HibernateInterceptorTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testInterceptorWithPreboundAndForceFlush() {
+	public void testInterceptorWithPreboundAndFlushEager() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			session.flush();
-			sessionControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		session.flush();
+		sessionControl.setVoidCallable(1);
 		sfControl.activate();
 		sessionControl.activate();
 
 		SessionFactoryUtils.getThreadObjectManager().bindThreadObject(sf, new SessionHolder(session));
 		HibernateInterceptor interceptor = new HibernateInterceptor();
-		interceptor.setForceFlush(true);
+		interceptor.setFlushMode(interceptor.FLUSH_EAGER);
 		interceptor.setSessionFactory(sf);
 		try {
 			interceptor.invoke(new TestInvocation(sf));
@@ -101,7 +122,7 @@ public class HibernateInterceptorTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testInterceptorWithEntityInterceptor() {
+	public void testInterceptorWithEntityInterceptor() throws HibernateException {
 		MockControl interceptorControl = EasyMock.controlFor(net.sf.hibernate.Interceptor.class);
 		net.sf.hibernate.Interceptor entityInterceptor = (net.sf.hibernate.Interceptor) interceptorControl.getMock();
 		interceptorControl.activate();
@@ -109,16 +130,12 @@ public class HibernateInterceptorTests extends TestCase {
 		SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession(entityInterceptor);
-			sfControl.setReturnValue(session, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession(entityInterceptor);
+		sfControl.setReturnValue(session, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
 		sfControl.activate();
 		sessionControl.activate();
 

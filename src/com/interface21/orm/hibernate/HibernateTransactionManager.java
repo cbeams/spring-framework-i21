@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import net.sf.hibernate.FlushMode;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Interceptor;
 import net.sf.hibernate.Session;
@@ -180,18 +181,24 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 		return (txObject.getSessionHolder().getTransaction() != null);
 	}
 
-	protected void doBegin(Object transaction, int isolationLevel, int timeout) throws TransactionException {
-		if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
-			throw new InvalidTimeoutException("HibernateTransactionManager does not support timeouts");
+	protected void doBegin(Object transaction, TransactionDefinition definition) throws TransactionException {
+		if (definition.getTimeout() != TransactionDefinition.TIMEOUT_DEFAULT) {
+			throw new InvalidTimeoutException("HibernateTransactionManager does not support timeouts", definition.getTimeout());
 		}
 		HibernateTransactionObject txObject = (HibernateTransactionObject) transaction;
 		logger.debug("Beginning Hibernate transaction");
 		try {
 			Session session = txObject.getSessionHolder().getSession();
-			if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
-				logger.debug("Changing isolation level to " + isolationLevel);
+			// apply isolation level
+			if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
+				logger.debug("Changing isolation level to " + definition.getIsolationLevel());
 				txObject.setPreviousIsolationLevel(new Integer(session.connection().getTransactionIsolation()));
-				session.connection().setTransactionIsolation(isolationLevel);
+				session.connection().setTransactionIsolation(definition.getIsolationLevel());
+			}
+			// apply read-only
+			if (definition.isReadOnly()) {
+				session.setFlushMode(FlushMode.NEVER);
+				session.connection().setReadOnly(true);
 			}
 			// add the Hibernate transaction to the session holder
 			txObject.getSessionHolder().setTransaction(session.beginTransaction());
@@ -273,11 +280,15 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
 			DataSourceUtils.getThreadObjectManager().removeThreadObject(this.dataSource);
 		}
 		try {
+			Connection con = txObject.getSessionHolder().getSession().connection();
 			// reset transaction isolation to previous value, if changed for the transaction
 			if (txObject.getPreviousIsolationLevel() != null) {
 				logger.debug("Resetting isolation level to " + txObject.getPreviousIsolationLevel());
-				Connection con = txObject.getSessionHolder().getSession().connection();
 				con.setTransactionIsolation(txObject.getPreviousIsolationLevel().intValue());
+			}
+			// reset read-only
+			if (con.isReadOnly()) {
+				con.setReadOnly(true);
 			}
 		}
 		catch (HibernateException ex) {

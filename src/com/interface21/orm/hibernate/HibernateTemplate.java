@@ -4,13 +4,12 @@ import java.io.Serializable;
 import java.util.List;
 
 import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Interceptor;
 import net.sf.hibernate.ObjectNotFoundException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.FlushMode;
 import net.sf.hibernate.type.Type;
 
-import com.interface21.beans.factory.InitializingBean;
 import com.interface21.dao.DataAccessException;
 
 /**
@@ -64,15 +63,9 @@ import com.interface21.dao.DataAccessException;
  * @see LocalSessionFactoryBean
  * @see com.interface21.jndi.JndiObjectFactoryBean
  */
-public class HibernateTemplate implements InitializingBean {
-
-	private SessionFactory sessionFactory;
-
-	private Interceptor entityInterceptor;
+public class HibernateTemplate extends HibernateAccessor {
 
 	private boolean allowCreate = true;
-
-	private boolean forceFlush = false;
 
 	/**
 	 * Create a new HibernateTemplate instance.
@@ -85,46 +78,20 @@ public class HibernateTemplate implements InitializingBean {
 	 * @param sessionFactory SessionFactory to create Sessions
 	 */
 	public HibernateTemplate(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
+		setSessionFactory(sessionFactory);
 		afterPropertiesSet();
 	}
 
 	/**
-	 * Set the Hibernate SessionFactory that should be used to create
-	 * Hibernate Sessions.
+	 * Create a new HibernateTemplate instance.
+	 * @param sessionFactory SessionFactory to create Sessions
+	 * @param allowCreate if a new Session should be created
+	 * if no thread-bound found
 	 */
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
-	/**
-	 * Return the Hibernate SessionFactory that should be used to create
-	 * Hibernate Sessions.
-	 */
-	public SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
-
-	/**
-	 * Set a Hibernate entity interceptor that allows to inspect and change
-	 * property values before writing to and reading from the database.
-	 * Will get applied to any new Session created by this HibernateTemplate.
-	 * <p>Such an interceptor can either be set at the SessionFactory level,
-	 * i.e. on LocalSessionFactoryBean, or at the Session level, i.e. on
-	 * HibernateTemplate, HibernateInterceptor, and HibernateTransactionManager.
-	 * @see LocalSessionFactoryBean#setEntityInterceptor
-	 * @see HibernateInterceptor#setEntityInterceptor
-	 * @see HibernateTransactionManager#setEntityInterceptor
-	 */
-	public final void setEntityInterceptor(Interceptor entityInterceptor) {
-		this.entityInterceptor = entityInterceptor;
-	}
-
-	/**
-	 * Return the current Hibernate entity interceptor, or null if none.
-	 */
-	public Interceptor getEntityInterceptor() {
-		return entityInterceptor;
+	public HibernateTemplate(SessionFactory sessionFactory, boolean allowCreate) {
+		setSessionFactory(sessionFactory);
+		setAllowCreate(allowCreate);
+		afterPropertiesSet();
 	}
 
 	/**
@@ -147,37 +114,6 @@ public class HibernateTemplate implements InitializingBean {
 	}
 
 	/**
-	 * If a flush of the Hibernate Session should be forced after executing the
-	 * callback code. By default, the template will only trigger a flush if not in
-	 * a Hibernate transaction, as a final flush will occur on commit anyway.
-	 * <p>A forced flush leads to immediate synchronization with the database,
-	 * even if in a Hibernate transaction. This causes inconsistencies to show up
-	 * and throw a respective exception immediately. But the drawbacks are:
-	 * <ul>
-	 * <li>additional communication roundtrips with the database, instead of a
-	 * single batch at transaction commit;
-	 * <li>the fact that an actual database rollback is needed if the Hibernate
-	 * transaction rolls back (due to already submitted SQL statements).
-	 * </ul>
-	 */
-	public void setForceFlush(boolean forceFlush) {
-		this.forceFlush = forceFlush;
-	}
-
-	/**
-	 * Return if a flush should be forced after executing the callback code.
-	 */
-	public boolean isForceFlush() {
-		return forceFlush;
-	}
-
-	public void afterPropertiesSet() {
-		if (this.sessionFactory == null) {
-			throw new IllegalArgumentException("sessionFactory is required");
-		}
-	}
-
-	/**
 	 * Execute the action specified by the given action object within a session.
 	 * Application exceptions thrown by the action object get propagated to the
 	 * caller (can only be unchecked). Hibernate exceptions are transformed into
@@ -194,12 +130,14 @@ public class HibernateTemplate implements InitializingBean {
 	 */
 	public Object execute(HibernateCallback action) throws DataAccessException {
 		Session session = (!this.allowCreate ?
-				SessionFactoryUtils.getSession(this.sessionFactory, false) :
-				SessionFactoryUtils.getSession(this.sessionFactory, this.entityInterceptor));
+				SessionFactoryUtils.getSession(getSessionFactory(), false) :
+				SessionFactoryUtils.getSession(getSessionFactory(), getEntityInterceptor()));
+		if (getFlushMode() == FLUSH_NEVER) {
+			session.setFlushMode(FlushMode.NEVER);
+		}
 		try {
 			Object result = action.doInHibernate(session);
-			if (this.forceFlush || !SessionFactoryUtils.isSessionBoundToThread(session, this.sessionFactory)) {
-				// forced flush, or not in a transaction -> explicit flush
+			if (isFlushNecessary(SessionFactoryUtils.isSessionBoundToThread(session, getSessionFactory()))) {
 				session.flush();
 			}
 			return result;
@@ -212,7 +150,7 @@ public class HibernateTemplate implements InitializingBean {
 			throw ex;
 		}
 		finally {
-			SessionFactoryUtils.closeSessionIfNecessary(session, this.sessionFactory);
+			SessionFactoryUtils.closeSessionIfNecessary(session, getSessionFactory());
 		}
 	}
 

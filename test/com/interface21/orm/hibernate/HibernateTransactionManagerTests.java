@@ -1,6 +1,7 @@
 package com.interface21.orm.hibernate;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ import com.interface21.transaction.support.TransactionTemplate;
  */
 public class HibernateTransactionManagerTests extends TestCase {
 
-	public void testTransactionCommit() {
+	public void testTransactionCommit() throws SQLException, HibernateException {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		final DataSource ds = (DataSource) dsControl.getMock();
 		MockControl conControl = EasyMock.controlFor(Connection.class);
@@ -45,26 +46,24 @@ public class HibernateTransactionManagerTests extends TestCase {
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			con.getTransactionIsolation();
-			conControl.setReturnValue(Connection.TRANSACTION_READ_COMMITTED);
-			con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-			conControl.setVoidCallable(1);
-			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			conControl.setVoidCallable(1);
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.connection();
-			sessionControl.setReturnValue(con, 4);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-			tx.commit();
-			txControl.setVoidCallable();
-		}
-		catch (Exception ex) {
-		}
+		con.getTransactionIsolation();
+		conControl.setReturnValue(Connection.TRANSACTION_READ_COMMITTED);
+		con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+		conControl.setVoidCallable(1);
+		con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		conControl.setVoidCallable(1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.connection();
+		sessionControl.setReturnValue(con, 4);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
+		tx.commit();
+		txControl.setVoidCallable();
 		dsControl.activate();
 		conControl.activate();
 		sfControl.activate();
@@ -109,25 +108,27 @@ public class HibernateTransactionManagerTests extends TestCase {
 		txControl.verify();
 	}
 
-	public void testTransactionRollback() {
+	public void testTransactionRollback() throws HibernateException, SQLException {
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-			tx.rollback();
-			txControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
+		tx.rollback();
+		txControl.setVoidCallable(1);
+		session.connection();
+		sessionControl.setReturnValue(con, 1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		sfControl.activate();
 		sessionControl.activate();
 		txControl.activate();
@@ -162,27 +163,29 @@ public class HibernateTransactionManagerTests extends TestCase {
 		txControl.verify();
 	}
 
-	public void testTransactionRollbackOnly() {
+	public void testTransactionRollbackOnly() throws HibernateException, SQLException {
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-			tx.rollback();
-			txControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
+		tx.rollback();
+		txControl.setVoidCallable(1);
+		session.connection();
+		sessionControl.setReturnValue(con, 1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		sfControl.activate();
 		sessionControl.activate();
 		txControl.activate();
@@ -196,7 +199,7 @@ public class HibernateTransactionManagerTests extends TestCase {
 				public Object doInTransaction(TransactionStatus status) {
 					assertTrue("Has thread session", SessionFactoryUtils.getThreadObjectManager().hasThreadObject(sf));
 					HibernateTemplate ht = new HibernateTemplate(sf);
-					ht.setForceFlush(true);
+					ht.setFlushMode(HibernateTemplate.FLUSH_EAGER);
 					ht.execute(new HibernateCallback() {
 						public Object doInHibernate(Session session) {
 							return null;
@@ -217,27 +220,29 @@ public class HibernateTransactionManagerTests extends TestCase {
 		txControl.verify();
 	}
 
-	public void testNestedTransactionCommit() {
+	public void testNestedTransactionCommit() throws HibernateException, SQLException {
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-			tx.commit();
-			txControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
+		tx.commit();
+		txControl.setVoidCallable(1);
+		session.connection();
+		sessionControl.setReturnValue(con, 1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		sfControl.activate();
 		sessionControl.activate();
 		txControl.activate();
@@ -253,7 +258,7 @@ public class HibernateTransactionManagerTests extends TestCase {
 					return tt.execute(new TransactionCallback() {
 						public Object doInTransaction(TransactionStatus status) {
 							HibernateTemplate ht = new HibernateTemplate(sf);
-							ht.setForceFlush(true);
+							ht.setFlushMode(HibernateTemplate.FLUSH_EAGER);
 							return ht.executeFind(new HibernateCallback() {
 								public Object doInHibernate(Session session) {
 									return l;
@@ -274,25 +279,27 @@ public class HibernateTransactionManagerTests extends TestCase {
 		txControl.verify();
 	}
 
-	public void testNestedTransactionRollback() {
+	public void testNestedTransactionRollback() throws HibernateException, SQLException {
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-			tx.rollback();
-			txControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
+		tx.rollback();
+		txControl.setVoidCallable(1);
+		session.connection();
+		sessionControl.setReturnValue(con, 1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		sfControl.activate();
 		sessionControl.activate();
 		txControl.activate();
@@ -305,7 +312,7 @@ public class HibernateTransactionManagerTests extends TestCase {
 					return tt.execute(new TransactionCallback() {
 						public Object doInTransaction(TransactionStatus status) {
 							HibernateTemplate ht = new HibernateTemplate(sf);
-							ht.setForceFlush(true);
+							ht.setFlushMode(HibernateTemplate.FLUSH_EAGER);
 							return ht.executeFind(new HibernateCallback() {
 								public Object doInHibernate(Session session) {
 									throw new RuntimeException("application exception");
@@ -325,25 +332,27 @@ public class HibernateTransactionManagerTests extends TestCase {
 		txControl.verify();
 	}
 
-	public void testNestedTransactionRollbackOnly() {
+	public void testNestedTransactionRollbackOnly() throws HibernateException, SQLException {
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-			tx.rollback();
-			txControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
+		tx.rollback();
+		txControl.setVoidCallable(1);
+		session.connection();
+		sessionControl.setReturnValue(con, 1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		sfControl.activate();
 		sessionControl.activate();
 		txControl.activate();
@@ -380,17 +389,13 @@ public class HibernateTransactionManagerTests extends TestCase {
 		txControl.verify();
 	}
 
-	public void testInvalidTimeout() {
+	public void testInvalidTimeout() throws HibernateException {
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -427,14 +432,10 @@ public class HibernateTransactionManagerTests extends TestCase {
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		final MockControl sessionControl = EasyMock.controlFor(Session.class);
 		final Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -492,14 +493,10 @@ public class HibernateTransactionManagerTests extends TestCase {
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		final MockControl sessionControl = EasyMock.controlFor(Session.class);
 		final Session session = (Session) sessionControl.getMock();
-		try {
-			sf.openSession();
-			sfControl.setReturnValue(session, 1);
-			session.flush();
-			sessionControl.setVoidCallable(1);
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession();
+		sfControl.setReturnValue(session, 1);
+		session.flush();
+		sessionControl.setVoidCallable(1);
 		sfControl.activate();
 		sessionControl.activate();
 
@@ -543,7 +540,7 @@ public class HibernateTransactionManagerTests extends TestCase {
 		sessionControl.verify();
 	}
 
-	public void testTransactionCommitWithPrebound() {
+	public void testTransactionCommitWithPrebound() throws HibernateException, SQLException {
 		MockControl dsControl = EasyMock.controlFor(DataSource.class);
 		final DataSource ds = (DataSource) dsControl.getMock();
 		MockControl conControl = EasyMock.controlFor(Connection.class);
@@ -554,22 +551,20 @@ public class HibernateTransactionManagerTests extends TestCase {
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.connection();
-			sessionControl.setReturnValue(con, 4);
-			con.getTransactionIsolation();
-			conControl.setReturnValue(Connection.TRANSACTION_READ_COMMITTED);
-			con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-			conControl.setVoidCallable(1);
-			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			conControl.setVoidCallable(1);
-			tx.commit();
-			txControl.setVoidCallable();
-		}
-		catch (Exception ex) {
-		}
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.connection();
+		sessionControl.setReturnValue(con, 4);
+		con.getTransactionIsolation();
+		conControl.setReturnValue(Connection.TRANSACTION_READ_COMMITTED);
+		con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+		conControl.setVoidCallable(1);
+		con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		conControl.setVoidCallable(1);
+		tx.commit();
+		txControl.setVoidCallable();
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		dsControl.activate();
 		conControl.activate();
 		sfControl.activate();
@@ -616,28 +611,30 @@ public class HibernateTransactionManagerTests extends TestCase {
 		txControl.verify();
 	}
 
-	public void testTransactionCommitWithEntityInterceptor() {
+	public void testTransactionCommitWithEntityInterceptor() throws HibernateException, SQLException {
 		MockControl interceptorControl = EasyMock.controlFor(net.sf.hibernate.Interceptor.class);
 		Interceptor entityInterceptor = (Interceptor) interceptorControl.getMock();
 		interceptorControl.activate();
+		MockControl conControl = EasyMock.controlFor(Connection.class);
+		Connection con = (Connection) conControl.getMock();
 		MockControl sfControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sf = (SessionFactory) sfControl.getMock();
 		MockControl sessionControl = EasyMock.controlFor(Session.class);
 		Session session = (Session) sessionControl.getMock();
 		MockControl txControl = EasyMock.controlFor(Transaction.class);
 		Transaction tx = (Transaction) txControl.getMock();
-		try {
-			sf.openSession(entityInterceptor);
-			sfControl.setReturnValue(session, 1);
-			session.beginTransaction();
-			sessionControl.setReturnValue(tx, 1);
-			session.close();
-			sessionControl.setReturnValue(null, 1);
-			tx.commit();
-			txControl.setVoidCallable();
-		}
-		catch (HibernateException ex) {
-		}
+		sf.openSession(entityInterceptor);
+		sfControl.setReturnValue(session, 1);
+		session.beginTransaction();
+		sessionControl.setReturnValue(tx, 1);
+		session.close();
+		sessionControl.setReturnValue(null, 1);
+		tx.commit();
+		txControl.setVoidCallable();
+		session.connection();
+		sessionControl.setReturnValue(con, 1);
+		con.isReadOnly();
+		conControl.setReturnValue(false, 1);
 		sfControl.activate();
 		sessionControl.activate();
 		txControl.activate();
