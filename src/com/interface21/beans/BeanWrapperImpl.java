@@ -226,7 +226,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 		if (propertyName != null) {
 			// consistency check
 			PropertyDescriptor descriptor = getPropertyDescriptor(propertyName);
-			if (requiredType != null && !requiredType.equals(descriptor.getPropertyType())) {
+			if (requiredType != null && !descriptor.getPropertyType().isAssignableFrom(requiredType)) {
 				throw new IllegalArgumentException("Types do not match: required=" + requiredType.getName() +
 				                                   ", found=" + descriptor.getPropertyType());
 			}
@@ -253,21 +253,28 @@ public class BeanWrapperImpl implements BeanWrapper {
 		if (this.customEditors == null) {
 			return null;
 		}
-		// check property-specific editor first
-		PropertyEditor editor = (PropertyEditor) this.customEditors.get(propertyName);
-		if (editor != null) {
-			// consistency check
+		if (propertyName != null) {
+			// check property-specific editor first
 			PropertyDescriptor descriptor = getPropertyDescriptor(propertyName);
-			if (requiredType != null && !requiredType.isAssignableFrom(descriptor.getPropertyType())) {
-				throw new IllegalArgumentException("Types do not match: required=" + requiredType.getName() +
-				                                   ", found=" + descriptor.getPropertyType());
+			PropertyEditor editor = (PropertyEditor) this.customEditors.get(propertyName);
+			if (editor != null) {
+				// consistency check
+				if (requiredType != null) {
+					if (!descriptor.getPropertyType().isAssignableFrom(requiredType)) {
+						throw new IllegalArgumentException("Types do not match: required=" + requiredType.getName() +
+																							 ", found=" + descriptor.getPropertyType());
+					}
+				}
+				return editor;
+			} else {
+				if (requiredType == null) {
+					// try property type
+					requiredType = descriptor.getPropertyType();
+				}
 			}
 		}
-		else {
-			// no property-specific editor -> check type-specific editor
-			editor = (PropertyEditor) this.customEditors.get(requiredType);
-		}
-		return editor;
+		// no property-specific editor -> check type-specific editor
+		return (PropertyEditor) this.customEditors.get(requiredType);
 	}
 
 

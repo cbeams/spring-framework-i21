@@ -211,7 +211,7 @@ public interface BeanWrapper {
 	 * @param requiredType type of the property, can be null if a property is
 	 * given but should be specified in any case for consistency checking
 	 * @param propertyPath path of the property (name or nested path), or
-	 * null if registering an editor for all properties of the given type
+	 * null if looking for an editor for all properties of the given type
 	 * @return the registered editor, or null if none
 	 */
 	PropertyEditor findCustomEditor(Class requiredType, String propertyPath);
