@@ -1,12 +1,6 @@
 /*
- * Generic framework code included with 
- * <a href="http://www.amazon.com/exec/obidos/tg/detail/-/1861007841/">Expert One-On-One J2EE Design and Development</a>
- * by Rod Johnson (Wrox, 2002). 
- * This code is free to use and modify. However, please
- * acknowledge the source and include the above URL in each
- * class using or derived from this code. 
- * Please contact <a href="mailto:rod.johnson@interface21.com">rod.johnson@interface21.com</a>
- * for commercial support.
+ * The Spring Framework is published under the terms
+ * of the Apache Software License.
  */
  
 package com.interface21.web.servlet.view;
@@ -21,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.interface21.context.ApplicationContextException;
 import com.interface21.web.servlet.ControllerServlet;
 
 /**
@@ -29,11 +24,17 @@ import com.interface21.web.servlet.ControllerServlet;
  * specified resource using a RequestDispatcher.
  *
  * @author Rod Johnson
+ * @version $Id$
  */
 public class InternalResourceView extends AbstractView {
 
+	/** URL of the JSP or other resource within the WAR */
 	private String url;
 
+	/**
+	 * URL of debug resource optionally appended to the response after 
+	 * content from the actual URL 
+	 */
 	private String debugUrl;
 
 	/**
@@ -71,6 +72,16 @@ public class InternalResourceView extends AbstractView {
 	public void setDebugUrl(String debugUrl) {
 		this.debugUrl = debugUrl;
 	}
+	
+	/**
+	 * Overridden lifecycle method to check that URL property is set
+	 * @see com.interface21.context.support.ApplicationObjectSupport#initApplicationContext()
+	 */
+	protected void initApplicationContext() throws ApplicationContextException {
+		if (this.url == null) 
+			throw new ApplicationContextException("Must set url property in class " + getClass().getName());
+	}
+
 
 	/**
 	 * Render the internal resource given the specified model.
@@ -102,7 +113,6 @@ public class InternalResourceView extends AbstractView {
 			
 		} 
 		catch (IOException ex) {
-			//Category.getInstance(getClass()).error("Couldn't dispatch to JSP with url '" + this.url + "' defined in view with name '" + cr.getViewName() + "': " + ex, ex);
 			throw new ServletException("Couldn't dispatch to JSP with url '" + this.url + "' in InternalResourceView with name '" + getName() + "'", ex);
 		}
 	}	// renderMergedOutputModel
