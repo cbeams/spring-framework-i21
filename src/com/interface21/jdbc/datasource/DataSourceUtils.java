@@ -9,16 +9,18 @@
 
 package com.interface21.jdbc.datasource;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import com.interface21.beans.DynamicProxy;
+import org.aopalliance.Invocation;
+import org.aopalliance.MethodInterceptor;
+import org.aopalliance.MethodInvocation;
+
+import com.interface21.aop.framework.ProxyFactory;
 import com.interface21.jndi.JndiServices;
 import com.interface21.util.ThreadObjectManager;
  
@@ -143,14 +145,19 @@ public abstract class DataSourceUtils {
 	 * @see com.interface21.jdbc.datasource.SingleConnectionDataSource
 	 */
 	public static Connection getCloseSuppressingConnectionProxy(Connection source) {
-		// use proxy that suppresses close() calls
-		InvocationHandler handler = new DynamicProxy(source) {
-			protected boolean beforeInvocation(Object proxy, Method method, Object[] args) {
-				return (!method.getName().equals("close"));
+		// Create AOP interceptor wrapping source
+		ProxyFactory pf = new ProxyFactory(source);
+		pf.addInterceptor(0, new MethodInterceptor() {
+			public Object invoke(Invocation invocation) throws Throwable {
+				Method m = ((MethodInvocation) invocation).getMethod();
+				if (m.getName().equals("close")) {
+					// Don't pass the call on
+					return null;
+				}
+				return invocation.invokeNext();
 			}
-		};
-		ClassLoader classLoader = DataSourceUtils.class.getClassLoader();
-		return (Connection) Proxy.newProxyInstance(classLoader, new Class[] {Connection.class}, handler);
+		});
+		return (Connection) pf.getProxy();
 	}
 
 }
