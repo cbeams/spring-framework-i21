@@ -20,12 +20,12 @@ import com.interface21.context.MessageSourceResolvable;
  * abstract resolve() method.
  * <br/>This class does not currently implement caching, thus subclasses can
  * dynamically change messages over time.
- * NOTE:  Some methods of this class are based on code from Struts 1.1b3 implementation.
+ * NOTE: Some methods of this class are based on code from Struts 1.1b3 implementation.
  * @author Rod Johnson
  */
 public abstract class AbstractNestingMessageSource implements NestingMessageSource {
 
-	protected static Logger logger = Logger.getLogger(AbstractNestingMessageSource.class);
+	protected Logger logger = Logger.getLogger(getClass());
 
 
 	//---------------------------------------------------------------------
@@ -49,7 +49,6 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	// Constructors
 	//---------------------------------------------------------------------
 
-	/** Creates new AbstractNestingMessageSource */
 	public AbstractNestingMessageSource() {
 	}
 
@@ -58,13 +57,6 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	// Implementation of MessageSource
 	//---------------------------------------------------------------------
 
-	/**
-	 * Set the parent that will be used to try to resolve messages
-	 * that this object can't resolve.
-	 * @param parent parent MessageSource that will be used to try to resolve messages
-	 * that this object can't resolve. May be null, in which case]
-	 * no further resolution will be possible
-	 */
 	public final void setParent(MessageSource parent) {
 		this.parent = parent;
 	}
