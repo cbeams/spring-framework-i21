@@ -45,7 +45,6 @@ public class JtaTransactionTestSuite extends TestCase {
 		JtaTransactionManager tm = new JtaTransactionManager();
 		tm.setJndiTemplate(jndiTemplate);
 		tm.setUserTransactionName(utName);
-		tm.afterPropertiesSet();
 		return new TransactionTemplate(tm);
 	}
 
@@ -139,7 +138,6 @@ public class JtaTransactionTestSuite extends TestCase {
 
 	public void testJtaTransactionManagerWithoutJtaSupport() throws Exception {
 		JtaTransactionManager tm = new JtaTransactionManager();
-		tm.afterPropertiesSet();
 		try {
 			tm.getTransaction(null);
 			fail("Should have thrown CannotCreateTransactionException");

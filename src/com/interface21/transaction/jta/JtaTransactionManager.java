@@ -9,7 +9,6 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import com.interface21.beans.factory.InitializingBean;
 import com.interface21.jndi.JndiTemplate;
 import com.interface21.transaction.CannotCreateTransactionException;
 import com.interface21.transaction.HeuristicCompletionException;
@@ -41,11 +40,10 @@ import com.interface21.transaction.support.AbstractPlatformTransactionManager;
  * @see com.interface21.transaction.datasource.DataSourceTransactionManager
  * @see com.interface21.orm.hibernate.HibernateTransactionManager
  */
-public class JtaTransactionManager extends AbstractPlatformTransactionManager implements InitializingBean {
+public class JtaTransactionManager extends AbstractPlatformTransactionManager {
 
 	public static final String DEFAULT_USER_TRANSACTION_NAME = "java:comp/UserTransaction";
 
-	//Default
 	private JndiTemplate jndiTemplate = new JndiTemplate();
 
 	private String userTransactionName;
@@ -71,15 +69,6 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager im
 	 */
 	public void setUserTransactionName(String userTransactionName) {
 		this.userTransactionName = userTransactionName;
-	}
-
-	/**
-	 * Use default JndiTemplate if not set.
-	 */
-	public void afterPropertiesSet() {
-		if (this.jndiTemplate == null) {
-			this.jndiTemplate = new JndiTemplate();
-		}
 	}
 
 	protected Object doGetTransaction() {
