@@ -241,6 +241,7 @@
 				<include name="dist/*.jar"/>
 				<include name="docs/**"/>
 				<include name="src/**"/>
+				<include name="lib/ant/**"/>
 				<include name="lib/j2ee/servlet.jar"/>
 				<include name="lib/j2ee/jdbc2_0-stdext.jar"/>
 				<include name="lib/jstl/**"/>
