@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE beans 
-	SYSTEM "file:///c://work//spring//main//spring-beans.dtd">
-
+<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
 
@@ -20,6 +17,7 @@
 	<bean id="rod" class="com.interface21.beans.TestBean">
 		<property name="name"><value>Rod</value></property>
 		<property name="age"><value>31</value></property>
+		<property name="spouse"><ref external="father"/></property>
 	</bean>
 
 	<bean id="testListener" class="com.interface21.context.TestListener"/>

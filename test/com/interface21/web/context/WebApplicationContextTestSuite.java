@@ -7,11 +7,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.interface21.beans.ITestBean;
 import com.interface21.context.AbstractApplicationContextTests;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.ApplicationContextException;
-import com.interface21.context.TestListener;
 import com.interface21.context.NoSuchMessageException;
+import com.interface21.context.TestListener;
 import com.interface21.web.context.support.StaticWebApplicationContext;
 import com.interface21.web.context.support.XmlWebApplicationContext;
 import com.interface21.web.mock.MockServletContext;
@@ -78,7 +79,6 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 		WebApplicationContext wc = (WebApplicationContext) this.servletContext.getAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
 		assertTrue("WebApplicationContext exposed in ServletContext as attribute", wc != null);
 		assertTrue("WebApplicationContext exposed in ServletContext as attribute == root", wc == this.root);
-		
 	}
 
 	/** Assumes web.xml defines testConfigObject of type TestConfigBean */
@@ -119,6 +119,18 @@ public class WebApplicationContextTestSuite extends AbstractApplicationContextTe
 		}
 		String msg = wac.getMessage("someMessage", null, "default", Locale.getDefault());
 		assertTrue("Default message returned", "default".equals(msg));
+	}
+
+	public void testContextNesting() {
+		ITestBean father = (ITestBean) this.applicationContext.getBean("father");
+		assertTrue("Bean from root context", father != null);
+
+		ITestBean rod = (ITestBean) this.applicationContext.getBean("rod");
+		assertTrue("Bean from child context", "Rod".equals(rod.getName()));
+		assertTrue("Bean has external reference", rod.getSpouse() == father);
+
+		rod = (ITestBean) this.root.getBean("rod");
+		assertTrue("Bean from root context", "Roderick".equals(rod.getName()));
 	}
 
 	public void testContextLoaderWithDefaultContext() throws Exception {
