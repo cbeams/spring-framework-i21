@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.interface21.validation.Validator;
-import com.interface21.web.bind.BindUtils;
 import com.interface21.web.bind.ServletRequestDataBinder;
 
 /**
@@ -37,64 +36,83 @@ public abstract class BaseCommandController extends AbstractController {
 
 	public static final String DEFAULT_BEAN_NAME = "command";
 
-	//-------------------------------------------------------------------------
-	// Instance data
-	//-------------------------------------------------------------------------
+	private String beanName = DEFAULT_BEAN_NAME;
+
 	private Class commandClass;
 
 	private Validator validator;
 	
-	private String beanName = DEFAULT_BEAN_NAME;
-
-	//-------------------------------------------------------------------------
-	// Constructors
-	//-------------------------------------------------------------------------	
 	public BaseCommandController() {
-	}
-
-	protected void setCommandClass(Class commandClass) {
-		checkValidator(this.validator, commandClass);
-		this.commandClass = commandClass;
-	}
-
-	protected Class getCommandClass() {
-		return this.commandClass;
-	}
-
-	//-------------------------------------------------------------------------
-	// JavaBean properties
-	//-------------------------------------------------------------------------
-	public final void setCommandClassName(String name) throws ClassNotFoundException {
-		this.commandClass = Class.forName(name);
-	}
-	
-	protected String getCommandClassName() {
-		return (this.commandClass != null ? this.commandClass.getName() : null);
 	}
 
 	public final void setBeanName(String beanName) {
 		this.beanName = beanName;
 	}
-	
+
 	protected final String getBeanName() {
 		return this.beanName;
 	}
 
+	protected final void setCommandClass(Class commandClass) {
+		checkValidator(this.validator, commandClass);
+		this.commandClass = commandClass;
+	}
+
+	protected final Class getCommandClass() {
+		return this.commandClass;
+	}
+
+	public final void setCommandClassName(String name) throws ClassNotFoundException {
+		this.commandClass = Class.forName(name);
+	}
+	
+	protected final String getCommandClassName() {
+		return (this.commandClass != null ? this.commandClass.getName() : null);
+	}
+
+	/**
+	 * Set the validator for this controller.
+	 * @param validator validator for this controller.
+	 */
 	public final void setValidator(Validator validator) {
 		checkValidator(validator, this.commandClass);
 		this.validator = validator;
 	}
 
-	//-------------------------------------------------------------------------
-	// Implementation methods
-	//-------------------------------------------------------------------------
+	/**
+	 * Return the validator for this controller.
+	 * @return the validator for this controller.
+	 */
+	protected final Validator getValidator() {
+		return validator;
+	}
 
-	private void checkValidator(Validator validator, Class commandClass) {
+	/**
+	 * Return the validator that gets applied when binding.
+	 * Can be overridden to return null to allow for custom validator calls.
+	 * @return the validator for the binding process
+	 */
+	protected Validator getValidatorForBinding() {
+		return validator;
+	}
+
+	/**
+	 * Check if the given validator and command class match.
+	 * @param validator validator instance
+	 * @param commandClass command class
+	 */
+	private void checkValidator(Validator validator, Class commandClass) throws IllegalArgumentException {
 		if (validator != null && commandClass != null && !validator.supports(commandClass))
 			throw new IllegalArgumentException(
 				"Validator [" + validator + "] can't validate command class of type " + commandClass);
 	}
 
+	/**
+	 * Check if the given command object is a valid for this controller,
+	 * i.e. its command class.
+	 * @param command command object to check
+	 * @return if the command object is valid for this controller
+	 */
 	protected boolean checkCommand(Object command) {
 		return (this.commandClass == null || this.commandClass.isInstance(command));
 	}
@@ -132,13 +150,63 @@ public abstract class BaseCommandController extends AbstractController {
 
 	/**
 	 * Bind the parameters of the given request to the given command object.
-	 * @param request tcurrent HTTP reqzest
+	 * @param request current HTTP request
 	 * @param command command to bind onto
-	 * @return ServletRequestDataBinder, for additional custom validation
-	 * @throws ServletException
+	 * @return the ServletRequestDataBinder instance for additional custom validation
+	 * @throws ServletException in case of invalid state or arguments
 	 */
 	protected final ServletRequestDataBinder bindAndValidate(HttpServletRequest request, Object command) throws ServletException {
-		return BindUtils.bindAndValidate(request, command, this.beanName, this.validator);
+		ServletRequestDataBinder binder = createBinder(request, command);
+		binder.bind(request);
+		Validator validator = getValidatorForBinding();
+		if (validator != null) {
+			logger.debug("Invoking validator [" + validator + "]");
+			if (!validator.supports(command.getClass()))
+				throw new IllegalArgumentException("Validator " + validator.getClass() + " does not support " + command.getClass());
+			validator.validate(command, binder);
+			if (binder.hasErrors())
+				logger.debug("Validator found " + binder.getErrorCount() + " errors");
+			else
+				logger.debug("Validator found no errors");
+		}
+		onBindAndValidate(request, command, binder);
+		return binder;
+	}
+
+	/**
+	 * Create a new binder instance for the given command and request.
+	 * @param command command to bind onto
+	 * @param request current request
+	 * @return the new binder instance
+	 * @see #bindAndValidate
+	 */
+	protected final ServletRequestDataBinder createBinder(HttpServletRequest request, Object command) {
+		ServletRequestDataBinder binder = new ServletRequestDataBinder(command, getBeanName());
+		initBinder(request, binder);
+		return binder;
+	}
+
+	/**
+	 * Initialize the given binder instance, e.g. with custom editors.
+	 * Called by createBinder.
+	 * @param request current request
+	 * @param binder new binder instance
+	 * @see #createBinder
+	 */
+	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
+	}
+
+	/**
+	 * Callback for custom postprocessing in terms of binding and validation.
+	 * Called on each submit, after standard binding and validation,
+	 * and before error evaluation.
+	 * @param request current HTTP request
+	 * @param command bound command
+	 * @param errors ServletRequestDataBinder for additional custom validation
+	 * @throws ServletException in case of invalid state or arguments
+	 * @see #bindAndValidate
+	 */
+	protected void onBindAndValidate(HttpServletRequest request, Object command, ServletRequestDataBinder errors) throws ServletException {
 	}
 
 }
