@@ -13,6 +13,10 @@ import net.sf.hibernate.cfg.Environment;
 import com.interface21.beans.PropertyValues;
 import com.interface21.beans.factory.FactoryBean;
 import com.interface21.beans.factory.InitializingBean;
+import com.interface21.beans.factory.DisposableBean;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * FactoryBean that creates a local Hibernate SessionFactory instance.
@@ -57,7 +61,9 @@ import com.interface21.beans.factory.InitializingBean;
  * @see HibernateTransactionManager#setSessionFactory
  * @see com.interface21.jndi.JndiObjectFactoryBean
  */
-public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
+public class LocalSessionFactoryBean implements FactoryBean, InitializingBean, DisposableBean {
+
+	private Log logger = LogFactory.getLog(getClass());
 
 	private String configLocation;
 
@@ -180,6 +186,7 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 		}
 
 		// build SessionFactory instance
+		logger.info("Building new Hibernate SessionFactory for LocalSessionFactoryBean [" + this + "]");
 		this.sessionFactory = newSessionFactory(config);
 	}
 
@@ -228,6 +235,14 @@ public class LocalSessionFactoryBean implements FactoryBean, InitializingBean {
 
 	public final PropertyValues getPropertyValues() {
 		return null;
+	}
+
+	/**
+	 * Close the SessionFactory on context shutdown.
+	 */
+	public void destroy() throws HibernateException {
+		logger.info("Closing Hibernate SessionFactory of LocalSessionFactoryBean [" + this + "]");
+		this.sessionFactory.close();
 	}
 
 }

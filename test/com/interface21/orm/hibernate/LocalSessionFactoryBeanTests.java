@@ -84,6 +84,8 @@ public class LocalSessionFactoryBeanTests extends TestCase {
 	public void testLocalSessionFactoryBeanWithCustomSessionFactory() throws HibernateException {
 		MockControl factoryControl = EasyMock.controlFor(SessionFactory.class);
 		final SessionFactory sessionFactory = (SessionFactory) factoryControl.getMock();
+		sessionFactory.close();
+		factoryControl.setVoidCallable(1);
 		factoryControl.activate();
 		LocalSessionFactoryBean sfb = new LocalSessionFactoryBean() {
 			protected SessionFactory newSessionFactory(Configuration config) throws HibernateException {
@@ -94,6 +96,8 @@ public class LocalSessionFactoryBeanTests extends TestCase {
 		sfb.setDataSource(new DriverManagerDataSource());
 		sfb.afterPropertiesSet();
 		assertTrue(sessionFactory.equals(sfb.getObject()));
+		sfb.destroy();
+		factoryControl.verify();
 	}
 
 	public void testLocalSessionFactoryBeanWithEntityInterceptor() throws HibernateException {

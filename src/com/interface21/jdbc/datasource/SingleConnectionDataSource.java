@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.interface21.beans.factory.DisposableBean;
 import com.interface21.dao.InvalidDataAccessApiUsageException;
 
 /**
@@ -29,7 +30,7 @@ import com.interface21.dao.InvalidDataAccessApiUsageException;
  * @see DataSourceUtils#closeConnectionIfNecessary
  * @see com.interface21.jndi.support.SimpleNamingContextBuilder
  */
-public class SingleConnectionDataSource extends DriverManagerDataSource {
+public class SingleConnectionDataSource extends DriverManagerDataSource implements DisposableBean {
 
 	private boolean suppressClose;
 
@@ -92,7 +93,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource {
 	}
 
 	/**
-	 * Initialized the underlying connection.
+	 * Initialize the underlying connection.
 	 * @param source the JDBC Connection to use,
 	 * or null for initialization via DriverManager
 	 */
@@ -117,19 +118,6 @@ public class SingleConnectionDataSource extends DriverManagerDataSource {
 
 		// wrap connection?
 		this.connection = this.suppressClose ? DataSourceUtils.getCloseSuppressingConnectionProxy(source) : source;
-	}
-
-	/**
-	 * Closes the underlying connection.
-	 * The provider of this DataSource needs to care for proper shutdown.
-	 */
-	public void close() throws SQLException {
-		try {
-			this.connection.close();
-		}
-		catch (SQLException ex) {
-			throw new CannotCloseJdbcConnectionException("Cannot close connection", ex);
-		}
 	}
 
 	/**
@@ -164,6 +152,16 @@ public class SingleConnectionDataSource extends DriverManagerDataSource {
 		else {
 			throw new SQLException("SingleConnectionDataSource does not support custom username and password");
 		}
+	}
+
+	/**
+	 * Close the underlying connection.
+	 * The provider of this DataSource needs to care for proper shutdown.
+	 * <p>As this bean implements DisposableBean, a bean factory will
+	 * automatically invoke this on destruction of its cached singletons. 
+	 */
+	public void destroy() throws SQLException {
+		this.connection.close();
 	}
 
 }
