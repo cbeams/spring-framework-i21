@@ -38,9 +38,7 @@ import com.interface21.context.ContextOptions;
 import com.interface21.context.MessageSource;
 import com.interface21.context.MessageSourceResolvable;
 import com.interface21.context.NestingMessageSource;
-import com.interface21.context.NestingThemeSource;
 import com.interface21.context.NoSuchMessageException;
-import com.interface21.context.ThemeSource;
 import com.interface21.util.StringUtils;
 
 
@@ -82,8 +80,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 */
 	public static final String MESSAGE_SOURCE_BEAN_NAME = "messageSource";
 
-	public static final String THEME_SOURCE_BEAN_NAME = "themeSource";
-
 	//---------------------------------------------------------------------
 	// Instance data
 	//---------------------------------------------------------------------
@@ -114,11 +110,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * MessageSource helper we delegate our implementation of this interface to
 	 */
 	private MessageSource messageSource;
-
-	/**
-	 * ThemeSource helper we delegate our implementation of this interface to
-	 */
-	private ThemeSource themeSource;
 
 	/**
 	 * Hash table of shared objects, keyed by String.
@@ -241,26 +232,16 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			this.messageSource = new StaticMessageSource();
 		}
 
-		try {
-			this.themeSource = (ThemeSource) getBeanFactory().getBean(THEME_SOURCE_BEAN_NAME);
-			// set parent message source if applicable,
-			// and if the message source is defined in this context, not in a parent
-			if (this.parent != null && (this.themeSource instanceof NestingThemeSource) &&
-				Arrays.asList(getBeanFactory().getBeanDefinitionNames()).contains(THEME_SOURCE_BEAN_NAME)) {
-				((NestingThemeSource) this.themeSource).setParent(this.parent);
-			}
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-			logger.warn("No ThemeSource found for: " + getDisplayName() + " ,default created");
-			this.themeSource = new ResourceBundleThemeSource();
-			((NestingThemeSource) this.themeSource).setParent(this.parent);
-		}
-
 		refreshListeners();
 		configureAllManagedObjects();
 		publishEvent(new ContextRefreshedEvent(this));
+		afterRefresh();
 	}
 
+	protected void afterRefresh() throws ApplicationContextException {
+		// For subclasses
+		// Do nothing by default
+	}
 
 	/**
 	 * The BeanFactory must be loaded before this method is called
@@ -476,58 +457,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
 		return this.messageSource.getMessage(resolvable, locale);
 	}
-
-	//---------------------------------------------------------------------
-	// Implementation of ThemeSource
-	//---------------------------------------------------------------------
-
-	/**
-	 * Try to resolve the message.Return default message if no message was found.
-	 * @param code code to lookup up, such as 'calculator.noRateSet'
-	 * @param locale Locale in which to do lookup
-	 * @param args Array of arguments that will be filled in for params within
-	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
-	 * @see <a href=http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html>java.text.MessageFormat</a>
-	 * @param defaultMessage String to return if the lookup fails
-	 * @return a resolved message if the lookup is successful;
-	 * otherwise return the default message passed as a parameter
-	 */
-	public String getTheme(String theme, String code, Object args[], String defaultMessage, Locale locale) {
-		return this.themeSource.getTheme(theme, code, args, defaultMessage, locale);
-	}
-
-	/**
-	 * Try to resolve the message. Treat as an error if the message can't be found.
-	 * @param code code to lookup up, such as 'calculator.noRateSet'
-	 * @param locale Locale in which to do lookup
-	 * @param args Array of arguments that will be filled in for params within
-	 * the message (params look like "{0}", "{1,date}", "{2,time}" within a message).
-	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a>
-	 * @return message
-	 * @throws NoSuchMessageException not found in any locale
-	 */
-	public String getTheme(String theme, String code, Object args[], Locale locale) throws NoSuchMessageException {
-		return this.themeSource.getTheme(theme, code, args, locale);
-	}
-
-	/**
-	 * <b>Using all the attributes contained within the <code>MessageSourceResolvable</code>
-	 * arg that was passed in (except for the <code>locale</code> attribute)</b>,
-	 * try to resolve the message from the <code>MessageSource</code> contained within the <code>Context</code>.<p>
-	 *
-	 * NOTE: We must throw a <code>NoSuchMessageException</code> on this method since
-	 * at the time of calling this method we aren't able to determine if the <code>defaultMessage</code>
-	 * attribute is null or not.
-	 * @param resolvable Value object storing 4 attributes required to properly resolve a message.
-	 * @param locale Locale to be used as the "driver" to figuring out what message to return.
-	 * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/text/MessageFormat.html">java.text.MessageFormat</a>
-	 * @return message Resolved message.
-	 * @throws NoSuchMessageException not found in any locale
-	 */
-	public String getTheme(String theme, MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
-		return this.themeSource.getTheme(theme, resolvable, locale);
-	}
-
 
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory
