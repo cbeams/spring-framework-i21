@@ -40,7 +40,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 	}
 
 	/**
-	 * Set if url lookup should always use full path within current servlet
+	 * Set if URL lookup should always use full path within current servlet
 	 * context. Else, the path within the current servlet mapping is used
 	 * if applicable (i.e. in the case of a ".../*" servlet mapping in web.xml).
 	 * Default is false.
@@ -80,21 +80,10 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 	}
 
 	public Object getHandler(HttpServletRequest request) {
-		String lookupPath = getLookupPathForRequest(request);
+		String lookupPath = WebUtils.getLookupPathForRequest(request, this.alwaysUseFullPath);
 		logger.debug("Looking up handler for: " + lookupPath);
 		Object handler = this.handlerMap.get(lookupPath);
 		return (handler != null ? handler : this.defaultHandler);
 	}
 
-	private String getLookupPathForRequest(HttpServletRequest request) {
-		// always use full path within current servlet context?
-		if (this.alwaysUseFullPath)
-			return WebUtils.getPathWithinApplication(request);
-		// else use path within current servlet mapping if applicable
-		String rest = WebUtils.getPathWithinServletMapping(request);
-		if (!"".equals(rest))
-			return rest;
-		else
-			return WebUtils.getPathWithinApplication(request);
-	}
 }
