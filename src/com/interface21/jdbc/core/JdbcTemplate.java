@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Statement;
 
 import javax.sql.DataSource;
 
@@ -58,7 +57,7 @@ public class JdbcTemplate {
 	/**
 	* Create a Java 1.4-style logging category.
 	*/
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Logger logger = Logger.getLogger(getClass());
 
 	/** 
 	 * Used to obtain connections throughout
@@ -74,30 +73,30 @@ public class JdbcTemplate {
 	
 	/** Factory to get instance of Helper to translate SQL exceptions */
 	private SQLExceptionTranslaterFactory exceptionTranslaterFactory;
+
 	/** Helper to translate SQL exceptions to DataAccessExceptions */
 	private SQLExceptionTranslater exceptionTranslater;
+	
 
 	//-------------------------------------------------------------------------
-	// Constructor
+	// Constructors
 	//-------------------------------------------------------------------------
 	/** 
-	 * Construct a new JdbcTemplate, given a DataSource to use to obtain
-	 * connections
+	 * Construct a new JdbcTemplate, given a DataSource to use to obtain connections
 	 * @param dataSource J2EE DataSource to use to obtain connections from
-	 * @throws InvalidParameterException when a null DataSource is used as
-	 *          a parameter
+	 * @throws InvalidParameterException when dataSource is null
 	 */
-	public JdbcTemplate(DataSource dataSource) 
-			throws InvalidParameterException {
+	public JdbcTemplate(DataSource dataSource) throws InvalidParameterException {
 		if (dataSource == null) {
-	      throw new InvalidParameterException("dataSource", "null");
-    	}
-		
+			throw new InvalidParameterException("dataSource", "null");
+		}
+
 		this.dataSource = dataSource;
 		this.exceptionTranslaterFactory = SQLExceptionTranslaterFactory.getInstance();
 		this.exceptionTranslater = this.exceptionTranslaterFactory.getDefaultTranslater(dataSource);
 	}
-	
+
+
 	//-------------------------------------------------------------------------
 	// Configuration properties
 	//-------------------------------------------------------------------------
@@ -199,7 +198,6 @@ public class JdbcTemplate {
 	 */
 	public void query(PreparedStatementCreator psc, RowCallbackHandler callbackHandler) throws DataAccessException {
 		Connection con = null;
-		Statement s = null;
 		ResultSet rs = null;
 		ReadOnlyResultSet rors = null;
 		try {
@@ -327,9 +325,9 @@ public class JdbcTemplate {
 	/**
 	 * Issue multiple updates using JDBC 2.0 batch updates and PreparedStatementSetters to 
 	 * set values on a PreparedStatement created by this method
-	 * @param SQL defining PreparedStatement that will be reused.
+	 * @param sql defining PreparedStatement that will be reused.
 	 * All statements in the batch will use the same SQL.
-	 * @param setters object to set parameters on the 
+	 * @param setter object to set parameters on the
 	 * PreparedStatement created by this method
 	 * @return an array of the number of rows affected by each statement
 	 * @throws DataAccessException if there is any problem issuing the update
