@@ -32,9 +32,9 @@ import com.interface21.web.util.WebUtils;
  */
 public class XmlWebApplicationContext extends AbstractXmlApplicationContext	implements WebApplicationContext {
 
-	public static final String CONFIG_PATH_PARAM = "configPath";
+	public static final String CONFIG_LOCATION_PARAM = "configLocation";
 
-	public static final String DEFAULT_CONFIG_PATH = "/WEB-INF/applicationContext.xml";
+	public static final String DEFAULT_CONFIG_LOCATION = "/WEB-INF/applicationContext.xml";
 
 	//---------------------------------------------------------------------
 	// Instance data
@@ -43,7 +43,7 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	private String namespace = null;
 
 	/** URL from which the configuration was loaded */
-	private String configPath;
+	private String configLocation;
 
 	private ServletContext servletContext;
 
@@ -60,12 +60,12 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	}
 	
 	/** 
-	 * Create a new child WebApplicationContext
+	 * Create a new child WebApplicationContext.
 	 */
 	public XmlWebApplicationContext(ApplicationContext parent, String namespace) {
 		super(parent);
 		this.namespace = namespace;
-		this.configPath = "/WEB-INF/" + namespace + ".xml";
+		this.configLocation = "/WEB-INF/" + namespace + ".xml";
 		setDisplayName("WebApplicationContext for namespace '" + namespace + "'");
 	}
 
@@ -81,12 +81,12 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 		this.servletContext = servletContext;
 
 		if (this.namespace == null) {
-			String configURL = servletContext.getInitParameter(CONFIG_PATH_PARAM);
-			if (configURL == null)
-				configURL = DEFAULT_CONFIG_PATH;
-			this.configPath = configURL;
+			String configLocation = servletContext.getInitParameter(CONFIG_LOCATION_PARAM);
+			if (configLocation == null)
+				configLocation = DEFAULT_CONFIG_LOCATION;
+			this.configLocation = configLocation;
 		}
-		logger.info("Using config URL '" + this.configPath + "'");
+		logger.info("Using config location '" + this.configLocation + "'");
 
 		refresh();
 
@@ -112,8 +112,8 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	/**
 	 * @return the URL where our configuration is held
 	 */
-	protected String getConfigPath() {
-		return configPath;
+	protected String getConfigLocation() {
+		return configLocation;
 	}
 
 	/**
@@ -131,16 +131,16 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	 * and relative file paths beneath the root of the web application.
 	 * @see com.interface21.context.ApplicationContext#getResourceAsStream
 	 */
-	public InputStream getResourceAsStream(String path) throws IOException {
-		return WebUtils.getResourceInputStream(path, getServletContext());
+	public InputStream getResourceAsStream(String location) throws IOException {
+		return WebUtils.getResourceInputStream(location, getServletContext());
 	}
 
 	/**
 	 * @return diagnostic information
 	 */
 	public String toString() {
-		StringBuffer sb = new StringBuffer( super.toString() + "; ");
-		sb.append("config path='" + configPath + "'; ");
+		StringBuffer sb = new StringBuffer(super.toString() + "; ");
+		sb.append("config path='" + configLocation + "'; ");
 		return sb.toString();
 	}
 
@@ -153,7 +153,7 @@ public class XmlWebApplicationContext extends AbstractXmlApplicationContext	impl
 	 * @exception IOException if the required XML document isn't found
 	 */
 	protected InputStream getInputStreamForBeanFactory() throws IOException {
-		return getResourceAsStream(this.configPath);
+		return getResourceAsStream(this.configLocation);
 	}
 
 }	// class XmlWebApplicationContext

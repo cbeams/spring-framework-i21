@@ -11,14 +11,14 @@
 
 package com.interface21.web.context;
 
-import org.apache.log4j.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+
+import com.interface21.context.ApplicationContextException;
 
 /**
  * Servlet to bootstrap the root WebApplicationContext object.
@@ -42,34 +42,31 @@ import java.io.IOException;
  * - or you can stick to the implicit context initialization provided by FrameworkServlet.
  * (Obviously, the latter is not applicable if you do not use any FrameworkServlets.)
  *
- * @author Rod Johnson
+ * @author Rod Johnson, Juergen Hoeller
  * @version $Id$
  */
 public class ContextLoaderServlet extends HttpServlet {
 
-	private final Logger logger = Logger.getLogger(getClass());
+	public void init() throws ServletException {
+		initContext();
+	}
 
-	//---------------------------------------------------------------------
-	// Overridden methods
-	//---------------------------------------------------------------------
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		log("Reloading config");
+		initContext();
+		response.getOutputStream().println("Reloaded config");
+	}
+
 	/**
-	 * Bind the WebApplicationContext
-	 * implementation as a ServletContext attribute
+	 * Initialize the root WebApplicationContext.
 	 * @throws ServletException if startup fails
 	 */
-	public void init() throws ServletException {
-		ContextLoader.initContext(getServletContext(), getInitParameter(ContextLoader.CONTEXT_CLASS_PARAM));
-	}	// init
-
-	//---------------------------------------------------------------------
-	// Interface methods
-	//---------------------------------------------------------------------
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//logger.info("Showing status at " + STATUS_URL);
-		//request.setAttribute(WebApplicationContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE_NAME, webApplicationContext);
-		//request.getRequestDispatcher(STATUS_URL).forward(request, response);
-		logger.info("RELOADING CONFIG");
-		init();
-		response.getOutputStream().println("RELOADED CONTEXT");
+	protected void initContext() throws ServletException {
+		try {
+			ContextLoader.initContext(getServletContext(), getInitParameter(ContextLoader.CONTEXT_CLASS_PARAM));
+		} catch (ApplicationContextException ex) {
+			throw new ServletException(ex);
+		}
 	}
-}	// class ContextLoaderServlet
+
+}

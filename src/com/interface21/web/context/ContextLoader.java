@@ -1,11 +1,11 @@
 package com.interface21.web.context;
 
 import com.interface21.web.context.support.XmlWebApplicationContext;
+import com.interface21.context.ApplicationContextException;
 
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 /**
  * Performs the actual initialization work.
@@ -21,7 +21,7 @@ import javax.servlet.ServletException;
 public class ContextLoader {
 
 	/**
-	 * Config param to this servlet for the WebApplicationContext implementation class to use
+	 * Config param to this servlet for the WebApplicationContext implementation class to use.
 	 */
 	public static final String CONTEXT_CLASS_PARAM = "contextClass";
 
@@ -36,7 +36,7 @@ public class ContextLoader {
 	 * @param servletContext  the current servlet context
 	 * @return the new WebApplicationContext
 	 */
-	public static WebApplicationContext initContext(ServletContext servletContext) throws ServletException {
+	public static WebApplicationContext initContext(ServletContext servletContext) throws ApplicationContextException {
 		return initContext(servletContext, null);
 	}
 
@@ -48,7 +48,7 @@ public class ContextLoader {
 	 * @param contextClass  the context class to use, or null for default initialization
 	 * @return the new WebApplicationContext
 	 */
-	public static WebApplicationContext initContext(ServletContext servletContext, String contextClass) throws ServletException {
+	public static WebApplicationContext initContext(ServletContext servletContext, String contextClass) throws ApplicationContextException {
 		if (contextClass == null)
 			contextClass = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);
 
@@ -61,8 +61,7 @@ public class ContextLoader {
 
 			if (!WebApplicationContext.class.isAssignableFrom(clazz)) {
 				String msg = "Context class is no WebApplicationContext: " + contextClass;
-				logger.error(msg);
-				throw new ServletException(msg);
+				throw new ApplicationContextException(msg);
 			}
 
 			WebApplicationContext webApplicationContext = (WebApplicationContext) clazz.newInstance();
@@ -71,23 +70,27 @@ public class ContextLoader {
 
 		} catch (ClassNotFoundException ex) {
 			String msg = "Failed to load config class '" + contextClass + "'";
-			logger.error(msg, ex);
-			throw new ServletException(msg + ": " + ex);
+			handleException(msg, ex);
 
 		} catch (InstantiationException ex) {
 			String msg = "Failed to instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
-			logger.error(msg, ex);
-			throw new ServletException(msg + ": " + ex);
+			handleException(msg, ex);
 
 		} catch (IllegalAccessException ex) {
 			String msg = "Failed with IllegalAccess to find or instantiate config class '" + contextClass + "': does it have a public no arg constructor?";
-			logger.error(msg, ex);
-			throw new ServletException(msg + ": " + ex);
+			handleException(msg, ex);
 
 		} catch (Throwable t) {
 			String msg = "Unexpected error loading config: " + t;
-			logger.error(msg, t);
-			throw new ServletException(msg, t);
+			handleException(msg, t);
 		}
+
+		return null;
 	}
+
+	private static void handleException(String msg, Throwable t) {
+		logger.error(msg, t);
+		throw new ApplicationContextException(msg, t);
+	}
+
 }
