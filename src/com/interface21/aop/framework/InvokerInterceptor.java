@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.aopalliance.AspectException;
 import org.aopalliance.Invocation;
 import org.aopalliance.MethodInterceptor;
+import org.aopalliance.MethodInvocation;
 import org.aopalliance.ProxyInterceptor;
 
 /**
@@ -41,16 +42,19 @@ public class InvokerInterceptor implements MethodInterceptor, ProxyInterceptor {
 	/**
 	 * @see Interceptor#invoke(Invocation)
 	 */
-	public Object invoke(Invocation pInvocation) throws Throwable {
+	public Object invoke(Invocation pInv) throws Throwable {
+		
+		MethodInvocation invocation = (MethodInvocation) pInv;
 		// Assertion?
-		MethodInvocationImpl invocation = (MethodInvocationImpl) pInvocation;
 		
 		// Set the target on the invocation
-		invocation.setTarget(this.target);
+		if (invocation instanceof MethodInvocationImpl) {
+			((MethodInvocationImpl) invocation).setTarget(this.target);
+		}
 		
 		// Use reflection to invoke the method
 		try {
-			Object rval = invocation.getMethod().invoke(this.target, invocation.getArguments());
+			Object rval = invocation.getMethod().invoke(this.target, AopUtils.getArguments(invocation));
 //			if (rval == null OR VOID OR this
 			return rval;
 		}
