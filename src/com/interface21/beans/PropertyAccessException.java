@@ -13,12 +13,7 @@ public abstract class PropertyAccessException extends BeansException {
 
 	private PropertyChangeEvent propertyChangeEvent;
 
-	public PropertyAccessException(String mesg, PropertyChangeEvent propertyChangeEvent) {
-		super(mesg);
-		this.propertyChangeEvent = propertyChangeEvent;
-	}
-
-	public PropertyAccessException(String mesg, Throwable t, PropertyChangeEvent propertyChangeEvent) {
+	public PropertyAccessException(String mesg, PropertyChangeEvent propertyChangeEvent, Throwable t) {
 		super(mesg, t);
 		this.propertyChangeEvent = propertyChangeEvent;
 	}

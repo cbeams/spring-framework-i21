@@ -10,12 +10,8 @@ import java.beans.PropertyChangeEvent;
  */
 public class TypeMismatchException extends PropertyAccessException {
 
-	public TypeMismatchException(PropertyChangeEvent propertyChangeEvent, Class requiredType) {
-		super("Failed to convert property value of type [" + propertyChangeEvent.getNewValue().getClass().getName() + "] to required type [" + requiredType.getName() + "]", propertyChangeEvent);
-	}
-
 	public TypeMismatchException(PropertyChangeEvent propertyChangeEvent, Class requiredType, Throwable t) {
-		super("Failed to convert property value of type [" + propertyChangeEvent.getNewValue().getClass().getName() + "] to required type [" + requiredType.getName() + "]", t, propertyChangeEvent);
+		super("Failed to convert property value of type [" + propertyChangeEvent.getNewValue().getClass().getName() + "] to required type [" + requiredType.getName() + "]", propertyChangeEvent, t);
 	}
 
 }

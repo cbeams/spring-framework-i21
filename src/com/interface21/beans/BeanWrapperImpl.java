@@ -330,6 +330,27 @@ public class BeanWrapperImpl implements BeanWrapper {
 							Object target, String propertyName, 
 							Object oldValue, Object newValue, 
 							Class requiredType) throws BeansException {
+		return new PropertyChangeEvent(target, propertyName, oldValue, doTypeConversionIfNecessary(target, propertyName, oldValue, newValue, requiredType));
+	}
+	
+	/**
+	 * Convert the value to the required type (if necessary from a string)
+	 * Conversions from String to any type use the setAsTest() method of
+	 * the PropertyEditor class. Note that a PropertyEditor must be registered
+	 * for this class for this to work. This is a standard Java Beans API. 
+	 * A number of property editors are automatically registered by this class.
+	 * @param target target bean
+	 * @param propertyName name of the property
+	 * @param oldValue previous value, if available. May be null.
+	 * @param newValue proposed change value.
+	 * @param requiredType type we must convert to
+	 * @throws BeansException if there is an internal error
+	 * @return new value, possibly the result of type convertion.
+	 */
+	public Object doTypeConversionIfNecessary(
+							Object target, String propertyName, 
+							Object oldValue, Object newValue, 
+							Class requiredType) throws BeansException {
 		// Only need to cast if value isn't null
 		if (newValue != null) {
 			// We may need to change the value of newValue
@@ -355,12 +376,12 @@ public class BeanWrapperImpl implements BeanWrapper {
 					}
 					catch (IllegalArgumentException ex) {
 						throw new TypeMismatchException(
-							new PropertyChangeEvent(target, propertyName, oldValue, newValue), requiredType);
+							new PropertyChangeEvent(target, propertyName, oldValue, newValue), requiredType, ex);
 					}
 				}
 			}
 		}
-		return new PropertyChangeEvent(target, propertyName, oldValue, newValue);
+		return newValue;
 	}
 
 	/**
