@@ -11,6 +11,8 @@ import java.util.List;
 import javax.ejb.EJBException;
 import javax.sql.DataSource;
 
+import com.interface21.dao.InvalidDataAccessResourceUsageException;
+
 
 /**
  * Utility class to use for JDBC queries from J2EE applications.
@@ -149,7 +151,7 @@ public class JdbcHelper {
 			 */
 			protected void processRow(ResultSet rs, int rowNum) throws SQLException {
 				if (rowNum > 0)
-					throw new EJBException("runSQLFunction retrieved more than one row for sql [" + sql + "]: probably not a valid SQL function");
+					throw new InvalidDataAccessResourceUsageException("runSQLFunction retrieved more than one row for sql [" + sql + "]: probably not a valid SQL function");
 				obj = columnExtractor.extractColumn(1, requiredType, rs);
 			}
 			
